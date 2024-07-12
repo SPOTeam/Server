@@ -1,7 +1,7 @@
 ---
-name: FEATURE
-about: 기능 개발
-title: "[FEAT]"
+name: DOCS
+about: README, 문서 추가 및 수정
+title: "[docs]"
 labels: ''
 assignees: ''
 

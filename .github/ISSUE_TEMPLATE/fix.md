@@ -1,7 +1,7 @@
 ---
-name: FEATURE
-about: 기능 개발
-title: "[FEAT]"
+name: FIX
+about: 버그, 오류 해결
+title: "[fix]"
 labels: ''
 assignees: ''
 

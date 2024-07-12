@@ -1,7 +1,7 @@
 ---
-name: FEATURE
-about: 기능 개발
-title: "[FEAT]"
+name: CHORE
+about: 간단한 코드 변경(주석, 의존성 추가 등)
+title: "[chore]"
 labels: ''
 assignees: ''
 

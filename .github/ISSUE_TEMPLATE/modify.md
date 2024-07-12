@@ -1,7 +1,7 @@
 ---
-name: FEATURE
-about: 기능 개발
-title: "[FEAT]"
+name: MODIFY
+about:  코드 수정 (기능의 변화가 있는 경우 )
+title: "[modify]"
 labels: ''
 assignees: ''
 
@@ -16,4 +16,3 @@ assignees: ''
 3.
 
 ## ETC
-

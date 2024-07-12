@@ -1,7 +1,7 @@
 ---
-name: FEATURE
-about: 기능 개발
-title: "[FEAT]"
+name: REFACTOR
+about: 코드 리팩토링
+title: "[REFACTOR]"
 labels: ''
 assignees: ''
 
