@@ -6,7 +6,9 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -47,5 +49,14 @@ public class StudyPost extends BaseEntity {
 
     @Column(nullable = false)
     private Integer commentCount;
+
+    @OneToMany(mappedBy = "studyPost")
+    private List<StudyPostImage> images;
+
+    @OneToMany(mappedBy = "studyPost")
+    private List<StudyPostComment> comments;
+
+    @OneToMany(mappedBy = "studyPost")
+    private List<StudyLikedPost> likedPosts;
 
 }
