@@ -1,5 +1,6 @@
 package com.example.spot.domain;
 
+import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.enums.Carrier;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -10,7 +11,7 @@ import java.util.List;
 
 @Getter
 @Entity
-public class Member {
+public class Member extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,5 +44,7 @@ public class Member {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<StudyReason> studyReasonList;
 
-    
+    //== 알림 ==//
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<Notification> notificationList;
 }
