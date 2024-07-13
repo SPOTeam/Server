@@ -1,19 +1,12 @@
-package com.example.domain.study;
+package com.example.spot.domain.study;
 
-import com.example.domain.common.BaseEntity;
-import com.example.domain.enums.Theme;
-import com.example.domain.mapping.StudyLikedPost;
-import com.example.domain.mapping.StudyPostImage;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import com.example.spot.domain.Member;
+import com.example.spot.domain.common.BaseEntity;
+import com.example.spot.domain.enums.Theme;
+import com.example.spot.domain.mapping.StudyLikedPost;
+import com.example.spot.domain.mapping.StudyPostImage;
+import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AccessLevel;
@@ -36,9 +29,12 @@ public class StudyPost extends BaseEntity {
     @Id @GeneratedValue
     private long id;
 
-    //private Member member;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "study_id", nullable = false)
     private Study study;
 
     @Column(nullable = false)

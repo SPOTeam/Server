@@ -2,6 +2,7 @@ package com.example.spot.domain;
 
 import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.mapping.MemberAttendance;
+import com.example.spot.domain.study.Study;
 import jakarta.persistence.*;
 import lombok.Getter;
 

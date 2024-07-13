@@ -1,13 +1,8 @@
-package com.example.domain.study;
+package com.example.spot.domain.study;
 
-import com.example.domain.common.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import com.example.spot.domain.common.BaseEntity;
+import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -30,6 +25,7 @@ public class Schedule extends BaseEntity {
     private long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "study_id", nullable = false)
     private Study study;
 
     @Column(nullable = false)

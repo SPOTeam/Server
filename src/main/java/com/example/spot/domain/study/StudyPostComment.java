@@ -1,16 +1,10 @@
-package com.example.domain.study;
+package com.example.spot.domain.study;
 
-import com.example.domain.common.BaseEntity;
-import com.example.domain.mapping.StudyLikedComment;
-import com.example.domain.study.StudyPost;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import com.example.spot.domain.Member;
+import com.example.spot.domain.common.BaseEntity;
+import com.example.spot.domain.mapping.StudyLikedComment;
+import jakarta.persistence.*;
+
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -33,10 +27,12 @@ public class StudyPostComment extends BaseEntity {
     private long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "study_post_id", nullable = false)
     private StudyPost studyPost;
 
-    // @Column(nullable = false)
-    // private Member member;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
 
     @Column(nullable = false)
     private String content;
