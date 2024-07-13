@@ -18,6 +18,10 @@ jobs:
           java-version: '17'
           distribution: 'adopt'
 
+      - name: Upgrade Gradle to 9.0
+        run: |
+          ./gradlew wrapper --gradle-version 9.0
+
       - name: Make application.yml
         run: |
           mkdir -p src/main/resources
