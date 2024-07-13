@@ -2,6 +2,7 @@ package com.example.spot.domain;
 
 import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.enums.Carrier;
+import com.example.spot.domain.mapping.*;
 import jakarta.persistence.*;
 import lombok.Getter;
 
@@ -51,4 +52,26 @@ public class Member extends BaseEntity {
     //== 해당 회원에 대한 신고 내역 ==//
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<MemberReport> memberReportList;
+
+    //== 회원이 선호하는 테마 ==//
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<MemberTheme> memberThemeList;
+
+    //== 회원의 출석 목록 ==//
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<MemberAttendance> memberAttendanceList;
+
+    //== 회원이 참여하는 스터디 목록 ==//
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<MemberStudy> memberStudyList;
+
+    //== 회원이 찜한 스터디 목록 ==//
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<PreferredStudy> preferredStudyList;
+
+    //== 회원이 선호하는 지역 목록 ==//
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<PreferredRegion> preferredRegionList;
+
+   
 }
