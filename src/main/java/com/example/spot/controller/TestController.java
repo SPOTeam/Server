@@ -1,4 +1,4 @@
-package com.example.controller;
+package com.example.spot.controller;
 
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,5 +12,4 @@ public class TestController {
     public String test() {
         return "Hello World!";
     }
-
 }

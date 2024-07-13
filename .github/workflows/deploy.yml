@@ -1,10 +1,11 @@
 name: CD with Gradle
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
+    types:
+      - closed
 
 permissions:
   contents: read
@@ -21,12 +22,10 @@ jobs:
           java-version: '17'
           distribution: "adopt"
 
-      - name: Make application.properties
+      - name: Make application.yml
         run: |
-          cd ./src/main/resources
-          touch ./application.properties
-          echo "${{ secrets.PROPERTIES }}" > ./application.properties
-        shell: bash
+          mkdir -p src/main/resources
+          echo "${{ secrets.PROPERTIES }}" > src/main/resources/application.yml
 
       - name: Build with Gradle
         run: |
@@ -47,7 +46,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.KEY }}
           script: |
-            sudo docker rm -f $(docker ps -qa)
+            sudo docker rm -f $(sudo docker ps -qa)
             sudo docker pull ${{ secrets.DOCKER_REPO }}
             sudo docker-compose up -d
             sudo docker image prune -f
