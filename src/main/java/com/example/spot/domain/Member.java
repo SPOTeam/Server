@@ -6,6 +6,7 @@ import lombok.Getter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Entity
@@ -38,4 +39,9 @@ public class Member {
     @Column(nullable = false)
     private Boolean idInfo;
 
+    //== 스터디 희망사유 ==//
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<StudyReason> studyReasonList;
+
+    
 }
