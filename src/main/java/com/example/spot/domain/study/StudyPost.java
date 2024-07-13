@@ -1,9 +1,10 @@
 package com.example.spot.domain.study;
 
-import com.example.domain.common.BaseEntity;
+import com.example.spot.domain.Member;
+import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.enums.Theme;
-import com.example.spot.domain.mapping.mapping.StudyLikedPost;
-import com.example.spot.domain.mapping.mapping.StudyPostImage;
+import com.example.spot.domain.mapping.StudyLikedPost;
+import com.example.spot.domain.mapping.StudyPostImage;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,6 +13,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import java.time.LocalDateTime;
@@ -36,9 +38,12 @@ public class StudyPost extends BaseEntity {
     @Id @GeneratedValue
     private long id;
 
-    //private Member member;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "study_id", nullable = false)
     private Study study;
 
     @Column(nullable = false)

@@ -1,6 +1,6 @@
 package com.example.spot.domain.study;
 
-import com.example.domain.common.BaseEntity;
+import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.enums.Gender;
 import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.enums.StudyState;

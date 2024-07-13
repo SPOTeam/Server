@@ -1,6 +1,5 @@
 package com.example.spot.domain.study;
-
-import com.example.domain.common.BaseEntity;
+import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.mapping.mapping.MemberVote;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -8,6 +7,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -34,6 +34,7 @@ public class Option extends BaseEntity {
     private long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vote_id", nullable = false)
     private Vote vote;
 
     private String content;

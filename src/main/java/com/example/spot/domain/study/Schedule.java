@@ -1,6 +1,6 @@
 package com.example.spot.domain.study;
 
-import com.example.domain.common.BaseEntity;
+import com.example.spot.domain.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
