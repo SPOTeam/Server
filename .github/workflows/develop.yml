@@ -18,14 +18,11 @@ jobs:
           java-version: '17'
           distribution: 'adopt'
 
-      - name: Upgrade Gradle to 8.8
-        run: |
-          ./gradlew wrapper --gradle-version 8.8
 
       - name: Make application.yml
         run: |
           mkdir -p src/main/resources
-          echo "${{ secrets.PROPERTIES }}" > src/main/resources/application.yml
+          echo "${{ secrets.TEST_PROPERTIES }}" > src/main/resources/application.yml
 
       - name: Run tests
         run: |
