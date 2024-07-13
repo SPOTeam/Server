@@ -1,7 +1,10 @@
-package com.example.domain.mapping;
+package com.example.domain.study;
 
 import com.example.domain.common.BaseEntity;
 import com.example.domain.enums.Theme;
+import com.example.domain.mapping.StudyLikedPost;
+import com.example.domain.mapping.StudyPostComment;
+import com.example.domain.mapping.StudyPostImage;
 import com.example.domain.study.Study;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -55,6 +58,9 @@ public class StudyPost extends BaseEntity {
 
     @Column(nullable = false)
     private Integer likeCount;
+
+    @Column(nullable = false)
+    private Integer hitNum;
 
     @Column(nullable = false)
     private Integer commentCount;

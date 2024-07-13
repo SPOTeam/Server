@@ -1,7 +1,7 @@
 package com.example.domain.mapping;
 
 import com.example.domain.common.BaseEntity;
-import com.example.domain.mapping.StudyPost;
+import com.example.domain.study.StudyPost;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
