@@ -1,1 +1,1 @@
-"SPOT" Server Repo 입니다. 
+"SPOT" Server Repository 입니다. 
