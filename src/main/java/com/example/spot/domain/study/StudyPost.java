@@ -1,9 +1,9 @@
-package com.example.domain.study;
+package com.example.spot.domain.study;
 
 import com.example.domain.common.BaseEntity;
-import com.example.domain.enums.Theme;
-import com.example.domain.mapping.StudyLikedPost;
-import com.example.domain.mapping.StudyPostImage;
+import com.example.spot.domain.enums.Theme;
+import com.example.spot.domain.mapping.mapping.StudyLikedPost;
+import com.example.spot.domain.mapping.mapping.StudyPostImage;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -1,9 +1,9 @@
-package com.example.domain.study;
+package com.example.spot.domain.study;
 
 import com.example.domain.common.BaseEntity;
-import com.example.domain.enums.Gender;
-import com.example.domain.enums.Status;
-import com.example.domain.enums.StudyState;
+import com.example.spot.domain.enums.Gender;
+import com.example.spot.domain.enums.Status;
+import com.example.spot.domain.enums.StudyState;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

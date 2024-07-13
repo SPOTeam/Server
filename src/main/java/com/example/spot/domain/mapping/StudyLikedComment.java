@@ -1,8 +1,7 @@
-package com.example.domain.mapping;
+package com.example.spot.domain.mapping.mapping;
 
 import com.example.domain.common.BaseEntity;
-import com.example.domain.study.StudyPost;
-import jakarta.persistence.Column;
+import com.example.spot.domain.study.StudyPostComment;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -24,15 +23,14 @@ import org.hibernate.annotations.DynamicUpdate;
 @DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class StudyPostImage extends BaseEntity {
+public class StudyLikedComment extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(nullable = false)
-    private String url;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    private StudyPost studyPost;
+    private StudyPostComment studyPostComment;
+
+    //private Member member;
 
 }

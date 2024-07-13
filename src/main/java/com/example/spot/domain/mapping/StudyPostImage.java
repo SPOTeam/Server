@@ -1,17 +1,14 @@
-package com.example.domain.study;
+package com.example.spot.domain.mapping.mapping;
 
 import com.example.domain.common.BaseEntity;
-import com.example.domain.mapping.MemberVote;
-import jakarta.persistence.CascadeType;
+import com.example.spot.domain.study.StudyPost;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,18 +24,15 @@ import org.hibernate.annotations.DynamicUpdate;
 @DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Table(name = "options")
-public class Option extends BaseEntity {
+public class StudyPostImage extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @Column(nullable = false)
+    private String url;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    private Vote vote;
-
-    private String content;
-
-    @OneToMany(mappedBy = "option", cascade = CascadeType.ALL)
-    private List<MemberVote> memberVotes;
+    private StudyPost studyPost;
 
 }

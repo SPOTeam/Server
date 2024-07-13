@@ -1,16 +1,13 @@
-package com.example.domain.study;
+package com.example.spot.domain.mapping.mapping;
 
 import com.example.domain.common.BaseEntity;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
+import com.example.spot.domain.study.StudyPost;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import java.time.LocalDateTime;
-import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,24 +23,15 @@ import org.hibernate.annotations.DynamicUpdate;
 @DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class Vote extends BaseEntity {
-    @Id @GeneratedValue
+public class StudyLikedPost extends BaseEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Study study;
+    private StudyPost studyPost;
 
     //private Member member;
 
-    @Column(nullable = false)
-    private String title;
-
-    @Column(nullable = false)
-    private boolean isMultipleChoice;
-
-    @Column(nullable = false)
-    private LocalDateTime finishedAt;
-
-    @OneToMany(mappedBy = "vote", cascade = CascadeType.ALL)
-    private List<Option> options;
 }

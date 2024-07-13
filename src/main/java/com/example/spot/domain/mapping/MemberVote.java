@@ -1,14 +1,13 @@
-package com.example.domain.study;
+package com.example.spot.domain.mapping.mapping;
 
 import com.example.domain.common.BaseEntity;
-import jakarta.persistence.Column;
+import com.example.spot.domain.study.Option;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,24 +23,13 @@ import org.hibernate.annotations.DynamicUpdate;
 @DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class Schedule extends BaseEntity {
+public class MemberVote extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+   // private Member member
+
     @ManyToOne(fetch = FetchType.LAZY)
-    private Study study;
-
-    @Column(nullable = false)
-    private String title;
-
-    @Column(nullable = false)
-    private String location;
-
-    @Column(nullable = false)
-    private LocalDateTime staredAt;
-
-    @Column(nullable = false)
-    private LocalDateTime finishedAt;
-
+    private Option option;
 }
