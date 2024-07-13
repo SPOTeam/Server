@@ -1,6 +1,7 @@
-package com.example.domain.mapping;
+package com.example.domain.study;
 
 import com.example.domain.common.BaseEntity;
+import com.example.domain.mapping.StudyLikedComment;
 import com.example.domain.study.StudyPost;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -45,9 +46,5 @@ public class StudyPostComment extends BaseEntity {
 
     @OneToMany(mappedBy = "studyPostComment", cascade = CascadeType.ALL)
     private List<StudyLikedComment> likedComments;
-
-
-
-
 
 }

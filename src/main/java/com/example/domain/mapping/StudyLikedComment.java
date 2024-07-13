@@ -1,6 +1,7 @@
 package com.example.domain.mapping;
 
 import com.example.domain.common.BaseEntity;
+import com.example.domain.study.StudyPostComment;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;

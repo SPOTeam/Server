@@ -48,6 +48,7 @@ public class Study extends BaseEntity {
     private Integer fee;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private StudyState studyState;
 
     @Column(nullable = false)
@@ -66,6 +67,7 @@ public class Study extends BaseEntity {
     private String title;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private Status status;
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)

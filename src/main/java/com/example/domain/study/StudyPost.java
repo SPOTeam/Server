@@ -3,12 +3,12 @@ package com.example.domain.study;
 import com.example.domain.common.BaseEntity;
 import com.example.domain.enums.Theme;
 import com.example.domain.mapping.StudyLikedPost;
-import com.example.domain.mapping.StudyPostComment;
 import com.example.domain.mapping.StudyPostImage;
-import com.example.domain.study.Study;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -48,6 +48,7 @@ public class StudyPost extends BaseEntity {
     private LocalDateTime announcedAt;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private Theme theme;
 
     @Column(nullable = false)
@@ -57,13 +58,13 @@ public class StudyPost extends BaseEntity {
     private String content;
 
     @Column(nullable = false)
-    private Integer likeCount;
+    private Integer likeNum;
 
     @Column(nullable = false)
     private Integer hitNum;
 
     @Column(nullable = false)
-    private Integer commentCount;
+    private Integer commentNum;
 
     @OneToMany(mappedBy = "studyPost", cascade = CascadeType.ALL)
     private List<StudyPostImage> images;
