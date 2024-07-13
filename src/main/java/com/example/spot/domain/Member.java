@@ -7,14 +7,25 @@ import com.example.spot.domain.study.StudyPost;
 import com.example.spot.domain.study.StudyPostComment;
 import com.example.spot.domain.study.Vote;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
-@Getter
 @Entity
+@Getter
+@Builder
+@DynamicUpdate
+@DynamicInsert
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class Member extends BaseEntity {
 
     @Id
@@ -123,6 +134,5 @@ public class Member extends BaseEntity {
     //== 회원이 투표한 항목 목록 ==//
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<MemberVote> memberVoteList;
-
 
 }

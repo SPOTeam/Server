@@ -4,12 +4,23 @@ import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.domain.mapping.MemberTheme;
 import com.example.spot.domain.mapping.StudyTheme;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
-@Getter
 @Entity
+@Getter
+@Builder
+@DynamicUpdate
+@DynamicInsert
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class Theme {
 
     @Id

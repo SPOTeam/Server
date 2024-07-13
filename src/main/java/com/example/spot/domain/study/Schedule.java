@@ -1,5 +1,4 @@
 package com.example.spot.domain.study;
-
 import com.example.spot.domain.common.BaseEntity;
 import jakarta.persistence.*;
 

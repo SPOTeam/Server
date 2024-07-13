@@ -1,7 +1,6 @@
 package com.example.spot.domain.mapping;
 
 import com.example.spot.domain.Member;
-//import com.example.spot.domain.Region;
 import jakarta.persistence.*;
 import lombok.Getter;
 
