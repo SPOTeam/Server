@@ -4,6 +4,7 @@ import com.example.domain.common.BaseEntity;
 import com.example.domain.enums.Gender;
 import com.example.domain.enums.Status;
 import com.example.domain.enums.StudyState;
+import com.example.domain.mapping.StudyPost;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

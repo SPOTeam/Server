@@ -1,4 +1,4 @@
-package com.example.domain.study;
+package com.example.domain.mapping;
 
 import com.example.domain.common.BaseEntity;
 import jakarta.persistence.Entity;
@@ -22,13 +22,14 @@ import org.hibernate.annotations.DynamicUpdate;
 @DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class StudyLikedComment extends BaseEntity {
+public class StudyLikedPost extends BaseEntity {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private StudyPostComment studyPostComment;
+    private StudyPost studyPost;
 
     //private Member member;
 

@@ -1,6 +1,8 @@
-package com.example.domain.study;
+package com.example.domain.mapping;
 
 import com.example.domain.common.BaseEntity;
+import com.example.domain.mapping.StudyPost;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -22,13 +24,15 @@ import org.hibernate.annotations.DynamicUpdate;
 @DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class MemberVote extends BaseEntity {
+public class StudyPostImage extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-   // private Member member
+    @Column(nullable = false)
+    private String url;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Option option;
+    private StudyPost studyPost;
+
 }
