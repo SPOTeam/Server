@@ -24,8 +24,8 @@ jobs:
       - name: Make application.properties
         run: |
           cd ./src/main/resources
-          touch ./application.properties
-          echo "${{ secrets.PROPERTIES }}" > ./application.properties
+          touch ./application.yml
+          echo "${{ secrets.PROPERTIES }}" > ./application.yml
         shell: bash
 
       - name: Build with Gradle
