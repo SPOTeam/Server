@@ -1,4 +1,4 @@
-package com.example.domain.common;
+package com.example.spot.domain.common;
 
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
