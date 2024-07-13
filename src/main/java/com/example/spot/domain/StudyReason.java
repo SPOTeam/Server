@@ -17,6 +17,7 @@ public class StudyReason {
     @Column
     private Reason reason;
 
+    //== 회원 ==//
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
