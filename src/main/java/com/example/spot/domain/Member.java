@@ -48,7 +48,7 @@ public class Member extends BaseEntity {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<Notification> notificationList;
 
-    //== 회원 신고 ==//
+    //== 해당 회원에 대한 신고 내역 ==//
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<MemberReport> memberReportList;
 }

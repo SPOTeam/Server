@@ -21,13 +21,9 @@ public class MemberReport extends BaseEntity {
     @Column(nullable = false)
     private ReportStatus status;
 
-    //== 신고자 ==//
+    //== 신고 당한 회원 ==//
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reporter_id", nullable = false)
-    private Member reporter;
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
 
-    //== 피신고자 ==//
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reported_id", nullable = false)
-    private Member reported;
 }
