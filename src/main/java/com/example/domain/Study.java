@@ -14,12 +14,19 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import java.util.List;
-import lombok.Data;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.DialectOverride;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
+@EqualsAndHashCode(callSuper = false)
+@Getter
 @Entity
-@Data
 public class Study extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
