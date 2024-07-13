@@ -18,10 +18,6 @@ jobs:
           java-version: '17'
           distribution: 'adopt'
 
-      - name: Upgrade Gradle to 8.8
-        run: |
-          ./gradlew wrapper --gradle-version <latest_version>
-
       - name: Make application.yml
         run: |
           mkdir -p src/main/resources
@@ -29,4 +25,4 @@ jobs:
 
       - name: Run tests
         run: |
-          ./gradlew test
+          ./gradlew clean test
