@@ -4,6 +4,7 @@ import com.example.domain.common.BaseEntity;
 import com.example.domain.enums.Gender;
 import com.example.domain.enums.Status;
 import com.example.domain.enums.StudyState;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -11,6 +12,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import java.util.List;
 import lombok.Data;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DialectOverride;
@@ -56,6 +59,8 @@ public class Study extends BaseEntity {
     @Column(nullable = false)
     private Status status;
 
+    @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
+    private List<Schedule> schedules;
 
 
 }
