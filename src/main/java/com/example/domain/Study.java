@@ -20,13 +20,16 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
+@Entity
+@Getter
+@Builder
+@DynamicUpdate
+@DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Builder
-@EqualsAndHashCode(callSuper = false)
-@Getter
-@Entity
 public class Study extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
