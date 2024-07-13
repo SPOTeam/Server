@@ -1,4 +1,4 @@
-package com.example.domain;
+package com.example.domain.study;
 
 import com.example.domain.common.BaseEntity;
 import com.example.domain.enums.Gender;
@@ -17,7 +17,6 @@ import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;

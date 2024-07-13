@@ -1,20 +1,20 @@
-package com.example.domain;
+package com.example.domain.study;
 
 import com.example.domain.common.BaseEntity;
+import com.example.domain.enums.Theme;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.OneToMany;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
@@ -27,24 +27,44 @@ import org.hibernate.annotations.DynamicUpdate;
 @DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class Schedule extends BaseEntity {
+public class StudyPost extends BaseEntity {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue
     private long id;
+
+    //private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Study study;
 
     @Column(nullable = false)
+    private boolean isAnnouncement;
+
+    @Column(nullable = false)
+    private LocalDateTime announcedAt;
+
+    @Column(nullable = false)
+    private Theme theme;
+
+    @Column(nullable = false)
     private String title;
 
     @Column(nullable = false)
-    private String location;
+    private String content;
 
     @Column(nullable = false)
-    private LocalDateTime staredAt;
+    private Integer likeCount;
 
     @Column(nullable = false)
-    private LocalDateTime finishedAt;
+    private Integer commentCount;
+
+    @OneToMany(mappedBy = "studyPost", cascade = CascadeType.ALL)
+    private List<StudyPostImage> images;
+
+    @OneToMany(mappedBy = "studyPost", cascade = CascadeType.ALL)
+    private List<StudyPostComment> comments;
+
+    @OneToMany(mappedBy = "studyPost", cascade = CascadeType.ALL)
+    private List<StudyLikedPost> likedPosts;
 
 }

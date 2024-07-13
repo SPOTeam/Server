@@ -1,6 +1,5 @@
-package com.example.domain;
+package com.example.domain.study;
 
-import com.example.domain.StudyPost;
 import com.example.domain.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
