@@ -1,6 +1,6 @@
 package com.example.spot.domain.study;
 import com.example.spot.domain.common.BaseEntity;
-import com.example.spot.domain.mapping.mapping.MemberVote;
+import com.example.spot.domain.mapping.MemberVote;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

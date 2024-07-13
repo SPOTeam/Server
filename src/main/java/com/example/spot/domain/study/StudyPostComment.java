@@ -1,6 +1,5 @@
 package com.example.spot.domain.study;
 
-
 import com.example.spot.domain.Member;
 import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.mapping.StudyLikedComment;
@@ -35,10 +34,11 @@ public class StudyPostComment extends BaseEntity {
     private long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "study_post_id", nullable = false)
     private StudyPost studyPost;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
     @Column(nullable = false)

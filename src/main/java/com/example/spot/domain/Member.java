@@ -3,6 +3,9 @@ package com.example.spot.domain;
 import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.enums.Carrier;
 import com.example.spot.domain.mapping.*;
+import com.example.spot.domain.study.StudyPost;
+import com.example.spot.domain.study.StudyPostComment;
+import com.example.spot.domain.study.Vote;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -80,57 +83,56 @@ public class Member extends BaseEntity {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<PreferredStudy> preferredStudyList;
 
-//    //== 회원이 선호하는 지역 목록 ==//
-//    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-//    private List<PreferredRegion> preferredRegionList;
-//
-//    //== 회원이 작성한 게시글 목록 ==//
-//    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-//    private List<Post> postList;
-//
-//    //== 회원이 좋아요한 게시글 목록 ==//
-//    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-//    private List<LikedPost> likedPostList;
-//
-//    //== 회원이 선호하는 지역 목록 ==//
-//    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-//    private List<PostReport> postReportList;
-//
-//    //== 회원이 스크랩한 게시글 목록 ==//
-//    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-//    private List<MemberScrap> memberScrapList;
-//
-//    //== 회원이 작성한 게시글 댓글 목록 ==//
-//    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-//    private List<Comment> commentList;
-//
-//    //== 회원이 좋아요한 게시글 댓글 목록 ==//
-//    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-//    private List<LikedComment> likedCommentList;
-//
-//    //== 회원이 작성한 스터디 게시글 목록 ==//
-//    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-//    private List<StudyPost> studyPostList;
-//
-//    //== 회원이 좋아요한 스터디 게시글 목록 ==//
-//    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-//    private List<StudyLikedPost> studyLikedPostList;
-//
-//    //== 회원이 작성한 스터디 게시글 댓글 목록 ==//
-//    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-//    private List<StudyPostComment> studyPostCommentList;
-//
-//    //== 회원이 좋아요한 게시글 댓글 목록 ==//
-//    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-//    private List<StudyLikedComment> studyLikedCommentList;
-//
-//    //== 회원이 생성한 투표 목록 ==//
-//    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-//    private List<Vote> voteList;
-//
-//    //== 회원이 투표한 항목 목록 ==//
-//    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-//    private List<MemberVote> memberVoteList;
+    //== 회원이 선호하는 지역 목록 ==//
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<PreferredRegion> preferredRegionList;
 
+   ////== 회원이 작성한 게시글 목록 ==//
+   //@OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+   //private List<Post> postList;
+
+   ////== 회원이 좋아요한 게시글 목록 ==//
+   //@OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+   //private List<LikedPost> likedPostList;
+
+   ////== 회원이 선호하는 지역 목록 ==//
+   //@OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+   //private List<PostReport> postReportList;
+
+   ////== 회원이 스크랩한 게시글 목록 ==//
+   //@OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+   //private List<MemberScrap> memberScrapList;
+
+   ////== 회원이 작성한 게시글 댓글 목록 ==//
+   //@OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+   //private List<Comment> commentList;
+
+   ////== 회원이 좋아요한 게시글 댓글 목록 ==//
+   //@OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+   //private List<LikedComment> likedCommentList;
+
+    //== 회원이 작성한 스터디 게시글 목록 ==//
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<StudyPost> studyPostList;
+
+    //== 회원이 좋아요한 스터디 게시글 목록 ==//
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<StudyLikedPost> studyLikedPostList;
+
+    //== 회원이 작성한 스터디 게시글 댓글 목록 ==//
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<StudyPostComment> studyPostCommentList;
+
+    //== 회원이 좋아요한 게시글 댓글 목록 ==//
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<StudyLikedComment> studyLikedCommentList;
+
+    //== 회원이 생성한 투표 목록 ==//
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<Vote> voteList;
+
+    //== 회원이 투표한 항목 목록 ==//
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<MemberVote> memberVoteList;
 
 }

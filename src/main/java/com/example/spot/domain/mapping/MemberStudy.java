@@ -1,7 +1,6 @@
 package com.example.spot.domain.mapping;
 
 import com.example.spot.domain.Member;
-
 import com.example.spot.domain.enums.ApplicationStatus;
 import com.example.spot.domain.study.Study;
 import jakarta.persistence.*;
