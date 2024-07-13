@@ -72,5 +72,10 @@ public class Study extends BaseEntity {
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
     private List<Schedule> schedules;
 
+    @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
+    private List<StudyPost> posts;
+
+    @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
+    private List<Vote> votes;
 
 }

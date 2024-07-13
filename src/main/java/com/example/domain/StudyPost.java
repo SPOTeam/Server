@@ -1,11 +1,15 @@
 package com.example.domain;
 
 import com.example.domain.common.BaseEntity;
+import com.example.domain.enums.StudyState;
 import com.example.domain.enums.Theme;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,6 +33,11 @@ public class StudyPost extends BaseEntity {
     @Id @GeneratedValue
     private long id;
 
+    //private Member member;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Study study;
+
     @Column(nullable = false)
     private boolean isAnnouncement;
 
@@ -50,13 +59,13 @@ public class StudyPost extends BaseEntity {
     @Column(nullable = false)
     private Integer commentCount;
 
-    @OneToMany(mappedBy = "studyPost")
+    @OneToMany(mappedBy = "studyPost", cascade = CascadeType.ALL)
     private List<StudyPostImage> images;
 
-    @OneToMany(mappedBy = "studyPost")
+    @OneToMany(mappedBy = "studyPost", cascade = CascadeType.ALL)
     private List<StudyPostComment> comments;
 
-    @OneToMany(mappedBy = "studyPost")
+    @OneToMany(mappedBy = "studyPost", cascade = CascadeType.ALL)
     private List<StudyLikedPost> likedPosts;
 
 }

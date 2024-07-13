@@ -1,6 +1,7 @@
 package com.example.domain;
 
 import com.example.domain.common.BaseEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -41,7 +42,7 @@ public class StudyPostComment extends BaseEntity {
     @Column(nullable = false)
     private Integer likeCount;
 
-    @OneToMany(mappedBy = "studyPostComment")
+    @OneToMany(mappedBy = "studyPostComment", cascade = CascadeType.ALL)
     private List<StudyLikedComment> likedComments;
 
 
