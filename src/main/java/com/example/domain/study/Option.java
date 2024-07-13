@@ -1,12 +1,15 @@
 package com.example.domain.study;
 
 import com.example.domain.common.BaseEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,5 +34,8 @@ public class Option extends BaseEntity {
     private Vote vote;
 
     private String content;
+
+    @OneToMany(mappedBy = "option", cascade = CascadeType.ALL)
+    private List<MemberVote> memberVotes;
 
 }
