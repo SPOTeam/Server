@@ -1,5 +1,6 @@
 package com.example.spot.domain;
 
+import com.example.domain.*;
 import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.enums.Carrier;
 import com.example.spot.domain.mapping.*;
@@ -88,28 +89,28 @@ public class Member extends BaseEntity {
     private List<PreferredRegion> preferredRegionList;
 
    ////== 회원이 작성한 게시글 목록 ==//
-   //@OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-   //private List<Post> postList;
+   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+   private List<Post> postList;
 
    ////== 회원이 좋아요한 게시글 목록 ==//
-   //@OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-   //private List<LikedPost> likedPostList;
+   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+   private List<LikedPost> likedPostList;
 
    ////== 회원이 선호하는 지역 목록 ==//
-   //@OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-   //private List<PostReport> postReportList;
+   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+   private List<PostReport> postReportList;
 
    ////== 회원이 스크랩한 게시글 목록 ==//
-   //@OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-   //private List<MemberScrap> memberScrapList;
+   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+   private List<MemberScrap> memberScrapList;
 
    ////== 회원이 작성한 게시글 댓글 목록 ==//
-   //@OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-   //private List<Comment> commentList;
+   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+   private List<PostComment> postCommentList;
 
    ////== 회원이 좋아요한 게시글 댓글 목록 ==//
-   //@OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-   //private List<LikedComment> likedCommentList;
+   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+   private List<LikedPostComment> likedCommentList;
 
     //== 회원이 작성한 스터디 게시글 목록 ==//
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
