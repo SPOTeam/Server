@@ -1,5 +1,7 @@
 package com.example.spot.api;
 
+import com.example.spot.api.code.BaseCode;
+import com.example.spot.api.code.status.SuccessStatus;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -20,9 +22,13 @@ public class ApiResponse<T> {
     private T result;
 
     // 성공한 경우 응답 생성
-    //TODO - OnSuccess 메소드 추가
+    public static <T> ApiResponse<T> onSuccess(String code, String message, T result) {
+        return new ApiResponse<>(true, SuccessStatus._OK.getCode(), SuccessStatus._OK.getMessage(), result);
+    }
 
-    //TODO - of 메소드 추가
+    public static <T> ApiResponse<T> of(BaseCode code, T result) {
+        return new ApiResponse<>(true, code.getReasonHttpStatus().getCode(), code.getReasonHttpStatus().getMessage(), result);
+    }
 
     // 실패한 경우 응답 생성
     public static <T> ApiResponse<T> onFailure(String code, String message, T data) {
