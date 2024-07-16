@@ -34,6 +34,8 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	// h2
 	implementation 'com.h2database:h2'
+	// Swagger
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.4'
 }
 
 tasks.named('test') {
