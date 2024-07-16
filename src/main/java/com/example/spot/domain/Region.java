@@ -1,5 +1,6 @@
-package com.example.domain;
+package com.example.spot.domain;
 
+import com.example.spot.domain.mapping.RegionStudy;
 import com.example.spot.domain.mapping.PreferredRegion;
 import jakarta.persistence.*;
 import lombok.AccessLevel;

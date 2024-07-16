@@ -1,7 +1,8 @@
-package com.example.domain;
+package com.example.spot.domain.mapping;
 
-import com.example.spot.domain.Member;
+import com.example.spot.domain.Region;
 import com.example.spot.domain.common.BaseEntity;
+import com.example.spot.domain.study.Study;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -10,19 +11,17 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class LikedPostComment extends BaseEntity {
+public class RegionStudy extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private boolean is_liked; //좋아요:1, 싫어요:0
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "region_id")
+    private Region region;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_comment_id")
-    private PostComment postComment;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
-
+    @JoinColumn(name = "study_id")
+    private Study study;
 }
