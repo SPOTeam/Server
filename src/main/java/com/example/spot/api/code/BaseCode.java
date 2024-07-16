@@ -3,7 +3,7 @@ package com.example.spot.api.code;
 
 public interface BaseCode {
 
-    public Reason getReason();
+    public ReasonDTO getReason();
 
-    public Reason getReasonHttpStatus();
+    public ReasonDTO getReasonHttpStatus();
 }
