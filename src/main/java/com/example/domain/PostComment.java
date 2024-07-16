@@ -27,11 +27,6 @@ public class PostComment extends BaseEntity {
 
     private int dislike_num;
 
-    @Setter
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id") // parent_id 이름으로 칼럼 추가
-    private PostComment parent;
-
     @OneToMany(mappedBy = "postComment")
     private List<LikedPostComment> likedPostCommentsList = new ArrayList<>();
 
@@ -42,4 +37,12 @@ public class PostComment extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
+    //대댓글
+    @ManyToOne
+    @JoinColumn(name = "parent_id")
+    private PostComment parentComment; //부모 댓글
+
+    @OneToMany(mappedBy = "parentComment", orphanRemoval = true)
+    private List<PostComment> childrenComment = new ArrayList<>(); //자식 댓글들(대댓글)
 }
