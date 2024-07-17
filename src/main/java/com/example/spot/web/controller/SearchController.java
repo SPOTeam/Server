@@ -1,6 +1,7 @@
 package com.example.spot.web.controller;
 
 import com.example.spot.domain.enums.Gender;
+import com.example.spot.domain.enums.StudySortBy;
 import com.example.spot.domain.enums.StudyState;
 import com.example.spot.domain.enums.ThemeType;
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,7 +47,9 @@ public class SearchController {
         security = @SecurityRequirement(name = "accessToken")
     )
     @Parameter(name = "userId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
-    public void interestStudies(@PathVariable long userId) {
+    @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = false)
+    public void interestStudies(@PathVariable long userId,
+        @RequestParam(required = false) StudySortBy sortBy) {
         // 메소드 구현
     }
 
@@ -60,8 +63,10 @@ public class SearchController {
         security = @SecurityRequirement(name = "accessToken")
     )
     @Parameter(name = "userId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
+    @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = false)
     public void interestStudiesByTopic(
-        @PathVariable long userId
+        @PathVariable long userId,
+        @RequestParam(required = false) StudySortBy sortBy
     ) {
         // 메소드 구현
     }
@@ -81,13 +86,15 @@ public class SearchController {
     @Parameter(name = "maxAge", description = "maxAge는 60 이하의 정수를 입력 받습니다.", required = false)
     @Parameter(name = "isOnline", description = "스터디 온라인 진행 여부 입니다. true, false의 bool 값으로 입력 받습니다", required = false)
     @Parameter(name = "hasFee", description = "스터디 활동비 유무 입니다. true, false의 bool 값으로 입력 받습니다", required = false)
+    @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = false)
     public void interestStudiesByConditionsAll(
         @PathVariable long userId,
         @RequestParam(required = false) Gender gender,
         @RequestParam(required = false) Integer minAge,
         @RequestParam(required = false) Integer maxAge,
         @RequestParam(required = false) Boolean isOnline,
-        @RequestParam(required = false) Boolean hasFee
+        @RequestParam(required = false) Boolean hasFee,
+        @RequestParam(required = false) StudySortBy sortBy
     ) {
         // 메소드 구현
     }
@@ -107,13 +114,15 @@ public class SearchController {
     @Parameter(name = "maxAge", description = "maxAge는 60 이하의 정수를 입력 받습니다.", required = false)
     @Parameter(name = "isOnline", description = "스터디 온라인 진행 여부 입니다. true, false의 bool 값으로 입력 받습니다", required = false)
     @Parameter(name = "hasFee", description = "스터디 활동비 유무 입니다. true, false의 bool 값으로 입력 받습니다", required = false)
+    @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = false)
     public void interestStudiesByConditionsSpecific(
         @PathVariable long userId,
         @RequestParam(required = false) Gender gender,
         @RequestParam(required = false) Integer minAge,
         @RequestParam(required = false) Integer maxAge,
         @RequestParam(required = false) Boolean isOnline,
-        @RequestParam(required = false) Boolean hasFee
+        @RequestParam(required = false) Boolean hasFee,
+        @RequestParam(required = false) StudySortBy sortBy
     ) {
         // 메소드 구현
     }
@@ -131,7 +140,9 @@ public class SearchController {
         security = @SecurityRequirement(name = "accessToken")
     )
     @Parameter(name = "userId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
-    public void interestRegionStudies(@PathVariable long userId) {
+    @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = false)
+    public void interestRegionStudies(@PathVariable long userId,
+        @RequestParam(required = false) StudySortBy sortBy) {
         // 메소드 구현
     }
 
@@ -145,8 +156,10 @@ public class SearchController {
         security = @SecurityRequirement(name = "accessToken")
     )
     @Parameter(name = "userId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
+    @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = false)
     public void interestRegionStudiesByTopic(
-        @PathVariable long userId
+        @PathVariable long userId,
+        @RequestParam(required = false) StudySortBy sortBy
     ) {
         // 메소드 구현
     }
@@ -166,13 +179,16 @@ public class SearchController {
     @Parameter(name = "maxAge", description = "maxAge는 60 이하의 정수를 입력 받습니다.", required = false)
     @Parameter(name = "isOnline", description = "스터디 온라인 진행 여부 입니다. true, false의 bool 값으로 입력 받습니다", required = false)
     @Parameter(name = "hasFee", description = "스터디 활동비 유무 입니다. true, false의 bool 값으로 입력 받습니다", required = false)
+    @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = false)
     public void interestRegionStudiesByConditionsAll(
         @PathVariable long userId,
         @RequestParam(required = false) Gender gender,
         @RequestParam(required = false) Integer minAge,
         @RequestParam(required = false) Integer maxAge,
         @RequestParam(required = false) Boolean isOnline,
-        @RequestParam(required = false) Boolean hasFee
+        @RequestParam(required = false) Boolean hasFee,
+        @RequestParam(required = false) StudySortBy sortBy
+
     ) {
         // 메소드 구현
     }
@@ -192,17 +208,20 @@ public class SearchController {
     @Parameter(name = "maxAge", description = "maxAge는 60 이하의 정수를 입력 받습니다.", required = false)
     @Parameter(name = "isOnline", description = "스터디 온라인 진행 여부 입니다. true, false의 bool 값으로 입력 받습니다", required = false)
     @Parameter(name = "hasFee", description = "스터디 활동비 유무 입니다. true, false의 bool 값으로 입력 받습니다", required = false)
+    @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = false)
     public void interestRegionStudiesByConditionsSpecific(
         @PathVariable long userId,
         @RequestParam(required = false) Gender gender,
         @RequestParam(required = false) Integer minAge,
         @RequestParam(required = false) Integer maxAge,
         @RequestParam(required = false) Boolean isOnline,
-        @RequestParam(required = false) Boolean hasFee
+        @RequestParam(required = false) Boolean hasFee,
+        @RequestParam(required = false) StudySortBy sortBy
     ) {
         // 메소드 구현
     }
 
-
     /* ----------------------------- 모집 중 스터디 조회  ------------------------------------- */
+
+
 }
