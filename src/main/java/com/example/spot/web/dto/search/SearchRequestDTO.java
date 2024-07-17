@@ -2,6 +2,7 @@ package com.example.spot.web.dto.search;
 
 import com.example.spot.domain.enums.Gender;
 import com.example.spot.domain.enums.StudySortBy;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

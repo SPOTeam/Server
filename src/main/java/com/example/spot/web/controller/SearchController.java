@@ -16,6 +16,7 @@ public class SearchController {
     @Operation(summary = "[메인 화면 - 개발중] 회원 별 관심 분야 스터디 3개 조회",
         description = """
             ## [메인 화면] 접속한 회원의 관심 스터디 3개를 조회 합니다.
+            
             조회된 스터디 3개의 정보가 반환 됩니다.""",
         security = @SecurityRequirement(name = "accessToken"))
     @Parameter(name = "userId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
@@ -25,6 +26,7 @@ public class SearchController {
     @Operation(summary = "[메인 화면 - 개발중] 회원 별 추천 스터디 3개 조회",
         description = """
             ## [메인 화면] 접속한 회원의 추천 스터디 3개를 조회 합니다.
+            
             조회된 스터디 3개의 정보가 반환 됩니다.""",
         security = @SecurityRequirement(name = "accessToken"))
     @Parameter(name = "userId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
@@ -44,6 +46,16 @@ public class SearchController {
         security = @SecurityRequirement(name = "accessToken")
     )
     @Parameter(name = "userId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
+    @Parameter(name = "searchStudyDTO", description = """
+    조회할 스터디의 검색 조건을 입력 받습니다.
+    - gender: 성별 (MALE, FEMALE, UNKNOWN)
+    - minAge: 18 이상의 정수 
+    - maxAge: 60 이하의 정수 
+    - isOnline: 스터디 온라인 진행 여부 (true, false)
+    - hasFee: 스터디 활동비 유무 (true, false)
+    - fee: 스터디 최대 활동비 
+    - sortBy: 정렬 기준 (ALL, RECRUITING, HIT, LIKED)
+    """, required = false)
     public void interestStudiesByConditionsAll(
         @PathVariable long userId,
         @ModelAttribute SearchRequestDTO.SearchStudyDTO searchStudyDTO
@@ -61,6 +73,16 @@ public class SearchController {
         security = @SecurityRequirement(name = "accessToken")
     )
     @Parameter(name = "userId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
+    @Parameter(name = "searchStudyDTO", description = """
+    조회할 스터디의 검색 조건을 입력 받습니다.
+    - gender: 성별 (MALE, FEMALE, UNKNOWN)
+    - minAge: 18 이상의 정수 
+    - maxAge: 60 이하의 정수 
+    - isOnline: 스터디 온라인 진행 여부 (true, false)
+    - hasFee: 스터디 활동비 유무 (true, false)
+    - fee: 스터디 최대 활동비 
+    - sortBy: 정렬 기준 (ALL, RECRUITING, HIT, LIKED)
+    """, required = false)
     public void interestStudiesByConditionsSpecific(
         @PathVariable long userId,
         @ModelAttribute SearchRequestDTO.SearchStudyDTO searchStudyDTO
@@ -81,6 +103,16 @@ public class SearchController {
             조건에 맞게 검색된 스터디 목록이 반환 됩니다.""",
         security = @SecurityRequirement(name = "accessToken")
     )
+    @Parameter(name = "searchStudyDTO", description = """
+    조회할 스터디의 검색 조건을 입력 받습니다.
+    - gender: 성별 (MALE, FEMALE, UNKNOWN)
+    - minAge: 18 이상의 정수 
+    - maxAge: 60 이하의 정수 
+    - isOnline: 스터디 온라인 진행 여부 (true, false)
+    - hasFee: 스터디 활동비 유무 (true, false)
+    - fee: 스터디 최대 활동비 
+    - sortBy: 정렬 기준 (ALL, RECRUITING, HIT, LIKED)
+    """, required = false)
     @Parameter(name = "userId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
     public void interestRegionStudiesByConditionsAll(
         @PathVariable long userId,
@@ -100,6 +132,16 @@ public class SearchController {
         security = @SecurityRequirement(name = "accessToken")
     )
     @Parameter(name = "userId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
+    @Parameter(name = "searchStudyDTO", description = """
+    조회할 스터디의 검색 조건을 입력 받습니다.
+    - gender: 성별 (MALE, FEMALE, UNKNOWN)
+    - minAge: 18 이상의 정수 
+    - maxAge: 60 이하의 정수 
+    - isOnline: 스터디 온라인 진행 여부 (true, false)
+    - hasFee: 스터디 활동비 유무 (true, false)
+    - fee: 스터디 최대 활동비 
+    - sortBy: 정렬 기준 (ALL, RECRUITING, HIT, LIKED)
+    """, required = false)
     public void interestRegionStudiesByConditionsSpecific(
         @PathVariable long userId,
         @ModelAttribute SearchRequestDTO.SearchStudyDTO searchStudyDTO
@@ -118,6 +160,16 @@ public class SearchController {
             
             조건에 맞게 검색된 스터디 목록이 반환 됩니다."""
     )
+    @Parameter(name = "searchStudyDTO", description = """
+    조회할 스터디의 검색 조건을 입력 받습니다.
+    - gender: 성별 (MALE, FEMALE, UNKNOWN)
+    - minAge: 18 이상의 정수 
+    - maxAge: 60 이하의 정수 
+    - isOnline: 스터디 온라인 진행 여부 (true, false)
+    - hasFee: 스터디 활동비 유무 (true, false)
+    - fee: 스터디 최대 활동비 
+    - sortBy: 정렬 기준 (ALL, RECRUITING, HIT, LIKED)
+    """, required = false)
     public void recruitingStudiesByConditions(@ModelAttribute SearchRequestDTO.SearchStudyDTO searchStudyDTO) {
         // 메소드 구현
     }
