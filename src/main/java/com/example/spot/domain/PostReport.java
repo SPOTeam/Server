@@ -1,8 +1,9 @@
-package com.example.domain;
+package com.example.spot.domain;
 
 import com.example.spot.domain.Member;
-import com.example.spot.domain.PostComment;
+import com.example.spot.domain.Post;
 import com.example.spot.domain.common.BaseEntity;
+import com.example.spot.domain.enums.PostStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -11,19 +12,21 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class LikedPostComment extends BaseEntity {
+public class PostReport extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private boolean is_liked; //좋아요:1, 싫어요:0
+    private String content;
+
+    @Enumerated(EnumType.STRING)
+    private PostStatus postStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_comment_id")
-    private PostComment postComment;
+    @JoinColumn(name = "post_id")
+    private Post post;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
-
 }

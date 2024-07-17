@@ -1,6 +1,5 @@
 package com.example.spot.domain;
 
-import com.example.domain.*;
 import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.enums.Carrier;
 import com.example.spot.domain.mapping.*;

@@ -1,12 +1,10 @@
 package com.example.spot.domain;
 
-import com.example.domain.LikedPostComment;
 import com.example.spot.domain.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;

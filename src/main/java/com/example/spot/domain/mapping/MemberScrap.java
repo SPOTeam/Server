@@ -1,4 +1,4 @@
-package com.example.domain;
+package com.example.spot.domain.mapping;
 
 import com.example.spot.domain.Member;
 import com.example.spot.domain.Post;

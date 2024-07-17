@@ -1,7 +1,8 @@
 package com.example.spot.domain;
 
-import com.example.domain.*;
 import com.example.spot.domain.common.BaseEntity;
+import com.example.spot.domain.enums.Board;
+import com.example.spot.domain.mapping.MemberScrap;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
