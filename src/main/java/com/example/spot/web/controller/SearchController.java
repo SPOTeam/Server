@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/spot")
 public class SearchController {
 
-    @GetMapping("/search/users/{userId}/main/interest-themes/studies")
+    @GetMapping("/search/studies/interest-themes/main/users/{userId}")
     @Operation(summary = "[메인 화면 - 개발중] 회원 별 관심 분야 스터디 3개 조회",
         description = """
             ## [메인 화면] 접속한 회원의 관심 스터디 3개를 조회 합니다.
@@ -25,7 +25,7 @@ public class SearchController {
     @Parameter(name = "userId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
     public void interestStudiesForMain(@PathVariable long userId) {}
 
-    @GetMapping("/search/users/{userId}/main/recommend/studies")
+    @GetMapping("/search/studies/recommend/main/users/{userId}")
     @Operation(summary = "[메인 화면 - 개발중] 회원 별 추천 스터디 3개 조회",
         description = """
             ## [메인 화면] 접속한 회원의 추천 스터디 3개를 조회 합니다.
@@ -38,7 +38,7 @@ public class SearchController {
     /* ----------------------------- 내 관심 분야 별 스터디 조회  ------------------------------------- */
 
 
-    @GetMapping("/search/users/{userId}/interest-themes/studies/all")
+    @GetMapping("/search/studies/interest-themes/all/users/{userId}")
     @Operation(
         summary = "[내 관심사 스터디 조회 - 개발중] 내 '전체' 관심사 스터디 조회",
         description = """
@@ -68,7 +68,7 @@ public class SearchController {
         // 메소드 구현
     }
 
-    @GetMapping("/search/users/{userId}/interest-themes/studies/specific")
+    @GetMapping("/search/studies/interest-themes/specific/users/{userId}/")
     @Operation(
         summary = "[내 관심사 스터디 조회 - 개발중] 내 '특정' 관심사 스터디 조회",
         description = """
@@ -104,7 +104,7 @@ public class SearchController {
     /* ----------------------------- 내 관심 지역 별 스터디 조회  ------------------------------------- */
 
 
-    @GetMapping("/search/users/{userId}/preferred-region/studies/all")
+    @GetMapping("/search/studies/preferred-region/all/users/{userId}")
     @Operation(
         summary = "[내 관심 지역 스터디 조회 - 개발중] 내 '전체' 관심 지역 스터디 조회",
         description = """
@@ -135,7 +135,7 @@ public class SearchController {
         // 메소드 구현
     }
 
-    @GetMapping("/search/users/{userId}/preferred-region/studies/specific")
+    @GetMapping("/search/studies/preferred-region/specific/users/{userId}")
     @Operation(
         summary = "[내 관심 지역 스터디 조회 - 개발중] 내 '특정' 관심 지역 스터디 조회",
         description = """
@@ -170,7 +170,7 @@ public class SearchController {
     /* ----------------------------- 모집 중 스터디 조회  ------------------------------------- */
 
 
-    @GetMapping("/search/recruiting/studies")
+    @GetMapping("/search/studies/recruiting")
     @Operation(
         summary = "[모집 중 스터디 조회 - 개발중] 모집 중인 스터디 조회",
         description = """
