@@ -86,6 +86,7 @@ public class SearchController {
     @Parameter(name = "maxAge", description = "maxAge는 60 이하의 정수를 입력 받습니다.", required = false)
     @Parameter(name = "isOnline", description = "스터디 온라인 진행 여부 입니다. true, false의 bool 값으로 입력 받습니다", required = false)
     @Parameter(name = "hasFee", description = "스터디 활동비 유무 입니다. true, false의 bool 값으로 입력 받습니다", required = false)
+    @Parameter(name = "fee", description = "스터디 최대 활동비를 입력 받습니다.", required = false)
     @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = false)
     public void interestStudiesByConditionsAll(
         @PathVariable long userId,
@@ -94,6 +95,7 @@ public class SearchController {
         @RequestParam(required = false) Integer maxAge,
         @RequestParam(required = false) Boolean isOnline,
         @RequestParam(required = false) Boolean hasFee,
+        @RequestParam(required = false) Integer fee,
         @RequestParam(required = false) StudySortBy sortBy
     ) {
         // 메소드 구현
@@ -114,6 +116,7 @@ public class SearchController {
     @Parameter(name = "maxAge", description = "maxAge는 60 이하의 정수를 입력 받습니다.", required = false)
     @Parameter(name = "isOnline", description = "스터디 온라인 진행 여부 입니다. true, false의 bool 값으로 입력 받습니다", required = false)
     @Parameter(name = "hasFee", description = "스터디 활동비 유무 입니다. true, false의 bool 값으로 입력 받습니다", required = false)
+    @Parameter(name = "fee", description = "스터디 최대 활동비를 입력 받습니다.", required = false)
     @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = false)
     public void interestStudiesByConditionsSpecific(
         @PathVariable long userId,
@@ -122,6 +125,7 @@ public class SearchController {
         @RequestParam(required = false) Integer maxAge,
         @RequestParam(required = false) Boolean isOnline,
         @RequestParam(required = false) Boolean hasFee,
+        @RequestParam(required = false) Integer fee,
         @RequestParam(required = false) StudySortBy sortBy
     ) {
         // 메소드 구현
@@ -179,6 +183,7 @@ public class SearchController {
     @Parameter(name = "maxAge", description = "maxAge는 60 이하의 정수를 입력 받습니다.", required = false)
     @Parameter(name = "isOnline", description = "스터디 온라인 진행 여부 입니다. true, false의 bool 값으로 입력 받습니다", required = false)
     @Parameter(name = "hasFee", description = "스터디 활동비 유무 입니다. true, false의 bool 값으로 입력 받습니다", required = false)
+    @Parameter(name = "fee", description = "스터디 최대 활동비를 입력 받습니다.", required = false)
     @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = false)
     public void interestRegionStudiesByConditionsAll(
         @PathVariable long userId,
@@ -187,6 +192,7 @@ public class SearchController {
         @RequestParam(required = false) Integer maxAge,
         @RequestParam(required = false) Boolean isOnline,
         @RequestParam(required = false) Boolean hasFee,
+        @RequestParam(required = false) Integer fee,
         @RequestParam(required = false) StudySortBy sortBy
 
     ) {
@@ -208,6 +214,7 @@ public class SearchController {
     @Parameter(name = "maxAge", description = "maxAge는 60 이하의 정수를 입력 받습니다.", required = false)
     @Parameter(name = "isOnline", description = "스터디 온라인 진행 여부 입니다. true, false의 bool 값으로 입력 받습니다", required = false)
     @Parameter(name = "hasFee", description = "스터디 활동비 유무 입니다. true, false의 bool 값으로 입력 받습니다", required = false)
+    @Parameter(name = "fee", description = "스터디 최대 활동비를 입력 받습니다.", required = false)
     @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = false)
     public void interestRegionStudiesByConditionsSpecific(
         @PathVariable long userId,
@@ -216,6 +223,7 @@ public class SearchController {
         @RequestParam(required = false) Integer maxAge,
         @RequestParam(required = false) Boolean isOnline,
         @RequestParam(required = false) Boolean hasFee,
+        @RequestParam(required = false) Integer fee,
         @RequestParam(required = false) StudySortBy sortBy
     ) {
         // 메소드 구현
