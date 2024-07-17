@@ -1,7 +1,5 @@
-package com.example.domain;
+package com.example.spot.domain;
 
-import com.example.spot.domain.Member;
-import com.example.spot.domain.Post;
 import com.example.spot.domain.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
