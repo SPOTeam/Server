@@ -1,6 +1,5 @@
 package com.example.spot.domain.mapping;
 
-
 import com.example.spot.domain.Region;
 import com.example.spot.domain.Member;
 import jakarta.persistence.*;
