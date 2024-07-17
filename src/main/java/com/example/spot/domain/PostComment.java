@@ -1,5 +1,6 @@
 package com.example.spot.domain;
 
+import com.example.domain.LikedPostComment;
 import com.example.spot.domain.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;

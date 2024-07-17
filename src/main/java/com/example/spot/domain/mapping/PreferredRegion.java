@@ -1,5 +1,6 @@
 package com.example.spot.domain.mapping;
 
+import com.example.domain.Region;
 import com.example.spot.domain.Member;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -17,8 +18,8 @@ public class PreferredRegion {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    //@ManyToOne(fetch = FetchType.LAZY)
-    //@JoinColumn(name = "region_id", nullable = false)
-    //private Region region;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "region_id", nullable = false)
+    private Region region;
 
 }
