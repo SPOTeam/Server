@@ -170,7 +170,7 @@ public class SearchController {
     /* ----------------------------- 모집 중 스터디 조회  ------------------------------------- */
 
 
-    @GetMapping("/search/recruiting/studies/conditions")
+    @GetMapping("/search/recruiting/studies")
     @Operation(
         summary = "[모집 중 스터디 조회 - 개발중] 모집 중인 스터디 조회",
         description = """
