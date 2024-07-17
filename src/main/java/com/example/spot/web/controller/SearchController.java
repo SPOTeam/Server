@@ -60,10 +60,8 @@ public class SearchController {
         security = @SecurityRequirement(name = "accessToken")
     )
     @Parameter(name = "userId", description = "접속한 유저의 ID를 입력 받습니다.", required = true)
-    @Parameter(name = "themeType", description = "관심분야를 입력 받습니다.", required = false)
     public void interestStudiesByTopic(
-        @PathVariable long userId,
-        @RequestParam ThemeType themeType
+        @PathVariable long userId
     ) {
         // 메소드 구현
     }
@@ -105,7 +103,6 @@ public class SearchController {
     )
     @Parameter(name = "userId", description = "접속한 유저의 ID를 입력 받습니다.", required = true)
     @Parameter(name = "gender", description = "성별을 입력 받습니다.", required = false)
-    @Parameter(name = "themeType", description = "관심분야를 입력 받습니다.", required = false)
     @Parameter(name = "minAge", description = "minAge는 18 이상의 정수 입니다.", required = false)
     @Parameter(name = "maxAge", description = "maxAge는 60 이하의 정수를 입력 받습니다.", required = false)
     @Parameter(name = "isOnline", description = "스터디 온라인 진행 여부 입니다. true, false의 bool 값으로 입력 받습니다", required = false)
@@ -113,7 +110,6 @@ public class SearchController {
     public void interestStudiesByConditionsSpecific(
         @PathVariable long userId,
         @RequestParam Gender gender,
-        @RequestParam ThemeType themeType,
         @RequestParam int minAge,
         @RequestParam int maxAge,
         @RequestParam boolean isOnline,
