@@ -1,12 +1,8 @@
 package com.example.spot.web.controller;
 
-import com.example.spot.domain.enums.Gender;
-import com.example.spot.domain.enums.StudySortBy;
-import com.example.spot.domain.enums.StudyState;
-import com.example.spot.domain.enums.ThemeType;
+import com.example.spot.web.dto.search.SearchRequestDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
@@ -48,22 +44,9 @@ public class SearchController {
         security = @SecurityRequirement(name = "accessToken")
     )
     @Parameter(name = "userId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
-    @Parameter(name = "gender", description = "성별을 입력 받습니다.", required = false)
-    @Parameter(name = "minAge", description = "minAge는 18 이상의 정수 입니다.", required = false)
-    @Parameter(name = "maxAge", description = "maxAge는 60 이하의 정수를 입력 받습니다.", required = false)
-    @Parameter(name = "isOnline", description = "스터디 온라인 진행 여부 입니다. true, false의 bool 값으로 입력 받습니다", required = false)
-    @Parameter(name = "hasFee", description = "스터디 활동비 유무 입니다. true, false의 bool 값으로 입력 받습니다", required = false)
-    @Parameter(name = "fee", description = "스터디 최대 활동비를 입력 받습니다.", required = false)
-    @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = false)
     public void interestStudiesByConditionsAll(
         @PathVariable long userId,
-        @RequestParam(required = false) Gender gender,
-        @RequestParam(required = false) Integer minAge,
-        @RequestParam(required = false) Integer maxAge,
-        @RequestParam(required = false) Boolean isOnline,
-        @RequestParam(required = false) Boolean hasFee,
-        @RequestParam(required = false) Integer fee,
-        @RequestParam(required = false) StudySortBy sortBy
+        @ModelAttribute SearchRequestDTO.SearchStudyDTO searchStudyDTO
     ) {
         // 메소드 구현
     }
@@ -78,24 +61,9 @@ public class SearchController {
         security = @SecurityRequirement(name = "accessToken")
     )
     @Parameter(name = "userId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
-    @Parameter(name = "themeType", description = "관심 분야를 입력 받습니다.", required = true)
-    @Parameter(name = "gender", description = "성별을 입력 받습니다.", required = false)
-    @Parameter(name = "minAge", description = "minAge는 18 이상의 정수 입니다.", required = false)
-    @Parameter(name = "maxAge", description = "maxAge는 60 이하의 정수를 입력 받습니다.", required = false)
-    @Parameter(name = "isOnline", description = "스터디 온라인 진행 여부 입니다. true, false의 bool 값으로 입력 받습니다", required = false)
-    @Parameter(name = "hasFee", description = "스터디 활동비 유무 입니다. true, false의 bool 값으로 입력 받습니다", required = false)
-    @Parameter(name = "fee", description = "스터디 최대 활동비를 입력 받습니다.", required = false)
-    @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = false)
     public void interestStudiesByConditionsSpecific(
         @PathVariable long userId,
-        @RequestParam ThemeType themeType,
-        @RequestParam(required = false) Gender gender,
-        @RequestParam(required = false) Integer minAge,
-        @RequestParam(required = false) Integer maxAge,
-        @RequestParam(required = false) Boolean isOnline,
-        @RequestParam(required = false) Boolean hasFee,
-        @RequestParam(required = false) Integer fee,
-        @RequestParam(required = false) StudySortBy sortBy
+        @ModelAttribute SearchRequestDTO.SearchStudyDTO searchStudyDTO
     ) {
         // 메소드 구현
     }
@@ -114,22 +82,9 @@ public class SearchController {
         security = @SecurityRequirement(name = "accessToken")
     )
     @Parameter(name = "userId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
-    @Parameter(name = "gender", description = "성별을 입력 받습니다.", required = false)
-    @Parameter(name = "minAge", description = "minAge는 18 이상의 정수 입니다.", required = false)
-    @Parameter(name = "maxAge", description = "maxAge는 60 이하의 정수를 입력 받습니다.", required = false)
-    @Parameter(name = "isOnline", description = "스터디 온라인 진행 여부 입니다. true, false의 bool 값으로 입력 받습니다", required = false)
-    @Parameter(name = "hasFee", description = "스터디 활동비 유무 입니다. true, false의 bool 값으로 입력 받습니다", required = false)
-    @Parameter(name = "fee", description = "스터디 최대 활동비를 입력 받습니다.", required = false)
-    @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = false)
     public void interestRegionStudiesByConditionsAll(
         @PathVariable long userId,
-        @RequestParam(required = false) Gender gender,
-        @RequestParam(required = false) Integer minAge,
-        @RequestParam(required = false) Integer maxAge,
-        @RequestParam(required = false) Boolean isOnline,
-        @RequestParam(required = false) Boolean hasFee,
-        @RequestParam(required = false) Integer fee,
-        @RequestParam(required = false) StudySortBy sortBy
+        @ModelAttribute SearchRequestDTO.SearchStudyDTO searchStudyDTO
 
     ) {
         // 메소드 구현
@@ -145,24 +100,9 @@ public class SearchController {
         security = @SecurityRequirement(name = "accessToken")
     )
     @Parameter(name = "userId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
-    @Parameter(name = "regionCode", description = "지역 코드를 입력 받습니다.", required = true)
-    @Parameter(name = "gender", description = "성별을 입력 받습니다.", required = false)
-    @Parameter(name = "minAge", description = "minAge는 18 이상의 정수 입니다.", required = false)
-    @Parameter(name = "maxAge", description = "maxAge는 60 이하의 정수를 입력 받습니다.", required = false)
-    @Parameter(name = "isOnline", description = "스터디 온라인 진행 여부 입니다. true, false의 bool 값으로 입력 받습니다", required = false)
-    @Parameter(name = "hasFee", description = "스터디 활동비 유무 입니다. true, false의 bool 값으로 입력 받습니다", required = false)
-    @Parameter(name = "fee", description = "스터디 최대 활동비를 입력 받습니다.", required = false)
-    @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = false)
     public void interestRegionStudiesByConditionsSpecific(
         @PathVariable long userId,
-        @RequestParam String regionCode,
-        @RequestParam(required = false) Gender gender,
-        @RequestParam(required = false) Integer minAge,
-        @RequestParam(required = false) Integer maxAge,
-        @RequestParam(required = false) Boolean isOnline,
-        @RequestParam(required = false) Boolean hasFee,
-        @RequestParam(required = false) Integer fee,
-        @RequestParam(required = false) StudySortBy sortBy
+        @ModelAttribute SearchRequestDTO.SearchStudyDTO searchStudyDTO
     ) {
         // 메소드 구현
     }
@@ -178,21 +118,7 @@ public class SearchController {
             
             조건에 맞게 검색된 스터디 목록이 반환 됩니다."""
     )
-    @Parameter(name = "gender", description = "성별을 입력 받습니다.", required = false)
-    @Parameter(name = "minAge", description = "minAge는 18 이상의 정수 입니다.", required = false)
-    @Parameter(name = "maxAge", description = "maxAge는 60 이하의 정수를 입력 받습니다.", required = false)
-    @Parameter(name = "isOnline", description = "스터디 온라인 진행 여부 입니다. true, false의 bool 값으로 입력 받습니다", required = false)
-    @Parameter(name = "hasFee", description = "스터디 활동비 유무 입니다. true, false의 bool 값으로 입력 받습니다", required = false)
-    @Parameter(name = "fee", description = "스터디 최대 활동비를 입력 받습니다.", required = false)
-    @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = false)
-    public void recruitingStudiesByConditions(
-        @RequestParam(required = false) Gender gender,
-        @RequestParam(required = false) Integer minAge,
-        @RequestParam(required = false) Integer maxAge,
-        @RequestParam(required = false) Boolean isOnline,
-        @RequestParam(required = false) Boolean hasFee,
-        @RequestParam(required = false) Integer fee,
-        @RequestParam(required = false) StudySortBy sortBy) {
+    public void recruitingStudiesByConditions(@ModelAttribute SearchRequestDTO.SearchStudyDTO searchStudyDTO) {
         // 메소드 구현
     }
 
