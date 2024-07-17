@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/spot")
 public class SearchController {
 
-    @GetMapping("/search/users/{userId}/interest-themes/studies/main")
+    @GetMapping("/search/users/{userId}/main/interest-themes/studies")
     @Operation(summary = "[메인 화면 - 개발중] 회원 별 관심 분야 스터디 3개 조회",
         description = """
             ## [메인 화면] 접속한 회원의 관심 스터디 3개를 조회 합니다.
@@ -25,7 +25,7 @@ public class SearchController {
     @Parameter(name = "userId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
     public void interestStudiesForMain(@PathVariable long userId) {}
 
-    @GetMapping("/search/users/{userId}/recommend/studies/main")
+    @GetMapping("/search/users/{userId}/main/recommend/studies")
     @Operation(summary = "[메인 화면 - 개발중] 회원 별 추천 스터디 3개 조회",
         description = """
             ## [메인 화면] 접속한 회원의 추천 스터디 3개를 조회 합니다.
@@ -36,6 +36,8 @@ public class SearchController {
 
 
     /* ----------------------------- 내 관심 분야 별 스터디 조회  ------------------------------------- */
+
+
     @GetMapping("/search/users/{userId}/interest-themes/studies/all")
     @Operation(
         summary = "[내 관심사 스터디 조회 - 개발중] 내 '전체' 관심사 스터디 조회",
@@ -76,6 +78,7 @@ public class SearchController {
         security = @SecurityRequirement(name = "accessToken")
     )
     @Parameter(name = "userId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
+    @Parameter(name = "themeType", description = "관심 분야를 입력 받습니다.", required = true)
     @Parameter(name = "gender", description = "성별을 입력 받습니다.", required = false)
     @Parameter(name = "minAge", description = "minAge는 18 이상의 정수 입니다.", required = false)
     @Parameter(name = "maxAge", description = "maxAge는 60 이하의 정수를 입력 받습니다.", required = false)
@@ -85,6 +88,7 @@ public class SearchController {
     @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = false)
     public void interestStudiesByConditionsSpecific(
         @PathVariable long userId,
+        @RequestParam ThemeType themeType,
         @RequestParam(required = false) Gender gender,
         @RequestParam(required = false) Integer minAge,
         @RequestParam(required = false) Integer maxAge,
@@ -141,6 +145,7 @@ public class SearchController {
         security = @SecurityRequirement(name = "accessToken")
     )
     @Parameter(name = "userId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
+    @Parameter(name = "regionCode", description = "지역 코드를 입력 받습니다.", required = true)
     @Parameter(name = "gender", description = "성별을 입력 받습니다.", required = false)
     @Parameter(name = "minAge", description = "minAge는 18 이상의 정수 입니다.", required = false)
     @Parameter(name = "maxAge", description = "maxAge는 60 이하의 정수를 입력 받습니다.", required = false)
@@ -150,6 +155,7 @@ public class SearchController {
     @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = false)
     public void interestRegionStudiesByConditionsSpecific(
         @PathVariable long userId,
+        @RequestParam String regionCode,
         @RequestParam(required = false) Gender gender,
         @RequestParam(required = false) Integer minAge,
         @RequestParam(required = false) Integer maxAge,
