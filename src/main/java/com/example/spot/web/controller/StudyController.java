@@ -1,4 +1,4 @@
-package com.example.spot.controller;
+package com.example.spot.web.controller;
 
 import com.example.spot.domain.enums.Gender;
 import com.example.spot.domain.enums.ThemeType;

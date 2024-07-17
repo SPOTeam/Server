@@ -1,11 +1,11 @@
-package com.example.spot.controller;
+package com.example.spot.web.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Member", description = "Member API")
+@Tag(name = "Post", description = "Post API")
 @RestController
 @RequestMapping("/api")
-public class MemberController {
+public class PostController {
 }

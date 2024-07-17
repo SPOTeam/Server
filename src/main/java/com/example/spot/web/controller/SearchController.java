@@ -1,4 +1,4 @@
-package com.example.spot.controller;
+package com.example.spot.web.controller;
 
 import com.example.spot.domain.enums.StudyState;
 import io.swagger.v3.oas.annotations.Operation;
