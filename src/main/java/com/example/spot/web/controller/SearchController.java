@@ -83,11 +83,11 @@ public class SearchController {
     @Parameter(name = "hasFee", description = "스터디 활동비 유무 입니다. true, false의 bool 값으로 입력 받습니다", required = false)
     public void interestStudiesByConditionsAll(
         @PathVariable long userId,
-        @RequestParam Gender gender,
-        @RequestParam int minAge,
-        @RequestParam int maxAge,
-        @RequestParam boolean isOnline,
-        @RequestParam boolean hasFee
+        @RequestParam(required = false) Gender gender,
+        @RequestParam(required = false) Integer minAge,
+        @RequestParam(required = false) Integer maxAge,
+        @RequestParam(required = false) Boolean isOnline,
+        @RequestParam(required = false) Boolean hasFee
     ) {
         // 메소드 구현
     }
@@ -109,11 +109,11 @@ public class SearchController {
     @Parameter(name = "hasFee", description = "스터디 활동비 유무 입니다. true, false의 bool 값으로 입력 받습니다", required = false)
     public void interestStudiesByConditionsSpecific(
         @PathVariable long userId,
-        @RequestParam Gender gender,
-        @RequestParam int minAge,
-        @RequestParam int maxAge,
-        @RequestParam boolean isOnline,
-        @RequestParam boolean hasFee
+        @RequestParam(required = false) Gender gender,
+        @RequestParam(required = false) Integer minAge,
+        @RequestParam(required = false) Integer maxAge,
+        @RequestParam(required = false) Boolean isOnline,
+        @RequestParam(required = false) Boolean hasFee
     ) {
         // 메소드 구현
     }
@@ -168,11 +168,11 @@ public class SearchController {
     @Parameter(name = "hasFee", description = "스터디 활동비 유무 입니다. true, false의 bool 값으로 입력 받습니다", required = false)
     public void interestRegionStudiesByConditionsAll(
         @PathVariable long userId,
-        @RequestParam Gender gender,
-        @RequestParam int minAge,
-        @RequestParam int maxAge,
-        @RequestParam boolean isOnline,
-        @RequestParam boolean hasFee
+        @RequestParam(required = false) Gender gender,
+        @RequestParam(required = false) Integer minAge,
+        @RequestParam(required = false) Integer maxAge,
+        @RequestParam(required = false) Boolean isOnline,
+        @RequestParam(required = false) Boolean hasFee
     ) {
         // 메소드 구현
     }
@@ -194,11 +194,11 @@ public class SearchController {
     @Parameter(name = "hasFee", description = "스터디 활동비 유무 입니다. true, false의 bool 값으로 입력 받습니다", required = false)
     public void interestRegionStudiesByConditionsSpecific(
         @PathVariable long userId,
-        @RequestParam Gender gender,
-        @RequestParam int minAge,
-        @RequestParam int maxAge,
-        @RequestParam boolean isOnline,
-        @RequestParam boolean hasFee
+        @RequestParam(required = false) Gender gender,
+        @RequestParam(required = false) Integer minAge,
+        @RequestParam(required = false) Integer maxAge,
+        @RequestParam(required = false) Boolean isOnline,
+        @RequestParam(required = false) Boolean hasFee
     ) {
         // 메소드 구현
     }
