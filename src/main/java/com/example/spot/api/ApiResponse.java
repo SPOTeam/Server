@@ -21,6 +21,11 @@ public class ApiResponse<T> {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private T result;
 
+    @JsonProperty("isSuccess")
+    public boolean isSuccess() {
+        return isSuccess;
+    }
+
     // 성공한 경우 응답 생성
     public static <T> ApiResponse<T> onSuccess(SuccessStatus code, T result) {
         return new ApiResponse<>(true, code.getCode(), code.getMessage(), result);
