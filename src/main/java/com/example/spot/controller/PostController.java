@@ -23,6 +23,19 @@ public class PostController {
         // ToDo 응답 통일한 후 반환 타입 수정
     }
 
+    @Operation(summary = "게시글 조회 API", description = "게시글 Id를 받아 게시글을 조회합니다.")
+    @GetMapping("/{postId}")
+    public void singlePost(
+            @Parameter(
+                    description = "조회할 게시글 ID입니다.",
+                    schema = @Schema(type = "intger", format = "int64")
+            )
+            @PathVariable Long postId
+    ) {
+        postService.getSinglePost(postId);
+    }
+
+
     @Operation(summary = "게시글 삭제 API", description = "게시글 Id를 받아 게시글을 삭제합니다.")
     @DeleteMapping("/{postId}")
     public void delete(
@@ -30,8 +43,10 @@ public class PostController {
                     description = "삭제할 게시글의 ID입니다.",
                     schema = @Schema(type = "integer", format = "int64")
             )
-            @PathVariable Long postId) {
+            @PathVariable Long postId
+    ) {
         postService.deletePost(postId);
     }
+
 
 }
