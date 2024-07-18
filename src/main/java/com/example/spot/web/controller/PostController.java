@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Post", description = "Post API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/spot/api/posts")
+@RequestMapping("/spot/posts")
 public class PostController {
 
     private final PostService postService;
