@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Admin", description = "Admin API")
@@ -25,8 +26,15 @@ public class AdminController {
     )
     @Parameter(name = "studyId", description = "조회할 스터디의 ID를 입력 받습니다.", required = true)
     @Parameter(name = "accessToken", description = "관리자의 accessToken을 입력 받습니다.", required = true)
+    @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다.", required = true)
+    @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다.", required = true)
     @GetMapping("/reports/studies/{studyId}")
-    public void getReportInStudy(@PathVariable long studyId, @RequestHeader String accessToken) {
+    public void getReportInStudy(
+        @PathVariable long studyId,
+        @RequestHeader String accessToken,
+        @RequestParam Integer page,
+        @RequestParam Integer size
+    ) {
         // 메소드 구현
     }
 
@@ -39,7 +47,12 @@ public class AdminController {
             """
     )
     @Parameter(name = "accessToken", description = "관리자의 accessToken을 입력 받습니다.", required = true)
-    public void getAllReportsInStudies(@RequestHeader String accessToken) {
+    @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다.", required = true)
+    @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다.", required = true)
+    public void getAllReportsInStudies(
+        @RequestHeader String accessToken,
+        @RequestParam Integer page,
+        @RequestParam Integer size) {
         // 메소드 구현
     }
 
@@ -53,7 +66,13 @@ public class AdminController {
     )
     @Parameter(name = "postId", description = "조회할 게시글의 ID를 입력 받습니다.", required = true)
     @Parameter(name = "accessToken", description = "관리자의 accessToken을 입력 받습니다.", required = true)
-    public void getReportInPost(@PathVariable long postId, @RequestHeader String accessToken) {
+    @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다.", required = true)
+    @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다.", required = true)
+    public void getReportInPost(
+        @PathVariable long postId,
+        @RequestHeader String accessToken,
+        @RequestParam Integer page,
+        @RequestParam Integer size){
         // 메소드 구현
     }
 
@@ -66,7 +85,12 @@ public class AdminController {
             """
     )
     @Parameter(name = "accessToken", description = "관리자의 accessToken을 입력 받습니다.", required = true)
-    public void getAllReportsInPosts(@RequestHeader String accessToken) {
+    @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다.", required = true)
+    @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다.", required = true)
+    public void getAllReportsInPosts(
+        @RequestHeader String accessToken,
+        @RequestParam Integer page,
+        @RequestParam Integer size) {
         // 메소드 구현
     }
 
@@ -81,7 +105,10 @@ public class AdminController {
     @Parameter(name = "studyId", description = "신고를 받은 회원이 포함 된 스터디의 ID를 입력 받습니다.", required = true)
     @Parameter(name = "memberId", description = "신고를 받은 스터디 회원의 ID를 입력 받습니다.", required = true)
     @Parameter(name = "accessToken", description = "관리자의 accessToken을 입력 받습니다.", required = true)
-    public void deleteMemberInReportedStudy(@PathVariable long studyId, @PathVariable long memberId, @RequestHeader String accessToken) {
+    public void deleteMemberInReportedStudy(
+        @PathVariable long studyId,
+        @PathVariable long memberId,
+        @RequestHeader String accessToken) {
         // 메소드 구현
     }
 
