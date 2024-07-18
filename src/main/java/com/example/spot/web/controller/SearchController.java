@@ -1,6 +1,8 @@
 package com.example.spot.web.controller;
 
 import com.example.spot.api.ApiResponse;
+import com.example.spot.api.code.status.ErrorStatus;
+import com.example.spot.api.code.status.SuccessStatus;
 import com.example.spot.web.dto.search.SearchRequestDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -175,9 +177,10 @@ public class SearchController {
     """, required = false)
     @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
-    public void recruitingStudiesByConditions(@ModelAttribute SearchRequestDTO.SearchStudyDTO searchStudyDTO,
+    public ApiResponse<String> recruitingStudiesByConditions(@ModelAttribute SearchRequestDTO.SearchStudyDTO searchStudyDTO,
         @RequestParam Integer page, @RequestParam Integer size) {
         // 메소드 구현
+        return ApiResponse.onFailure(ErrorStatus._INTERNAL_SERVER_ERROR.getCode(), ErrorStatus._INTERNAL_SERVER_ERROR.getMessage(), null);
     }
 
     /* ----------------------------- 찜한 스터디 검색  ------------------------------------- */
@@ -195,6 +198,6 @@ public class SearchController {
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
     public ApiResponse<String> likedStudies(@PathVariable long userId, @RequestParam Integer page, @RequestParam Integer size) {
         // 메소드 구현
-        return ApiResponse.onSuccess(HttpStatus.OK.toString(), "찜한 스터디 목록 조회 성공");
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, "찜한 스터디 목록 조회 성공");
     }
 }
