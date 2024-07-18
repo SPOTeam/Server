@@ -34,7 +34,7 @@ public enum SuccessStatus implements BaseCode {
     _STUDY_POST_COMMENT_UPDATED(HttpStatus.OK, "STUDYPOST3009", "스터디 게시글 댓글 수정 완료"),
     _STUDY_POST_COMMENT_DELETED(HttpStatus.OK, "STUDYPOST3010", "스터디 게시글 댓글 삭제 완료"),
     _STUDY_FOUND(HttpStatus.OK, "STUDYPOST3011", "스터디 조회 완료");
-
+  
     private final HttpStatus httpStatus;
     private final String code;
     private final String message;
