@@ -1,6 +1,8 @@
 package com.example.spot.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -19,6 +21,17 @@ public class PostController {
     public void create(@ModelAttribute PostCreateRequest postCreateRequest) {
         postService.createPost(postCreateRequest);
         // ToDo 응답 통일한 후 반환 타입 수정
+    }
+
+    @Operation(summary = "게시글 삭제 API", description = "게시글 Id를 받아 게시글을 삭제합니다.")
+    @DeleteMapping("/{postId}")
+    public void delete(
+            @Parameter(
+                    description = "삭제할 게시글의 ID입니다.",
+                    schema = @Schema(type = "integer", format = "int64")
+            )
+            @PathVariable Long postId) {
+        postService.deletePost(postId);
     }
 
 }
