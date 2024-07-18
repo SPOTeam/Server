@@ -13,4 +13,8 @@ public class PostService {
     public void deletePost(Long postId) {
         // validate & delete
     }
+
+    public void getSinglePost(Long postId) {
+        // validate & read
+    }
 }
