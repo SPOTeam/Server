@@ -1,4 +1,4 @@
-package com.example.spot.web.dto;
+package com.example.spot.web.dto.post;
 
 import com.example.spot.domain.enums.Board;
 import io.swagger.v3.oas.annotations.media.Schema;

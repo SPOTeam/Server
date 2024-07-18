@@ -1,6 +1,8 @@
 package com.example.spot.web.service;
 
-import com.example.spot.web.dto.PostCreateRequest;
+import com.example.spot.web.dto.post.PostCreateRequest;
+import com.example.spot.web.dto.post.PostPagingResponse;
+import com.example.spot.web.dto.post.PostSingleResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +17,13 @@ public class PostService {
         // validate & delete
     }
 
-    public void getSinglePost(Long postId) {
+    public PostSingleResponse getSinglePost(Long postId) {
         // validate & read
+        return null;
     }
 
-    public void postTypePaging(String type, Pageable pageable) {
+    public PostPagingResponse postTypePaging(String type, Pageable pageable) {
         // validate & read
+        return null;
     }
 }

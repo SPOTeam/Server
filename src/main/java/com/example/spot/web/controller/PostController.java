@@ -1,6 +1,10 @@
 package com.example.spot.web.controller;
 
-import com.example.spot.web.dto.PostCreateRequest;
+import com.example.spot.api.ApiResponse;
+import com.example.spot.api.code.status.SuccessStatus;
+import com.example.spot.web.dto.post.PostCreateRequest;
+import com.example.spot.web.dto.post.PostPagingResponse;
+import com.example.spot.web.dto.post.PostSingleResponse;
 import com.example.spot.web.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -29,21 +33,22 @@ public class PostController {
         // ToDo 응답 통일한 후 반환 타입 수정
     }
 
-    @Operation(summary = "게시글 조회 API", description = "게시글 Id를 받아 게시글을 조회합니다.")
+    @Operation(summary = "게시글 단건 조회 API", description = "게시글 Id를 받아 게시글을 조회합니다.")
     @GetMapping("/{postId}")
-    public void singlePost(
+    public ApiResponse<PostSingleResponse> singlePost(
             @Parameter(
                     description = "조회할 게시글 ID입니다.",
                     schema = @Schema(type = "intger", format = "int64")
             )
             @PathVariable Long postId
     ) {
-        postService.getSinglePost(postId);
+        PostSingleResponse postSingleResponse = postService.getSinglePost(postId);
+        return ApiResponse.onSuccess(SuccessStatus._OK, postSingleResponse);
     }
 
     @Operation(summary = "게시글 페이지 조회 API", description = "게시글을 게시글 종류를 받아 조회합니다.")
     @GetMapping
-    public void getPagingPost(
+    public ApiResponse<PostPagingResponse> getPagingPost(
             @Parameter(description = "게시글 종류. ALL, PASS_EXPERIENCE, INFORMATION_SHARING, COUNSELING, JOB_TALK, FREE_TALK, SPOT_ANNOUNCEMENT 중 하나입니다.", required = true, example = "JOB_TALK")
             @RequestParam String type,
 
@@ -51,7 +56,8 @@ public class PostController {
             @RequestParam(required = false, defaultValue = "0") int pageNumber
     ) {
         Pageable pageable = PageRequest.of(pageNumber, PAGE_SIZE);
-        postService.postTypePaging(type, pageable);
+        PostPagingResponse postPagingResponse = postService.postTypePaging(type, pageable);
+        return ApiResponse.onSuccess(SuccessStatus._OK, postPagingResponse);
     }
 
 
