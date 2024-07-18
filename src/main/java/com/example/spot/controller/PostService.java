@@ -1,5 +1,6 @@
 package com.example.spot.controller;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,6 +15,10 @@ public class PostService {
     }
 
     public void getSinglePost(Long postId) {
+        // validate & read
+    }
+
+    public void postTypePaging(String type, Pageable pageable) {
         // validate & read
     }
 }

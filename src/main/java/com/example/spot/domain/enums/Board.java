@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum Board {
+     ALL,
      PASS_EXPERIENCE,      // 합격후기
      INFORMATION_SHARING,  // 정보공유
      COUNSELING,           // 고민상담
