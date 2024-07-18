@@ -178,4 +178,21 @@ public class SearchController {
         // 메소드 구현
     }
 
+    /* ----------------------------- 찜한 스터디 조회  ------------------------------------- */
+
+    @GetMapping("/search/studies/liked/users/{userId}")
+    @Operation(
+        summary = "[찜한 스터디 조회 - 개발중] 찜한 스터디 조회",
+        description = """
+            ## [찜한 스터디 조회] 해당 사용자가 찜한 스터디 전체를 조회 합니다.
+            찜한 스터디 목록이 반환 됩니다.""",
+        security = @SecurityRequirement(name = "accessToken")
+    )
+    @Parameter(name = "userId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
+    @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
+    @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
+    public void likedStudies(@PathVariable long userId, @RequestParam Integer page, @RequestParam Integer size) {
+        // 메소드 구현
+    }
+
 }
