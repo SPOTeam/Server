@@ -1,10 +1,12 @@
 package com.example.spot.web.controller;
 
+import com.example.spot.api.ApiResponse;
 import com.example.spot.web.dto.search.SearchRequestDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Search", description = "Search API")
@@ -191,7 +193,8 @@ public class SearchController {
     @Parameter(name = "userId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
     @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
-    public void likedStudies(@PathVariable long userId, @RequestParam Integer page, @RequestParam Integer size) {
+    public ApiResponse<String> likedStudies(@PathVariable long userId, @RequestParam Integer page, @RequestParam Integer size) {
         // 메소드 구현
+        return ApiResponse.onSuccess(HttpStatus.OK.toString(), "찜한 스터디 목록 조회 성공");
     }
 }
