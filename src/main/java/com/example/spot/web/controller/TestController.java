@@ -1,4 +1,4 @@
-package com.example.spot.controller;
+package com.example.spot.web.controller;
 
 
 import org.springframework.web.bind.annotation.GetMapping;
