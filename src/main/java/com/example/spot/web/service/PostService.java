@@ -1,5 +1,7 @@
-package com.example.spot.controller;
+package com.example.spot.web.service;
 
+import com.example.spot.web.dto.PostCreateRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
