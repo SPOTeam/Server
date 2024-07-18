@@ -37,8 +37,20 @@ public class CommentResponse {
             description = "작성 시간입니다.",
             type = "string",
             format = "date-time",
-            example = "2023-06-23T10:15:30"
+            example = "2024-07-19T10:15:30"
     )
     private String writtenTime;
+
+    @Schema(
+            description = "좋아요 수입니다.",
+            format = "int"
+    )
+    private int likeCount;
+
+    @Schema(
+            description = "싫어요 수입니다.",
+            format = "int"
+    )
+    private int disLikeCount;
 
 }
