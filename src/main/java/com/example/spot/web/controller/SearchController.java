@@ -12,15 +12,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/spot")
 public class SearchController {
 
-    @GetMapping("/search/studies/interest-themes/main/users/{userId}")
-    @Operation(summary = "[메인 화면 - 개발중] 회원 별 관심 분야 스터디 3개 조회",
-        description = """
-            ## [메인 화면] 접속한 회원의 관심 스터디 3개를 조회 합니다.
-            조회된 스터디 3개의 정보가 반환 됩니다.""",
-        security = @SecurityRequirement(name = "accessToken"))
-    @Parameter(name = "userId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
-    public void interestStudiesForMain(@PathVariable long userId) {}
-
     @GetMapping("/search/studies/recommend/main/users/{userId}")
     @Operation(summary = "[메인 화면 - 개발중] 회원 별 추천 스터디 3개 조회",
         description = """
@@ -38,7 +29,8 @@ public class SearchController {
     @Operation(
         summary = "[내 관심사 스터디 조회 - 개발중] 내 '전체' 관심사 스터디 조회",
         description = """
-            ## [내 관심사 스터디 조회] 입력한 조건에 맞는 회원의 전체 관심 분야의 스터디를 조회 합니다.
+            ## [내 관심사 스터디 조회] 입력한 조건에 맞는 회원의 전체 관심 분야의 스터디를 조회 합니다. 
+            메인 화면에서 사용 하실 경우, 페이지 번호는 0, 페이지 크기는 3으로 설정하여 사용하시면 됩니다.
             조건에 맞게 검색된 스터디 목록이 반환 됩니다.""",
         security = @SecurityRequirement(name = "accessToken")
     )
@@ -53,9 +45,13 @@ public class SearchController {
     - fee: 스터디 최대 활동비 
     - sortBy: 정렬 기준 (ALL, RECRUITING, HIT, LIKED)
     """, required = false)
+    @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
+    @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
     public void interestStudiesByConditionsAll(
         @PathVariable long userId,
-        @ModelAttribute SearchRequestDTO.SearchStudyDTO searchStudyDTO
+        @ModelAttribute SearchRequestDTO.SearchStudyDTO searchStudyDTO,
+        @RequestParam Integer page,
+        @RequestParam Integer size
     ) {
         // 메소드 구현
     }
@@ -79,9 +75,13 @@ public class SearchController {
     - fee: 스터디 최대 활동비 
     - sortBy: 정렬 기준 (ALL, RECRUITING, HIT, LIKED)
     """, required = false)
+    @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
+    @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
     public void interestStudiesByConditionsSpecific(
         @PathVariable long userId,
-        @ModelAttribute SearchRequestDTO.SearchStudyDTO searchStudyDTO
+        @ModelAttribute SearchRequestDTO.SearchStudyDTO searchStudyDTO,
+        @RequestParam Integer page,
+        @RequestParam Integer size
     ) {
         // 메소드 구현
     }
@@ -109,9 +109,13 @@ public class SearchController {
     - sortBy: 정렬 기준 (ALL, RECRUITING, HIT, LIKED)
     """, required = false)
     @Parameter(name = "userId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
+    @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
+    @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
     public void interestRegionStudiesByConditionsAll(
         @PathVariable long userId,
-        @ModelAttribute SearchRequestDTO.SearchStudyDTO searchStudyDTO
+        @ModelAttribute SearchRequestDTO.SearchStudyDTO searchStudyDTO,
+        @RequestParam Integer page,
+        @RequestParam Integer size
 
     ) {
         // 메소드 구현
@@ -136,9 +140,13 @@ public class SearchController {
     - fee: 스터디 최대 활동비 
     - sortBy: 정렬 기준 (ALL, RECRUITING, HIT, LIKED)
     """, required = false)
+    @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
+    @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
     public void interestRegionStudiesByConditionsSpecific(
         @PathVariable long userId,
-        @ModelAttribute SearchRequestDTO.SearchStudyDTO searchStudyDTO
+        @ModelAttribute SearchRequestDTO.SearchStudyDTO searchStudyDTO,
+        @RequestParam Integer page,
+        @RequestParam Integer size
     ) {
         // 메소드 구현
     }
@@ -163,7 +171,10 @@ public class SearchController {
     - fee: 스터디 최대 활동비 
     - sortBy: 정렬 기준 (ALL, RECRUITING, HIT, LIKED)
     """, required = false)
-    public void recruitingStudiesByConditions(@ModelAttribute SearchRequestDTO.SearchStudyDTO searchStudyDTO) {
+    @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
+    @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
+    public void recruitingStudiesByConditions(@ModelAttribute SearchRequestDTO.SearchStudyDTO searchStudyDTO,
+        @RequestParam Integer page, @RequestParam Integer size) {
         // 메소드 구현
     }
 

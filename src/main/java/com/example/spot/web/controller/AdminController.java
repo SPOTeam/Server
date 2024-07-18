@@ -26,8 +26,8 @@ public class AdminController {
     )
     @Parameter(name = "studyId", description = "조회할 스터디의 ID를 입력 받습니다.", required = true)
     @Parameter(name = "accessToken", description = "관리자의 accessToken을 입력 받습니다.", required = true)
-    @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다.", required = true)
-    @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다.", required = true)
+    @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
+    @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
     @GetMapping("/reports/studies/{studyId}")
     public void getReportInStudy(
         @PathVariable long studyId,
@@ -47,8 +47,8 @@ public class AdminController {
             """
     )
     @Parameter(name = "accessToken", description = "관리자의 accessToken을 입력 받습니다.", required = true)
-    @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다.", required = true)
-    @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다.", required = true)
+    @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
+    @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
     public void getAllReportsInStudies(
         @RequestHeader String accessToken,
         @RequestParam Integer page,
@@ -66,8 +66,8 @@ public class AdminController {
     )
     @Parameter(name = "postId", description = "조회할 게시글의 ID를 입력 받습니다.", required = true)
     @Parameter(name = "accessToken", description = "관리자의 accessToken을 입력 받습니다.", required = true)
-    @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다.", required = true)
-    @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다.", required = true)
+    @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
+    @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
     public void getReportInPost(
         @PathVariable long postId,
         @RequestHeader String accessToken,
@@ -85,8 +85,8 @@ public class AdminController {
             """
     )
     @Parameter(name = "accessToken", description = "관리자의 accessToken을 입력 받습니다.", required = true)
-    @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다.", required = true)
-    @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다.", required = true)
+    @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
+    @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
     public void getAllReportsInPosts(
         @RequestHeader String accessToken,
         @RequestParam Integer page,
