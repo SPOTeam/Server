@@ -73,7 +73,6 @@ public class PostSingleResponse {
     )
     private int viewCount;
 
-
     @Schema(
             description = "댓글 리스트입니다.",
             format = "array"

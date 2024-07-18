@@ -2,6 +2,7 @@ package com.example.spot.web.controller;
 
 import com.example.spot.api.ApiResponse;
 import com.example.spot.api.code.status.SuccessStatus;
+import com.example.spot.web.dto.post.PostBest5Response;
 import com.example.spot.web.dto.post.PostCreateRequest;
 import com.example.spot.web.dto.post.PostPagingResponse;
 import com.example.spot.web.dto.post.PostSingleResponse;
@@ -60,6 +61,16 @@ public class PostController {
         return ApiResponse.onSuccess(SuccessStatus._OK, postPagingResponse);
     }
 
+    @Operation(summary = "인기글 조회", description = "인기글 종류에 따라 BEST 5 게시글을 조회합니다.")
+    @GetMapping("/best5")
+    public ApiResponse<PostBest5Response> getBest5(
+            @Parameter(description = "인기글 종류. REAL_TIME, RECOMMEND, COMMENT 중 하나입니다.", required = true, example = "REAL_TIME")
+            @RequestParam String sortType
+    ) {
+        PostBest5Response postBest5 = postService.getPostBest5(sortType);
+        return ApiResponse.onSuccess(SuccessStatus._OK, postBest5);
+    }
+
 
     @Operation(summary = "게시글 삭제 API", description = "게시글 Id를 받아 게시글을 삭제합니다.")
     @DeleteMapping("/{postId}")
@@ -72,6 +83,7 @@ public class PostController {
     ) {
         postService.deletePost(postId);
     }
+
 
 
 }

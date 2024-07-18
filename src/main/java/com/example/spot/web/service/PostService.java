@@ -1,5 +1,6 @@
 package com.example.spot.web.service;
 
+import com.example.spot.web.dto.post.PostBest5Response;
 import com.example.spot.web.dto.post.PostCreateRequest;
 import com.example.spot.web.dto.post.PostPagingResponse;
 import com.example.spot.web.dto.post.PostSingleResponse;
@@ -23,6 +24,11 @@ public class PostService {
     }
 
     public PostPagingResponse postTypePaging(String type, Pageable pageable) {
+        // validate & read
+        return null;
+    }
+
+    public PostBest5Response getPostBest5(String sortType) {
         // validate & read
         return null;
     }
