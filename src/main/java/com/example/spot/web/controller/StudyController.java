@@ -36,8 +36,8 @@ public class StudyController {
     /* ----------------------------- 스터디 찜하기 관련 API ------------------------------------- */
 
     @PostMapping("/studies/{studyId}/members/{memberId}/like")
-    @Operation(summary = "스터디 찜하기 취소", description = """ 
-        ## 스터디 찜하기를 누르면 해당 스터디를 찜한 회원 목록에 추가 됩니다.
+    @Operation(summary = "[스터디 찜하기] 스터디 찜하기 ", description = """ 
+        ## [스터디 찜하기] 스터디 찜하기를 누르면 해당 스터디를 찜한 회원 목록에 추가 됩니다.
         찜하기 성공 여부가 반환 됩니다.
         """)
     @Parameter(name = "studyId", description = "찜할 스터디의 ID를 입력 받습니다.", required = true)
@@ -47,8 +47,8 @@ public class StudyController {
     }
 
     @DeleteMapping("/studies/{studyId}/members/{memberId}/like")
-    @Operation(summary = "스터디 찜하기 취소", description = """ 
-        ## 스터디 찜하기를 취소하면 해당 스터디를 찜한 회원 목록에서 삭제 됩니다.
+    @Operation(summary = "[스터디 찜하기] 스터디 찜하기 취소", description = """ 
+        ## [스터디 찜하기] 스터디 찜하기를 취소하면 해당 스터디를 찜한 회원 목록에서 삭제 됩니다.
         찜하기 취소 성공 여부가 반환 됩니다.
         """)
     @Parameter(name = "studyId", description = "찜을 취소할 스터디의 ID를 입력 받습니다.", required = true)
