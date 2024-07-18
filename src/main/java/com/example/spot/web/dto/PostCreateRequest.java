@@ -28,7 +28,7 @@ public class PostCreateRequest {
 
     @Schema(
             description = "게시글 타입입니다. 아래와 같이 작성해주세요.",
-            allowableValues = {"PASS_EXPERIENCE", "INFORMATION_SHARING", "COUNSELING", "JOB_TALK", "FREE_TALK", "SPOT_ANNOUNCEMENT"}
+            allowableValues = {"ALL", "PASS_EXPERIENCE", "INFORMATION_SHARING", "COUNSELING", "JOB_TALK", "FREE_TALK", "SPOT_ANNOUNCEMENT"}
     )
     private String type;
 
