@@ -36,7 +36,7 @@ public class SearchRequestDTO {
         @Schema(description = "스터디 최대 활동비.", example = "10000")
         private Integer fee;
 
-        @Schema(description = "정렬 기준.", example = "NAME")
+        @Schema(description = "정렬 기준.", example = "HIT")
         private StudySortBy sortBy;
     }
 
