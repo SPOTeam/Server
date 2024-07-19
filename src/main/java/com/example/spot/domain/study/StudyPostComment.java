@@ -47,6 +47,13 @@ public class StudyPostComment extends BaseEntity {
     @Column(nullable = false)
     private Integer likeCount;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_comment_id")
+    private StudyPostComment parentComment;
+
+    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL)
+    private List<StudyPostComment> childrenComment;
+
     @OneToMany(mappedBy = "studyPostComment", cascade = CascadeType.ALL)
     private List<StudyLikedComment> likedComments;
 
