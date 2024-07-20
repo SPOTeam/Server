@@ -4,6 +4,9 @@ import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.enums.Gender;
 import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.enums.StudyState;
+import com.example.spot.domain.mapping.MemberStudy;
+import com.example.spot.domain.mapping.RegionStudy;
+import com.example.spot.domain.mapping.StudyTheme;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,26 +16,22 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+
+import java.util.ArrayList;
 import java.util.List;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+
+import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
 @Getter
-@Builder
 @DynamicUpdate
 @DynamicInsert
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 public class Study extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -52,10 +51,10 @@ public class Study extends BaseEntity {
     private StudyState studyState;
 
     @Column(nullable = false)
-    private boolean isOnline;
+    private Boolean isOnline;
 
     @Column(nullable = false)
-    private int heartCount;
+    private Integer heartCount;
 
     @Column(nullable = false)
     private String goal;
@@ -73,6 +72,9 @@ public class Study extends BaseEntity {
     @Column(nullable = false)
     private Long hitNum;
 
+    @Column(nullable = false)
+    private Long maxPeople;
+
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
     private List<Schedule> schedules;
 
@@ -82,4 +84,60 @@ public class Study extends BaseEntity {
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
     private List<Vote> votes;
 
+    @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
+    private List<StudyTheme> studyThemes;
+
+    @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
+    private List<MemberStudy> memberStudies;
+
+    @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
+    private List<RegionStudy> regionStudies;
+
+/* ----------------------------- 생성자 ------------------------------------- */
+
+    protected Study() {}
+
+    @Builder
+    public Study(Gender gender, Integer minAge, Integer maxAge, Integer fee,
+                    Boolean isOnline, String goal, String introduction,
+                    String title, Long maxPeople) {
+        this.gender = gender;
+        this.minAge = minAge;
+        this.maxAge = maxAge;
+        this.fee = fee;
+        this.studyState = StudyState.BEFORE;
+        this.isOnline = isOnline;
+        this.heartCount = 0;
+        this.goal = goal;
+        this.introduction = introduction;
+        this.title = title;
+        this.status = Status.ON;
+        this.hitNum = 0L;
+        this.maxPeople = maxPeople;
+        this.schedules = new ArrayList<>();
+        this.posts = new ArrayList<>();
+        this.votes = new ArrayList<>();
+        this.studyThemes = new ArrayList<>();
+        this.memberStudies = new ArrayList<>();
+        this.regionStudies = new ArrayList<>();
+
+    }
+
+
+/* ----------------------------- 연관관계 메소드 ------------------------------------- */
+
+    public void addMemberStudy(MemberStudy memberStudy) {
+        memberStudies.add(memberStudy);
+        memberStudy.setStudy(this);
+    }
+
+    public void addRegionStudy(RegionStudy regionStudy) {
+        regionStudies.add(regionStudy);
+        regionStudy.setStudy(this);
+    }
+
+    public void addStudyTheme(StudyTheme studyTheme) {
+        studyThemes.add(studyTheme);
+        studyTheme.setStudy(this);
+    }
 }
