@@ -1,4 +1,4 @@
-package com.example.spot;
+package com.example.spot.repository;
 
 import com.example.spot.domain.Region;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,12 +1,11 @@
 package com.example.spot.config;
 
-import com.example.spot.RegionRepository;
+import com.example.spot.repository.RegionRepository;
 import com.example.spot.domain.Region;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
