@@ -2,14 +2,12 @@ package com.example.spot.web.controller;
 
 import com.example.spot.api.ApiResponse;
 import com.example.spot.api.code.status.SuccessStatus;
-import com.example.spot.web.dto.post.PostBest5Response;
-import com.example.spot.web.dto.post.PostCreateRequest;
-import com.example.spot.web.dto.post.PostPagingResponse;
-import com.example.spot.web.dto.post.PostSingleResponse;
+import com.example.spot.web.dto.post.*;
 import com.example.spot.web.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -27,14 +25,22 @@ public class PostController {
 
     private final static int PAGE_SIZE = 10; //페이지당 개수
 
-    @Operation(summary = "게시글 등록 API", description = "form/data로 새로운 게시글을 생성합니다.")
+    @Operation(
+            summary = "게시글 등록 API",
+            description = "form/data로 새로운 게시글을 생성합니다.",
+            security = @SecurityRequirement(name = "accessToken")
+    )
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public void create(@ModelAttribute PostCreateRequest postCreateRequest) {
         postService.createPost(postCreateRequest);
         // ToDo 응답 통일한 후 반환 타입 수정
     }
 
-    @Operation(summary = "게시글 단건 조회 API", description = "게시글 Id를 받아 게시글을 조회합니다.")
+    @Operation(
+            summary = "게시글 단건 조회 API",
+            description = "게시글 Id를 받아 게시글을 조회합니다.",
+            security = @SecurityRequirement(name = "accessToken")
+    )
     @GetMapping("/{postId}")
     public ApiResponse<PostSingleResponse> singlePost(
             @Parameter(
@@ -47,7 +53,10 @@ public class PostController {
         return ApiResponse.onSuccess(SuccessStatus._OK, postSingleResponse);
     }
 
-    @Operation(summary = "게시글 페이지 조회 API", description = "게시글을 게시글 종류를 받아 조회합니다.")
+    @Operation(
+            summary = "게시글 페이지 조회 API",
+            description = "게시글을 게시글 종류를 받아 조회합니다."
+    )
     @GetMapping
     public ApiResponse<PostPagingResponse> getPagingPost(
             @Parameter(description = "게시글 종류. ALL, PASS_EXPERIENCE, INFORMATION_SHARING, COUNSELING, JOB_TALK, FREE_TALK, SPOT_ANNOUNCEMENT 중 하나입니다.", required = true, example = "JOB_TALK")
@@ -72,6 +81,27 @@ public class PostController {
         PostHomeResponse postHomeResponse = postService.getPostHome(sortType);
         return ApiResponse.onSuccess(SuccessStatus._OK, postHomeResponse);
     }
+
+    @Operation(
+            summary = "게시글 수정 API",
+            description = "게시글 Id를 받아 게시글을 수정합니다.",
+            security = @SecurityRequirement(name = "accessToken")
+    )
+    @PutMapping("/{postId}")
+    public void update(
+            @Parameter(
+                    description = "수정할 게시글의 ID입니다.",
+                    schema = @Schema(type = "integer", format = "int64")
+            )
+            @PathVariable Long postId,
+            @Parameter(
+                    description = "수정할 게시글 데이터입니다."
+            )
+            @RequestBody PostUpdateRequest postUpdateRequest
+    ) {
+        //메서드
+    }
+
 
 
     @Operation(summary = "게시글 삭제 API", description = "게시글 Id를 받아 게시글을 삭제합니다.")
