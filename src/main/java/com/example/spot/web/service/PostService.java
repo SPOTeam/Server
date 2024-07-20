@@ -30,7 +30,8 @@ public class PostService {
         return null;
     }
 
-    public PostHomeResponse getPostHome(String sortType){
+
+    public PostHomeResponse getPostAnnuncement(String sortType){
         return null;
     }
 }

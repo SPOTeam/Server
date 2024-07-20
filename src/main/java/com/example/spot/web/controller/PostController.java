@@ -71,15 +71,49 @@ public class PostController {
     }
 
     @Operation(
-            summary = "게시판 홈 조회",
-            description = "인기글(인기글 조회시 종류 명시가 필요합니다.) & 게시글 5개(종류별 1개씩) & 공지 5개로 홈화면을 조회합니다.")
-    @GetMapping("/home")
-    public ApiResponse<PostHomeResponse> getPostHome(
+            summary = "게시판 인기글 조회",
+            description = "인기글을 조회합니다.(인기글 조회시 종류 명시가 필요합니다.)")
+    @GetMapping("/best")
+    public ApiResponse<PostBest5Response> getPostBest(
             @Parameter(description = "인기글 종류. REAL_TIME, RECOMMEND, COMMENT 중 하나입니다.", required = true, example = "REAL_TIME")
             @RequestParam String sortType
     ) {
-        PostHomeResponse postHomeResponse = postService.getPostHome(sortType);
-        return ApiResponse.onSuccess(SuccessStatus._OK, postHomeResponse);
+        PostBest5Response postBest5Response = postService.getPostBest5(sortType);
+        return ApiResponse.onSuccess(SuccessStatus._OK, postBest5Response);
+    }
+
+    @Operation(
+            summary = "게시판 홈 게시글 조회",
+            description = "게시판 홈에 게시글 종류별로 대표1개씩 게시글을 조회합니다.")
+    @GetMapping("/representative")
+    public void getPost(
+
+    ) {
+        //PostBoard5Response postHomeResponse = postService.getPostHome(sortType);
+        //return ApiResponse.onSuccess(SuccessStatus._OK, postHomeResponse);
+    }
+
+    @Operation(
+            summary = "게시판 공지 조회",
+            description = "공지를 조회합니다.")
+    @GetMapping("/announcement")
+    public void getPostAnnouncement(
+
+    ) {
+        //PostBoard5Response postBoard5Response = postService.getPostAnnuncement(sortType);
+        //return ApiResponse.onSuccess(SuccessStatus._OK, postBoard5Response);
+    }
+
+    @Operation(summary = "댓글 조회 API", description = "댓글 ID를 받아 댓글을 조회합니다.")
+    @GetMapping("/comments/{commentId}")
+    public void getComment(
+            @Parameter(
+                    description = "조회할 댓글의 ID입니다.",
+                    schema = @Schema(type = "integer", format = "int64")
+            )
+            @PathVariable Long commentId
+    ) {
+        //메서드
     }
 
     @Operation(
