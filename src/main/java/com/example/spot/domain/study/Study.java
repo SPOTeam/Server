@@ -70,6 +70,9 @@ public class Study extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    @Column(nullable = false)
+    private Long hitNum;
+
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
     private List<Schedule> schedules;
 
