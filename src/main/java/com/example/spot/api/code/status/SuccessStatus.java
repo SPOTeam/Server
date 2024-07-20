@@ -39,6 +39,8 @@ public enum SuccessStatus implements BaseCode {
     _STUDY_UPDATED(HttpStatus.OK, "STUDY4002", "스터디 수정 완료"),
     _STUDY_FOUND(HttpStatus.OK, "STUDY4003", "스터디 조회 완료"),
     _STUDY_MEMBER_CREATED(HttpStatus.CREATED, "STUDY4004", "스터디 참여 완료"),
+    _STUDY_MEMBER_DELETED(HttpStatus.OK, "STUDY4005", "스터디 탈퇴 완료"),
+    _STUDY_TERMINATED(HttpStatus.OK, "STUDY4006", "스터디 종료 완료"),
 
 
     ;

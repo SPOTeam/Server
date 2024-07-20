@@ -23,7 +23,10 @@ public enum ErrorStatus implements BaseErrorCode {
     //스터디 관련 에러
     _STUDY_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY4001", "스터디를 찾을 수 없습니다."),
     _STUDY_OWNER_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY4002", "스터디장을 찾을 수 없습니다."),
-    _STUDY_ALREADY_APPLIED(HttpStatus.FORBIDDEN, "STUDY4003", "이미 신청된 스터디입니다."),
+    _STUDY_ALREADY_APPLIED(HttpStatus.BAD_REQUEST, "STUDY4003", "이미 신청된 스터디입니다."),
+    _STUDY_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY4004", "스터디 회원을 찾을 수 없습니다."),
+    _STUDY_NOT_APPROVED(HttpStatus.FORBIDDEN, "STUDY4005", "승인되지 않은 스터디입니다."),
+    _STUDY_OWNER_CANNOT_WITHDRAW(HttpStatus.FORBIDDEN, "STUDY4006", "스터디장은 스터디를 탈퇴할 수 없습니다."),
 
     //스터디 게시물 관련 에러
     _STUDY_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST4001", "스터디 게시글을 찾을 수 없습니다."),
