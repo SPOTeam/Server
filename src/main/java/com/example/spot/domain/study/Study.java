@@ -65,6 +65,7 @@ public class Study extends BaseEntity {
     @Column(nullable = false)
     private String title;
 
+    @Setter
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Status status;
@@ -140,4 +141,5 @@ public class Study extends BaseEntity {
         studyThemes.add(studyTheme);
         studyTheme.setStudy(this);
     }
+
 }
