@@ -7,6 +7,7 @@ import com.example.spot.domain.Member;
 import com.example.spot.domain.Region;
 import com.example.spot.domain.Theme;
 import com.example.spot.domain.enums.ApplicationStatus;
+import com.example.spot.domain.enums.StudyState;
 import com.example.spot.domain.mapping.MemberStudy;
 import com.example.spot.domain.mapping.RegionStudy;
 import com.example.spot.domain.mapping.StudyTheme;
@@ -46,6 +47,11 @@ public class StudyCommandServiceImpl implements StudyCommandService {
 
         Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+
+        // 모집중이지 않은 스터디에 신청할 수 없음
+        if (study.getStudyState() != StudyState.RECRUITING) {
+            throw new StudyHandler(ErrorStatus._STUDY_NOT_RECRUITING);
+        }
 
         // 이미 신청한 스터디에 다시 신청할 수 없음
         List<MemberStudy> memberStudyList = memberStudyRepository.findByMember_Id(memberId).stream()
