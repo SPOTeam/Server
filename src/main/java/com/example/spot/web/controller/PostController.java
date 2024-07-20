@@ -45,7 +45,7 @@ public class PostController {
     public ApiResponse<PostSingleResponse> singlePost(
             @Parameter(
                     description = "조회할 게시글 ID입니다.",
-                    schema = @Schema(type = "intger", format = "int64")
+                    schema = @Schema(type = "integer", format = "int64")
             )
             @PathVariable Long postId
     ) {
