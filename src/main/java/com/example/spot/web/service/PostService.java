@@ -1,9 +1,6 @@
 package com.example.spot.web.service;
 
-import com.example.spot.web.dto.post.PostBest5Response;
-import com.example.spot.web.dto.post.PostCreateRequest;
-import com.example.spot.web.dto.post.PostPagingResponse;
-import com.example.spot.web.dto.post.PostSingleResponse;
+import com.example.spot.web.dto.post.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +27,10 @@ public class PostService {
 
     public PostBest5Response getPostBest5(String sortType) {
         // validate & read
+        return null;
+    }
+
+    public PostHomeResponse getPostHome(String sortType){
         return null;
     }
 }

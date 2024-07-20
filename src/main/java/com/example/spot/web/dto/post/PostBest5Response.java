@@ -21,5 +21,6 @@ public class PostBest5Response {
             description = "인기글 목록입니다.",
             type = "array"
     )
-    private List<PostBest5DetailResponse> postBest5Responses;
+    private List<PostBest5Response> postBest5Responses;
+
 }

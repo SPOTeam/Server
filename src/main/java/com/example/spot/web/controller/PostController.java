@@ -61,14 +61,16 @@ public class PostController {
         return ApiResponse.onSuccess(SuccessStatus._OK, postPagingResponse);
     }
 
-    @Operation(summary = "인기글 조회", description = "인기글 종류에 따라 BEST 5 게시글을 조회합니다.")
-    @GetMapping("/best5")
-    public ApiResponse<PostBest5Response> getBest5(
+    @Operation(
+            summary = "게시판 홈 조회",
+            description = "인기글(인기글 조회시 종류 명시가 필요합니다.) & 게시글 5개(종류별 1개씩) & 공지 5개로 홈화면을 조회합니다.")
+    @GetMapping("/home")
+    public ApiResponse<PostHomeResponse> getPostHome(
             @Parameter(description = "인기글 종류. REAL_TIME, RECOMMEND, COMMENT 중 하나입니다.", required = true, example = "REAL_TIME")
             @RequestParam String sortType
     ) {
-        PostBest5Response postBest5 = postService.getPostBest5(sortType);
-        return ApiResponse.onSuccess(SuccessStatus._OK, postBest5);
+        PostHomeResponse postHomeResponse = postService.getPostHome(sortType);
+        return ApiResponse.onSuccess(SuccessStatus._OK, postHomeResponse);
     }
 
 
