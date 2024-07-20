@@ -12,28 +12,33 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/spot")
 public class StudyController {
 
-    @GetMapping("/studies")
-    @Operation(summary = "전체 스터디 조회하기", description = "전체 스터디 목록을 불러옵니다.")
-    public void getAllStudies(@RequestParam("gender") Gender gender,
-                              @RequestParam("min-age") Integer minAge,
-                              @RequestParam("max-age") Integer maxAge,
-                              @RequestParam("fee") Boolean fee,
-                              @RequestParam("theme") ThemeType themeType) {}
+/* ----------------------------- 스터디 생성/참여 관련 API ------------------------------------- */
 
-    @GetMapping("/members/{memberId}/regions/studies")
-    @Operation(summary = "관심 지역별 스터디 불러오기", description = "관심 지역별 스터디 목록을 불러옵니다.")
-    public void getAllRegionStudies(@PathVariable(value = "memberId", required = false) Long memberId,
-                                    @RequestParam(value = "gender", required = false) Gender gender,
-                                    @RequestParam(value = "min-age", required = false) Integer minAge,
-                                    @RequestParam(value = "max-age", required = false) Integer maxAge,
-                                    @RequestParam(value = "fee", required = false) Boolean fee,
-                                    @RequestParam(value = "theme", required = false) ThemeType themeType) {}
-
+    @Operation(summary = "[스터디 생성/참여] 스터디 정보 불러오기", description = """ 
+        ## [스터디 생성/참여] 스터디 페이지 클릭, 전체 공개되는 스터디의 정보를 불러옵니다.
+        스터디의 정보(이름, 참여인원, 찜 개수, 테마, 온라인 여부, 비용 여부, 연령 제한, 목표, 소개, 스터디장 등)가 반환됩니다.
+        """)
     @GetMapping("/studies/{studyId}")
-    @Operation(summary = "스터디 정보 불러오기", description = "스터디 페이지 초기화면을 불러옵니다.")
-    public void getStudyInfo(@PathVariable("studyId") Long studyId) {}
+    public void getStudyInfo(@PathVariable Long studyId) {
+    }
 
-    /* ----------------------------- 스터디 찜하기 관련 API ------------------------------------- */
+    @Operation(summary = "[스터디 생성/참여] 참여 신청하기", description = """ 
+        ## [스터디 생성/참여] 스터디 페이지 > 신청하기 클릭, 로그인한 회원이 스터디에 신청합니다.
+        로그인한 회원이 member_study에 application_status = APPLIED 상태로 추가됩니다.
+        """)
+    @PostMapping("/members/{memberId}/studies/{studyId}")
+    public void applyToStudy(@PathVariable Long memberId, @PathVariable Long studyId) {
+    }
+
+    @Operation(summary = "[스터디 생성/참여] 스터디 등록하기", description = """ 
+        ## [스터디 생성/참여] 스터디 등록 페이지 클릭, 로그인한 회원이 스터디를 등록합니다.
+        로그인한 회원이 owner인 새로운 스터디가 study에 생성됩니다.
+        """)
+    @PostMapping("/members/{memberId}/studies")
+    public void registerStudy(@PathVariable Long memberId) {
+    }
+
+/* ----------------------------- 스터디 찜하기 관련 API ------------------------------------- */
 
     @PostMapping("/studies/{studyId}/members/{memberId}/like")
     @Operation(summary = "[스터디 찜하기] 스터디 찜하기 ", description = """ 
