@@ -23,8 +23,14 @@ public class RegionDataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        List<Region> regions = readRegionsFromFile("data/region_data.tsv");
-        regionRepository.saveAll(regions);
+        if (isDataAbsent()) {
+            List<Region> regions = readRegionsFromFile("data/region_data.tsv");
+            regionRepository.saveAll(regions);
+        }
+    }
+
+    private boolean isDataAbsent() {
+        return regionRepository.count() == 0;
     }
 
     private List<Region> readRegionsFromFile(String filePath) throws IOException {
