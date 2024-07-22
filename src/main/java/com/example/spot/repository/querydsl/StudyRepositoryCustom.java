@@ -17,6 +17,8 @@ public interface StudyRepositoryCustom {
     List<Study> findStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndThemeTypes(Map<String, Object> search,
         StudySortBy sortBy, Pageable pageable, List<StudyTheme> themeTypes);
 
+    long countStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndThemeTypes(Map<String, Object> search, List<StudyTheme> themeTypes);
+
     List<Study> findStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndRegionCodes(Map<String, Object> search,
         StudySortBy sortBy, Pageable pageable, List<String> regionCodes);
 

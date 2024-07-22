@@ -108,6 +108,39 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
         return query.fetch();
     }
 
+    @Override
+    public long countStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndThemeTypes(
+        Map<String, Object> search, List<StudyTheme> themeTypes) {
+        BooleanBuilder builder = new BooleanBuilder();
+
+        // 조건문 추가
+        if (search.get("isOnline") != null) {
+            builder.and(study.isOnline.eq((Boolean) search.get("isOnline")));
+        }
+        if (search.get("gender") != null) {
+            builder.and(study.gender.eq((Gender) search.get("gender")));
+        }
+        if (search.get("minAge") != null) {
+            builder.and(study.minAge.goe((Integer) search.get("minAge")));
+        }
+        if (search.get("maxAge") != null) {
+            builder.and(study.maxAge.loe((Integer) search.get("maxAge")));
+        }
+        if (search.get("hasFee") != null) {
+            builder.and(study.hasFee.eq((Boolean) search.get("hasFee")));
+        }
+        if (search.get("fee") != null) {
+            builder.and(study.fee.loe((Integer) search.get("fee")));
+        }
+        if (themeTypes != null && !themeTypes.isEmpty()) {
+            builder.and(study.themes.any().in(themeTypes));
+        }
+
+        return queryFactory.selectFrom(study)
+            .where(builder)
+            .fetchCount();
+    }
+
 
     @Override
     public List<Study> findStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndRegionCodes(

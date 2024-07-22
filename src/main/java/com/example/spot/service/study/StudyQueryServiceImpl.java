@@ -56,15 +56,18 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             .flatMap(theme -> studyThemeRepository.findAllByTheme(theme).stream())
             .toList();
 
-        Map<String, Object> search = getSearchConditions(request);
+        Map<String, Object> conditions = getSearchConditions(request);
+
+        long totalElements = studyRepository.countStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndThemeTypes(conditions, studyThemes);
+
 
         List<Study> studies = studyRepository.findStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndThemeTypes(
-            search, request.getSortBy(),
+            conditions, request.getSortBy(),
             pageable, studyThemes);
 
         List<SearchResponseDTO.SearchStudyDTO> stream = getDtos(studies);
 
-        return new PageImpl<>(stream, pageable, studies.size());
+        return new PageImpl<>(stream, pageable, totalElements);
     }
 
     private Theme findThemeByType(List<Theme> themes, ThemeType themeType) {
@@ -95,12 +98,14 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
         Map<String, Object> conditions = getSearchConditions(request);
 
+        long totalElements = studyRepository.countStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndThemeTypes(conditions, studyThemes);
+
         List<Study> studies = studyRepository.findStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndThemeTypes(
             conditions, request.getSortBy(), pageable, studyThemes);
 
         List<SearchResponseDTO.SearchStudyDTO> studyDTOs = getDtos(studies);
 
-        return new PageImpl<>(studyDTOs, pageable, studies.size());
+        return new PageImpl<>(studyDTOs, pageable, totalElements);
     }
 
 
