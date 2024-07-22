@@ -10,6 +10,6 @@ import java.util.Optional;
 @Repository
 public interface MemberStudyRepository extends JpaRepository<MemberStudy, Long> {
 
-    List<MemberStudy> findByMember_Id(Long memberId);
+    List<MemberStudy> findByMemberId(Long memberId);
     Optional<MemberStudy> findByMemberIdAndStudyId(Long memberId, Long studyId);
 }
