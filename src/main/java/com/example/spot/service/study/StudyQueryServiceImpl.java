@@ -42,8 +42,9 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         SearchStudyDTO request) {
 
         // 회원의 테마를 가져오기
-        List<Theme> themes = memberThemeRepository.findAllByMemberId(memberId).stream()
+        List<ThemeType> themes = memberThemeRepository.findAllByMemberId(memberId).stream()
             .map(MemberTheme::getTheme)
+            .map(Theme::getStudyTheme)
             .toList();
 
         // 검색 조건 맵 생성

@@ -2,15 +2,16 @@ package com.example.spot.repository.querydsl.impl;
 
 import com.example.spot.domain.enums.Gender;
 import com.example.spot.domain.enums.StudySortBy;
+import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.domain.study.Study;
 import com.example.spot.repository.querydsl.StudyRepositoryCustom;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import java.awt.print.Pageable;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import static com.example.spot.domain.study.QStudy.study;
 @RequiredArgsConstructor
@@ -40,5 +41,31 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
             .limit(pageable.getPageSize())
             .fetch();
 
+    }
+
+    @Override
+    public List<Study> findStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndThemeTypes(
+        Map<String, Object> search, StudySortBy sortBy, Pageable pageable,
+        List<ThemeType> themeTypes) {
+        return null;
+    }
+
+    @Override
+    public List<Study> findStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndThemeType(
+        Map<String, Object> search, StudySortBy sortBy, Pageable pageable, ThemeType themeType) {
+        return null;
+    }
+
+    @Override
+    public List<Study> findStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndRegionCodes(
+        Map<String, Object> search, StudySortBy sortBy, Pageable pageable,
+        List<String> regionCodes) {
+        return null;
+    }
+
+    @Override
+    public List<Study> findStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndRegionCode(
+        Map<String, Object> search, StudySortBy sortBy, Pageable pageable, String regionCode) {
+        return null;
     }
 }
