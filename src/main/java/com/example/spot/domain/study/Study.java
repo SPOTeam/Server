@@ -44,6 +44,9 @@ public class Study extends BaseEntity {
     private Integer maxAge;
 
     @Column(nullable = false)
+    private boolean hasFee;
+
+    @Column(nullable = false)
     private Integer fee;
 
     @Column(nullable = false)
