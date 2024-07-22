@@ -3,6 +3,7 @@ package com.example.spot.domain;
 import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.enums.Carrier;
 import com.example.spot.domain.mapping.*;
+import com.example.spot.domain.study.Study;
 import com.example.spot.domain.study.StudyPost;
 import com.example.spot.domain.study.StudyPostComment;
 import com.example.spot.domain.study.Vote;
@@ -57,6 +58,7 @@ public class Member extends BaseEntity {
 
     @Column(nullable = false, columnDefinition = "BIT DEFAULT 0")
     private Boolean isAdmin;
+
 
     //== 스터디 희망사유 ==//
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
@@ -137,5 +139,13 @@ public class Member extends BaseEntity {
     //== 회원이 투표한 항목 목록 ==//
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<MemberVote> memberVoteList;
+
+
+/* ----------------------------- 연관관계 메소드 ------------------------------------- */
+
+    public void addMemberStudy(MemberStudy memberStudy) {
+        memberStudyList.add(memberStudy);
+        memberStudy.setMember(this);
+    }
 
 }

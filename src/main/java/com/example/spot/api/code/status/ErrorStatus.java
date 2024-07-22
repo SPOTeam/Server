@@ -20,10 +20,23 @@ public enum ErrorStatus implements BaseErrorCode {
     _MEMBER_NAME_INVALID(HttpStatus.BAD_REQUEST, "MEMBER4002", "회원 이름이 유효하지 않습니다."),
     _MEMBER_BIRTH_INVALID(HttpStatus.BAD_REQUEST, "MEMBER4005", "생년월일이 유효하지 않습니다."),
 
+    //스터디 관련 에러
+    _STUDY_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY4001", "스터디를 찾을 수 없습니다."),
+    _STUDY_OWNER_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY4002", "스터디장을 찾을 수 없습니다."),
+    _STUDY_ALREADY_APPLIED(HttpStatus.FORBIDDEN, "STUDY4003", "이미 신청된 스터디입니다."),
+    _STUDY_NOT_RECRUITING(HttpStatus.BAD_REQUEST, "STUDY4007", "스터디 모집기한이 아닙니다."),
+
     //스터디 게시물 관련 에러
     _STUDY_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST4001", "스터디 게시글을 찾을 수 없습니다."),
     _STUDY_POST_TITLE_INVALID(HttpStatus.BAD_REQUEST, "POST4002", "스터디 게시글 제목이 유효하지 않습니다."),
     _STUDY_POST_CONTENT_INVALID(HttpStatus.BAD_REQUEST, "POST4003", "스터디 게시글 내용이 유효하지 않습니다."),
+
+    //지역 관련 에러
+    _REGION_NOT_FOUND(HttpStatus.NOT_FOUND, "REGION4001", "지역을 찾을 수 없습니다."),
+
+    // 스터디 테마 에러
+    _THEME_NOT_FOUND(HttpStatus.NOT_FOUND, "THEME4001", "스터디 테마를 찾을 수 없습니다."),
+
     ;
 
     private final HttpStatus httpStatus;

@@ -36,4 +36,16 @@ public class Region {
     @OneToMany(mappedBy = "region")
     private List<PreferredRegion> prefferedRegionList = new ArrayList<>();
 
+
+/* ----------------------------- 연관관계 메소드 ------------------------------------- */
+
+    public void addRegionStudy(RegionStudy regionStudy) {
+        regionStudyList.add(regionStudy);
+        regionStudy.setRegion(this);
+    }
+
+    public void addPreferredRegion(PreferredRegion preferredRegion) {
+        prefferedRegionList.add(preferredRegion);
+        preferredRegion.setRegion(this);
+    }
 }
