@@ -13,9 +13,7 @@ import lombok.NoArgsConstructor;
 public class SearchRequestDTO {
 
     @Getter
-    @Builder
     @AllArgsConstructor
-    @NoArgsConstructor
     public static class SearchStudyDTO{
 
 

@@ -69,25 +69,14 @@ public class SearchController {
     @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
     public ApiResponse<List<SearchStudyDTO>> interestStudiesByConditionsAll(
+        @ModelAttribute SearchRequestDTO.SearchStudyDTO searchStudyDTO,
         @PathVariable long userId,
-        @RequestParam(required = false) Gender gender,
-        @RequestParam(required = false) Integer minAge,
-        @RequestParam(required = false) Integer maxAge,
-        @RequestParam(required = false) Boolean isOnline,
-        @RequestParam(required = false) Boolean hasFee,
-        @RequestParam(required = false) Integer fee,
-        @RequestParam(required = false) StudySortBy sortBy,
         @RequestParam Integer page,
         @RequestParam Integer size
     ) {
-        List<SearchStudyDTO> studies = studyQueryService.findInterestStudiesByConditionsAll(PageRequest.of(page, size), userId,
-            SearchRequestDTO.SearchStudyDTO.builder()
-                .fee(fee).gender(gender).hasFee(hasFee).isOnline(isOnline).maxAge(maxAge).minAge(minAge).sortBy(sortBy)
-                .build());
-        // 메소드 구현
+        List<SearchStudyDTO> studies = studyQueryService.findInterestStudiesByConditionsAll(PageRequest.of(page, size), userId, searchStudyDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_UPDATED, studies);
     }
-
     @GetMapping("/search/studies/interest-themes/specific/users/{userId}/")
     @Operation(
         summary = "[내 관심사 스터디 조회 - 개발중] 내 '특정' 관심사 스터디 조회",
