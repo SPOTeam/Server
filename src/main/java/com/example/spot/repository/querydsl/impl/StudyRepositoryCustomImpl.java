@@ -91,15 +91,17 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
         switch (sortBy) {
             case HIT:
                 query.orderBy(study.hitNum.desc());
+                query.orderBy(study.createdAt.desc());
                 break;
             case LIKED:
                 query.orderBy(study.heartCount.desc());
+                query.orderBy(study.createdAt.desc());
                 break;
             case RECRUITING:
-                query.orderBy(study.createdAt.asc());
+                query.orderBy(study.createdAt.desc());
                 break;
             default:
-                query.orderBy(study.id.asc());
+                query.orderBy(study.createdAt.desc());
                 break;
         }
 

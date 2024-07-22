@@ -1,6 +1,11 @@
 package com.example.spot.web.dto.search;
 
+import com.example.spot.domain.Theme;
+import com.example.spot.domain.enums.StudyState;
+import com.example.spot.domain.enums.ThemeType;
+import com.example.spot.domain.mapping.StudyTheme;
 import com.example.spot.domain.study.Study;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,6 +27,9 @@ public class SearchResponseDTO {
             this.memberCount = (long) study.getMemberStudies().size();
             this.heartCount = (long) study.getHeartCount();
             this.hitNum = study.getHitNum();
+            this.studyState = study.getStudyState();
+            this.themeTypes = study.getThemes().stream().map(StudyTheme::getTheme).map(Theme::getStudyTheme).toList();
+            this.createdAt = study.getCreatedAt();
 
         }
         Long studyId;
@@ -31,6 +39,9 @@ public class SearchResponseDTO {
         Long memberCount;
         Long heartCount;
         Long hitNum;
+        StudyState studyState;
+        List<ThemeType> themeTypes;
+        LocalDateTime createdAt;
     }
 
 }
