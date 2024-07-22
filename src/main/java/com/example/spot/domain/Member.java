@@ -55,6 +55,9 @@ public class Member extends BaseEntity {
     @Column(nullable = false)
     private Boolean idInfo;
 
+    @Column(nullable = false, columnDefinition = "BIT DEFAULT 0")
+    private Boolean isAdmin;
+
     //== 스터디 희망사유 ==//
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<StudyReason> studyReasonList;
