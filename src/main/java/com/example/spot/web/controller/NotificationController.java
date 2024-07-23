@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/spot")
 public class NotificationController {
-
     private final NotificationQueryService notificationQueryService;
     private final NotificationCommandService notificationCommandService;
 
@@ -47,16 +46,17 @@ public class NotificationController {
     }
 
     // 알림 읽음 처리
-    @PostMapping("/notifications/{notification-id}/read")
+    @PostMapping("/notifications/{notificationId}/read")
     @Operation(summary = "[알림 읽음 처리 - 개발중]",
             description = """
                     ## [알림 읽음 처리] 알림을 읽음 처리합니다.
                     알림을 읽음 처리합니다.
                     """)
-    public void readNotification(
-            @PathVariable("notification-id") long notificationId
+    public ApiResponse<NotificationResponseDTO.NotificationDTO> readNotification(
+            @PathVariable("notificationId") Long notificationId
     ) {
-
+        NotificationResponseDTO.NotificationDTO notificationDTO = notificationCommandService.readNotification(notificationId);
+        return ApiResponse.onSuccess(SuccessStatus._NOTIFICATION_FOUND, notificationDTO);
     }
 
 
@@ -99,7 +99,7 @@ public class NotificationController {
     @Parameter(name = "userId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
     @Parameter(name = "status", description = "조회할 알림의 상태를 입력 받습니다.", required = true)
     @Parameter(name = "date", description = "조회할 알림의 날짜를 입력 받습니다.", required = true)
-    public void confirmAppliedStudy(
+    public void joinAppliedStudy(
             @PathVariable("studyId") long studyId,
             @RequestParam("userId") Long userId,
             @RequestParam("status") String status,
@@ -125,7 +125,7 @@ public class NotificationController {
             @RequestParam("status") String status,
             @RequestParam("date") String date
     ) {
-        return notificationCommandService.cancelAppliedStudy(studyId, userId, status, date);
+        return null;
     }
 
     // 알림 존재 유무(알림 있으면 알림 아이콘 옆 붉은 점 표시)
