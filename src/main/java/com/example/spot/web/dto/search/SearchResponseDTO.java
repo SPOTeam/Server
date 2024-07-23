@@ -13,8 +13,33 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Page;
 
 public class SearchResponseDTO {
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class StudyPreviewDTO {
+        private int totalPages;
+        private long totalElements;
+        private boolean first;
+        private boolean last;
+        private int size;
+        private List<SearchResponseDTO.SearchStudyDTO> content;
+        private int number;
+
+        public StudyPreviewDTO(Page<?> page, List<SearchResponseDTO.SearchStudyDTO> content) {
+            this.totalPages = page.getTotalPages();
+            this.totalElements = page.getTotalElements();
+            this.first = page.isFirst();
+            this.last = page.isLast();
+            this.size = page.getSize();
+            this.content = content;
+            this.number = page.getNumber();
+        }
+    }
 
     @Builder
     @Getter

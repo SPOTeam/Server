@@ -25,11 +25,13 @@ import com.example.spot.repository.ThemeRepository;
 import com.example.spot.web.dto.search.SearchRequestDTO.SearchRequestStudyDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.SearchStudyDTO;
+import com.example.spot.web.dto.search.SearchResponseDTO.StudyPreviewDTO;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -58,7 +60,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     private final RegionStudyRepository regionStudyRepository;
 
     @Override
-    public Page<SearchResponseDTO.SearchStudyDTO> findRecommendStudies(Long memberId) {
+    public StudyPreviewDTO findRecommendStudies(Long memberId) {
 
         // MemberId로 회원 관심사 전체 조회
         List<Theme> themes = memberThemeRepository.findAllByMemberId(memberId).stream()
@@ -71,13 +73,11 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             .toList();
         List<Study> studies = studyRepository.findByStudyTheme(studyThemes);
 
-        List<SearchResponseDTO.SearchStudyDTO> stream = getDtos(studies);
-
-        return new PageImpl<>(stream);
+        return getDtos(studies, Pageable.unpaged(), studies.size());
     }
 
     @Override
-    public Page<SearchResponseDTO.SearchStudyDTO> findInterestStudiesByConditionsAll(Pageable pageable, Long memberId,
+    public StudyPreviewDTO findInterestStudiesByConditionsAll(Pageable pageable, Long memberId,
         SearchRequestStudyDTO request) {
 
         List<Theme> themes = memberThemeRepository.findAllByMemberId(memberId).stream()
@@ -97,14 +97,12 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             conditions, request.getSortBy(),
             pageable, studyThemes);
 
-        List<SearchResponseDTO.SearchStudyDTO> stream = getDtos(studies);
-
-        return new PageImpl<>(stream, pageable, totalElements);
+        return getDtos(studies, pageable, totalElements);
     }
 
 
     @Override
-    public Page<SearchResponseDTO.SearchStudyDTO> findInterestStudiesByConditionsSpecific(Pageable pageable,
+    public StudyPreviewDTO findInterestStudiesByConditionsSpecific(Pageable pageable,
         Long memberId, SearchRequestStudyDTO request, ThemeType themeType) {
 
         List<Theme> themes = memberThemeRepository.findAllByMemberId(memberId)
@@ -129,14 +127,12 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         List<Study> studies = studyRepository.findStudyByConditionsAndThemeTypes(
             conditions, request.getSortBy(), pageable, studyThemes);
 
-        List<SearchResponseDTO.SearchStudyDTO> studyDTOs = getDtos(studies);
-
-        return new PageImpl<>(studyDTOs, pageable, totalElements);
+        return getDtos(studies, pageable, totalElements);
     }
 
 
     @Override
-    public Page<SearchResponseDTO.SearchStudyDTO> findInterestRegionStudiesByConditionsAll(Pageable pageable,
+    public StudyPreviewDTO findInterestRegionStudiesByConditionsAll(Pageable pageable,
         Long memberId, SearchRequestStudyDTO request) {
 
         List<Region> regions = preferredRegionRepository.findAllByMemberId(memberId).stream()
@@ -156,13 +152,11 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             conditions, request.getSortBy(),
             pageable, regionStudies);
 
-        List<SearchResponseDTO.SearchStudyDTO> stream = getDtos(studies);
-
-        return new PageImpl<>(stream, pageable, totalElements);
+        return getDtos(studies, pageable, totalElements);
     }
 
     @Override
-    public Page<SearchResponseDTO.SearchStudyDTO> findInterestRegionStudiesByConditionsSpecific(Pageable pageable,
+    public StudyPreviewDTO findInterestRegionStudiesByConditionsSpecific(Pageable pageable,
         Long memberId, SearchRequestStudyDTO request, String regionCode) {
 
         List<Region> regions = preferredRegionRepository.findAllByMemberId(memberId)
@@ -186,13 +180,11 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         List<Study> studies = studyRepository.findStudyByConditionsAndRegionStudies(
             conditions, request.getSortBy(), pageable, regionStudies);
 
-        List<SearchResponseDTO.SearchStudyDTO> studyDTOs = getDtos(studies);
-
-        return new PageImpl<>(studyDTOs, pageable, totalElements);
+        return getDtos(studies, pageable, totalElements);
     }
 
     @Override
-    public Page<SearchResponseDTO.SearchStudyDTO> findRecruitingStudiesByConditions(Pageable pageable,
+    public StudyPreviewDTO findRecruitingStudiesByConditions(Pageable pageable,
         SearchRequestStudyDTO request) {
 
         Map<String, Object> conditions = getSearchConditions(request);
@@ -200,35 +192,31 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             request.getSortBy(), pageable);
 
         long totalElements = studyRepository.countStudyByConditions(conditions);
-        List<SearchResponseDTO.SearchStudyDTO> studyDTOS = getDtos(studies);
 
-
-        return new PageImpl<>(studyDTOS, pageable, totalElements);
+        return getDtos(studies, pageable, totalElements);
     }
 
     @Override
-    public Page<SearchResponseDTO.SearchStudyDTO> findLikedStudies( Long memberId) {
+    public StudyPreviewDTO findLikedStudies(Long memberId) {
         List<PreferredStudy> preferredStudyList = preferredStudyRepository.findByMemberIdOrderByCreatedAtDesc(memberId);
         List<Study> studies = preferredStudyList.stream()
             .map(PreferredStudy::getStudy)
             .toList();
 
-        List<SearchResponseDTO.SearchStudyDTO> studyDTOS = getDtos(studies);
-
-        return new PageImpl<>(studyDTOS);
+        return getDtos(studies, Pageable.unpaged(), studies.size());
     }
 
     @Override
-    public Page<SearchResponseDTO.SearchStudyDTO> findStudiesByKeyword(Pageable pageable,
+    public StudyPreviewDTO findStudiesByKeyword(Pageable pageable,
         String keyword, StudySortBy sortBy) {
         List<Study> studies = studyRepository.findAllByTitleContaining(keyword, sortBy, pageable);
-        List<SearchResponseDTO.SearchStudyDTO> studyDTOS = getDtos(studies);
+
         long totalElements = studyRepository.countAllByTitleContaining(keyword);
-        return new PageImpl<>(studyDTOS, pageable, totalElements);
+        return getDtos(studies, pageable, totalElements);
     }
 
     @Override
-    public Page<SearchStudyDTO> findStudiesByTheme(Pageable pageable, ThemeType theme, StudySortBy sortBy) {
+    public StudyPreviewDTO findStudiesByTheme(Pageable pageable, ThemeType theme, StudySortBy sortBy) {
         Theme themeEntity = themeRepository.findByStudyTheme(theme)
             .orElseThrow(() -> new StudyHandler(ErrorStatus._BAD_REQUEST));
 
@@ -236,10 +224,9 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
         List<Study> studies = studyRepository.findByStudyTheme(studyThemes, sortBy, pageable);
 
-        List<SearchStudyDTO> studyDTOS = getDtos(studies);
-        long totalElements = studyRepository.countStudyByStudyTheme(studyThemes);
 
-        return new PageImpl<>(studyDTOS, pageable, totalElements);
+        long totalElements = studyRepository.countStudyByStudyTheme(studyThemes);
+        return getDtos(studies, pageable, totalElements);
     }
 
     private static Map<String, Object> getSearchConditions(SearchRequestStudyDTO request) {
@@ -260,11 +247,12 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return search;
     }
 
-    private static List<SearchResponseDTO.SearchStudyDTO> getDtos(List<Study> studies) {
+    private static SearchResponseDTO.StudyPreviewDTO getDtos(List<Study> studies, Pageable pageable, long totalElements) {
         List<SearchResponseDTO.SearchStudyDTO> stream = studies.stream()
             .map(SearchResponseDTO.SearchStudyDTO::new)
             .toList();
-        return stream;
+        Page<SearchResponseDTO.SearchStudyDTO> page = new PageImpl<>(stream, pageable, totalElements);
+        return new StudyPreviewDTO(page, stream);
     }
 
 

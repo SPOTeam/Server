@@ -85,26 +85,7 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize());
 
-
-        switch (sortBy) {
-            case HIT:
-                query.orderBy(study.hitNum.desc());
-                query.orderBy(study.createdAt.desc());
-                break;
-            case LIKED:
-                query.orderBy(study.heartCount.desc());
-                query.orderBy(study.createdAt.desc());
-                break;
-            case COMPLETED:
-                query.orderBy(study.createdAt.desc());
-                break;
-            case RECRUITING:
-                query.orderBy(study.createdAt.desc());
-                break;
-            default:
-                query.orderBy(study.createdAt.desc());
-                break;
-        }
+        getSortBy(sortBy, query, study);
 
         return query.fetch();
     }
@@ -118,10 +99,7 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
 
         BooleanBuilder builder = getBooleanBuilderByRegionStudies(search, study, regionStudies);
 
-        if (sortBy != null && sortBy.equals(StudySortBy.RECRUITING))
-            builder.and(study.studyState.eq((StudyState.RECRUITING)));
-        if (sortBy != null && sortBy.equals(StudySortBy.COMPLETED))
-            builder.and(study.studyState.eq((StudyState.COMPLETED)));
+        getStudyState(sortBy, builder, study);
 
         // 정렬 조건 설정
         JPAQuery<Study> query = queryFactory.selectFrom(study)
@@ -129,38 +107,19 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize());
 
-        switch (sortBy) {
-            case HIT:
-                query.orderBy(study.hitNum.desc());
-                query.orderBy(study.createdAt.desc());
-                break;
-            case LIKED:
-                query.orderBy(study.heartCount.desc());
-                query.orderBy(study.createdAt.desc());
-                break;
-            case COMPLETED:
-                query.orderBy(study.createdAt.desc());
-                break;
-            case RECRUITING:
-                query.orderBy(study.createdAt.desc());
-                break;
-            default:
-                query.orderBy(study.createdAt.desc());
-                break;
-        }
+        getSortBy(sortBy, query, study);
 
         return query.fetch();
     }
+
+
 
     @Override
     public List<Study> findAllByTitleContaining(String title, StudySortBy sortBy,
         Pageable pageable) {
         QStudy study = QStudy.study;
         BooleanBuilder builder = new BooleanBuilder();
-        if (sortBy != null && sortBy.equals(StudySortBy.RECRUITING))
-            builder.and(study.studyState.eq((StudyState.RECRUITING)));
-        if (sortBy != null && sortBy.equals(StudySortBy.COMPLETED))
-            builder.and(study.studyState.eq((StudyState.COMPLETED)));
+        getStudyState(sortBy, builder, study);
 
         // 정렬 조건 설정
         JPAQuery<Study> query = queryFactory.selectFrom(study)
@@ -169,25 +128,7 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize());
 
-        switch (sortBy) {
-            case HIT:
-                query.orderBy(study.hitNum.desc());
-                query.orderBy(study.createdAt.desc());
-                break;
-            case LIKED:
-                query.orderBy(study.heartCount.desc());
-                query.orderBy(study.createdAt.desc());
-                break;
-            case COMPLETED:
-                query.orderBy(study.createdAt.desc());
-                break;
-            case RECRUITING:
-                query.orderBy(study.createdAt.desc());
-                break;
-            default:
-                query.orderBy(study.createdAt.desc());
-                break;
-        }
+        getSortBy(sortBy, query, study);
         return query.fetch();
     }
 
@@ -195,10 +136,7 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
     public List<Study> findByStudyTheme(List<StudyTheme> studyThemes, StudySortBy sortBy, Pageable pageable) {
         QStudy study = QStudy.study;
         BooleanBuilder builder = new BooleanBuilder();
-        if (sortBy != null && sortBy.equals(StudySortBy.RECRUITING))
-            builder.and(study.studyState.eq((StudyState.RECRUITING)));
-        if (sortBy != null && sortBy.equals(StudySortBy.COMPLETED))
-            builder.and(study.studyState.eq((StudyState.COMPLETED)));
+        getStudyState(sortBy, builder, study);
 
         // 정렬 조건 설정
         JPAQuery<Study> query = queryFactory.selectFrom(study)
@@ -207,27 +145,10 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize());
 
-        switch (sortBy) {
-            case HIT:
-                query.orderBy(study.hitNum.desc());
-                query.orderBy(study.createdAt.desc());
-                break;
-            case LIKED:
-                query.orderBy(study.heartCount.desc());
-                query.orderBy(study.createdAt.desc());
-                break;
-            case COMPLETED:
-                query.orderBy(study.createdAt.desc());
-                break;
-            case RECRUITING:
-                query.orderBy(study.createdAt.desc());
-                break;
-            default:
-                query.orderBy(study.createdAt.desc());
-                break;
-        }
+        getSortBy(sortBy, query, study);
         return query.fetch();
     }
+
 
     @Override
     public long countStudyByConditionsAndThemeTypes(
@@ -271,6 +192,35 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
             .fetchCount();
     }
 
+    private static void getStudyState(StudySortBy sortBy, BooleanBuilder builder, QStudy study) {
+        if (sortBy != null && sortBy.equals(StudySortBy.RECRUITING))
+            builder.and(study.studyState.eq((StudyState.RECRUITING)));
+        if (sortBy != null && sortBy.equals(StudySortBy.COMPLETED))
+            builder.and(study.studyState.eq((StudyState.COMPLETED)));
+    }
+
+
+    private static void getSortBy(StudySortBy sortBy, JPAQuery<Study> query, QStudy study) {
+        switch (sortBy) {
+            case HIT:
+                query.orderBy(study.hitNum.desc());
+                query.orderBy(study.createdAt.desc());
+                break;
+            case LIKED:
+                query.orderBy(study.heartCount.desc());
+                query.orderBy(study.createdAt.desc());
+                break;
+            case COMPLETED:
+                query.orderBy(study.createdAt.desc());
+                break;
+            case RECRUITING:
+                query.orderBy(study.createdAt.desc());
+                break;
+            default:
+                query.orderBy(study.createdAt.desc());
+                break;
+        }
+    }
     private static BooleanBuilder getBooleanBuilderByRegionStudies(Map<String, Object> search, QStudy study,
         List<RegionStudy> RegionStudies) {
         BooleanBuilder builder = new BooleanBuilder();

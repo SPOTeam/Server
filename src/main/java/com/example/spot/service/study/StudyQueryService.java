@@ -4,41 +4,42 @@ import com.example.spot.domain.enums.StudySortBy;
 import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.web.dto.search.SearchRequestDTO.SearchRequestStudyDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.SearchStudyDTO;
+import com.example.spot.web.dto.search.SearchResponseDTO.StudyPreviewDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface StudyQueryService {
 
     // 내 추천 스터디 조회
-    Page<SearchStudyDTO> findRecommendStudies(Long memberId);
+    StudyPreviewDTO findRecommendStudies(Long memberId);
 
     // 내 관심사 스터디 페이징 조회
-    Page<SearchStudyDTO> findInterestStudiesByConditionsAll(Pageable pageable, Long memberId,
+    StudyPreviewDTO findInterestStudiesByConditionsAll(Pageable pageable, Long memberId,
         SearchRequestStudyDTO request);
 
     // 내 특정 관심사 스터디 페이징 조회
-    Page<SearchStudyDTO> findInterestStudiesByConditionsSpecific(Pageable pageable, Long memberId,
+    StudyPreviewDTO findInterestStudiesByConditionsSpecific(Pageable pageable, Long memberId,
         SearchRequestStudyDTO request, ThemeType theme);
 
     // 내 관심 지역 스터디 페이징 조회
-    Page<SearchStudyDTO> findInterestRegionStudiesByConditionsAll(Pageable pageable, Long memberId,
+    StudyPreviewDTO findInterestRegionStudiesByConditionsAll(Pageable pageable, Long memberId,
         SearchRequestStudyDTO request);
 
     // 내 특정 관심 지역 스터디 페이징 조회
-    Page<SearchStudyDTO> findInterestRegionStudiesByConditionsSpecific(Pageable pageable, Long memberId,
+    StudyPreviewDTO findInterestRegionStudiesByConditionsSpecific(Pageable pageable, Long memberId,
         SearchRequestStudyDTO request, String regionCode);
 
     // 모집 중 스터디 조회
-    Page<SearchStudyDTO> findRecruitingStudiesByConditions(Pageable pageable,
+    StudyPreviewDTO findRecruitingStudiesByConditions(Pageable pageable,
         SearchRequestStudyDTO request);
 
     // 찜한 스터디 조회
-    Page<SearchStudyDTO> findLikedStudies(Long memberId);
+    StudyPreviewDTO findLikedStudies(Long memberId);
 
     // 스터디 키워드 검색
-    Page<SearchStudyDTO>findStudiesByKeyword(Pageable pageable, String keyword, StudySortBy sortBy);
+    StudyPreviewDTO findStudiesByKeyword(Pageable pageable, String keyword, StudySortBy sortBy);
 
     // 테마 별 스터디 검색
-    Page<SearchStudyDTO> findStudiesByTheme(Pageable pageable, ThemeType theme, StudySortBy sortBy);
+    StudyPreviewDTO findStudiesByTheme(Pageable pageable, ThemeType theme, StudySortBy sortBy);
 
 }
