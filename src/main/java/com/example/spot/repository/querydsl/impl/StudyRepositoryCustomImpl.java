@@ -257,6 +257,20 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
             .fetchCount();
     }
 
+    @Override
+    public long countStudyByStudyTheme(List<StudyTheme> studyThemes) {
+        return queryFactory.selectFrom(study)
+            .where(study.studyThemes.any().in(studyThemes))
+            .fetchCount();
+    }
+
+    @Override
+    public long countAllByTitleContaining(String title) {
+        return queryFactory.selectFrom(study)
+            .where(study.title.contains(title))
+            .fetchCount();
+    }
+
     private static BooleanBuilder getBooleanBuilderByRegionStudies(Map<String, Object> search, QStudy study,
         List<RegionStudy> RegionStudies) {
         BooleanBuilder builder = new BooleanBuilder();

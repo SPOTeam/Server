@@ -223,7 +223,8 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         String keyword, StudySortBy sortBy) {
         List<Study> studies = studyRepository.findAllByTitleContaining(keyword, sortBy, pageable);
         List<SearchResponseDTO.SearchStudyDTO> studyDTOS = getDtos(studies);
-        return new PageImpl<>(studyDTOS, pageable, studies.size());
+        long totalElements = studyRepository.countAllByTitleContaining(keyword);
+        return new PageImpl<>(studyDTOS, pageable, totalElements);
     }
 
     @Override
@@ -236,8 +237,9 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         List<Study> studies = studyRepository.findByStudyTheme(studyThemes, sortBy, pageable);
 
         List<SearchStudyDTO> studyDTOS = getDtos(studies);
+        long totalElements = studyRepository.countStudyByStudyTheme(studyThemes);
 
-        return new PageImpl<>(studyDTOS, pageable, studies.size());
+        return new PageImpl<>(studyDTOS, pageable, totalElements);
     }
 
     private static Map<String, Object> getSearchConditions(SearchRequestStudyDTO request) {

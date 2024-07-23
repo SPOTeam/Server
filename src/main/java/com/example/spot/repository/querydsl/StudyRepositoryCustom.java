@@ -34,6 +34,8 @@ public interface StudyRepositoryCustom {
     long countStudyByConditionsAndRegionStudies(Map<String, Object> search, List<RegionStudy> regionStudies);
 
     long countStudyByConditions(Map<String, Object> search);
+    long countStudyByStudyTheme(List<StudyTheme> studyThemes);
 
+    long countAllByTitleContaining(String title);
 
 }
