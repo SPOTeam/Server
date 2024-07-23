@@ -23,7 +23,7 @@ public enum SuccessStatus implements BaseCode {
     _MEMBER_LIST_FOUND(HttpStatus.OK, "MEMBER2005", "회원 목록 조회 완료"),
 
     //스터디 게시물 관련 응답
-    STUDY_POST_CREATED(HttpStatus.CREATED, "STUDYPOST3001", "스터디 게시글 작성 완료"),
+    _STUDY_POST_CREATED(HttpStatus.CREATED, "STUDYPOST3001", "스터디 게시글 작성 완료"),
     _STUDY_POST_UPDATED(HttpStatus.OK, "STUDYPOST3002", "스터디 게시글 수정 완료"),
     _STUDY_POST_DELETED(HttpStatus.OK, "STUDYPOST3003", "스터디 게시글 삭제 완료"),
     _STUDY_POST_FOUND(HttpStatus.OK, "STUDYPOST3004", "스터디 게시글 조회 완료"),
@@ -33,8 +33,16 @@ public enum SuccessStatus implements BaseCode {
     _STUDY_POST_COMMENT_CREATED(HttpStatus.CREATED, "STUDYPOST3008", "스터디 게시글 댓글 작성 완료"),
     _STUDY_POST_COMMENT_UPDATED(HttpStatus.OK, "STUDYPOST3009", "스터디 게시글 댓글 수정 완료"),
     _STUDY_POST_COMMENT_DELETED(HttpStatus.OK, "STUDYPOST3010", "스터디 게시글 댓글 삭제 완료"),
-    _STUDY_FOUND(HttpStatus.OK, "STUDYPOST3011", "스터디 조회 완료");
-  
+    _STUDY_FOUND(HttpStatus.OK, "STUDYPOST3011", "스터디 조회 완료"),
+
+    //알림 관련 응답
+    _NOTIFICATION_FOUND(HttpStatus.OK, "NOTIFICATION4001", "전체 알림 조회 완료"),
+    _NOTIFICATION_READ(HttpStatus.OK, "NOTIFICATION4002", "알림 읽음 처리 완료"),
+    _NOTIFICATINO_APPLIED_STUDY_FOUND(HttpStatus.OK, "NOTIFICATION4002", "참가 신청한 스터디 알림 조회 완료"),
+    _NOTIFICATION_APPLIED_STUDY_JOINED(HttpStatus.OK, "NOTIFICATION4003", "참가 신청한 스터디 최종 참여 확인 완료"),
+    _NOTIFICATION_APPLIED_STUDY_REJECTED(HttpStatus.OK, "NOTIFICATION4004", "참가 신청한 스터디 최종 참여 거절 완료"),
+    ;
+    
     private final HttpStatus httpStatus;
     private final String code;
     private final String message;
