@@ -18,6 +18,9 @@ src/main/resources/application.yml
 bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
+src/main/generated/
+src/main/java/com/example/spot/service/test/*
+src/main/java/com/example/spot/web/dto/test/*
 
 ### IntelliJ IDEA ###
 .idea
