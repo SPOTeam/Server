@@ -219,6 +219,14 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return new PageImpl<>(studyDTOS);
     }
 
+    @Override
+    public Page<SearchResponseDTO.SearchStudyDTO> findStudiesByKeyword(Pageable pageable,
+        String keyword) {
+        List<Study> studies = studyRepository.findAllByTitleContainingOrderByCreatedAtDesc(keyword, pageable).toList();
+        List<SearchResponseDTO.SearchStudyDTO> studyDTOS = getDtos(studies);
+        return new PageImpl<>(studyDTOS, pageable, studies.size());
+    }
+
     private static Map<String, Object> getSearchConditions(SearchStudyDTO request) {
         // 검색 조건 맵 생성
         Map<String, Object> search = new HashMap<>();

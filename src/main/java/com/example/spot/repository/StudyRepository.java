@@ -12,4 +12,5 @@ import org.springframework.stereotype.Repository;
 public interface StudyRepository extends JpaRepository<Study, Long>, StudyRepositoryCustom {
 
     Page<Study> findAll(Specification<Study> spec, Pageable pageable);
+    Page<Study> findAllByTitleContainingOrderByCreatedAtDesc(String keyWord, Pageable pageable);
 }

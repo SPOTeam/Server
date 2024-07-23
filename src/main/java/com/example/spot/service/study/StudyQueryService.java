@@ -2,6 +2,7 @@ package com.example.spot.service.study;
 
 import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.web.dto.search.SearchRequestDTO;
+import com.example.spot.web.dto.search.SearchResponseDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.SearchStudyDTO;
 import java.util.List;
 import org.springframework.data.domain.Page;
@@ -34,5 +35,8 @@ public interface StudyQueryService {
 
     // 찜한 스터디 조회
     Page<SearchStudyDTO> findLikedStudies(Long memberId);
+
+    // 스터디 키워드 검색
+    Page<SearchStudyDTO>findStudiesByKeyword(Pageable pageable, String keyword);
 
 }

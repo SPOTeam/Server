@@ -236,4 +236,27 @@ public class SearchController {
         Page<SearchStudyDTO> studies = studyQueryService.findLikedStudies(userId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
     }
+    /* ----------------------------- 스터디 검색  ------------------------------------- */
+
+    @GetMapping("/search/studies")
+    @Operation(
+        summary = "[스터디 검색] 키워드를 통한 스터디 검색",
+        description = """
+            ## [스터디 검색] 제목에 키워드가 포함 되어 있는 스터디 전체를 조회 합니다.
+            찜한 스터디 목록이 반환 됩니다.""",
+        security = @SecurityRequirement(name = "accessToken")
+    )
+    @Parameter(name = "keyword", description = "검색할 키워드를 입력 받습니다.", required = true)
+    @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
+    @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
+    public ApiResponse<Page<SearchStudyDTO>> searchStudiesByKeyword(
+        @RequestParam String keyword,
+        @RequestParam Integer page,
+        @RequestParam Integer size) {
+        // 메소드 구현
+        Page<SearchStudyDTO> studies = studyQueryService.findStudiesByKeyword(PageRequest.of(page, size), keyword);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
+    }
+
+
 }
