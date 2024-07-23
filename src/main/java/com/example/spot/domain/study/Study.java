@@ -1,5 +1,6 @@
 package com.example.spot.domain.study;
 
+import com.example.spot.domain.Region;
 import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.enums.Gender;
 import com.example.spot.domain.enums.Status;
@@ -16,7 +17,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,11 +91,16 @@ public class Study extends BaseEntity {
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
     private List<StudyTheme> studyThemes;
 
+    @OneToMany(mappedBy = "study", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<StudyTheme> themes = new ArrayList<>();
+
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
     private List<MemberStudy> memberStudies;
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
     private List<RegionStudy> regionStudies;
+
+
 
 /* ----------------------------- 생성자 ------------------------------------- */
 
@@ -144,5 +149,4 @@ public class Study extends BaseEntity {
         studyThemes.add(studyTheme);
         studyTheme.setStudy(this);
     }
-
 }

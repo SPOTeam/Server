@@ -3,11 +3,22 @@ package com.example.spot.domain.mapping;
 import com.example.spot.domain.Region;
 import com.example.spot.domain.Member;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
-@Getter
 @Entity
+@Getter
+@Builder
+@DynamicUpdate
+@DynamicInsert
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class PreferredRegion {
 
     @Id
@@ -24,5 +35,9 @@ public class PreferredRegion {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "region_id", nullable = false)
     private Region region;
+
+    public void setMember(Member member) {
+        this.member = member;
+    }
 
 }

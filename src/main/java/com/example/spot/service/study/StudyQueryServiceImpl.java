@@ -46,8 +46,6 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     public Page<SearchResponseDTO.SearchStudyDTO> findInterestStudiesByConditionsAll(Pageable pageable, Long memberId,
         SearchStudyDTO request) {
 
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberHandler(
-            ErrorStatus._MEMBER_NOT_FOUND));
         List<Theme> themes = memberThemeRepository.findAllByMemberId(memberId).stream()
             .map(MemberTheme::getTheme)
             .toList();
@@ -78,35 +76,26 @@ public class StudyQueryServiceImpl implements StudyQueryService {
                     sort = Sort.by(Sort.Direction.DESC, "createdAt");
                     break;
                 case HIT:
-                    sort = Sort.by(Sort.Direction.DESC, "hitCount");
+                    sort = Sort.by(Sort.Direction.DESC, "hitNum");
                     break;
                 case LIKED:
-                    sort = Sort.by(Sort.Direction.DESC, "likeCount");
+                    sort = Sort.by(Sort.Direction.DESC, "heartCount");
                     break;
                 default:
                     sort = Sort.by(Sort.Direction.DESC, "createdAt");
                     break;
             }
         }
-        // 테마 조건 추가
-        if (!themes.isEmpty())
-            search.put("themes", themes);
 
         Specification<Study> spec = EntitySpecification.searchStudy(search)
-            .and((root, query, criteriaBuilder) -> {
-                if (!themes.isEmpty()) {
-                    return root.join("themes").in(themes);
-                } else {
-                    return criteriaBuilder.conjunction();
-                }
-            });
+            .and(EntitySpecification.hasThemes(themes));
 
         pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
 
         Page<Study> studyPage = studyRepository.findAll(spec, pageable);
 
         List<SearchResponseDTO.SearchStudyDTO> dtoList = studyPage.getContent().stream()
-            .map(SearchResponseDTO.SearchStudyDTO::new) // Study 엔티티를 SearchStudyDTO로 변환하는 매퍼 메서드가 필요
+            .map(SearchResponseDTO.SearchStudyDTO::new)
             .toList();
 
         return new PageImpl<>(dtoList, pageable, studyPage.getTotalElements());
