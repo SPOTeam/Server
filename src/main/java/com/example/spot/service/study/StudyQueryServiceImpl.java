@@ -14,9 +14,11 @@ import com.example.spot.repository.MemberRepository;
 import com.example.spot.repository.MemberStudyRepository;
 import com.example.spot.repository.MemberThemeRepository;
 import com.example.spot.repository.PreferredRegionRepository;
+import com.example.spot.repository.RegionRepository;
 import com.example.spot.repository.RegionStudyRepository;
 import com.example.spot.repository.StudyRepository;
 import com.example.spot.repository.StudyThemeRepository;
+import com.example.spot.repository.ThemeRepository;
 import com.example.spot.web.dto.search.SearchRequestDTO.SearchStudyDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO;
 import java.util.ArrayList;
@@ -44,10 +46,12 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     private final MemberStudyRepository memberStudyRepository;
 
     // 관심사 관련 조회
+    private final ThemeRepository themeRepository;
     private final StudyThemeRepository studyThemeRepository;
     private final MemberThemeRepository memberThemeRepository;
 
     // 지역 관련 조회
+    private final RegionRepository regionRepository;
     private final PreferredRegionRepository preferredRegionRepository;
     private final RegionStudyRepository regionStudyRepository;
 
@@ -100,6 +104,8 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     @Override
     public Page<SearchResponseDTO.SearchStudyDTO> findInterestStudiesByConditionsSpecific(Pageable pageable,
         Long memberId, SearchStudyDTO request, ThemeType themeType) {
+        if (!themeRepository.existsByStudyTheme(themeType) || themeType == null)
+            throw new StudyHandler(ErrorStatus._STUDY_THEME_NOT_FOUND);
 
         List<Theme> themes = memberThemeRepository.findAllByMemberId(memberId)
             .stream()

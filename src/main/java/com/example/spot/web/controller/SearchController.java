@@ -34,7 +34,7 @@ public class SearchController {
     private final StudyQueryService studyQueryService;
 
     @GetMapping("/search/studies/recommend/main/users/{userId}")
-    @Operation(summary = "[메인 화면 - 개발중] 회원 별 추천 스터디 3개 조회",
+    @Operation(summary = "[메인 화면] 회원 별 추천 스터디 3개 조회",
         description = """
             ## [메인 화면] 접속한 회원의 추천 스터디 3개를 조회 합니다.
             조회된 스터디 3개의 정보가 반환 됩니다.""",
@@ -51,7 +51,7 @@ public class SearchController {
 
     @GetMapping("/search/studies/interest-themes/all/users/{userId}")
     @Operation(
-        summary = "[내 관심사 스터디 조회 - 개발중] 내 '전체' 관심사 스터디 조회",
+        summary = "[내 관심사 스터디 조회] 내 '전체' 관심사 스터디 조회",
         description = """
             ## [내 관심사 스터디 조회] 입력한 조건에 맞는 회원의 전체 관심 분야의 스터디를 조회 합니다. 
             메인 화면에서 사용 하실 경우, 페이지 번호는 0, 페이지 크기는 3으로 설정하여 사용하시면 됩니다.
@@ -82,7 +82,7 @@ public class SearchController {
     }
     @GetMapping("/search/studies/interest-themes/specific/users/{userId}/")
     @Operation(
-        summary = "[내 관심사 스터디 조회 - 개발중] 내 '특정' 관심사 스터디 조회",
+        summary = "[내 관심사 스터디 조회] 내 '특정' 관심사 스터디 조회",
         description = """
             ## [내 관심사 스터디 조회] 입력한 조건에 맞는 회원의 특정 관심 분야의 스터디를 조회 합니다.
             조건에 맞게 검색된 스터디 목록이 반환 됩니다.""",
@@ -120,7 +120,7 @@ public class SearchController {
 
     @GetMapping("/search/studies/preferred-region/all/users/{userId}")
     @Operation(
-        summary = "[내 관심 지역 스터디 조회 - 개발중] 내 '전체' 관심 지역 스터디 조회",
+        summary = "[내 관심 지역 스터디 조회] 내 '전체' 관심 지역 스터디 조회",
         description = """
             ## [내 관심 지역 스터디 조회] 입력한 조건에 맞는 회원의 전체 관심 지역의 스터디를 조회 합니다.
             조건에 맞게 검색된 스터디 목록이 반환 됩니다.""",
@@ -153,7 +153,7 @@ public class SearchController {
 
     @GetMapping("/search/studies/preferred-region/specific/users/{userId}")
     @Operation(
-        summary = "[내 관심 지역 스터디 조회 - 개발중] 내 '특정' 관심 지역 스터디 조회",
+        summary = "[내 관심 지역 스터디 조회] 내 '특정' 관심 지역 스터디 조회",
         description = """
             ## [내 관심 지역 스터디 조회] 입력한 조건에 맞는 회원의 특정 관심 지역의 스터디를 조회 합니다.
             조건에 맞게 검색된 스터디 목록이 반환 됩니다.""",

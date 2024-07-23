@@ -30,7 +30,7 @@ public class SearchResponseDTO {
             this.heartCount = (long) study.getHeartCount();
             this.hitNum = study.getHitNum();
             this.studyState = study.getStudyState();
-            this.regions = study.getRegions().stream().map(RegionStudy::getRegion).map(Region::getCode).toList();
+            this.regions = study.getRegionStudies().stream().map(RegionStudy::getRegion).map(Region::getCode).toList();
             this.themeTypes = study.getThemes().stream().map(StudyTheme::getTheme).map(Theme::getStudyTheme).toList();
             this.createdAt = study.getCreatedAt();
 

@@ -39,8 +39,8 @@ public enum ErrorStatus implements BaseErrorCode {
 
     // 스터디 테마 에러
     _THEME_NOT_FOUND(HttpStatus.NOT_FOUND, "THEME4001", "스터디 테마를 찾을 수 없습니다."),
-
-    ;
+    _STUDY_THEME_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY4002", "스터디 관심사를 찾을 수 없습니다."),
+    _STUDY_REGION_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY4003", "스터디 지역을 찾을 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

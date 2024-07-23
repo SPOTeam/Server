@@ -134,7 +134,7 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
         // 조건문 추가
         getConditions(search, study, builder);
         if (RegionStudies != null && !RegionStudies.isEmpty()) {
-            builder.and(study.regions.any().in(RegionStudies));
+            builder.and(study.regionStudies.any().in(RegionStudies));
         }
         return builder;
     }
