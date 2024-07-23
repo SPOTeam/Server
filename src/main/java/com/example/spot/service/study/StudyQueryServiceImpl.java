@@ -3,6 +3,7 @@ package com.example.spot.service.study;
 import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.handler.StudyHandler;
 import com.example.spot.domain.Member;
+import com.example.spot.domain.Theme;
 import com.example.spot.domain.mapping.MemberStudy;
 import com.example.spot.domain.study.Study;
 import com.example.spot.repository.MemberRepository;
@@ -39,9 +40,10 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
     @Override
     public Page<Study> findInterestStudiesByConditionsSpecific(Pageable pageable, Long memberId,
-        SearchStudyDTO request) {
+        SearchStudyDTO request, Theme theme) {
         return null;
     }
+
 
     @Override
     public Page<Study> findInterestRegionStudiesByConditionsAll(Pageable pageable, Long memberId,
@@ -51,7 +53,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
     @Override
     public Page<Study> findInterestRegionStudiesByConditionsSpecific(Pageable pageable,
-        Long memberId, SearchStudyDTO request) {
+        Long memberId, SearchStudyDTO request, String regionCode) {
         return null;
     }
 

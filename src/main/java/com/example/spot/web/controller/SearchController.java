@@ -3,6 +3,8 @@ package com.example.spot.web.controller;
 import com.example.spot.api.ApiResponse;
 import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.code.status.SuccessStatus;
+import com.example.spot.domain.Theme;
+import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.web.dto.search.SearchRequestDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -79,10 +81,12 @@ public class SearchController {
     - fee: 스터디 최대 활동비 
     - sortBy: 정렬 기준 (ALL, RECRUITING, HIT, LIKED)
     """, required = false)
+    @Parameter(name = "theme", description = "조회할 관심 분야를 입력 받습니다.", required = true)
     @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
     public void interestStudiesByConditionsSpecific(
         @PathVariable long userId,
+        @RequestParam ThemeType theme,
         @ModelAttribute SearchRequestDTO.SearchStudyDTO searchStudyDTO,
         @RequestParam Integer page,
         @RequestParam Integer size
@@ -144,10 +148,12 @@ public class SearchController {
     - fee: 스터디 최대 활동비 
     - sortBy: 정렬 기준 (ALL, RECRUITING, HIT, LIKED)
     """, required = false)
+    @Parameter(name = "regionCode", description = "조회할 지역 코드를 입력 받습니다. 지역 코드는 5자리의 문자열 입니다. ex) 11000", required = true)
     @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
     public void interestRegionStudiesByConditionsSpecific(
         @PathVariable long userId,
+        @RequestParam String regionCode,
         @ModelAttribute SearchRequestDTO.SearchStudyDTO searchStudyDTO,
         @RequestParam Integer page,
         @RequestParam Integer size
