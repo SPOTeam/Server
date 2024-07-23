@@ -2,7 +2,9 @@ package com.example.spot.validation.validator;
 
 import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.domain.enums.ThemeType;
+import com.example.spot.repository.RegionRepository;
 import com.example.spot.repository.ThemeRepository;
+import com.example.spot.validation.annotation.ExistRegion;
 import com.example.spot.validation.annotation.ExistTheme;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
@@ -12,11 +14,10 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class ExistThemeValidator implements ConstraintValidator<ExistTheme, String> {
-
-    private final ThemeRepository themeRepository;
+public class ExistRegionValidator  implements ConstraintValidator<ExistRegion, String> {
+    private final RegionRepository regionRepository;
     @Override
-    public void initialize(ExistTheme constraintAnnotation) {
+    public void initialize(ExistRegion constraintAnnotation) {
         ConstraintValidator.super.initialize(constraintAnnotation);
     }
 
@@ -27,13 +28,11 @@ public class ExistThemeValidator implements ConstraintValidator<ExistTheme, Stri
 
         // null is invalid
         if (context == null) {
-            errorStatus = ErrorStatus._STUDY_THEME_IS_NULL;
+            errorStatus = ErrorStatus._STUDY_REGION_IS_NULL;
             isValid = false;
         } else {
-
-            errorStatus = ErrorStatus._MEMBER_NOT_FOUND;
-            isValid = themeRepository.existsByStudyTheme(ThemeType.valueOf(value));
-
+            errorStatus = ErrorStatus._STUDY_REGION_NOT_FOUND;
+            isValid = regionRepository.existsByCode(value);
         }
         if (!isValid) {
             Objects.requireNonNull(context).disableDefaultConstraintViolation();
@@ -43,3 +42,5 @@ public class ExistThemeValidator implements ConstraintValidator<ExistTheme, Stri
         return isValid;
     }
 }
+
+

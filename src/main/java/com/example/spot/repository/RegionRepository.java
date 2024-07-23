@@ -14,4 +14,5 @@ public interface RegionRepository extends JpaRepository<Region, Long> {
     List<Region> findAllByDistrict(String district);
     Optional<Region> findByProvinceAndDistrictAndNeighborhood(String province, String district, String neighborhood);
     Region findByCode(String code);
+    boolean existsByCode(String code);
 }
