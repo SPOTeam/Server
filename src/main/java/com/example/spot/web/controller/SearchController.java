@@ -211,11 +211,12 @@ public class SearchController {
     """, required = false)
     @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
-    public ApiResponse<String> recruitingStudiesByConditions(
+    public ApiResponse<Page<SearchStudyDTO>> recruitingStudiesByConditions(
         @ModelAttribute SearchRequestDTO.SearchStudyDTO searchStudyDTO,
         @RequestParam Integer page, @RequestParam Integer size) {
         // 메소드 구현
-        return ApiResponse.onFailure(ErrorStatus._INTERNAL_SERVER_ERROR.getCode(), ErrorStatus._INTERNAL_SERVER_ERROR.getMessage(), null);
+        Page<SearchStudyDTO> studies = studyQueryService.findRecruitingStudiesByConditions(PageRequest.of(page, size), searchStudyDTO);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
     }
 
     /* ----------------------------- 찜한 스터디 검색  ------------------------------------- */
