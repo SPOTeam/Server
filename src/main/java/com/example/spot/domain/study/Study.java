@@ -92,6 +92,9 @@ public class Study extends BaseEntity {
     private List<MemberStudy> memberStudies;
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
+    private List<StudyTheme> themes;
+
+    @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
     private List<RegionStudy> regionStudies;
 
 /* ----------------------------- 생성자 ------------------------------------- */
