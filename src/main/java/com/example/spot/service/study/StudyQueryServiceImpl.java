@@ -1,11 +1,7 @@
 package com.example.spot.service.study;
 
 
-import com.example.spot.domain.Theme;
-import com.example.spot.domain.study.Study;
-import com.example.spot.repository.MemberRepository;
-import com.example.spot.repository.MemberStudyRepository;
-import com.example.spot.repository.StudyRepository;
+import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.web.dto.search.SearchRequestDTO.SearchStudyDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -29,7 +25,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
     @Override
     public Page<SearchStudyDTO> findInterestStudiesByConditionsSpecific(Pageable pageable,
-        Long memberId, SearchStudyDTO request, Theme theme) {
+        Long memberId, SearchStudyDTO request, ThemeType theme) {
         return null;
     }
 
