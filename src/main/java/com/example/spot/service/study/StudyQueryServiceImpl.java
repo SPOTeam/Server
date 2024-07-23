@@ -96,12 +96,6 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return new PageImpl<>(stream, pageable, totalElements);
     }
 
-    private Theme findThemeByType(List<Theme> themes, ThemeType themeType) {
-        return themes.stream()
-            .filter(t -> t.getStudyTheme().equals(themeType))
-            .findFirst()
-            .orElseThrow(() -> new StudyHandler(ErrorStatus._BAD_REQUEST));
-    }
 
     @Override
     public Page<SearchResponseDTO.SearchStudyDTO> findInterestStudiesByConditionsSpecific(Pageable pageable,
@@ -164,7 +158,31 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     @Override
     public Page<SearchResponseDTO.SearchStudyDTO> findInterestRegionStudiesByConditionsSpecific(Pageable pageable,
         Long memberId, SearchStudyDTO request, String regionCode) {
-        return null;
+
+        List<Region> regions = preferredRegionRepository.findAllByMemberId(memberId)
+            .stream()
+            .map(PreferredRegion::getRegion)
+            .toList();
+
+        if (regions.stream().noneMatch(region -> region.getCode().equals(regionCode)))
+            throw new StudyHandler(ErrorStatus._BAD_REQUEST);
+
+        Region region = findRegionByCode(regions, regionCode);
+
+        List<RegionStudy> regionStudies = regions.stream()
+            .flatMap(regionStudy -> regionStudyRepository.findAllByRegion(region).stream())
+            .toList();
+
+        Map<String, Object> conditions = getSearchConditions(request);
+
+        long totalElements = studyRepository.countStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndRegionStudies(conditions, regionStudies);
+
+        List<Study> studies = studyRepository.findStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndRegionStudies(
+            conditions, request.getSortBy(), pageable, regionStudies);
+
+        List<SearchResponseDTO.SearchStudyDTO> studyDTOs = getDtos(studies);
+
+        return new PageImpl<>(studyDTOs, pageable, totalElements);
     }
 
     @Override
@@ -201,6 +219,21 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             .map(SearchResponseDTO.SearchStudyDTO::new)
             .toList();
         return stream;
+    }
+
+
+    private Theme findThemeByType(List<Theme> themes, ThemeType themeType) {
+        return themes.stream()
+            .filter(t -> t.getStudyTheme().equals(themeType))
+            .findFirst()
+            .orElseThrow(() -> new StudyHandler(ErrorStatus._BAD_REQUEST));
+    }
+
+    private Region findRegionByCode(List<Region> regions, String regionCode) {
+        return regions.stream()
+            .filter(r -> r.getCode().equals(regionCode))
+            .findFirst()
+            .orElseThrow(() -> new StudyHandler(ErrorStatus._BAD_REQUEST));
     }
 
 }
