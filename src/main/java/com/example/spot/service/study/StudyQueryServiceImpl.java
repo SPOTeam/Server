@@ -2,6 +2,8 @@ package com.example.spot.service.study;
 
 
 import com.example.spot.domain.enums.ThemeType;
+import com.example.spot.repository.MemberStudyRepository;
+import com.example.spot.repository.StudyRepository;
 import com.example.spot.web.dto.search.SearchRequestDTO.SearchStudyDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -11,6 +13,9 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class StudyQueryServiceImpl implements StudyQueryService {
+
+    private final StudyRepository studyRepository;
+    private final MemberStudyRepository memberStudyRepository;
 
     @Override
     public Page<SearchStudyDTO> findRecommendStudies(Pageable pageable, Long memberId) {
