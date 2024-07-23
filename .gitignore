@@ -21,6 +21,7 @@ bin/
 src/main/generated/
 src/main/java/com/example/spot/service/test/*
 src/main/java/com/example/spot/web/dto/test/*
+src/main/java/com/example/spot/web/controller/TestController.java
 **/generated
 
 ### IntelliJ IDEA ###
