@@ -5,18 +5,28 @@ import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.code.status.SuccessStatus;
 import com.example.spot.domain.Theme;
 import com.example.spot.domain.enums.ThemeType;
+import com.example.spot.service.study.StudyQueryService;
 import com.example.spot.web.dto.search.SearchRequestDTO;
+import com.example.spot.web.dto.search.SearchResponseDTO;
+import com.example.spot.web.dto.search.SearchResponseDTO.SearchStudyDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Search", description = "Search API")
 @RestController
 @RequestMapping("/spot")
+@RequiredArgsConstructor
 public class SearchController {
+
+    private final StudyQueryService studyQueryService;
 
     @GetMapping("/search/studies/recommend/main/users/{userId}")
     @Operation(summary = "[메인 화면 - 개발중] 회원 별 추천 스터디 3개 조회",
@@ -53,13 +63,15 @@ public class SearchController {
     """, required = false)
     @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
-    public void interestStudiesByConditionsAll(
+    public ApiResponse<Page<SearchStudyDTO>> interestStudiesByConditionsAll(
         @PathVariable long userId,
         @ModelAttribute SearchRequestDTO.SearchStudyDTO searchStudyDTO,
         @RequestParam Integer page,
         @RequestParam Integer size
     ) {
+        Page<SearchStudyDTO> studies = studyQueryService.findInterestStudiesByConditionsAll(PageRequest.of(page, size), userId, searchStudyDTO);
         // 메소드 구현
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_UPDATED, studies);
     }
 
     @GetMapping("/search/studies/interest-themes/specific/users/{userId}/")

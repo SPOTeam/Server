@@ -1,5 +1,6 @@
 package com.example.spot.web.dto.search;
 
+import com.example.spot.domain.study.Study;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,6 +26,16 @@ public class SearchResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class SearchStudyDTO {
+        public SearchStudyDTO(Study study){
+            this.studyId = study.getId();
+            this.imageUrl = study.getProfileImage();
+            this.title = study.getTitle();
+            this.introduction = study.getIntroduction();
+            this.memberCount = (long) study.getMemberStudies().size();
+            this.heartCount = (long) study.getHeartCount();
+            this.hitNum = study.getHitNum();
+
+        }
         Long studyId;
         String imageUrl;
         String title;
@@ -33,4 +44,5 @@ public class SearchResponseDTO {
         Long heartCount;
         Long hitNum;
     }
+
 }
