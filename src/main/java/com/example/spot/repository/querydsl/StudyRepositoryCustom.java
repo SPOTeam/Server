@@ -29,13 +29,13 @@ public interface StudyRepositoryCustom {
 
     List<Study> findByStudyTheme(List<StudyTheme> studyTheme, StudySortBy sortBy, Pageable pageable);
 
-    long countStudyByConditionsAndThemeTypes(Map<String, Object> search, List<StudyTheme> themeTypes);
+    long countStudyByConditionsAndThemeTypes(Map<String, Object> search, List<StudyTheme> themeTypes, StudySortBy sortBy);
 
-    long countStudyByConditionsAndRegionStudies(Map<String, Object> search, List<RegionStudy> regionStudies);
+    long countStudyByConditionsAndRegionStudies(Map<String, Object> search, List<RegionStudy> regionStudies, StudySortBy sortBy);
 
-    long countStudyByConditions(Map<String, Object> search);
-    long countStudyByStudyTheme(List<StudyTheme> studyThemes);
+    long countStudyByConditions(Map<String, Object> search, StudySortBy sortBy);
+    long countStudyByStudyTheme(List<StudyTheme> studyThemes, StudySortBy sortBy);
 
-    long countAllByTitleContaining(String title);
+    long countAllByTitleContaining(String title, StudySortBy sortBy);
 
 }

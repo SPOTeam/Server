@@ -30,9 +30,9 @@ public class SearchResponseDTO {
         private List<SearchResponseDTO.SearchStudyDTO> content;
         private int number;
 
-        public StudyPreviewDTO(Page<?> page, List<SearchResponseDTO.SearchStudyDTO> content) {
-            this.totalPages = page.getTotalPages();
-            this.totalElements = page.getTotalElements();
+        public StudyPreviewDTO(Page<?> page, List<SearchResponseDTO.SearchStudyDTO> content , long totalElements) {
+            this.totalPages = totalElements == 0 ? 1 : (int) Math.ceil((double) totalElements / page.getSize());
+            this.totalElements = totalElements;
             this.first = page.isFirst();
             this.last = page.isLast();
             this.size = page.getSize();

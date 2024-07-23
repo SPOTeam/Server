@@ -72,11 +72,17 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
         QStudy study = QStudy.study;
 
         BooleanBuilder builder = getBooleanBuilderByThemeTypes(search, study, themes);
-        if (sortBy != null && sortBy.equals(StudySortBy.RECRUITING)){
-            builder.and(study.studyState.eq((StudyState.RECRUITING)));
-        }
-        if (sortBy != null && sortBy.equals(StudySortBy.COMPLETED)){
-            builder.and(study.studyState.eq((StudyState.COMPLETED)));
+        if (sortBy != null) {
+            switch (sortBy) {
+                case RECRUITING:
+                    builder.and(study.studyState.eq(StudyState.RECRUITING));
+                    break;
+                case COMPLETED:
+                    builder.and(study.studyState.eq(StudyState.COMPLETED));
+                    break;
+                default:
+                    break;
+            }
         }
 
         // 정렬 조건 설정
@@ -98,8 +104,19 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
         QStudy study = QStudy.study;
 
         BooleanBuilder builder = getBooleanBuilderByRegionStudies(search, study, regionStudies);
-
-        getStudyState(sortBy, builder, study);
+        if (sortBy != null) {
+            switch (sortBy) {
+                case RECRUITING:
+                    builder.and(study.studyState.eq(StudyState.RECRUITING));
+                    break;
+                case COMPLETED:
+                    builder.and(study.studyState.eq(StudyState.COMPLETED));
+                    break;
+                default:
+                    // 다른 조건이 필요하면 추가
+                    break;
+            }
+        }
 
         // 정렬 조건 설정
         JPAQuery<Study> query = queryFactory.selectFrom(study)
@@ -152,8 +169,9 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
 
     @Override
     public long countStudyByConditionsAndThemeTypes(
-        Map<String, Object> search, List<StudyTheme> themeTypes) {
+        Map<String, Object> search, List<StudyTheme> themeTypes, StudySortBy sortBy) {
         BooleanBuilder builder = getBooleanBuilderByThemeTypes(search, study, themeTypes);
+        getStudyState(sortBy, builder, study);
         return queryFactory.selectFrom(study)
             .where(builder)
             .fetchCount();
@@ -161,33 +179,40 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
 
     @Override
     public long countStudyByConditionsAndRegionStudies(
-        Map<String, Object> search, List<RegionStudy> regionStudies) {
+        Map<String, Object> search, List<RegionStudy> regionStudies, StudySortBy sortBy) {
         BooleanBuilder builder = getBooleanBuilderByRegionStudies(search, study, regionStudies);
+        getStudyState(sortBy, builder, study);
         return queryFactory.selectFrom(study)
             .where(builder)
             .fetchCount();
     }
 
     @Override
-    public long countStudyByConditions(Map<String, Object> search) {
+    public long countStudyByConditions(Map<String, Object> search, StudySortBy sortBy) {
         BooleanBuilder builder = new BooleanBuilder();
         getConditions(search, study, builder);
-        builder.and(study.studyState.eq(StudyState.RECRUITING));
+        getStudyState(sortBy, builder, study);
         return queryFactory.selectFrom(study)
             .where(builder)
             .fetchCount();
     }
 
     @Override
-    public long countStudyByStudyTheme(List<StudyTheme> studyThemes) {
+    public long countStudyByStudyTheme(List<StudyTheme> studyThemes, StudySortBy sortBy) {
+        BooleanBuilder builder = new BooleanBuilder();
+        getStudyState(sortBy, builder, study);
         return queryFactory.selectFrom(study)
+            .where(builder)
             .where(study.studyThemes.any().in(studyThemes))
             .fetchCount();
     }
 
     @Override
-    public long countAllByTitleContaining(String title) {
+    public long countAllByTitleContaining(String title, StudySortBy sortBy) {
+        BooleanBuilder builder = new BooleanBuilder();
+        getStudyState(sortBy, builder, study);
         return queryFactory.selectFrom(study)
+            .where(builder)
             .where(study.title.contains(title))
             .fetchCount();
     }

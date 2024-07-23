@@ -62,18 +62,19 @@ public class SearchController {
     - isOnline: 스터디 온라인 진행 여부 (true, false)
     - hasFee: 스터디 활동비 유무 (true, false)
     - fee: 스터디 최대 활동비 
-    - sortBy: 정렬 기준 (ALL, RECRUITING, COMPLETED, HIT, LIKED)
     """, required = false)
     @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
+    @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = true)
     public ApiResponse<StudyPreviewDTO> interestStudiesByConditionsAll(
         @ModelAttribute SearchRequestStudyDTO searchRequestStudyDTO,
         @PathVariable long userId,
         @RequestParam Integer page,
-        @RequestParam Integer size
+        @RequestParam Integer size,
+        @RequestParam StudySortBy sortBy
     ) {
         StudyPreviewDTO studies = studyQueryService.findInterestStudiesByConditionsAll(PageRequest.of(page, size), userId,
-            searchRequestStudyDTO);
+            searchRequestStudyDTO, sortBy);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
     }
     @GetMapping("/search/studies/interest-themes/specific/users/{userId}/")
@@ -93,20 +94,21 @@ public class SearchController {
     - isOnline: 스터디 온라인 진행 여부 (true, false)
     - hasFee: 스터디 활동비 유무 (true, false)
     - fee: 스터디 최대 활동비 
-    - sortBy: 정렬 기준 (ALL, RECRUITING, COMPLETED, HIT, LIKED)
     """, required = false)
     @Parameter(name = "theme", description = "조회할 관심 분야를 입력 받습니다.", required = true)
     @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
+    @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = true)
     public ApiResponse<StudyPreviewDTO> interestStudiesByConditionsSpecific(
         @PathVariable long userId,
         @RequestParam ThemeType theme,
         @ModelAttribute SearchRequestStudyDTO searchRequestStudyDTO,
         @RequestParam Integer page,
-        @RequestParam Integer size
+        @RequestParam Integer size,
+        @RequestParam StudySortBy sortBy
     ) {
         StudyPreviewDTO studies = studyQueryService.findInterestStudiesByConditionsSpecific(PageRequest.of(page, size), userId,
-            searchRequestStudyDTO, theme);
+            searchRequestStudyDTO, theme, sortBy);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
         // 메소드 구현
     }
@@ -131,20 +133,21 @@ public class SearchController {
     - isOnline: 스터디 온라인 진행 여부 (true, false)
     - hasFee: 스터디 활동비 유무 (true, false)
     - fee: 스터디 최대 활동비 
-    - sortBy: 정렬 기준 (ALL, RECRUITING, COMPLETED, HIT, LIKED)
     """, required = false)
     @Parameter(name = "userId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
     @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
+    @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = true)
     public ApiResponse<StudyPreviewDTO> interestRegionStudiesByConditionsAll(
         @PathVariable long userId,
         @ModelAttribute SearchRequestStudyDTO searchRequestStudyDTO,
         @RequestParam Integer page,
-        @RequestParam Integer size
+        @RequestParam Integer size,
+        @RequestParam StudySortBy sortBy
 
     ) {
         StudyPreviewDTO studies = studyQueryService.findInterestRegionStudiesByConditionsAll(
-            PageRequest.of(page, size), userId, searchRequestStudyDTO);
+            PageRequest.of(page, size), userId, searchRequestStudyDTO, sortBy);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
     }
 
@@ -165,20 +168,21 @@ public class SearchController {
     - isOnline: 스터디 온라인 진행 여부 (true, false)
     - hasFee: 스터디 활동비 유무 (true, false)
     - fee: 스터디 최대 활동비 
-    - sortBy: 정렬 기준 (ALL, RECRUITING, COMPLETED, HIT, LIKED)
     """, required = false)
     @Parameter(name = "regionCode", description = "조회할 지역 코드를 입력 받습니다. 지역 코드는 5자리의 문자열 입니다. ex) 11000", required = true)
     @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
+    @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = true)
     public ApiResponse<StudyPreviewDTO> interestRegionStudiesByConditionsSpecific(
         @PathVariable long userId,
         @RequestParam String regionCode,
         @ModelAttribute SearchRequestStudyDTO searchRequestStudyDTO,
         @RequestParam Integer page,
-        @RequestParam Integer size
+        @RequestParam Integer size,
+        @RequestParam StudySortBy sortBy
     ) {
         StudyPreviewDTO studies = studyQueryService.findInterestRegionStudiesByConditionsSpecific(
-            PageRequest.of(page, size), userId, searchRequestStudyDTO, regionCode);
+            PageRequest.of(page, size), userId, searchRequestStudyDTO, regionCode, sortBy);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
     }
 
@@ -200,16 +204,18 @@ public class SearchController {
     - isOnline: 스터디 온라인 진행 여부 (true, false)
     - hasFee: 스터디 활동비 유무 (true, false)
     - fee: 스터디 최대 활동비 
-    - sortBy: 정렬 기준 (ALL, HIT, LIKED)
     """, required = false)
     @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
+    @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = true)
     public ApiResponse<StudyPreviewDTO> recruitingStudiesByConditions(
         @ModelAttribute SearchRequestStudyDTO searchRequestStudyDTO,
-        @RequestParam Integer page, @RequestParam Integer size) {
+        @RequestParam Integer page,
+        @RequestParam Integer size,
+        @RequestParam StudySortBy sortBy) {
         // 메소드 구현
         StudyPreviewDTO studies = studyQueryService.findRecruitingStudiesByConditions(PageRequest.of(page, size),
-            searchRequestStudyDTO);
+            searchRequestStudyDTO, sortBy);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
     }
 
