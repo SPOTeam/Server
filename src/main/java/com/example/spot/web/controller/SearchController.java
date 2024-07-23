@@ -1,31 +1,20 @@
 package com.example.spot.web.controller;
 
 import com.example.spot.api.ApiResponse;
-import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.code.status.SuccessStatus;
-import com.example.spot.domain.Theme;
-import com.example.spot.domain.enums.Gender;
-import com.example.spot.domain.enums.StudySortBy;
 import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.service.study.StudyQueryService;
 import com.example.spot.validation.annotation.ExistMember;
-import com.example.spot.validation.annotation.ExistRegion;
-import com.example.spot.validation.annotation.ExistTheme;
-import com.example.spot.web.dto.search.SearchRequestDTO;
-import com.example.spot.web.dto.search.SearchResponseDTO;
+import com.example.spot.web.dto.search.SearchRequestDTO.SearchRequestStudyDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.SearchStudyDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Search", description = "Search API")
@@ -76,12 +65,13 @@ public class SearchController {
     @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
     public ApiResponse<Page<SearchStudyDTO>> interestStudiesByConditionsAll(
-        @ModelAttribute SearchRequestDTO.SearchStudyDTO searchStudyDTO,
+        @ModelAttribute SearchRequestStudyDTO searchRequestStudyDTO,
         @PathVariable long userId,
         @RequestParam Integer page,
         @RequestParam Integer size
     ) {
-        Page<SearchStudyDTO> studies = studyQueryService.findInterestStudiesByConditionsAll(PageRequest.of(page, size), userId, searchStudyDTO);
+        Page<SearchStudyDTO> studies = studyQueryService.findInterestStudiesByConditionsAll(PageRequest.of(page, size), userId,
+            searchRequestStudyDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
     }
     @GetMapping("/search/studies/interest-themes/specific/users/{userId}/")
@@ -109,11 +99,12 @@ public class SearchController {
     public ApiResponse<Page<SearchStudyDTO>> interestStudiesByConditionsSpecific(
         @PathVariable long userId,
         @RequestParam ThemeType theme,
-        @ModelAttribute SearchRequestDTO.SearchStudyDTO searchStudyDTO,
+        @ModelAttribute SearchRequestStudyDTO searchRequestStudyDTO,
         @RequestParam Integer page,
         @RequestParam Integer size
     ) {
-        Page<SearchStudyDTO> studies = studyQueryService.findInterestStudiesByConditionsSpecific(PageRequest.of(page, size), userId, searchStudyDTO, theme);
+        Page<SearchStudyDTO> studies = studyQueryService.findInterestStudiesByConditionsSpecific(PageRequest.of(page, size), userId,
+            searchRequestStudyDTO, theme);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
         // 메소드 구현
     }
@@ -145,13 +136,13 @@ public class SearchController {
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
     public ApiResponse<Page<SearchStudyDTO>> interestRegionStudiesByConditionsAll(
         @PathVariable long userId,
-        @ModelAttribute SearchRequestDTO.SearchStudyDTO searchStudyDTO,
+        @ModelAttribute SearchRequestStudyDTO searchRequestStudyDTO,
         @RequestParam Integer page,
         @RequestParam Integer size
 
     ) {
         Page<SearchStudyDTO> studies = studyQueryService.findInterestRegionStudiesByConditionsAll(
-            PageRequest.of(page, size), userId, searchStudyDTO);
+            PageRequest.of(page, size), userId, searchRequestStudyDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
     }
 
@@ -180,12 +171,12 @@ public class SearchController {
     public ApiResponse<Page<SearchStudyDTO>> interestRegionStudiesByConditionsSpecific(
         @PathVariable long userId,
         @RequestParam String regionCode,
-        @ModelAttribute SearchRequestDTO.SearchStudyDTO searchStudyDTO,
+        @ModelAttribute SearchRequestStudyDTO searchRequestStudyDTO,
         @RequestParam Integer page,
         @RequestParam Integer size
     ) {
         Page<SearchStudyDTO> studies = studyQueryService.findInterestRegionStudiesByConditionsSpecific(
-            PageRequest.of(page, size), userId, searchStudyDTO, regionCode);
+            PageRequest.of(page, size), userId, searchRequestStudyDTO, regionCode);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
     }
 
@@ -212,10 +203,11 @@ public class SearchController {
     @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
     public ApiResponse<Page<SearchStudyDTO>> recruitingStudiesByConditions(
-        @ModelAttribute SearchRequestDTO.SearchStudyDTO searchStudyDTO,
+        @ModelAttribute SearchRequestStudyDTO searchRequestStudyDTO,
         @RequestParam Integer page, @RequestParam Integer size) {
         // 메소드 구현
-        Page<SearchStudyDTO> studies = studyQueryService.findRecruitingStudiesByConditions(PageRequest.of(page, size), searchStudyDTO);
+        Page<SearchStudyDTO> studies = studyQueryService.findRecruitingStudiesByConditions(PageRequest.of(page, size),
+            searchRequestStudyDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
     }
 

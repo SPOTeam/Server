@@ -21,16 +21,13 @@ import com.example.spot.repository.RegionStudyRepository;
 import com.example.spot.repository.StudyRepository;
 import com.example.spot.repository.StudyThemeRepository;
 import com.example.spot.repository.ThemeRepository;
-import com.example.spot.web.dto.search.SearchRequestDTO.SearchStudyDTO;
+import com.example.spot.web.dto.search.SearchRequestDTO.SearchRequestStudyDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -79,7 +76,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
     @Override
     public Page<SearchResponseDTO.SearchStudyDTO> findInterestStudiesByConditionsAll(Pageable pageable, Long memberId,
-        SearchStudyDTO request) {
+        SearchRequestStudyDTO request) {
 
         List<Theme> themes = memberThemeRepository.findAllByMemberId(memberId).stream()
             .map(MemberTheme::getTheme)
@@ -106,7 +103,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
     @Override
     public Page<SearchResponseDTO.SearchStudyDTO> findInterestStudiesByConditionsSpecific(Pageable pageable,
-        Long memberId, SearchStudyDTO request, ThemeType themeType) {
+        Long memberId, SearchRequestStudyDTO request, ThemeType themeType) {
 
         List<Theme> themes = memberThemeRepository.findAllByMemberId(memberId)
             .stream()
@@ -138,7 +135,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
     @Override
     public Page<SearchResponseDTO.SearchStudyDTO> findInterestRegionStudiesByConditionsAll(Pageable pageable,
-        Long memberId, SearchStudyDTO request) {
+        Long memberId, SearchRequestStudyDTO request) {
 
         List<Region> regions = preferredRegionRepository.findAllByMemberId(memberId).stream()
             .map(PreferredRegion::getRegion)
@@ -164,7 +161,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
     @Override
     public Page<SearchResponseDTO.SearchStudyDTO> findInterestRegionStudiesByConditionsSpecific(Pageable pageable,
-        Long memberId, SearchStudyDTO request, String regionCode) {
+        Long memberId, SearchRequestStudyDTO request, String regionCode) {
 
         List<Region> regions = preferredRegionRepository.findAllByMemberId(memberId)
             .stream()
@@ -194,7 +191,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
     @Override
     public Page<SearchResponseDTO.SearchStudyDTO> findRecruitingStudiesByConditions(Pageable pageable,
-        SearchStudyDTO request) {
+        SearchRequestStudyDTO request) {
 
         Map<String, Object> conditions = getSearchConditions(request);
         List<Study> studies = studyRepository.findStudyByConditions(conditions,
@@ -227,7 +224,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return new PageImpl<>(studyDTOS, pageable, studies.size());
     }
 
-    private static Map<String, Object> getSearchConditions(SearchStudyDTO request) {
+    private static Map<String, Object> getSearchConditions(SearchRequestStudyDTO request) {
         // 검색 조건 맵 생성
         Map<String, Object> search = new HashMap<>();
         if (request.getGender() != null)
