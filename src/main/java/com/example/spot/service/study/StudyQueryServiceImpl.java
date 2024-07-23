@@ -88,10 +88,10 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
         Map<String, Object> conditions = getSearchConditions(request);
 
-        long totalElements = studyRepository.countStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndThemeTypes(conditions, studyThemes);
+        long totalElements = studyRepository.countStudyByConditionsAndThemeTypes(conditions, studyThemes);
 
 
-        List<Study> studies = studyRepository.findStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndThemeTypes(
+        List<Study> studies = studyRepository.findStudyByConditionsAndThemeTypes(
             conditions, request.getSortBy(),
             pageable, studyThemes);
 
@@ -104,8 +104,6 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     @Override
     public Page<SearchResponseDTO.SearchStudyDTO> findInterestStudiesByConditionsSpecific(Pageable pageable,
         Long memberId, SearchStudyDTO request, ThemeType themeType) {
-        if (!themeRepository.existsByStudyTheme(themeType) || themeType == null)
-            throw new StudyHandler(ErrorStatus._STUDY_THEME_NOT_FOUND);
 
         List<Theme> themes = memberThemeRepository.findAllByMemberId(memberId)
             .stream()
@@ -124,9 +122,9 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
         Map<String, Object> conditions = getSearchConditions(request);
 
-        long totalElements = studyRepository.countStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndThemeTypes(conditions, studyThemes);
+        long totalElements = studyRepository.countStudyByConditionsAndThemeTypes(conditions, studyThemes);
 
-        List<Study> studies = studyRepository.findStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndThemeTypes(
+        List<Study> studies = studyRepository.findStudyByConditionsAndThemeTypes(
             conditions, request.getSortBy(), pageable, studyThemes);
 
         List<SearchResponseDTO.SearchStudyDTO> studyDTOs = getDtos(studies);
@@ -149,10 +147,10 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
         Map<String, Object> conditions = getSearchConditions(request);
 
-        long totalElements = studyRepository.countStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndRegionStudies(conditions, regionStudies);
+        long totalElements = studyRepository.countStudyByConditionsAndRegionStudies(conditions, regionStudies);
 
 
-        List<Study> studies = studyRepository.findStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndRegionStudies(
+        List<Study> studies = studyRepository.findStudyByConditionsAndRegionStudies(
             conditions, request.getSortBy(),
             pageable, regionStudies);
 
@@ -181,9 +179,9 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
         Map<String, Object> conditions = getSearchConditions(request);
 
-        long totalElements = studyRepository.countStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndRegionStudies(conditions, regionStudies);
+        long totalElements = studyRepository.countStudyByConditionsAndRegionStudies(conditions, regionStudies);
 
-        List<Study> studies = studyRepository.findStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndRegionStudies(
+        List<Study> studies = studyRepository.findStudyByConditionsAndRegionStudies(
             conditions, request.getSortBy(), pageable, regionStudies);
 
         List<SearchResponseDTO.SearchStudyDTO> studyDTOs = getDtos(studies);
@@ -194,7 +192,16 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     @Override
     public Page<SearchResponseDTO.SearchStudyDTO> findRecruitingStudiesByConditions(Pageable pageable,
         SearchStudyDTO request) {
-        return null;
+
+        Map<String, Object> conditions = getSearchConditions(request);
+        List<Study> studies = studyRepository.findStudyByConditions(conditions,
+            request.getSortBy(), pageable);
+
+        long totalElements = studyRepository.countStudyByConditions(conditions);
+        List<SearchResponseDTO.SearchStudyDTO> studyDTOS = getDtos(studies);
+
+
+        return new PageImpl<>(studyDTOS, pageable, totalElements);
     }
 
     @Override

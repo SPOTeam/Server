@@ -11,7 +11,6 @@ import java.util.Optional;
 public interface ThemeRepository extends JpaRepository<Theme, Long> {
 
     Optional<Theme> findByStudyTheme(ThemeType themeType);
-    boolean existsByStudyTheme
-        (ThemeType themeType);
+    boolean existsByStudyTheme(ThemeType themeType);
 
 }

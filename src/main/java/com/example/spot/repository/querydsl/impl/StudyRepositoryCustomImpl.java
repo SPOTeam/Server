@@ -36,7 +36,38 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
     }
 
     @Override
-    public List<Study> findStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndThemeTypes(
+    public List<Study> findStudyByConditions(Map<String, Object> search, StudySortBy sortBy,
+        Pageable pageable) {
+        BooleanBuilder builder = new BooleanBuilder();
+        getConditions(search, study, builder);
+        builder.and(study.studyState.eq(StudyState.RECRUITING));
+
+        JPAQuery<Study> query = queryFactory.selectFrom(study)
+            .where(builder)
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize());
+
+        switch (sortBy) {
+            case HIT:
+                query.orderBy(study.hitNum.desc());
+                query.orderBy(study.createdAt.desc());
+                break;
+            case LIKED:
+                query.orderBy(study.heartCount.desc());
+                query.orderBy(study.createdAt.desc());
+                break;
+            case RECRUITING:
+                query.orderBy(study.createdAt.desc());
+                break;
+            default:
+                query.orderBy(study.createdAt.desc());
+                break;
+        }
+        return query.fetch();
+    }
+
+    @Override
+    public List<Study> findStudyByConditionsAndThemeTypes(
         Map<String, Object> search, StudySortBy sortBy, Pageable pageable, List<StudyTheme> themes) {
         QStudy study = QStudy.study;
 
@@ -73,7 +104,7 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
     }
 
     @Override
-    public List<Study> findStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndRegionStudies(
+    public List<Study> findStudyByConditionsAndRegionStudies(
         Map<String, Object> search, StudySortBy sortBy, Pageable pageable,
         List<RegionStudy> regionStudies) {
 
@@ -111,7 +142,7 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
     }
 
     @Override
-    public long countStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndThemeTypes(
+    public long countStudyByConditionsAndThemeTypes(
         Map<String, Object> search, List<StudyTheme> themeTypes) {
         BooleanBuilder builder = getBooleanBuilderByThemeTypes(search, study, themeTypes);
         return queryFactory.selectFrom(study)
@@ -120,9 +151,19 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
     }
 
     @Override
-    public long countStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndRegionStudies(
+    public long countStudyByConditionsAndRegionStudies(
         Map<String, Object> search, List<RegionStudy> regionStudies) {
         BooleanBuilder builder = getBooleanBuilderByRegionStudies(search, study, regionStudies);
+        return queryFactory.selectFrom(study)
+            .where(builder)
+            .fetchCount();
+    }
+
+    @Override
+    public long countStudyByConditions(Map<String, Object> search) {
+        BooleanBuilder builder = new BooleanBuilder();
+        getConditions(search, study, builder);
+        builder.and(study.studyState.eq(StudyState.RECRUITING));
         return queryFactory.selectFrom(study)
             .where(builder)
             .fetchCount();

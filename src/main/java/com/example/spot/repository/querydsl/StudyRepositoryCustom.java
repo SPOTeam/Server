@@ -15,13 +15,19 @@ public interface StudyRepositoryCustom {
 
     List<Study> findByStudyTheme(List<StudyTheme> studyThemes);
 
-    List<Study> findStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndThemeTypes(Map<String, Object> search,
+
+    // 모집중 스터디 조회
+    List<Study> findStudyByConditions(Map<String, Object> search, StudySortBy sortBy, Pageable pageable);
+
+    List<Study> findStudyByConditionsAndThemeTypes(Map<String, Object> search,
         StudySortBy sortBy, Pageable pageable, List<StudyTheme> themeTypes);
 
-    List<Study> findStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndRegionStudies(Map<String, Object> search,
+    List<Study> findStudyByConditionsAndRegionStudies(Map<String, Object> search,
         StudySortBy sortBy, Pageable pageable, List<RegionStudy> regionStudies);
 
-    long countStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndThemeTypes(Map<String, Object> search, List<StudyTheme> themeTypes);
+    long countStudyByConditionsAndThemeTypes(Map<String, Object> search, List<StudyTheme> themeTypes);
 
-    long countStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndRegionStudies(Map<String, Object> search, List<RegionStudy> regionStudies);
+    long countStudyByConditionsAndRegionStudies(Map<String, Object> search, List<RegionStudy> regionStudies);
+
+    long countStudyByConditions(Map<String, Object> search);
 }

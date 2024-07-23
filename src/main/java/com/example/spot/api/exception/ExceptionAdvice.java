@@ -30,9 +30,9 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> validation(ConstraintViolationException e, WebRequest request) {
 
         String errorMessage = e.getConstraintViolations().stream()
-                .map(ConstraintViolation::getMessage)
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("ConstraintViolationException 추출 실패"));
+            .map(ConstraintViolation::getMessage)
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("ConstraintViolationException 추출 실패"));
 
         return handleExceptionInternalConstraint(e, ErrorStatus.valueOf(errorMessage), HttpHeaders.EMPTY, request);
     }
@@ -40,16 +40,16 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
     //@Override
     //@Nullable
     public ResponseEntity<Object> handleMethodArgumentNotValid(
-            MethodArgumentNotValidException e, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        MethodArgumentNotValidException e, HttpHeaders headers, HttpStatus status, WebRequest request) {
 
         Map<String, String> errors = new LinkedHashMap<>();
 
         e.getBindingResult().getFieldErrors()
-                .forEach(fieldError -> {
-                    String fieldName = fieldError.getField();
-                    String errorMessage = Optional.ofNullable(fieldError.getDefaultMessage()).orElse("");
-                    errors.merge(fieldName, errorMessage, (existingErrorMessage, newErrorMessage) -> existingErrorMessage + ", " + newErrorMessage);
-                });
+            .forEach(fieldError -> {
+                String fieldName = fieldError.getField();
+                String errorMessage = Optional.ofNullable(fieldError.getDefaultMessage()).orElse("");
+                errors.merge(fieldName, errorMessage, (existingErrorMessage, newErrorMessage) -> existingErrorMessage + ", " + newErrorMessage);
+            });
 
         return handleExceptionInternalArgs(e, HttpHeaders.EMPTY, ErrorStatus.valueOf("_BAD_REQUEST"), request, errors);
     }
@@ -69,55 +69,55 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
     }
 
     private ResponseEntity<Object> handleExceptionInternal(
-            Exception e, ErrorReasonDTO reason, HttpHeaders headers, HttpServletRequest request) {
+        Exception e, ErrorReasonDTO reason, HttpHeaders headers, HttpServletRequest request) {
 
         ApiResponse<Object> body = ApiResponse.onFailure(reason.getCode(), reason.getMessage(), null);
         WebRequest webRequest = new ServletWebRequest(request);
         return super.handleExceptionInternal(
-                e,
-                body,
-                headers,
-                reason.getHttpStatus(),
-                webRequest
+            e,
+            body,
+            headers,
+            reason.getHttpStatus(),
+            webRequest
         );
     }
 
     private ResponseEntity<Object> handleExceptionInternalFalse(
-            Exception e, ErrorStatus errorCommonStatus, HttpHeaders headers, HttpStatus status, WebRequest request, String errorPoint) {
+        Exception e, ErrorStatus errorCommonStatus, HttpHeaders headers, HttpStatus status, WebRequest request, String errorPoint) {
 
         ApiResponse<Object> body = ApiResponse.onFailure(errorCommonStatus.getCode(), errorCommonStatus.getMessage(), errorPoint);
         return super.handleExceptionInternal(
-                e,
-                body,
-                headers,
-                status,
-                request
+            e,
+            body,
+            headers,
+            status,
+            request
         );
     }
 
     private ResponseEntity<Object> handleExceptionInternalArgs(
-            Exception e, HttpHeaders headers, ErrorStatus errorCommonStatus, WebRequest request, Map<String, String> errorArgs) {
+        Exception e, HttpHeaders headers, ErrorStatus errorCommonStatus, WebRequest request, Map<String, String> errorArgs) {
 
         ApiResponse<Object> body = ApiResponse.onFailure(errorCommonStatus.getCode(), errorCommonStatus.getMessage(), errorArgs);
         return super.handleExceptionInternal(
-                e,
-                body,
-                headers,
-                errorCommonStatus.getHttpStatus(),
-                request
+            e,
+            body,
+            headers,
+            errorCommonStatus.getHttpStatus(),
+            request
         );
     }
 
     private ResponseEntity<Object> handleExceptionInternalConstraint(
-            Exception e, ErrorStatus errorCommonStatus, HttpHeaders headers, WebRequest request) {
+        Exception e, ErrorStatus errorCommonStatus, HttpHeaders headers, WebRequest request) {
 
         ApiResponse<Object> body = ApiResponse.onFailure(errorCommonStatus.getCode(), errorCommonStatus.getMessage(), null);
         return super.handleExceptionInternal(
-                e,
-                body,
-                headers,
-                errorCommonStatus.getHttpStatus(),
-                request
+            e,
+            body,
+            headers,
+            errorCommonStatus.getHttpStatus(),
+            request
         );
     }
 }

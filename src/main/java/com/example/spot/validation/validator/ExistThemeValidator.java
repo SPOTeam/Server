@@ -31,9 +31,8 @@ public class ExistThemeValidator implements ConstraintValidator<ExistTheme, Stri
             isValid = false;
         } else {
 
-            errorStatus = ErrorStatus._MEMBER_NOT_FOUND;
+            errorStatus = ErrorStatus._STUDY_THEME_NOT_FOUND;
             isValid = themeRepository.existsByStudyTheme(ThemeType.valueOf(value));
-
         }
         if (!isValid) {
             Objects.requireNonNull(context).disableDefaultConstraintViolation();

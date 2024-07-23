@@ -14,11 +14,12 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class ExistRegionValidator  implements ConstraintValidator<ExistRegion, String> {
+public class ExistRegionValidator implements ConstraintValidator<ExistRegion, String> {
     private final RegionRepository regionRepository;
+
     @Override
     public void initialize(ExistRegion constraintAnnotation) {
-        ConstraintValidator.super.initialize(constraintAnnotation);
+        // Initialization logic if needed
     }
 
     @Override
@@ -26,19 +27,21 @@ public class ExistRegionValidator  implements ConstraintValidator<ExistRegion, S
         boolean isValid;
         ErrorStatus errorStatus;
 
-        // null is invalid
-        if (context == null) {
+        // null or empty values are considered invalid
+        if (value == null || value.isEmpty()) {
             errorStatus = ErrorStatus._STUDY_REGION_IS_NULL;
             isValid = false;
         } else {
             errorStatus = ErrorStatus._STUDY_REGION_NOT_FOUND;
             isValid = regionRepository.existsByCode(value);
         }
+
         if (!isValid) {
-            Objects.requireNonNull(context).disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate(errorStatus.toString())
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate(errorStatus.getMessage())
                 .addConstraintViolation();
         }
+
         return isValid;
     }
 }
