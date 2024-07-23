@@ -1,16 +1,19 @@
 package com.example.spot.repository.querydsl.impl;
 
+import com.example.spot.domain.Theme;
 import com.example.spot.domain.enums.Gender;
 import com.example.spot.domain.enums.StudySortBy;
 import com.example.spot.domain.enums.ThemeType;
+import com.example.spot.domain.mapping.StudyTheme;
+import com.example.spot.domain.study.QStudy;
 import com.example.spot.domain.study.Study;
 import com.example.spot.repository.querydsl.StudyRepositoryCustom;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import static com.example.spot.domain.study.QStudy.study;
@@ -45,9 +48,56 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
 
     @Override
     public List<Study> findStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndThemeTypes(
-        Map<String, Object> search, StudySortBy sortBy, Pageable pageable,
-        List<ThemeType> themeTypes) {
-        return null;
+        Map<String, Object> search, StudySortBy sortBy, Pageable pageable, List<StudyTheme> themes) {
+        QStudy study = QStudy.study;
+
+        BooleanBuilder builder = new BooleanBuilder();
+
+        // 조건문 추가
+        if (search.get("isOnline") != null) {
+            builder.and(study.isOnline.eq((Boolean) search.get("isOnline")));
+        }
+        if (search.get("gender") != null) {
+            builder.and(study.gender.eq((Gender) search.get("gender")));
+        }
+        if (search.get("minAge") != null) {
+            builder.and(study.minAge.goe((Integer) search.get("minAge")));
+        }
+        if (search.get("maxAge") != null) {
+            builder.and(study.maxAge.loe((Integer) search.get("maxAge")));
+        }
+        if (search.get("hasFee") != null) {
+            builder.and(study.hasFee.eq((Boolean) search.get("hasFee")));
+        }
+        if (search.get("fee") != null) {
+            builder.and(study.fee.loe((Integer) search.get("fee")));
+        }
+        if (themes != null && !themes.isEmpty()) {
+            builder.and(study.themes.any().in(themes));
+        }
+
+        // 정렬 조건 설정
+        JPAQuery<Study> query = queryFactory.selectFrom(study)
+            .where(builder)
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize());
+
+        switch (sortBy) {
+            case HIT:
+                query.orderBy(study.hitNum.desc());
+                break;
+            case LIKED:
+                query.orderBy(study.heartCount.desc());
+                break;
+            case RECRUITING:
+                query.orderBy(study.createdAt.asc());
+                break;
+            default:
+                query.orderBy(study.id.asc());
+                break;
+        }
+
+        return query.fetch();
     }
 
     @Override

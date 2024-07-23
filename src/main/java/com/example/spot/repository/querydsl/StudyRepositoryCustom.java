@@ -1,7 +1,9 @@
 package com.example.spot.repository.querydsl;
 
+import com.example.spot.domain.Theme;
 import com.example.spot.domain.enums.StudySortBy;
 import com.example.spot.domain.enums.ThemeType;
+import com.example.spot.domain.mapping.StudyTheme;
 import com.example.spot.domain.study.Study;
 import java.util.List;
 import java.util.Map;
@@ -13,10 +15,10 @@ public interface StudyRepositoryCustom {
         StudySortBy sortBy, Pageable pageable);
 
     List<Study> findStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndThemeTypes(Map<String, Object> search,
-        StudySortBy sortBy, Pageable pageable, List<ThemeType> themeTypes);
+        StudySortBy sortBy, Pageable pageable, List<StudyTheme> themeTypes);
 
-    List<Study> findStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndThemeType(Map<String, Object> search,
-        StudySortBy sortBy, Pageable pageable, ThemeType themeType);
+    List<Study> findStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndThemeType(
+        Map<String, Object> search, StudySortBy sortBy, Pageable pageable, ThemeType themeType);
 
     List<Study> findStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndRegionCodes(Map<String, Object> search,
         StudySortBy sortBy, Pageable pageable, List<String> regionCodes);
