@@ -1,9 +1,16 @@
 package com.example.spot.service.study;
 
+import com.example.spot.api.code.status.ErrorStatus;
+import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.config.EntitySpecification;
+import com.example.spot.domain.Member;
+import com.example.spot.domain.Theme;
 import com.example.spot.domain.enums.ThemeType;
+import com.example.spot.domain.mapping.MemberTheme;
 import com.example.spot.domain.study.Study;
+import com.example.spot.repository.MemberRepository;
 import com.example.spot.repository.MemberStudyRepository;
+import com.example.spot.repository.MemberThemeRepository;
 import com.example.spot.repository.StudyRepository;
 import com.example.spot.web.dto.search.SearchRequestDTO.SearchStudyDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO;
@@ -27,6 +34,8 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
     private final StudyRepository studyRepository;
     private final MemberStudyRepository memberStudyRepository;
+    private final MemberThemeRepository memberThemeRepository;
+    private final MemberRepository memberRepository;
 
     @Override
     public Page<SearchStudyDTO> findRecommendStudies(Pageable pageable, Long memberId) {
@@ -36,6 +45,12 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     @Override
     public Page<SearchResponseDTO.SearchStudyDTO> findInterestStudiesByConditionsAll(Pageable pageable, Long memberId,
         SearchStudyDTO request) {
+
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberHandler(
+            ErrorStatus._MEMBER_NOT_FOUND));
+        List<Theme> themes = memberThemeRepository.findAllByMemberId(memberId).stream()
+            .map(MemberTheme::getTheme)
+            .toList();
 
         Map<String, Object> search = new HashMap<>();
         if (request.getGender() != null)
@@ -73,8 +88,18 @@ public class StudyQueryServiceImpl implements StudyQueryService {
                     break;
             }
         }
+        // 테마 조건 추가
+        if (!themes.isEmpty())
+            search.put("themes", themes);
 
-        Specification<Study> spec = EntitySpecification.searchStudy(search);
+        Specification<Study> spec = EntitySpecification.searchStudy(search)
+            .and((root, query, criteriaBuilder) -> {
+                if (!themes.isEmpty()) {
+                    return root.join("themes").in(themes);
+                } else {
+                    return criteriaBuilder.conjunction();
+                }
+            });
 
         pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
 
