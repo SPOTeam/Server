@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -23,9 +24,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class StudyQueryServiceImpl implements StudyQueryService {
 
     private final StudyRepository studyRepository;
@@ -39,7 +42,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     }
 
     @Override
-    public Page<SearchResponseDTO.SearchStudyDTO> findInterestStudiesByConditionsAll(Pageable pageable, Long memberId,
+    public List<SearchResponseDTO.SearchStudyDTO> findInterestStudiesByConditionsAll(Pageable pageable, Long memberId,
         SearchStudyDTO request) {
 
         // 회원의 테마를 가져오기
@@ -62,36 +65,24 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         if (request.getFee() != null)
             search.put("fee", request.getFee());
 
-        // 정렬 기준 설정
-        Sort sort = Sort.by(Direction.DESC, "createdAt");
-//        if (request.getSortBy() != null) {
-//            sort = switch (request.getSortBy()) {
-//                case ALL -> Sort.by(Direction.DESC, "createdAt");
-//                case RECRUITING -> {
-//                    search.put("status", "RECRUITING");
-//                    yield Sort.by(Direction.DESC, "createdAt");
-//                }
-//                case HIT -> Sort.by(Direction.DESC, "hitNum");
-//                case LIKED -> Sort.by(Direction.DESC, "heartCount");
-//                default -> Sort.by(Direction.DESC, "createdAt");
-//            };
-//        }
-        studyRepository.findStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFee(search);
-        // 페이지 요청 생성
-        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+        // request log
 
-        // Specification 생성
-        Specification<Study> spec = EntitySpecification.searchStudy(search);
+        List<Study> studies = studyRepository.findStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFee(
+            search, request.getSortBy(),
+            pageable.getPageNumber(), pageable.getPageSize());
 
-        // 쿼리 실행
-        Page<Study> studyPage = studyRepository.findAll(spec, pageable);
+        // 검색 결과를 DTO로 변환
 
-        // 결과를 DTO로 변환
-        List<SearchResponseDTO.SearchStudyDTO> dtoList = studyPage.getContent().stream()
-            .map(SearchResponseDTO.SearchStudyDTO::new)
+        return studies.stream()
+            .map(study -> SearchResponseDTO.SearchStudyDTO.builder()
+                .studyId(study.getId())
+                .title(study.getTitle())
+                .imageUrl(study.getProfileImage())
+                .introduction(study.getIntroduction())
+                .hitNum(study.getHitNum())
+                .memberCount((long) study.getMemberStudies().size())
+                .heartCount((long) study.getHeartCount()).build())
             .toList();
-
-        return new PageImpl<>(dtoList, pageable, studyPage.getTotalElements());
     }
 
 
