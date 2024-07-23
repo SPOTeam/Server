@@ -1,8 +1,10 @@
 package com.example.spot.web.dto.search;
 
+import com.example.spot.domain.Region;
 import com.example.spot.domain.Theme;
 import com.example.spot.domain.enums.StudyState;
 import com.example.spot.domain.enums.ThemeType;
+import com.example.spot.domain.mapping.RegionStudy;
 import com.example.spot.domain.mapping.StudyTheme;
 import com.example.spot.domain.study.Study;
 import java.time.LocalDateTime;
@@ -28,6 +30,7 @@ public class SearchResponseDTO {
             this.heartCount = (long) study.getHeartCount();
             this.hitNum = study.getHitNum();
             this.studyState = study.getStudyState();
+            this.regions = study.getRegions().stream().map(RegionStudy::getRegion).map(Region::getCode).toList();
             this.themeTypes = study.getThemes().stream().map(StudyTheme::getTheme).map(Theme::getStudyTheme).toList();
             this.createdAt = study.getCreatedAt();
 
@@ -41,6 +44,7 @@ public class SearchResponseDTO {
         Long hitNum;
         StudyState studyState;
         List<ThemeType> themeTypes;
+        List<String> regions;
         LocalDateTime createdAt;
     }
 

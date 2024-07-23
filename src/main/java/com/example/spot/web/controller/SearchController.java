@@ -173,14 +173,16 @@ public class SearchController {
     @Parameter(name = "regionCode", description = "조회할 지역 코드를 입력 받습니다. 지역 코드는 5자리의 문자열 입니다. ex) 11000", required = true)
     @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
-    public void interestRegionStudiesByConditionsSpecific(
+    public ApiResponse<Page<SearchStudyDTO>> interestRegionStudiesByConditionsSpecific(
         @PathVariable long userId,
         @RequestParam String regionCode,
         @ModelAttribute SearchRequestDTO.SearchStudyDTO searchStudyDTO,
         @RequestParam Integer page,
         @RequestParam Integer size
     ) {
-        // 메소드 구현
+        Page<SearchStudyDTO> studies = studyQueryService.findInterestRegionStudiesByConditionsSpecific(
+            PageRequest.of(page, size), userId, searchStudyDTO, regionCode);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
     }
 
     /* ----------------------------- 모집 중 스터디 조회  ------------------------------------- */
