@@ -28,7 +28,7 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
     @Override
     public List<Study> findByStudyTheme(List<StudyTheme> studyThemes) {
         return queryFactory.selectFrom(study)
-            .where(study.themes.any().in(studyThemes))
+            .where(study.studyThemes.any().in(studyThemes))
             .orderBy(study.createdAt.desc())
             .offset(0)
             .limit(3)
@@ -75,6 +75,9 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
         if (sortBy != null && sortBy.equals(StudySortBy.RECRUITING)){
             builder.and(study.studyState.eq((StudyState.RECRUITING)));
         }
+        if (sortBy != null && sortBy.equals(StudySortBy.COMPLETED)){
+            builder.and(study.studyState.eq((StudyState.COMPLETED)));
+        }
 
         // 정렬 조건 설정
         JPAQuery<Study> query = queryFactory.selectFrom(study)
@@ -90,6 +93,9 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
                 break;
             case LIKED:
                 query.orderBy(study.heartCount.desc());
+                query.orderBy(study.createdAt.desc());
+                break;
+            case COMPLETED:
                 query.orderBy(study.createdAt.desc());
                 break;
             case RECRUITING:
@@ -114,6 +120,8 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
 
         if (sortBy != null && sortBy.equals(StudySortBy.RECRUITING))
             builder.and(study.studyState.eq((StudyState.RECRUITING)));
+        if (sortBy != null && sortBy.equals(StudySortBy.COMPLETED))
+            builder.and(study.studyState.eq((StudyState.COMPLETED)));
 
         // 정렬 조건 설정
         JPAQuery<Study> query = queryFactory.selectFrom(study)
@@ -130,6 +138,9 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
                 query.orderBy(study.heartCount.desc());
                 query.orderBy(study.createdAt.desc());
                 break;
+            case COMPLETED:
+                query.orderBy(study.createdAt.desc());
+                break;
             case RECRUITING:
                 query.orderBy(study.createdAt.desc());
                 break;
@@ -138,6 +149,83 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
                 break;
         }
 
+        return query.fetch();
+    }
+
+    @Override
+    public List<Study> findAllByTitleContaining(String title, StudySortBy sortBy,
+        Pageable pageable) {
+        QStudy study = QStudy.study;
+        BooleanBuilder builder = new BooleanBuilder();
+        if (sortBy != null && sortBy.equals(StudySortBy.RECRUITING))
+            builder.and(study.studyState.eq((StudyState.RECRUITING)));
+        if (sortBy != null && sortBy.equals(StudySortBy.COMPLETED))
+            builder.and(study.studyState.eq((StudyState.COMPLETED)));
+
+        // 정렬 조건 설정
+        JPAQuery<Study> query = queryFactory.selectFrom(study)
+            .where(builder)
+            .where(study.title.contains(title))
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize());
+
+        switch (sortBy) {
+            case HIT:
+                query.orderBy(study.hitNum.desc());
+                query.orderBy(study.createdAt.desc());
+                break;
+            case LIKED:
+                query.orderBy(study.heartCount.desc());
+                query.orderBy(study.createdAt.desc());
+                break;
+            case COMPLETED:
+                query.orderBy(study.createdAt.desc());
+                break;
+            case RECRUITING:
+                query.orderBy(study.createdAt.desc());
+                break;
+            default:
+                query.orderBy(study.createdAt.desc());
+                break;
+        }
+        return query.fetch();
+    }
+
+    @Override
+    public List<Study> findByStudyTheme(List<StudyTheme> studyThemes, StudySortBy sortBy, Pageable pageable) {
+        QStudy study = QStudy.study;
+        BooleanBuilder builder = new BooleanBuilder();
+        if (sortBy != null && sortBy.equals(StudySortBy.RECRUITING))
+            builder.and(study.studyState.eq((StudyState.RECRUITING)));
+        if (sortBy != null && sortBy.equals(StudySortBy.COMPLETED))
+            builder.and(study.studyState.eq((StudyState.COMPLETED)));
+
+        // 정렬 조건 설정
+        JPAQuery<Study> query = queryFactory.selectFrom(study)
+            .where(builder)
+            .where(study.studyThemes.any().in(studyThemes))
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize());
+
+        switch (sortBy) {
+            case HIT:
+                query.orderBy(study.hitNum.desc());
+                query.orderBy(study.createdAt.desc());
+                break;
+            case LIKED:
+                query.orderBy(study.heartCount.desc());
+                query.orderBy(study.createdAt.desc());
+                break;
+            case COMPLETED:
+                query.orderBy(study.createdAt.desc());
+                break;
+            case RECRUITING:
+                query.orderBy(study.createdAt.desc());
+                break;
+            default:
+                query.orderBy(study.createdAt.desc());
+                break;
+        }
         return query.fetch();
     }
 
@@ -187,7 +275,7 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
         // 조건문 추가
         getConditions(search, study, builder);
         if (themeTypes != null && !themeTypes.isEmpty()) {
-            builder.and(study.themes.any().in(themeTypes));
+            builder.and(study.studyThemes.any().in(themeTypes));
         }
         return builder;
     }

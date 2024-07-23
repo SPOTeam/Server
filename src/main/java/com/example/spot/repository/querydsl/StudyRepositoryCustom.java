@@ -25,9 +25,15 @@ public interface StudyRepositoryCustom {
     List<Study> findStudyByConditionsAndRegionStudies(Map<String, Object> search,
         StudySortBy sortBy, Pageable pageable, List<RegionStudy> regionStudies);
 
+    List<Study> findAllByTitleContaining(String title, StudySortBy sortBy, Pageable pageable);
+
+    List<Study> findByStudyTheme(List<StudyTheme> studyTheme, StudySortBy sortBy, Pageable pageable);
+
     long countStudyByConditionsAndThemeTypes(Map<String, Object> search, List<StudyTheme> themeTypes);
 
     long countStudyByConditionsAndRegionStudies(Map<String, Object> search, List<RegionStudy> regionStudies);
 
     long countStudyByConditions(Map<String, Object> search);
+
+
 }

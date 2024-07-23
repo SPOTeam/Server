@@ -1,5 +1,6 @@
 package com.example.spot.service.study;
 
+import com.example.spot.domain.enums.StudySortBy;
 import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.web.dto.search.SearchRequestDTO.SearchRequestStudyDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.SearchStudyDTO;
@@ -35,6 +36,9 @@ public interface StudyQueryService {
     Page<SearchStudyDTO> findLikedStudies(Long memberId);
 
     // 스터디 키워드 검색
-    Page<SearchStudyDTO>findStudiesByKeyword(Pageable pageable, String keyword);
+    Page<SearchStudyDTO>findStudiesByKeyword(Pageable pageable, String keyword, StudySortBy sortBy);
+
+    // 테마 별 스터디 검색
+    Page<SearchStudyDTO> findStudiesByTheme(Pageable pageable, ThemeType theme, StudySortBy sortBy);
 
 }

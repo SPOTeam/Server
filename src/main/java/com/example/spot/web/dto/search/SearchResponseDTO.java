@@ -31,7 +31,7 @@ public class SearchResponseDTO {
             this.hitNum = study.getHitNum();
             this.studyState = study.getStudyState();
             this.regions = study.getRegionStudies().stream().map(RegionStudy::getRegion).map(Region::getCode).toList();
-            this.themeTypes = study.getThemes().stream().map(StudyTheme::getTheme).map(Theme::getStudyTheme).toList();
+            this.themeTypes = study.getStudyThemes().stream().map(StudyTheme::getTheme).map(Theme::getStudyTheme).toList();
             this.createdAt = study.getCreatedAt();
 
         }

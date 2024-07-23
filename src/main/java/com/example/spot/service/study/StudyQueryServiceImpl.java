@@ -4,6 +4,7 @@ import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.handler.StudyHandler;
 import com.example.spot.domain.Region;
 import com.example.spot.domain.Theme;
+import com.example.spot.domain.enums.StudySortBy;
 import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.domain.mapping.MemberTheme;
 import com.example.spot.domain.mapping.PreferredRegion;
@@ -23,6 +24,7 @@ import com.example.spot.repository.StudyThemeRepository;
 import com.example.spot.repository.ThemeRepository;
 import com.example.spot.web.dto.search.SearchRequestDTO.SearchRequestStudyDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO;
+import com.example.spot.web.dto.search.SearchResponseDTO.SearchStudyDTO;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -218,9 +220,23 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
     @Override
     public Page<SearchResponseDTO.SearchStudyDTO> findStudiesByKeyword(Pageable pageable,
-        String keyword) {
-        List<Study> studies = studyRepository.findAllByTitleContainingOrderByCreatedAtDesc(keyword, pageable).toList();
+        String keyword, StudySortBy sortBy) {
+        List<Study> studies = studyRepository.findAllByTitleContaining(keyword, sortBy, pageable);
         List<SearchResponseDTO.SearchStudyDTO> studyDTOS = getDtos(studies);
+        return new PageImpl<>(studyDTOS, pageable, studies.size());
+    }
+
+    @Override
+    public Page<SearchStudyDTO> findStudiesByTheme(Pageable pageable, ThemeType theme, StudySortBy sortBy) {
+        Theme themeEntity = themeRepository.findByStudyTheme(theme)
+            .orElseThrow(() -> new StudyHandler(ErrorStatus._BAD_REQUEST));
+
+        List<StudyTheme> studyThemes = studyThemeRepository.findAllByTheme(themeEntity);
+
+        List<Study> studies = studyRepository.findByStudyTheme(studyThemes, sortBy, pageable);
+
+        List<SearchStudyDTO> studyDTOS = getDtos(studies);
+
         return new PageImpl<>(studyDTOS, pageable, studies.size());
     }
 
