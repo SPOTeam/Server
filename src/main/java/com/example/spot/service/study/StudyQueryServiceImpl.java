@@ -8,8 +8,11 @@ import com.example.spot.domain.study.Study;
 import com.example.spot.repository.MemberRepository;
 import com.example.spot.repository.MemberStudyRepository;
 import com.example.spot.repository.StudyRepository;
+import com.example.spot.web.dto.search.SearchRequestDTO.SearchStudyDTO;
 import com.example.spot.web.dto.study.response.StudyInfoResponseDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,22 +25,44 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     private final MemberStudyRepository memberStudyRepository;
     private final StudyRepository studyRepository;
 
-/* ----------------------------- 스터디 생성/참여 관련 API ------------------------------------- */
 
-    public StudyInfoResponseDTO.StudyInfoDTO getStudyInfo(Long studyId) {
+    @Override
+    public Page<Study> findRecommendStudies(Pageable pageable, Long memberId) {
+        return null;
+    }
 
-        Study study = studyRepository.findById(studyId)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+    @Override
+    public Page<Study> findInterestStudiesByConditionsAll(Pageable pageable, Long memberId,
+        SearchStudyDTO request) {
+        return null;
+    }
 
-        List<MemberStudy> memberStudyList = study.getMemberStudies().stream()
-                .filter(MemberStudy::getIsOwned)
-                .toList();
+    @Override
+    public Page<Study> findInterestStudiesByConditionsSpecific(Pageable pageable, Long memberId,
+        SearchStudyDTO request) {
+        return null;
+    }
 
-        if (memberStudyList.isEmpty()) {
-            throw new StudyHandler(ErrorStatus._STUDY_OWNER_NOT_FOUND);
-        }
+    @Override
+    public Page<Study> findInterestRegionStudiesByConditionsAll(Pageable pageable, Long memberId,
+        SearchStudyDTO request) {
+        return null;
+    }
 
-        Member owner = memberStudyList.get(0).getMember();
-        return StudyInfoResponseDTO.StudyInfoDTO.toDTO(study, owner);
+    @Override
+    public Page<Study> findInterestRegionStudiesByConditionsSpecific(Pageable pageable,
+        Long memberId, SearchStudyDTO request) {
+        return null;
+    }
+
+    @Override
+    public Page<Study> findRecruitingStudiesByConditions(Pageable pageable,
+        SearchStudyDTO request) {
+        return null;
+    }
+
+    @Override
+    public Page<Study> findLikedStudiesByConditions(Pageable pageable, Long memberId) {
+        return null;
     }
 }
