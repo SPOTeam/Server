@@ -2,14 +2,19 @@ package com.example.spot.service.study;
 
 import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.handler.StudyHandler;
+import com.example.spot.domain.Region;
 import com.example.spot.domain.Theme;
 import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.domain.mapping.MemberTheme;
+import com.example.spot.domain.mapping.PreferredRegion;
+import com.example.spot.domain.mapping.RegionStudy;
 import com.example.spot.domain.mapping.StudyTheme;
 import com.example.spot.domain.study.Study;
 import com.example.spot.repository.MemberRepository;
 import com.example.spot.repository.MemberStudyRepository;
 import com.example.spot.repository.MemberThemeRepository;
+import com.example.spot.repository.PreferredRegionRepository;
+import com.example.spot.repository.RegionStudyRepository;
 import com.example.spot.repository.StudyRepository;
 import com.example.spot.repository.StudyThemeRepository;
 import com.example.spot.web.dto.search.SearchRequestDTO.SearchStudyDTO;
@@ -33,11 +38,18 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class StudyQueryServiceImpl implements StudyQueryService {
 
+    // 스터디 관련 조회
     private final StudyRepository studyRepository;
-    private final MemberStudyRepository memberStudyRepository;
-    private final MemberThemeRepository memberThemeRepository;
     private final MemberRepository memberRepository;
+    private final MemberStudyRepository memberStudyRepository;
+
+    // 관심사 관련 조회
     private final StudyThemeRepository studyThemeRepository;
+    private final MemberThemeRepository memberThemeRepository;
+
+    // 지역 관련 조회
+    private final PreferredRegionRepository preferredRegionRepository;
+    private final RegionStudyRepository regionStudyRepository;
 
     @Override
     public Page<SearchResponseDTO.SearchStudyDTO> findRecommendStudies(Long memberId) {
@@ -126,7 +138,27 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     @Override
     public Page<SearchResponseDTO.SearchStudyDTO> findInterestRegionStudiesByConditionsAll(Pageable pageable,
         Long memberId, SearchStudyDTO request) {
-        return null;
+
+        List<Region> regions = preferredRegionRepository.findAllByMemberId(memberId).stream()
+            .map(PreferredRegion::getRegion)
+            .toList();
+
+        List<RegionStudy> regionStudies = regions.stream()
+            .flatMap(region -> regionStudyRepository.findAllByRegion(region).stream())
+            .toList();
+
+        Map<String, Object> conditions = getSearchConditions(request);
+
+        long totalElements = studyRepository.countStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndRegionStudies(conditions, regionStudies);
+
+
+        List<Study> studies = studyRepository.findStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndRegionStudies(
+            conditions, request.getSortBy(),
+            pageable, regionStudies);
+
+        List<SearchResponseDTO.SearchStudyDTO> stream = getDtos(studies);
+
+        return new PageImpl<>(stream, pageable, totalElements);
     }
 
     @Override
