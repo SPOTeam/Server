@@ -7,6 +7,7 @@ import com.example.spot.domain.Theme;
 import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.domain.mapping.MemberTheme;
 import com.example.spot.domain.mapping.PreferredRegion;
+import com.example.spot.domain.mapping.PreferredStudy;
 import com.example.spot.domain.mapping.RegionStudy;
 import com.example.spot.domain.mapping.StudyTheme;
 import com.example.spot.domain.study.Study;
@@ -14,6 +15,7 @@ import com.example.spot.repository.MemberRepository;
 import com.example.spot.repository.MemberStudyRepository;
 import com.example.spot.repository.MemberThemeRepository;
 import com.example.spot.repository.PreferredRegionRepository;
+import com.example.spot.repository.PreferredStudyRepository;
 import com.example.spot.repository.RegionRepository;
 import com.example.spot.repository.RegionStudyRepository;
 import com.example.spot.repository.StudyRepository;
@@ -44,6 +46,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     private final StudyRepository studyRepository;
     private final MemberRepository memberRepository;
     private final MemberStudyRepository memberStudyRepository;
+    private final PreferredStudyRepository preferredStudyRepository;
 
     // 관심사 관련 조회
     private final ThemeRepository themeRepository;
@@ -205,8 +208,15 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     }
 
     @Override
-    public Page<SearchResponseDTO.SearchStudyDTO> findLikedStudiesByConditions(Pageable pageable, Long memberId) {
-        return null;
+    public Page<SearchResponseDTO.SearchStudyDTO> findLikedStudies( Long memberId) {
+        List<PreferredStudy> preferredStudyList = preferredStudyRepository.findByMemberIdOrderByCreatedAtDesc(memberId);
+        List<Study> studies = preferredStudyList.stream()
+            .map(PreferredStudy::getStudy)
+            .toList();
+
+        List<SearchResponseDTO.SearchStudyDTO> studyDTOS = getDtos(studies);
+
+        return new PageImpl<>(studyDTOS);
     }
 
     private static Map<String, Object> getSearchConditions(SearchStudyDTO request) {

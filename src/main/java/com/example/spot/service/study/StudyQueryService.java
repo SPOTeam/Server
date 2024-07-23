@@ -33,6 +33,6 @@ public interface StudyQueryService {
         SearchRequestDTO.SearchStudyDTO request);
 
     // 찜한 스터디 조회
-    Page<SearchStudyDTO> findLikedStudiesByConditions(Pageable pageable, Long memberId);
+    Page<SearchStudyDTO> findLikedStudies(Long memberId);
 
 }

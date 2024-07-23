@@ -194,7 +194,7 @@ public class SearchController {
 
     @GetMapping("/search/studies/recruiting")
     @Operation(
-        summary = "[모집 중 스터디 조회 - 개발중] 모집 중인 스터디 조회",
+        summary = "[모집 중 스터디 조회] 모집 중인 스터디 조회",
         description = """
             ## [모집 중 스터디 조회] 입력한 조건에 맞는 모집 중인  스터디 전체를 조회 합니다.
             조건에 맞게 검색된 스터디 목록이 반환 됩니다."""
@@ -223,20 +223,17 @@ public class SearchController {
 
     @GetMapping("/search/studies/liked/users/{userId}")
     @Operation(
-        summary = "[찜한 스터디 조회 - 개발중] 찜한 스터디 조회",
+        summary = "[찜한 스터디 조회] 찜한 스터디 조회",
         description = """
             ## [찜한 스터디 조회] 찜한 스터디 전체를 조회 합니다.
             찜한 스터디 목록이 반환 됩니다.""",
         security = @SecurityRequirement(name = "accessToken")
     )
     @Parameter(name = "userId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
-    @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
-    @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
-    public ApiResponse<String> likedStudies(
-        @PathVariable @ExistMember long userId,
-        @RequestParam Integer page,
-        @RequestParam Integer size) {
+    public ApiResponse<Page<SearchStudyDTO>> likedStudies(
+        @PathVariable @ExistMember long userId) {
         // 메소드 구현
-        return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, "찜한 스터디 목록 조회 성공");
+        Page<SearchStudyDTO> studies = studyQueryService.findLikedStudies(userId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
     }
 }
