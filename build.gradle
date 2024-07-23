@@ -51,9 +51,6 @@ dependencies {
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 
-    // validation
-    implementation 'org.hibernate.validator:hibernate-validator'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
 }
 
 tasks.named('test') {
