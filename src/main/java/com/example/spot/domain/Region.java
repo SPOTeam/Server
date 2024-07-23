@@ -14,9 +14,6 @@ import java.util.List;
 
 @Entity
 @Getter
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Region {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,4 +33,28 @@ public class Region {
     @OneToMany(mappedBy = "region")
     private List<PreferredRegion> prefferedRegionList = new ArrayList<>();
 
+
+/* ----------------------------- 생성자 ------------------------------------- */
+
+    protected Region() {}
+
+    @Builder
+    public Region(String code, String province, String district, String neighborhood) {
+        this.code = code;
+        this.province = province;
+        this.district = district;
+        this.neighborhood = neighborhood;
+    }
+
+/* ----------------------------- 연관관계 메소드 ------------------------------------- */
+
+    public void addRegionStudy(RegionStudy regionStudy) {
+        regionStudyList.add(regionStudy);
+        regionStudy.setRegion(this);
+    }
+
+    public void addPreferredRegion(PreferredRegion preferredRegion) {
+        prefferedRegionList.add(preferredRegion);
+        preferredRegion.setRegion(this);
+    }
 }

@@ -40,4 +40,16 @@ public class Theme {
     @OneToMany(mappedBy = "theme", cascade = CascadeType.ALL)
     private List<StudyTheme> studyThemeList;
 
+
+/* ----------------------------- 연관관계 메소드 ------------------------------------- */
+
+    public void addMemberTheme(MemberTheme memberTheme) {
+        memberThemeList.add(memberTheme);
+        memberTheme.setTheme(this);
+    }
+
+    public void addStudyTheme(StudyTheme studyTheme) {
+        studyThemeList.add(studyTheme);
+        studyTheme.setTheme(this);
+    }
 }

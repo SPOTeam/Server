@@ -1,16 +1,28 @@
 package com.example.spot.web.controller;
 
-import com.example.spot.domain.enums.Gender;
-import com.example.spot.domain.enums.ThemeType;
+import com.example.spot.api.ApiResponse;
+import com.example.spot.api.code.status.SuccessStatus;
+import com.example.spot.service.study.StudyCommandService;
+import com.example.spot.service.study.StudyQueryService;
+import com.example.spot.web.dto.study.request.StudyJoinRequestDTO;
+import com.example.spot.web.dto.study.request.StudyRegisterRequestDTO;
+import com.example.spot.web.dto.study.response.StudyInfoResponseDTO;
+import com.example.spot.web.dto.study.response.StudyJoinResponseDTO;
+import com.example.spot.web.dto.study.response.StudyRegisterResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Study", description = "Study API")
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/spot")
 public class StudyController {
+
+    private final StudyQueryService studyQueryService;
+    private final StudyCommandService studyCommandService;
 
 /* ----------------------------- 스터디 생성/참여 관련 API ------------------------------------- */
 
@@ -19,7 +31,9 @@ public class StudyController {
         스터디의 정보(이름, 참여인원, 찜 개수, 테마, 온라인 여부, 비용 여부, 연령 제한, 목표, 소개, 스터디장 등)가 반환됩니다.
         """)
     @GetMapping("/studies/{studyId}")
-    public void getStudyInfo(@PathVariable Long studyId) {
+    public ApiResponse<StudyInfoResponseDTO.StudyInfoDTO> getStudyInfo(@PathVariable Long studyId) {
+        StudyInfoResponseDTO.StudyInfoDTO studyInfoDTO = studyQueryService.getStudyInfo(studyId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studyInfoDTO);
     }
 
     @Operation(summary = "[스터디 생성/참여] 참여 신청하기", description = """ 
@@ -27,7 +41,10 @@ public class StudyController {
         로그인한 회원이 member_study에 application_status = APPLIED 상태로 추가됩니다.
         """)
     @PostMapping("/members/{memberId}/studies/{studyId}")
-    public void applyToStudy(@PathVariable Long memberId, @PathVariable Long studyId) {
+    public ApiResponse<StudyJoinResponseDTO.JoinDTO> applyToStudy(@PathVariable Long memberId, @PathVariable Long studyId,
+                                                                  @RequestBody StudyJoinRequestDTO.StudyJoinDTO studyJoinRequestDTO) {
+        StudyJoinResponseDTO.JoinDTO studyJoinResponseDTO = studyCommandService.applyToStudy(memberId, studyId, studyJoinRequestDTO);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_MEMBER_CREATED, studyJoinResponseDTO);
     }
 
     @Operation(summary = "[스터디 생성/참여] 스터디 등록하기", description = """ 
@@ -35,7 +52,9 @@ public class StudyController {
         로그인한 회원이 owner인 새로운 스터디가 study에 생성됩니다.
         """)
     @PostMapping("/members/{memberId}/studies")
-    public void registerStudy(@PathVariable Long memberId) {
+    public ApiResponse<StudyRegisterResponseDTO.RegisterDTO> registerStudy(@PathVariable Long memberId, @RequestBody StudyRegisterRequestDTO.RegisterDTO studyRegisterRequestDTO) {
+        StudyRegisterResponseDTO.RegisterDTO studyRegisterResponseDTO = studyCommandService.registerStudy(memberId, studyRegisterRequestDTO);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_CREATED, studyRegisterResponseDTO);
     }
 
 /* ----------------------------- 스터디 찜하기 관련 API ------------------------------------- */

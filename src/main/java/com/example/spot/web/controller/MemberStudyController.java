@@ -1,13 +1,24 @@
 package com.example.spot.web.controller;
 
+import com.example.spot.api.ApiResponse;
+import com.example.spot.api.code.status.SuccessStatus;
+import com.example.spot.service.memberstudy.MemberStudyCommandService;
+import com.example.spot.service.memberstudy.MemberStudyQueryService;
+import com.example.spot.web.dto.memberstudy.response.StudyTerminationResponseDTO;
+import com.example.spot.web.dto.memberstudy.response.StudyWithdrawalResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "MemberStudy", description = "MemberStudy API(내 스터디 관련 API)")
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/spot")
 public class MemberStudyController {
+
+    private final MemberStudyQueryService memberStudyQueryService;
+    private final MemberStudyCommandService memberStudyCommandService;
 
 /* ----------------------------- 진행중인 스터디 관련 API ------------------------------------- */
 
@@ -32,7 +43,9 @@ public class MemberStudyController {
         로그인한 회원이 참여하는 특정 스터디에 대해 member_study 튜플을 삭제합니다.
         """)
     @DeleteMapping("/members/{memberId}/studies/{studyId}/withdrawal")
-    public void withdrawFromStudy(@PathVariable Long memberId, @PathVariable Long studyId) {
+    public ApiResponse<StudyWithdrawalResponseDTO.WithdrawalDTO> withdrawFromStudy(@PathVariable Long memberId, @PathVariable Long studyId) {
+        StudyWithdrawalResponseDTO.WithdrawalDTO withdrawalDTO = memberStudyCommandService.withdrawFromStudy(memberId, studyId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_MEMBER_DELETED, withdrawalDTO);
     }
 
     @Operation(summary = "[진행중인 스터디] 스터디 끝내기", description = """ 
@@ -40,7 +53,9 @@ public class MemberStudyController {
         로그인한 회원이 운영하는 특정 스터디에 대해 study status OFF로 전환합니다.
         """)
     @PatchMapping("/studies/{studyId}/termination")
-    public void terminateStudy(@PathVariable Long studyId) {
+    public ApiResponse<StudyTerminationResponseDTO.TerminationDTO> terminateStudy(@PathVariable Long studyId) {
+        StudyTerminationResponseDTO.TerminationDTO terminationDTO = memberStudyCommandService.terminateStudy(studyId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_TERMINATED, terminationDTO);
     }
 
     @Operation(summary = "[진행중인 스터디] 스터디 정보 수정하기", description = """ 

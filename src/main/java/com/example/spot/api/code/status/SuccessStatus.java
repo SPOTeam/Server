@@ -41,8 +41,16 @@ public enum SuccessStatus implements BaseCode {
     _NOTIFICATINO_APPLIED_STUDY_FOUND(HttpStatus.OK, "NOTIFICATION4002", "참가 신청한 스터디 알림 조회 완료"),
     _NOTIFICATION_APPLIED_STUDY_JOINED(HttpStatus.OK, "NOTIFICATION4003", "참가 신청한 스터디 최종 참여 확인 완료"),
     _NOTIFICATION_APPLIED_STUDY_REJECTED(HttpStatus.OK, "NOTIFICATION4004", "참가 신청한 스터디 최종 참여 거절 완료"),
+
+    //스터디 관련
+    _STUDY_CREATED(HttpStatus.CREATED, "STUDY4001", "스터디 생성 완료"),
+    _STUDY_UPDATED(HttpStatus.OK, "STUDY4002", "스터디 수정 완료"),
+    _STUDY_FOUND(HttpStatus.OK, "STUDY4003", "스터디 조회 완료"),
+    _STUDY_MEMBER_CREATED(HttpStatus.CREATED, "STUDY4004", "스터디 참여 완료"),
+    _STUDY_MEMBER_DELETED(HttpStatus.OK, "STUDY4005", "스터디 탈퇴 완료"),
+    _STUDY_TERMINATED(HttpStatus.OK, "STUDY4006", "스터디 종료 완료")
     ;
-    
+  
     private final HttpStatus httpStatus;
     private final String code;
     private final String message;
