@@ -50,7 +50,7 @@ public class ExceptionAdvice {
 
         ApiResponse<List<String>> response = ApiResponse.onFailure(
             ErrorStatus._BAD_REQUEST.getCode(),
-            "Validation failed",
+            ErrorStatus._BAD_REQUEST.getMessage(),
             errors
         );
 
