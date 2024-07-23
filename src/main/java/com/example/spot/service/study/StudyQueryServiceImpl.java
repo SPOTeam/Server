@@ -40,8 +40,22 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     private final StudyThemeRepository studyThemeRepository;
 
     @Override
-    public Page<SearchStudyDTO> findRecommendStudies(Pageable pageable, Long memberId) {
-        return null;
+    public Page<SearchResponseDTO.SearchStudyDTO> findRecommendStudies(Long memberId) {
+
+        // MemberId로 회원 관심사 전체 조회
+        List<Theme> themes = memberThemeRepository.findAllByMemberId(memberId).stream()
+            .map(MemberTheme::getTheme)
+            .toList();
+
+        // 회원 관심사로 스터디 테마 조회
+        List<StudyTheme> studyThemes = themes.stream()
+            .flatMap(theme -> studyThemeRepository.findAllByTheme(theme).stream())
+            .toList();
+        List<Study> studies = studyRepository.findByStudyTheme(studyThemes);
+
+        List<SearchResponseDTO.SearchStudyDTO> stream = getDtos(studies);
+
+        return new PageImpl<>(stream);
     }
 
     @Override
@@ -110,25 +124,25 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
 
     @Override
-    public Page<SearchStudyDTO> findInterestRegionStudiesByConditionsAll(Pageable pageable,
+    public Page<SearchResponseDTO.SearchStudyDTO> findInterestRegionStudiesByConditionsAll(Pageable pageable,
         Long memberId, SearchStudyDTO request) {
         return null;
     }
 
     @Override
-    public Page<SearchStudyDTO> findInterestRegionStudiesByConditionsSpecific(Pageable pageable,
+    public Page<SearchResponseDTO.SearchStudyDTO> findInterestRegionStudiesByConditionsSpecific(Pageable pageable,
         Long memberId, SearchStudyDTO request, String regionCode) {
         return null;
     }
 
     @Override
-    public Page<SearchStudyDTO> findRecruitingStudiesByConditions(Pageable pageable,
+    public Page<SearchResponseDTO.SearchStudyDTO> findRecruitingStudiesByConditions(Pageable pageable,
         SearchStudyDTO request) {
         return null;
     }
 
     @Override
-    public Page<SearchStudyDTO> findLikedStudiesByConditions(Pageable pageable, Long memberId) {
+    public Page<SearchResponseDTO.SearchStudyDTO> findLikedStudiesByConditions(Pageable pageable, Long memberId) {
         return null;
     }
 

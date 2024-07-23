@@ -40,7 +40,10 @@ public class SearchController {
             조회된 스터디 3개의 정보가 반환 됩니다.""",
         security = @SecurityRequirement(name = "accessToken"))
     @Parameter(name = "userId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
-    public void recommendStudiesForMain(@PathVariable long userId) {}
+    public ApiResponse<Page<SearchStudyDTO>> recommendStudiesForMain(@PathVariable long userId) {
+        Page<SearchStudyDTO> recommendStudies = studyQueryService.findRecommendStudies(userId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, recommendStudies);
+    }
 
 
     /* ----------------------------- 내 관심 분야 별 스터디 조회  ------------------------------------- */
@@ -75,7 +78,7 @@ public class SearchController {
         @RequestParam Integer size
     ) {
         Page<SearchStudyDTO> studies = studyQueryService.findInterestStudiesByConditionsAll(PageRequest.of(page, size), userId, searchStudyDTO);
-        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_UPDATED, studies);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
     }
     @GetMapping("/search/studies/interest-themes/specific/users/{userId}/")
     @Operation(
@@ -107,7 +110,7 @@ public class SearchController {
         @RequestParam Integer size
     ) {
         Page<SearchStudyDTO> studies = studyQueryService.findInterestStudiesByConditionsSpecific(PageRequest.of(page, size), userId, searchStudyDTO, theme);
-        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_UPDATED, studies);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
         // 메소드 구현
     }
 

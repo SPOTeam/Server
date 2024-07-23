@@ -10,7 +10,7 @@ import org.springframework.data.domain.Pageable;
 public interface StudyQueryService {
 
     // 내 추천 스터디 조회
-    Page<SearchRequestDTO.SearchStudyDTO> findRecommendStudies(Pageable pageable, Long memberId);
+    Page<SearchStudyDTO> findRecommendStudies(Long memberId);
 
     // 내 관심사 스터디 페이징 조회
     Page<SearchStudyDTO> findInterestStudiesByConditionsAll(Pageable pageable, Long memberId,
@@ -21,18 +21,18 @@ public interface StudyQueryService {
         SearchRequestDTO.SearchStudyDTO request, ThemeType theme);
 
     // 내 관심 지역 스터디 페이징 조회
-    Page<SearchRequestDTO.SearchStudyDTO> findInterestRegionStudiesByConditionsAll(Pageable pageable, Long memberId,
+    Page<SearchStudyDTO> findInterestRegionStudiesByConditionsAll(Pageable pageable, Long memberId,
         SearchRequestDTO.SearchStudyDTO request);
 
     // 내 특정 관심 지역 스터디 페이징 조회
-    Page<SearchRequestDTO.SearchStudyDTO> findInterestRegionStudiesByConditionsSpecific(Pageable pageable, Long memberId,
+    Page<SearchStudyDTO> findInterestRegionStudiesByConditionsSpecific(Pageable pageable, Long memberId,
         SearchRequestDTO.SearchStudyDTO request, String regionCode);
 
     // 모집 중 스터디 조회
-    Page<SearchRequestDTO.SearchStudyDTO> findRecruitingStudiesByConditions(Pageable pageable,
+    Page<SearchStudyDTO> findRecruitingStudiesByConditions(Pageable pageable,
         SearchRequestDTO.SearchStudyDTO request);
 
     // 찜한 스터디 조회
-    Page<SearchRequestDTO.SearchStudyDTO> findLikedStudiesByConditions(Pageable pageable, Long memberId);
+    Page<SearchStudyDTO> findLikedStudiesByConditions(Pageable pageable, Long memberId);
 
 }

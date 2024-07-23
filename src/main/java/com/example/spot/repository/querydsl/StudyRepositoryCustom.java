@@ -11,6 +11,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface StudyRepositoryCustom {
+
+    List<Study> findByStudyTheme(List<StudyTheme> studyThemes);
     List<Study> findStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFee(Map<String, Object> search,
         StudySortBy sortBy, Pageable pageable);
 

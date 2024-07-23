@@ -25,6 +25,16 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
+    public List<Study> findByStudyTheme(List<StudyTheme> studyThemes) {
+        return queryFactory.selectFrom(study)
+            .where(study.themes.any().in(studyThemes))
+            .orderBy(study.createdAt.desc())
+            .offset(0)
+            .limit(3)
+            .fetch();
+    }
+
+    @Override
     public List<Study> findStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFee(Map<String, Object> search,
         StudySortBy sortBy, org.springframework.data.domain.Pageable pageable) {
         // 코드 작성
