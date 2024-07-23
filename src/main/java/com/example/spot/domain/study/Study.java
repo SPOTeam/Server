@@ -1,6 +1,5 @@
 package com.example.spot.domain.study;
 
-import com.example.spot.domain.Region;
 import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.enums.Gender;
 import com.example.spot.domain.enums.Status;
@@ -83,13 +82,13 @@ public class Study extends BaseEntity {
     private Long maxPeople;
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
-    private List<Schedule> schedules;
+    private List<Schedule> schedules = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
-    private List<StudyPost> posts;
+    private List<StudyPost> posts = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
-    private List<Vote> votes;
+    private List<Vote> votes = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
     private List<StudyTheme> studyThemes;

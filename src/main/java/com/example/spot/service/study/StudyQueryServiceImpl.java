@@ -1,9 +1,6 @@
 package com.example.spot.service.study;
 
-import com.example.spot.api.code.status.ErrorStatus;
-import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.config.EntitySpecification;
-import com.example.spot.domain.Member;
 import com.example.spot.domain.Theme;
 import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.domain.mapping.MemberTheme;
@@ -17,7 +14,6 @@ import com.example.spot.web.dto.search.SearchResponseDTO;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -80,7 +76,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 //                default -> Sort.by(Direction.DESC, "createdAt");
 //            };
 //        }
-
+        studyRepository.findStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFee(search);
         // 페이지 요청 생성
         pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
 

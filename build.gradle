@@ -50,6 +50,10 @@ dependencies {
     annotationProcessor 'com.querydsl:querydsl-apt:5.0.0:jakarta'
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
+    annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jpa"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 }
 
 tasks.named('test') {
@@ -57,17 +61,32 @@ tasks.named('test') {
 }
 def generated = 'src/main/generated'
 
-// querydsl QClass 파일 생성 위치를 지정
-tasks.withType(JavaCompile) {
-    options.getGeneratedSourceOutputDirectory().set(file(generated))
+// 추가
+// querydsl 설정 추가
+
+// querydsl에서 사용할 경로를 설정한다.
+def querydslDir = "$buildDir/generated/querydsl"
+
+// JPA 사용 여부와 사용할 경로를 설정
+querydsl {
+    jpa = true
+    querydslSourcesDir = querydslDir
 }
 
-// java source set 에 querydsl QClass 위치 추가
+// build 시 사용할 sourceSet 추가한다.
 sourceSets {
-    main.java.srcDirs += [ generated ]
+    main.java.srcDir querydslDir
 }
 
-// gradle clean 시에 QClass 디렉토리 삭제
-clean {
-    delete file(generated)
+// querydsl이 compileClassPath를 상속하도록 설정
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+    querydsl.extendsFrom compileClasspath
+}
+
+// querydsl 컴파일 시 사용할 옵션 설정
+compileQuerydsl {
+    options.annotationProcessorPath = configurations.querydsl
 }
