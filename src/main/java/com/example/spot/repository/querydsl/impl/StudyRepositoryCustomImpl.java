@@ -2,7 +2,9 @@ package com.example.spot.repository.querydsl.impl;
 
 import com.example.spot.domain.Theme;
 import com.example.spot.domain.enums.Gender;
+import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.enums.StudySortBy;
+import com.example.spot.domain.enums.StudyState;
 import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.domain.mapping.StudyTheme;
 import com.example.spot.domain.study.QStudy;
@@ -75,12 +77,16 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
         if (themes != null && !themes.isEmpty()) {
             builder.and(study.themes.any().in(themes));
         }
+        if (sortBy != null && sortBy.equals(StudySortBy.RECRUITING)){
+            builder.and(study.studyState.eq((StudyState.RECRUITING)));
+        }
 
         // 정렬 조건 설정
         JPAQuery<Study> query = queryFactory.selectFrom(study)
             .where(builder)
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize());
+
 
         switch (sortBy) {
             case HIT:
@@ -100,11 +106,6 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
         return query.fetch();
     }
 
-    @Override
-    public List<Study> findStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndThemeType(
-        Map<String, Object> search, StudySortBy sortBy, Pageable pageable, ThemeType themeType) {
-        return null;
-    }
 
     @Override
     public List<Study> findStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndRegionCodes(

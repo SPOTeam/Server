@@ -17,7 +17,7 @@ public interface StudyQueryService {
         SearchRequestDTO.SearchStudyDTO request);
 
     // 내 특정 관심사 스터디 페이징 조회
-    Page<SearchRequestDTO.SearchStudyDTO> findInterestStudiesByConditionsSpecific(Pageable pageable, Long memberId,
+    Page<SearchStudyDTO> findInterestStudiesByConditionsSpecific(Pageable pageable, Long memberId,
         SearchRequestDTO.SearchStudyDTO request, ThemeType theme);
 
     // 내 관심 지역 스터디 페이징 조회

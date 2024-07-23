@@ -1,5 +1,7 @@
 package com.example.spot.service.study;
 
+import com.example.spot.api.code.status.ErrorStatus;
+import com.example.spot.api.exception.handler.StudyHandler;
 import com.example.spot.domain.Theme;
 import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.domain.mapping.MemberTheme;
@@ -54,41 +56,53 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             .flatMap(theme -> studyThemeRepository.findAllByTheme(theme).stream())
             .toList();
 
-
-        // 검색 조건 맵 생성
-        Map<String, Object> search = new HashMap<>();
-        if (request.getGender() != null)
-            search.put("gender", request.getGender());
-        if (request.getMinAge() != null)
-            search.put("minAge", request.getMinAge());
-        if (request.getMaxAge() != null)
-            search.put("maxAge", request.getMaxAge());
-        if (request.getIsOnline() != null)
-            search.put("isOnline", request.getIsOnline());
-        if (request.getHasFee() != null)
-            search.put("hasFee", request.getHasFee());
-        if (request.getFee() != null)
-            search.put("fee", request.getFee());
-
-
+        Map<String, Object> search = getSearchConditions(request);
 
         List<Study> studies = studyRepository.findStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndThemeTypes(
             search, request.getSortBy(),
             pageable, studyThemes);
-        // 검색 결과를 SearchStudyDTO 변환
-        List<SearchResponseDTO.SearchStudyDTO> stream = studies.stream()
-            .map(SearchResponseDTO.SearchStudyDTO::new)
-            .toList();
+
+        List<SearchResponseDTO.SearchStudyDTO> stream = getDtos(studies);
 
         return new PageImpl<>(stream, pageable, studies.size());
     }
 
+    private Theme findThemeByType(List<Theme> themes, ThemeType themeType) {
+        return themes.stream()
+            .filter(t -> t.getStudyTheme().equals(themeType))
+            .findFirst()
+            .orElseThrow(() -> new StudyHandler(ErrorStatus._BAD_REQUEST));
+    }
 
     @Override
-    public Page<SearchStudyDTO> findInterestStudiesByConditionsSpecific(Pageable pageable,
-        Long memberId, SearchStudyDTO request, ThemeType theme) {
-        return null;
+    public Page<SearchResponseDTO.SearchStudyDTO> findInterestStudiesByConditionsSpecific(Pageable pageable,
+        Long memberId, SearchStudyDTO request, ThemeType themeType) {
+
+        List<Theme> themes = memberThemeRepository.findAllByMemberId(memberId)
+            .stream()
+            .map(MemberTheme::getTheme)
+            .collect(Collectors.toList());
+
+        if (themes.stream().noneMatch(theme -> theme.getStudyTheme().equals(themeType))) {
+            throw new StudyHandler(ErrorStatus._BAD_REQUEST);
+        }
+
+        Theme theme = findThemeByType(themes, themeType);
+
+        List<StudyTheme> studyThemes = themes.stream()
+            .flatMap(studytheme -> studyThemeRepository.findAllByTheme(theme).stream())
+            .toList();
+
+        Map<String, Object> conditions = getSearchConditions(request);
+
+        List<Study> studies = studyRepository.findStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFeeAndThemeTypes(
+            conditions, request.getSortBy(), pageable, studyThemes);
+
+        List<SearchResponseDTO.SearchStudyDTO> studyDTOs = getDtos(studies);
+
+        return new PageImpl<>(studyDTOs, pageable, studies.size());
     }
+
 
     @Override
     public Page<SearchStudyDTO> findInterestRegionStudiesByConditionsAll(Pageable pageable,
@@ -112,4 +126,30 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     public Page<SearchStudyDTO> findLikedStudiesByConditions(Pageable pageable, Long memberId) {
         return null;
     }
+
+    private static Map<String, Object> getSearchConditions(SearchStudyDTO request) {
+        // 검색 조건 맵 생성
+        Map<String, Object> search = new HashMap<>();
+        if (request.getGender() != null)
+            search.put("gender", request.getGender());
+        if (request.getMinAge() != null)
+            search.put("minAge", request.getMinAge());
+        if (request.getMaxAge() != null)
+            search.put("maxAge", request.getMaxAge());
+        if (request.getIsOnline() != null)
+            search.put("isOnline", request.getIsOnline());
+        if (request.getHasFee() != null)
+            search.put("hasFee", request.getHasFee());
+        if (request.getFee() != null)
+            search.put("fee", request.getFee());
+        return search;
+    }
+
+    private static List<SearchResponseDTO.SearchStudyDTO> getDtos(List<Study> studies) {
+        List<SearchResponseDTO.SearchStudyDTO> stream = studies.stream()
+            .map(SearchResponseDTO.SearchStudyDTO::new)
+            .toList();
+        return stream;
+    }
+
 }

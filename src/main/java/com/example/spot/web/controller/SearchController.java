@@ -99,13 +99,15 @@ public class SearchController {
     @Parameter(name = "theme", description = "조회할 관심 분야를 입력 받습니다.", required = true)
     @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
-    public void interestStudiesByConditionsSpecific(
+    public ApiResponse<Page<SearchStudyDTO>> interestStudiesByConditionsSpecific(
         @PathVariable long userId,
         @RequestParam ThemeType theme,
         @ModelAttribute SearchRequestDTO.SearchStudyDTO searchStudyDTO,
         @RequestParam Integer page,
         @RequestParam Integer size
     ) {
+        Page<SearchStudyDTO> studies = studyQueryService.findInterestStudiesByConditionsSpecific(PageRequest.of(page, size), userId, searchStudyDTO, theme);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_UPDATED, studies);
         // 메소드 구현
     }
 
