@@ -68,13 +68,13 @@ public class SearchController {
     """, required = false)
     @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
-    public ApiResponse<List<SearchStudyDTO>> interestStudiesByConditionsAll(
+    public ApiResponse<Page<SearchStudyDTO>> interestStudiesByConditionsAll(
         @ModelAttribute SearchRequestDTO.SearchStudyDTO searchStudyDTO,
         @PathVariable long userId,
         @RequestParam Integer page,
         @RequestParam Integer size
     ) {
-        List<SearchStudyDTO> studies = studyQueryService.findInterestStudiesByConditionsAll(PageRequest.of(page, size), userId, searchStudyDTO);
+        Page<SearchStudyDTO> studies = studyQueryService.findInterestStudiesByConditionsAll(PageRequest.of(page, size), userId, searchStudyDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_UPDATED, studies);
     }
     @GetMapping("/search/studies/interest-themes/specific/users/{userId}/")

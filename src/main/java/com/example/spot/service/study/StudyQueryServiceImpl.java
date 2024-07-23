@@ -1,6 +1,5 @@
 package com.example.spot.service.study;
 
-import com.example.spot.config.EntitySpecification;
 import com.example.spot.domain.Theme;
 import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.domain.mapping.MemberTheme;
@@ -14,15 +13,12 @@ import com.example.spot.web.dto.search.SearchResponseDTO;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,7 +38,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     }
 
     @Override
-    public List<SearchResponseDTO.SearchStudyDTO> findInterestStudiesByConditionsAll(Pageable pageable, Long memberId,
+    public Page<SearchResponseDTO.SearchStudyDTO> findInterestStudiesByConditionsAll(Pageable pageable, Long memberId,
         SearchStudyDTO request) {
 
         // 회원의 테마를 가져오기
@@ -67,22 +63,16 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
         // request log
 
-        List<Study> studies = studyRepository.findStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFee(
-            search, request.getSortBy(),
-            pageable.getPageNumber(), pageable.getPageSize());
+        List<Study> studies = studyRepository.findStudyByGenderAndAgeAndIsOnlineAndHasFeeAndFee(search, request.getSortBy(),
+            pageable);
 
-        // 검색 결과를 DTO로 변환
 
-        return studies.stream()
-            .map(study -> SearchResponseDTO.SearchStudyDTO.builder()
-                .studyId(study.getId())
-                .title(study.getTitle())
-                .imageUrl(study.getProfileImage())
-                .introduction(study.getIntroduction())
-                .hitNum(study.getHitNum())
-                .memberCount((long) study.getMemberStudies().size())
-                .heartCount((long) study.getHeartCount()).build())
+        // 검색 결과를 SearchStudyDTO 변환
+        List<SearchResponseDTO.SearchStudyDTO> stream = studies.stream()
+            .map(SearchResponseDTO.SearchStudyDTO::new)
             .toList();
+
+        return new PageImpl<>(stream, pageable, studies.size());
     }
 
 

@@ -8,18 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 public class SearchResponseDTO {
-    @Builder
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class StudyPreviewDTO{
-        List<SearchResponseDTO.SearchStudyDTO> studies;
-        Integer listSize;
-        Integer totalPage;
-        Long totalElements;
-        boolean isFirst;
-        boolean isLast;
-    }
 
     @Builder
     @Getter

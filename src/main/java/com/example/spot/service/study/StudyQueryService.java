@@ -13,7 +13,7 @@ public interface StudyQueryService {
     Page<SearchRequestDTO.SearchStudyDTO> findRecommendStudies(Pageable pageable, Long memberId);
 
     // 내 관심사 스터디 페이징 조회
-    List<SearchStudyDTO> findInterestStudiesByConditionsAll(Pageable pageable, Long memberId,
+    Page<SearchStudyDTO> findInterestStudiesByConditionsAll(Pageable pageable, Long memberId,
         SearchRequestDTO.SearchStudyDTO request);
 
     // 내 특정 관심사 스터디 페이징 조회
