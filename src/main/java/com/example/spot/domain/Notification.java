@@ -43,4 +43,7 @@ public class Notification extends BaseEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
+    public void markAsRead() {
+        this.isChecked = true;
+    }
 }
