@@ -182,7 +182,7 @@ public class SearchController {
         @RequestParam StudySortBy sortBy
     ) {
         StudyPreviewDTO studies = studyQueryService.findInterestRegionStudiesByConditionsSpecific(
-            PageRequest.of(page, size), userId, searchRequestStudyDTO, regionCode, sortBy);
+            PageRequest.of(page, size), memberId, searchRequestStudyDTO, regionCode, sortBy);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
     }
 
@@ -287,18 +287,24 @@ public class SearchController {
         ## [진행중인 스터디] 마이페이지 > 진행중 클릭, 로그인한 회원이 진행중인 스터디 목록을 불러옵니다.
         로그인한 회원이 참여하는 스터디 중 status = ON인 스터디의 목록이 반환됩니다.
         """)
-    @GetMapping("/search/members/{memberId}/on-studies")
-    public void getAllOnStudies(@PathVariable Long memberId) {
+    @GetMapping("/search/studies/on-studies/members/{memberId}")
+    @Parameter(name = "memberId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
+    @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
+    @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
+    public void getAllOnStudies(@PathVariable Long memberId, @RequestParam Integer page, @RequestParam Integer size) {
     }
 
     /* ----------------------------- 모집중인 스터디 목록 조회  ------------------------------------- */
 
-    @Operation(summary = "[모집중인 스터디] 모집중인 스터디 목록 불러오기", description = """ 
+    @Operation(summary = "[내가 모집중인 스터디] 내가 모집중인 스터디 목록 불러오기", description = """ 
         ## [모집중인 스터디] 마이페이지 > 모집중 클릭, 로그인한 회원이 모집중인 스터디 목록을 불러옵니다.
         로그인한 회원이 운영하는 스터디 중 study_state = RECRUITING인 스터디의 목록이 반환됩니다.
         """)
-    @GetMapping("/members/{memberId}/recruiting-studies")
-    public void getAllRecruitingStudies(@PathVariable Long memberId) {
+    @GetMapping("/search/studies/my-recruiting-studies/members/{memberId}/")
+    @Parameter(name = "memberId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
+    @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
+    @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
+    public void getAllRecruitingStudies(@PathVariable Long memberId, @RequestParam Integer page, @RequestParam Integer size) {
     }
 
 
@@ -307,8 +313,11 @@ public class SearchController {
         ## [신청한 스터디] 마이페이지 > 신청한, 로그인한 회원이 신청한 스터디 목록을 불러옵니다.
         로그인한 회원이 신청한 스터디(ApplicationStatus = APPLIED)의 목록이 반환됩니다.
         """)
-    @GetMapping("/members/{memberId}/applied-studies")
-    public void getAppliedStudies(@PathVariable Long memberId) {
+    @GetMapping("/search/studies/applied-studies/members/{memberId}/")
+    @Parameter(name = "memberId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
+    @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
+    @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
+    public void getAppliedStudies(@PathVariable Long memberId, @RequestParam Integer page, @RequestParam Integer size) {
     }
 
 
