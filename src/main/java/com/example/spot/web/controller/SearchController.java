@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -70,8 +71,8 @@ public class SearchController {
     public ApiResponse<StudyPreviewDTO> interestStudiesByConditionsAll(
         @ModelAttribute @Valid SearchRequestStudyDTO searchRequestStudyDTO,
         @PathVariable @ExistMember long memberId,
-        @RequestParam Integer page,
-        @RequestParam Integer size,
+        @RequestParam @Min(0) Integer page,
+        @RequestParam @Min(1) Integer size,
         @RequestParam StudySortBy sortBy
     ) {
         StudyPreviewDTO studies = studyQueryService.findInterestStudiesByConditionsAll(PageRequest.of(page, size), memberId,
@@ -104,8 +105,8 @@ public class SearchController {
         @PathVariable @ExistMember long memberId,
         @RequestParam ThemeType theme,
         @ModelAttribute @Valid SearchRequestStudyDTO searchRequestStudyDTO,
-        @RequestParam Integer page,
-        @RequestParam Integer size,
+        @RequestParam @Min(0) Integer page,
+        @RequestParam @Min(1) Integer size,
         @RequestParam StudySortBy sortBy
     ) {
         StudyPreviewDTO studies = studyQueryService.findInterestStudiesByConditionsSpecific(PageRequest.of(page, size), memberId,
@@ -142,8 +143,8 @@ public class SearchController {
     public ApiResponse<StudyPreviewDTO> interestRegionStudiesByConditionsAll(
         @PathVariable @ExistMember long memberId,
         @ModelAttribute @Valid SearchRequestStudyDTO searchRequestStudyDTO,
-        @RequestParam Integer page,
-        @RequestParam Integer size,
+        @RequestParam @Min(0) Integer page,
+        @RequestParam @Min(1) Integer size,
         @RequestParam StudySortBy sortBy
 
     ) {
@@ -178,8 +179,8 @@ public class SearchController {
         @PathVariable @ExistMember long memberId,
         @RequestParam String regionCode,
         @ModelAttribute @Valid SearchRequestStudyDTO searchRequestStudyDTO,
-        @RequestParam Integer page,
-        @RequestParam Integer size,
+        @RequestParam @Min(0) Integer page,
+        @RequestParam @Min(1) Integer size,
         @RequestParam StudySortBy sortBy
     ) {
         StudyPreviewDTO studies = studyQueryService.findInterestRegionStudiesByConditionsSpecific(
@@ -211,8 +212,8 @@ public class SearchController {
     @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = true)
     public ApiResponse<StudyPreviewDTO> recruitingStudiesByConditions(
         @ModelAttribute @Valid SearchRequestStudyDTO searchRequestStudyDTO,
-        @RequestParam Integer page,
-        @RequestParam Integer size,
+        @RequestParam @Min(0) Integer page,
+        @RequestParam @Min(1) Integer size,
         @RequestParam StudySortBy sortBy) {
         // 메소드 구현
         StudyPreviewDTO studies = studyQueryService.findRecruitingStudiesByConditions(PageRequest.of(page, size),
@@ -252,8 +253,8 @@ public class SearchController {
     @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = true)
     public ApiResponse<StudyPreviewDTO> searchStudiesByKeyword(
         @RequestParam String keyword,
-        @RequestParam Integer page,
-        @RequestParam Integer size,
+        @RequestParam @Min(0) Integer page,
+        @RequestParam @Min(1) Integer size,
         @RequestParam StudySortBy sortBy) {
         // 메소드 구현
         StudyPreviewDTO studies = studyQueryService.findStudiesByKeyword(PageRequest.of(page, size), keyword, sortBy);
@@ -274,8 +275,8 @@ public class SearchController {
     @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = true)
     public ApiResponse<StudyPreviewDTO> searchStudiesByTheme(
         @RequestParam ThemeType theme,
-        @RequestParam Integer page,
-        @RequestParam Integer size,
+        @RequestParam @Min(0) Integer page,
+        @RequestParam @Min(1) Integer size,
         @RequestParam StudySortBy sortBy) {
         // 메소드 구현
         StudyPreviewDTO studies = studyQueryService.findStudiesByTheme(PageRequest.of(page, size), theme, sortBy);
@@ -294,8 +295,8 @@ public class SearchController {
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
     public ApiResponse<StudyPreviewDTO> getAllOnStudies(
         @PathVariable @ExistMember Long memberId,
-        @RequestParam Integer page,
-        @RequestParam Integer size) {
+        @RequestParam @Min(0) Integer page,
+        @RequestParam @Min(1) Integer size) {
         StudyPreviewDTO studies = studyQueryService.findOngoingStudiesByMemberId(
             PageRequest.of(page, size), memberId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
@@ -313,8 +314,8 @@ public class SearchController {
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
     public ApiResponse<StudyPreviewDTO> getAllMyRecruitingStudies(
         @PathVariable @ExistMember Long memberId,
-        @RequestParam Integer page,
-        @RequestParam Integer size) {
+        @RequestParam @Min(0) Integer page,
+        @RequestParam @Min(1) Integer size) {
         StudyPreviewDTO studies = studyQueryService.findMyRecruitingStudies(
             PageRequest.of(page, size), memberId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
@@ -332,8 +333,8 @@ public class SearchController {
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
     public ApiResponse<StudyPreviewDTO> getAppliedStudies(
         @PathVariable @ExistMember Long memberId,
-        @RequestParam Integer page,
-        @RequestParam Integer size) {
+        @RequestParam @Min(0) Integer page,
+        @RequestParam @Min(1) Integer size) {
         StudyPreviewDTO studies = studyQueryService.findAppliedStudies(
             PageRequest.of(page, size), memberId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
