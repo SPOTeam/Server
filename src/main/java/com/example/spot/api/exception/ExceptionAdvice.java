@@ -33,8 +33,29 @@ public class ExceptionAdvice {
 
     @ExceptionHandler(Exception.class)
     public ApiResponse<ErrorStatus> ExceptionHandle(Exception exception) {
-        log.error("Exception has occured. ", exception);
+        log.error("Exception has occured. {}", exception);
         return new ApiResponse<>(ErrorStatus._INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiResponse<List<String>>> handleConstraintViolationException(ConstraintViolationException exception) {
+        // 모든 필드 오류 메시지를 수집
+        List<String> errors = exception.getConstraintViolations()
+            .stream()
+            .map(constraintViolation -> String.format("'%s': %s ", constraintViolation.getPropertyPath(), constraintViolation.getMessage()))
+            .collect(Collectors.toList());
+
+        // 모든 에러 메시지를 하나의 문자열로 결합
+        String errorMessage = String.join(", ", errors);
+        log.warn("ConstraintViolationException. error message: {}", errorMessage);
+
+        ApiResponse<List<String>> response = ApiResponse.onFailure(
+            ErrorStatus._BAD_REQUEST.getCode(),
+            ErrorStatus._BAD_REQUEST.getMessage(),
+            errors
+        );
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -43,7 +64,7 @@ public class ExceptionAdvice {
         List<String> errors = exception.getBindingResult()
             .getFieldErrors()
             .stream()
-            .map(fieldError -> String.format("Field '%s': %s ", fieldError.getField(), fieldError.getDefaultMessage()))
+            .map(fieldError -> String.format("'%s': %s ", fieldError.getField(), fieldError.getDefaultMessage()))
             .collect(Collectors.toList());
 
         // 모든 에러 메시지를 하나의 문자열로 결합
