@@ -43,7 +43,7 @@ public interface StudyQueryService {
     StudyPreviewDTO findStudiesByTheme(Pageable pageable, ThemeType theme, StudySortBy sortBy);
 
     // 내가 참여하고 있는 스터디 조회
-    StudyPreviewDTO findStudiesByMemberId(Pageable pageable, Long memberId, StudySortBy sortBy);
+    StudyPreviewDTO findOngoingStudiesByMemberId(Pageable pageable, Long memberId);
 
     // 내가 신청한 스터디 조회
     StudyPreviewDTO findAppliedStudies(Pageable pageable, Long memberId);

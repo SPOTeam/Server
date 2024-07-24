@@ -4,8 +4,10 @@ import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.handler.StudyHandler;
 import com.example.spot.domain.Region;
 import com.example.spot.domain.Theme;
+import com.example.spot.domain.enums.ApplicationStatus;
 import com.example.spot.domain.enums.StudySortBy;
 import com.example.spot.domain.enums.ThemeType;
+import com.example.spot.domain.mapping.MemberStudy;
 import com.example.spot.domain.mapping.MemberTheme;
 import com.example.spot.domain.mapping.PreferredRegion;
 import com.example.spot.domain.mapping.PreferredStudy;
@@ -230,9 +232,12 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     }
 
     @Override
-    public StudyPreviewDTO findStudiesByMemberId(Pageable pageable, Long memberId,
-        StudySortBy sortBy) {
-        return null;
+    public StudyPreviewDTO findOngoingStudiesByMemberId(Pageable pageable, Long memberId) {
+        List<MemberStudy> memberStudies = memberStudyRepository.findAllByMemberIdAndStatus(
+            memberId, ApplicationStatus.ONGOING);
+        List<Study> studies = studyRepository.findByMemberStudy(memberStudies, pageable);
+
+        return getDTOs(studies, pageable, studies.size());
     }
 
     @Override

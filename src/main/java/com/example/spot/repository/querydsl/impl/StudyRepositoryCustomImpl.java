@@ -6,6 +6,7 @@ import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.enums.StudySortBy;
 import com.example.spot.domain.enums.StudyState;
 import com.example.spot.domain.enums.ThemeType;
+import com.example.spot.domain.mapping.MemberStudy;
 import com.example.spot.domain.mapping.RegionStudy;
 import com.example.spot.domain.mapping.StudyTheme;
 import com.example.spot.domain.study.QStudy;
@@ -164,6 +165,16 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
 
         getSortBy(sortBy, query, study);
         return query.fetch();
+    }
+
+    @Override
+    public List<Study> findByMemberStudy(List<MemberStudy> memberStudy, Pageable pageable) {
+        QStudy study = QStudy.study;
+        return queryFactory.selectFrom(study)
+            .where(study.memberStudies.any().in(memberStudy))
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .fetch();
     }
 
 
