@@ -1,5 +1,6 @@
 package com.example.spot.domain;
 
+import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.enums.Reason;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -17,7 +18,7 @@ import org.hibernate.annotations.DynamicUpdate;
 @DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class StudyReason {
+public class StudyReason extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
