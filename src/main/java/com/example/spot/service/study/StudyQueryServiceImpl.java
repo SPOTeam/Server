@@ -250,7 +250,10 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
     @Override
     public StudyPreviewDTO findMyRecruitingStudies(Pageable pageable, Long memberId) {
-        return null;
+        List<MemberStudy> memberStudies = memberStudyRepository.findAllByMemberIdAndIsOwned(memberId, true);
+
+        List<Study> studies = studyRepository.findRecruitingStudiesByMemberStudy(memberStudies, pageable);
+        return getDTOs(studies, pageable, studies.size());
     }
 
     private static Map<String, Object> getSearchConditions(SearchRequestStudyDTO request) {

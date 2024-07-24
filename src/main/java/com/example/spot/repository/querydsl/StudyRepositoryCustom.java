@@ -30,6 +30,7 @@ public interface StudyRepositoryCustom {
     List<Study> findByStudyTheme(List<StudyTheme> studyTheme, StudySortBy sortBy, Pageable pageable);
 
     List<Study> findByMemberStudy(List<MemberStudy> memberStudy, Pageable pageable);
+    List<Study> findRecruitingStudiesByMemberStudy(List<MemberStudy> memberStudy, Pageable pageable);
 
     long countStudyByConditionsAndThemeTypes(Map<String, Object> search, List<StudyTheme> themeTypes, StudySortBy sortBy);
 

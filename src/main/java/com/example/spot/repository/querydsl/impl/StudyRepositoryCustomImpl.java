@@ -177,6 +177,18 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
             .fetch();
     }
 
+    @Override
+    public List<Study> findRecruitingStudiesByMemberStudy(List<MemberStudy> memberStudy,
+        Pageable pageable) {
+        QStudy study = QStudy.study;
+        return queryFactory.selectFrom(study)
+            .where(study.memberStudies.any().in(memberStudy))
+            .where(study.studyState.eq(StudyState.RECRUITING))
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .fetch();
+    }
+
 
     @Override
     public long countStudyByConditionsAndThemeTypes(
