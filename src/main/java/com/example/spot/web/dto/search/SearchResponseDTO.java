@@ -4,6 +4,7 @@ import com.example.spot.domain.Region;
 import com.example.spot.domain.Theme;
 import com.example.spot.domain.enums.StudyState;
 import com.example.spot.domain.enums.ThemeType;
+import com.example.spot.domain.mapping.PreferredStudy;
 import com.example.spot.domain.mapping.RegionStudy;
 import com.example.spot.domain.mapping.StudyTheme;
 import com.example.spot.domain.study.Study;
@@ -46,7 +47,16 @@ public class SearchResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class SearchStudyDTO {
+        public SearchStudyDTO(Study study, long memberId){
+            getInstructor(study);
+            this.isLiked = study.getPreferredStudies().stream().map(PreferredStudy::getMember).anyMatch(s -> s.getId().equals(
+                memberId));
+        }
         public SearchStudyDTO(Study study){
+            getInstructor(study);
+        }
+
+        private void getInstructor(Study study) {
             this.studyId = study.getId();
             this.imageUrl = study.getProfileImage();
             this.title = study.getTitle();
@@ -58,8 +68,9 @@ public class SearchResponseDTO {
             this.regions = study.getRegionStudies().stream().map(RegionStudy::getRegion).map(Region::getCode).toList();
             this.themeTypes = study.getStudyThemes().stream().map(StudyTheme::getTheme).map(Theme::getStudyTheme).toList();
             this.createdAt = study.getCreatedAt();
-
         }
+
+
         Long studyId;
         String imageUrl;
         String title;
@@ -67,6 +78,7 @@ public class SearchResponseDTO {
         Long memberCount;
         Long heartCount;
         Long hitNum;
+        boolean isLiked;
         StudyState studyState;
         List<ThemeType> themeTypes;
         List<String> regions;

@@ -1,6 +1,7 @@
 package com.example.spot.domain.mapping;
 
 import com.example.spot.domain.Theme;
+import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.study.Study;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -19,7 +20,7 @@ import org.hibernate.annotations.DynamicUpdate;
 @DynamicUpdate
 @DynamicInsert
 @AllArgsConstructor
-public class StudyTheme {
+public class StudyTheme extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

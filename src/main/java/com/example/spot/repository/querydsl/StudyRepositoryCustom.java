@@ -3,6 +3,7 @@ package com.example.spot.repository.querydsl;
 import com.example.spot.domain.Theme;
 import com.example.spot.domain.enums.StudySortBy;
 import com.example.spot.domain.enums.ThemeType;
+import com.example.spot.domain.mapping.MemberStudy;
 import com.example.spot.domain.mapping.RegionStudy;
 import com.example.spot.domain.mapping.StudyTheme;
 import com.example.spot.domain.study.Study;
@@ -14,7 +15,6 @@ import org.springframework.data.domain.Pageable;
 public interface StudyRepositoryCustom {
 
     List<Study> findByStudyTheme(List<StudyTheme> studyThemes);
-
 
     // 모집중 스터디 조회
     List<Study> findStudyByConditions(Map<String, Object> search, StudySortBy sortBy, Pageable pageable);
@@ -28,6 +28,9 @@ public interface StudyRepositoryCustom {
     List<Study> findAllByTitleContaining(String title, StudySortBy sortBy, Pageable pageable);
 
     List<Study> findByStudyTheme(List<StudyTheme> studyTheme, StudySortBy sortBy, Pageable pageable);
+
+    List<Study> findByMemberStudy(List<MemberStudy> memberStudy, Pageable pageable);
+    List<Study> findRecruitingStudiesByMemberStudy(List<MemberStudy> memberStudy, Pageable pageable);
 
     long countStudyByConditionsAndThemeTypes(Map<String, Object> search, List<StudyTheme> themeTypes, StudySortBy sortBy);
 

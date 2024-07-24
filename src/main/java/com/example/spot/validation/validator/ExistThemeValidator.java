@@ -25,20 +25,28 @@ public class ExistThemeValidator implements ConstraintValidator<ExistTheme, Stri
         boolean isValid;
         ErrorStatus errorStatus;
 
-        // null is invalid
-        if (context == null) {
+        if (value == null) {
             errorStatus = ErrorStatus._STUDY_THEME_IS_NULL;
             isValid = false;
         } else {
-
-            errorStatus = ErrorStatus._STUDY_THEME_NOT_FOUND;
-            isValid = themeRepository.existsByStudyTheme(ThemeType.valueOf(value));
+            try {
+                ThemeType themeType = ThemeType.valueOf(value.toUpperCase());
+                isValid = themeRepository.existsByStudyTheme(themeType);
+                errorStatus = isValid ? null : ErrorStatus._STUDY_THEME_NOT_FOUND;
+            } catch (IllegalArgumentException e) {
+                isValid = false;
+                errorStatus = ErrorStatus._STUDY_THEME_NOT_FOUND;
+            }
         }
+
         if (!isValid) {
             Objects.requireNonNull(context).disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(errorStatus.toString())
                 .addConstraintViolation();
         }
+
         return isValid;
     }
+
+
 }

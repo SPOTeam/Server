@@ -1,5 +1,6 @@
 package com.example.spot.domain;
 
+import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.domain.mapping.MemberTheme;
 import com.example.spot.domain.mapping.StudyTheme;
@@ -21,7 +22,7 @@ import org.hibernate.annotations.DynamicUpdate;
 @DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class Theme {
+public class Theme extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

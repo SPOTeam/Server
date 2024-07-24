@@ -50,9 +50,10 @@ public class ApiResponse<T> {
         this.code = status.getCode();
     }
 
-    public ApiResponse(String message) {
+    public ApiResponse(ErrorStatus status, T result) {
         this.isSuccess = false;
-        this.message = message;
-        this.code = HttpStatus.BAD_REQUEST.toString();
+        this.message = status.getMessage();
+        this.code = status.getCode();
+        this.result = result;
     }
 }

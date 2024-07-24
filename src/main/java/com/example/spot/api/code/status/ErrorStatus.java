@@ -15,6 +15,7 @@ public enum ErrorStatus implements BaseErrorCode {
     _BAD_REQUEST(HttpStatus.BAD_REQUEST, "COMMON4000", "잘못된 요청입니다."),
     _UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "COMMON4001", "인증되지 않은 요청입니다."),
     _FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON4002", "접근이 거부되었습니다."),
+    _BAD_ENUM_REQUEST(HttpStatus.BAD_REQUEST, "COMMON4003", "잘못된 열거형 요청입니다."),
     _INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "COMMON4004", "입력값이 유효하지 않습니다."),
 
     //멤버 관련 에러
@@ -46,7 +47,10 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_REGION_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY4003", "스터디 지역을 찾을 수 없습니다."),
     // 스터디 조회 관련 에러
     _STUDY_THEME_IS_NULL(HttpStatus.BAD_REQUEST, "STUDY6004", "스터디 관심사가 입력되지 않았습니다."),
-    _STUDY_REGION_IS_NULL(HttpStatus.BAD_REQUEST, "STUDY6005", "스터디 지역이 입력되지 않았습니다.");
+    _STUDY_REGION_IS_NULL(HttpStatus.BAD_REQUEST, "STUDY6005", "스터디 지역이 입력되지 않았습니다."),
+    _STUDY_SORT_BY_IS_NULL(HttpStatus.BAD_REQUEST, "STUDY6006", "스터디 정렬 기준이 입력되지 않았습니다."),
+    _STUDY_SORT_BY_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY6007", "스터디 정렬 기준을 찾을 수 없습니다."),;
+
 
     private final HttpStatus httpStatus;
     private final String code;

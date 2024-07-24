@@ -4,8 +4,10 @@ import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.handler.StudyHandler;
 import com.example.spot.domain.Region;
 import com.example.spot.domain.Theme;
+import com.example.spot.domain.enums.ApplicationStatus;
 import com.example.spot.domain.enums.StudySortBy;
 import com.example.spot.domain.enums.ThemeType;
+import com.example.spot.domain.mapping.MemberStudy;
 import com.example.spot.domain.mapping.MemberTheme;
 import com.example.spot.domain.mapping.PreferredRegion;
 import com.example.spot.domain.mapping.PreferredStudy;
@@ -31,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -41,6 +43,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class StudyQueryServiceImpl implements StudyQueryService {
 
     // 스터디 관련 조회
@@ -73,7 +76,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             .toList();
         List<Study> studies = studyRepository.findByStudyTheme(studyThemes);
 
-        return getDTOs(studies, Pageable.unpaged(), studies.size());
+        return getDTOs(studies, Pageable.unpaged(), studies.size(), memberId);
     }
 
     @Override
@@ -97,7 +100,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             conditions, sortBy,
             pageable, studyThemes);
 
-        return getDTOs(studies, pageable, totalElements);
+        return getDTOs(studies, pageable, totalElements, memberId);
     }
 
 
@@ -127,7 +130,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         List<Study> studies = studyRepository.findStudyByConditionsAndThemeTypes(
             conditions, sortBy, pageable, studyThemes);
 
-        return getDTOs(studies, pageable, totalElements);
+        return getDTOs(studies, pageable, totalElements, memberId);
     }
 
 
@@ -152,7 +155,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             conditions, sortBy,
             pageable, regionStudies);
 
-        return getDTOs(studies, pageable, totalElements);
+        return getDTOs(studies, pageable, totalElements, memberId);
     }
 
     @Override
@@ -180,7 +183,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         List<Study> studies = studyRepository.findStudyByConditionsAndRegionStudies(
             conditions, sortBy, pageable, regionStudies);
 
-        return getDTOs(studies, pageable, totalElements);
+        return getDTOs(studies, pageable, totalElements, memberId);
     }
 
     @Override
@@ -193,7 +196,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
         long totalElements = studyRepository.countStudyByConditions(conditions, sortBy);
 
-        return getDTOs(studies, pageable, totalElements);
+        return getDTOs(studies, pageable, totalElements, null);
     }
 
     @Override
@@ -203,7 +206,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             .map(PreferredStudy::getStudy)
             .toList();
 
-        return getDTOs(studies, Pageable.unpaged(), studies.size());
+        return getDTOs(studies, Pageable.unpaged(), studies.size(), memberId);
     }
 
     @Override
@@ -212,7 +215,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         List<Study> studies = studyRepository.findAllByTitleContaining(keyword, sortBy, pageable);
 
         long totalElements = studyRepository.countAllByTitleContaining(keyword, sortBy);
-        return getDTOs(studies, pageable, totalElements);
+        return getDTOs(studies, pageable, totalElements, null);
     }
 
     @Override
@@ -226,10 +229,36 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
 
         long totalElements = studyRepository.countStudyByStudyTheme(studyThemes, sortBy);
-        return getDTOs(studies, pageable, totalElements);
+        return getDTOs(studies, pageable, totalElements, null);
+    }
+
+    @Override
+    public StudyPreviewDTO findOngoingStudiesByMemberId(Pageable pageable, Long memberId) {
+        List<MemberStudy> memberStudies = memberStudyRepository.findAllByMemberIdAndStatus(
+            memberId, ApplicationStatus.ONGOING);
+        List<Study> studies = studyRepository.findByMemberStudy(memberStudies, pageable);
+
+        return getDTOs(studies, pageable, studies.size(), memberId);
+    }
+
+    @Override
+    public StudyPreviewDTO findAppliedStudies(Pageable pageable, Long memberId) {
+        List<MemberStudy> memberStudies = memberStudyRepository.findAllByMemberIdAndStatus(
+            memberId, ApplicationStatus.APPLIED);
+        List<Study> studies = studyRepository.findByMemberStudy(memberStudies, pageable);
+        return getDTOs(studies, pageable, studies.size(), memberId);
+    }
+
+    @Override
+    public StudyPreviewDTO findMyRecruitingStudies(Pageable pageable, Long memberId) {
+        List<MemberStudy> memberStudies = memberStudyRepository.findAllByMemberIdAndIsOwned(memberId, true);
+
+        List<Study> studies = studyRepository.findRecruitingStudiesByMemberStudy(memberStudies, pageable);
+        return getDTOs(studies, pageable, studies.size(), memberId);
     }
 
     private static Map<String, Object> getSearchConditions(SearchRequestStudyDTO request) {
+        log.info("request: {}", request.getIsOnline());
         // 검색 조건 맵 생성
         Map<String, Object> search = new HashMap<>();
         if (request.getGender() != null)
@@ -247,9 +276,11 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return search;
     }
 
-    private static SearchResponseDTO.StudyPreviewDTO getDTOs(List<Study> studies, Pageable pageable, long totalElements) {
+    private static SearchResponseDTO.StudyPreviewDTO getDTOs(List<Study> studies, Pageable pageable, long totalElements,
+        Long memberId) {
+        // memberId == null 이면, 다른 생성자 사용
         List<SearchResponseDTO.SearchStudyDTO> stream = studies.stream()
-            .map(SearchResponseDTO.SearchStudyDTO::new)
+            .map((Study study) -> memberId == null ? new SearchStudyDTO(study) : new SearchStudyDTO(study, memberId))
             .toList();
         Page<SearchResponseDTO.SearchStudyDTO> page = new PageImpl<>(stream, pageable, totalElements);
         return new StudyPreviewDTO(page, stream, totalElements);

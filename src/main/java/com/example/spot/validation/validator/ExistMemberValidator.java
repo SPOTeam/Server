@@ -26,7 +26,7 @@ public class ExistMemberValidator implements ConstraintValidator<ExistMember, Lo
         ErrorStatus errorStatus;
         // null is invalid
         if (userId == null) {
-            errorStatus = ErrorStatus._MEMBER_NOT_FOUND;
+            errorStatus = ErrorStatus._MEMBER_ID_NULL;
             isValid = false;
         } else {
             errorStatus = ErrorStatus._MEMBER_NOT_FOUND;
@@ -35,7 +35,7 @@ public class ExistMemberValidator implements ConstraintValidator<ExistMember, Lo
 
         if (!isValid) {
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate(errorStatus.toString()).addConstraintViolation();
+            context.buildConstraintViolationWithTemplate(errorStatus.getMessage()).addConstraintViolation();
         }
 
         return isValid;
