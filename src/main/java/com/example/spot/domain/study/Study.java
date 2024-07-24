@@ -106,8 +106,8 @@ public class Study extends BaseEntity {
     protected Study() {}
 
     @Builder
-    public Study(Gender gender, Integer minAge, Integer maxAge, Integer fee,
-                    Boolean isOnline, String goal, String introduction,
+    public Study(Gender gender, Integer minAge, Integer maxAge, Integer fee, boolean hasFee,
+                    Boolean isOnline, String goal, String introduction, Integer heartCount,
                     String title, Long maxPeople) {
         this.gender = gender;
         this.minAge = minAge;
@@ -116,9 +116,11 @@ public class Study extends BaseEntity {
         this.studyState = StudyState.BEFORE;
         this.isOnline = isOnline;
         this.heartCount = 0;
+        this.hasFee = hasFee;
         this.goal = goal;
         this.introduction = introduction;
         this.title = title;
+        this.heartCount = heartCount;
         this.status = Status.ON;
         this.hitNum = 0L;
         this.maxPeople = maxPeople;

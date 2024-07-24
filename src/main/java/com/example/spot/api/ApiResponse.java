@@ -1,12 +1,14 @@
 package com.example.spot.api;
 
 import com.example.spot.api.code.BaseCode;
+import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.code.status.SuccessStatus;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
@@ -40,6 +42,17 @@ public class ApiResponse<T> {
     // 실패한 경우 응답 생성
     public static <T> ApiResponse<T> onFailure(String code, String message, T data) {
         return new ApiResponse<>(false, code, message, data);
+    }
 
+    public ApiResponse(ErrorStatus status) {
+        this.isSuccess = false;
+        this.message = status.getMessage();
+        this.code = status.getCode();
+    }
+
+    public ApiResponse(String message) {
+        this.isSuccess = false;
+        this.message = message;
+        this.code = HttpStatus.BAD_REQUEST.toString();
     }
 }
