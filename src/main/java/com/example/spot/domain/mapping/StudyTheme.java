@@ -3,12 +3,22 @@ package com.example.spot.domain.mapping;
 import com.example.spot.domain.Theme;
 import com.example.spot.domain.study.Study;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
-@Getter
 @Entity
+@Getter
+@Builder
+@DynamicUpdate
+@DynamicInsert
+@AllArgsConstructor
 public class StudyTheme {
 
     @Id
@@ -35,6 +45,10 @@ public class StudyTheme {
     @Builder
     public StudyTheme(Theme theme, Study study) {
         this.theme = theme;
+        this.study = study;
+    }
+
+    public void setStudy(Study study) {
         this.study = study;
     }
 }

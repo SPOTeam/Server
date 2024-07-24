@@ -16,7 +16,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +43,13 @@ public class Study extends BaseEntity {
     private Integer maxAge;
 
     @Column(nullable = false)
+    private boolean hasFee;
+
+    @Column(nullable = false)
     private Integer fee;
+
+    @Column(nullable = false)
+    private String profileImage;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -77,13 +82,13 @@ public class Study extends BaseEntity {
     private Long maxPeople;
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
-    private List<Schedule> schedules;
+    private List<Schedule> schedules = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
-    private List<StudyPost> posts;
+    private List<StudyPost> posts = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
-    private List<Vote> votes;
+    private List<Vote> votes = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
     private List<StudyTheme> studyThemes;
@@ -94,13 +99,15 @@ public class Study extends BaseEntity {
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
     private List<RegionStudy> regionStudies;
 
+
+
 /* ----------------------------- 생성자 ------------------------------------- */
 
     protected Study() {}
 
     @Builder
-    public Study(Gender gender, Integer minAge, Integer maxAge, Integer fee,
-                    Boolean isOnline, String goal, String introduction,
+    public Study(Gender gender, Integer minAge, Integer maxAge, Integer fee, boolean hasFee,
+                    Boolean isOnline, String goal, String introduction, Integer heartCount,
                     String title, Long maxPeople) {
         this.gender = gender;
         this.minAge = minAge;
@@ -109,9 +116,11 @@ public class Study extends BaseEntity {
         this.studyState = StudyState.BEFORE;
         this.isOnline = isOnline;
         this.heartCount = 0;
+        this.hasFee = hasFee;
         this.goal = goal;
         this.introduction = introduction;
         this.title = title;
+        this.heartCount = heartCount;
         this.status = Status.ON;
         this.hitNum = 0L;
         this.maxPeople = maxPeople;
@@ -141,5 +150,4 @@ public class Study extends BaseEntity {
         studyThemes.add(studyTheme);
         studyTheme.setStudy(this);
     }
-
 }

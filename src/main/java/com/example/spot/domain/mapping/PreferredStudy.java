@@ -1,13 +1,25 @@
 package com.example.spot.domain.mapping;
 
 import com.example.spot.domain.Member;
+import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.study.Study;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
-@Getter
 @Entity
-public class PreferredStudy {
+@Getter
+@Builder
+@DynamicUpdate
+@DynamicInsert
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+public class PreferredStudy extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

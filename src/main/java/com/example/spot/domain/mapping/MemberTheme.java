@@ -3,11 +3,22 @@ package com.example.spot.domain.mapping;
 import com.example.spot.domain.Member;
 import com.example.spot.domain.Theme;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
-@Getter
 @Entity
+@Getter
+@Builder
+@DynamicUpdate
+@DynamicInsert
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class MemberTheme {
 
     @Id
@@ -26,4 +37,8 @@ public class MemberTheme {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "theme_id", nullable = false)
     private Theme theme;
+
+    public void setMember(Member member) {
+        this.member = member;
+    }
 }

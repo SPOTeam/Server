@@ -8,6 +8,7 @@ import com.example.spot.domain.study.StudyPost;
 import com.example.spot.domain.study.StudyPostComment;
 import com.example.spot.domain.study.Vote;
 import jakarta.persistence.*;
+import java.util.ArrayList;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -74,7 +75,7 @@ public class Member extends BaseEntity {
 
     //== 회원이 선호하는 테마 ==//
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private List<MemberTheme> memberThemeList;
+    private List<MemberTheme> memberThemeList = new ArrayList<>();
 
     //== 회원의 출석 목록 ==//
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
@@ -90,7 +91,7 @@ public class Member extends BaseEntity {
 
     //== 회원이 선호하는 지역 목록 ==//
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private List<PreferredRegion> preferredRegionList;
+    private List<PreferredRegion> preferredRegionList = new ArrayList<>();
 
    ////== 회원이 작성한 게시글 목록 ==//
    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
@@ -102,7 +103,7 @@ public class Member extends BaseEntity {
 
    ////== 회원이 선호하는 지역 목록 ==//
    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-   private List<PostReport> postReportList;
+   private List<PostReport> postReportList = new ArrayList<>();
 
    ////== 회원이 스크랩한 게시글 목록 ==//
    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
@@ -140,6 +141,10 @@ public class Member extends BaseEntity {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<MemberVote> memberVoteList;
 
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<PreferredRegion> regions = new ArrayList<>();
+
+
 
 /* ----------------------------- 연관관계 메소드 ------------------------------------- */
 
@@ -148,4 +153,18 @@ public class Member extends BaseEntity {
         memberStudy.setMember(this);
     }
 
+    public void addPreferredRegion(PreferredRegion preferredRegion) {
+        if (this.regions == null) {
+            this.regions = new ArrayList<>(); // 재초기화 (안정성 추가)
+        }
+        this.regions.add(preferredRegion);
+        preferredRegion.setMember(this); // 양방향 관계 설정
+    }
+    public void addMemberTheme(MemberTheme memberTheme) {
+        if (this.memberThemeList == null) {
+            this.memberThemeList = new ArrayList<>(); // 재초기화 (안정성 추가)
+        }
+        this.memberThemeList.add(memberTheme);
+        memberTheme.setMember(this); // 양방향 관계 설정
+    }
 }
