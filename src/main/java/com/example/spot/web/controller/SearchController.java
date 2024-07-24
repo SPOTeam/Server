@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -56,7 +57,7 @@ public class SearchController {
         security = @SecurityRequirement(name = "accessToken")
     )
     @Parameter(name = "memberId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
-    @Parameter(name = "searchStudyDTO", description = """
+    @Parameter(name = "searchRequestStudyDTO", description = """
     조회할 스터디의 검색 조건을 입력 받습니다.
     - gender: 성별 (MALE, FEMALE, UNKNOWN)
     - minAge: 18 이상의 정수 
@@ -69,8 +70,8 @@ public class SearchController {
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
     @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = true)
     public ApiResponse<StudyPreviewDTO> interestStudiesByConditionsAll(
-        @ModelAttribute SearchRequestStudyDTO searchRequestStudyDTO,
-        @PathVariable long memberId,
+        @ModelAttribute @Valid SearchRequestStudyDTO searchRequestStudyDTO,
+        @PathVariable @ExistMember long memberId,
         @RequestParam Integer page,
         @RequestParam Integer size,
         @RequestParam StudySortBy sortBy
@@ -88,7 +89,7 @@ public class SearchController {
         security = @SecurityRequirement(name = "accessToken")
     )
     @Parameter(name = "memberId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
-    @Parameter(name = "searchStudyDTO", description = """
+    @Parameter(name = "searchRequestStudyDTO", description = """
     조회할 스터디의 검색 조건을 입력 받습니다.
     - gender: 성별 (MALE, FEMALE, UNKNOWN)
     - minAge: 18 이상의 정수 
@@ -102,9 +103,9 @@ public class SearchController {
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
     @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = true)
     public ApiResponse<StudyPreviewDTO> interestStudiesByConditionsSpecific(
-        @PathVariable long memberId,
+        @PathVariable @ExistMember long memberId,
         @RequestParam ThemeType theme,
-        @ModelAttribute SearchRequestStudyDTO searchRequestStudyDTO,
+        @ModelAttribute @Valid SearchRequestStudyDTO searchRequestStudyDTO,
         @RequestParam Integer page,
         @RequestParam Integer size,
         @RequestParam StudySortBy sortBy
@@ -127,7 +128,7 @@ public class SearchController {
             조건에 맞게 검색된 스터디 목록이 반환 됩니다.""",
         security = @SecurityRequirement(name = "accessToken")
     )
-    @Parameter(name = "searchStudyDTO", description = """
+    @Parameter(name = "searchRequestStudyDTO", description = """
     조회할 스터디의 검색 조건을 입력 받습니다.
     - gender: 성별 (MALE, FEMALE, UNKNOWN)
     - minAge: 18 이상의 정수 
@@ -141,8 +142,8 @@ public class SearchController {
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
     @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = true)
     public ApiResponse<StudyPreviewDTO> interestRegionStudiesByConditionsAll(
-        @PathVariable long memberId,
-        @ModelAttribute SearchRequestStudyDTO searchRequestStudyDTO,
+        @PathVariable @ExistMember long memberId,
+        @ModelAttribute @Valid SearchRequestStudyDTO searchRequestStudyDTO,
         @RequestParam Integer page,
         @RequestParam Integer size,
         @RequestParam StudySortBy sortBy
@@ -162,7 +163,7 @@ public class SearchController {
         security = @SecurityRequirement(name = "accessToken")
     )
     @Parameter(name = "memberId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
-    @Parameter(name = "searchStudyDTO", description = """
+    @Parameter(name = "searchRequestStudyDTO", description = """
     조회할 스터디의 검색 조건을 입력 받습니다.
     - gender: 성별 (MALE, FEMALE, UNKNOWN)
     - minAge: 18 이상의 정수 
@@ -176,9 +177,9 @@ public class SearchController {
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
     @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = true)
     public ApiResponse<StudyPreviewDTO> interestRegionStudiesByConditionsSpecific(
-        @PathVariable long memberId,
+        @PathVariable @ExistMember long memberId,
         @RequestParam String regionCode,
-        @ModelAttribute SearchRequestStudyDTO searchRequestStudyDTO,
+        @ModelAttribute @Valid SearchRequestStudyDTO searchRequestStudyDTO,
         @RequestParam Integer page,
         @RequestParam Integer size,
         @RequestParam StudySortBy sortBy
@@ -198,7 +199,7 @@ public class SearchController {
             ## [모집 중 스터디 조회] 입력한 조건에 맞는 모집 중인  스터디 전체를 조회 합니다.
             조건에 맞게 검색된 스터디 목록이 반환 됩니다."""
     )
-    @Parameter(name = "searchStudyDTO", description = """
+    @Parameter(name = "searchRequestStudyDTO", description = """
     조회할 스터디의 검색 조건을 입력 받습니다.
     - gender: 성별 (MALE, FEMALE, UNKNOWN)
     - minAge: 18 이상의 정수 
@@ -211,7 +212,7 @@ public class SearchController {
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
     @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = true)
     public ApiResponse<StudyPreviewDTO> recruitingStudiesByConditions(
-        @ModelAttribute SearchRequestStudyDTO searchRequestStudyDTO,
+        @ModelAttribute @Valid SearchRequestStudyDTO searchRequestStudyDTO,
         @RequestParam Integer page,
         @RequestParam Integer size,
         @RequestParam StudySortBy sortBy) {
@@ -233,7 +234,7 @@ public class SearchController {
     )
     @Parameter(name = "userId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
     public ApiResponse<StudyPreviewDTO> likedStudies(
-        @PathVariable long memberId) {
+        @PathVariable @ExistMember long memberId) {
         // 메소드 구현
         StudyPreviewDTO studies = studyQueryService.findLikedStudies(memberId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
@@ -293,7 +294,7 @@ public class SearchController {
     @Parameter(name = "memberId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
     @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
-    public ApiResponse<StudyPreviewDTO> getAllOnStudies(@PathVariable Long memberId, @RequestParam Integer page, @RequestParam Integer size) {
+    public ApiResponse<StudyPreviewDTO> getAllOnStudies(@PathVariable @ExistMember Long memberId, @RequestParam Integer page, @RequestParam Integer size) {
         StudyPreviewDTO studies = studyQueryService.findOngoingStudiesByMemberId(
             PageRequest.of(page, size), memberId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
@@ -325,7 +326,7 @@ public class SearchController {
     @Parameter(name = "memberId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
     @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
-    public ApiResponse<StudyPreviewDTO> getAppliedStudies(@PathVariable Long memberId, @RequestParam Integer page, @RequestParam Integer size) {
+    public ApiResponse<StudyPreviewDTO> getAppliedStudies(@PathVariable @ExistMember Long memberId, @RequestParam Integer page, @RequestParam Integer size) {
         StudyPreviewDTO studies = studyQueryService.findAppliedStudies(
             PageRequest.of(page, size), memberId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);

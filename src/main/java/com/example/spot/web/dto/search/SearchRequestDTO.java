@@ -10,10 +10,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 public class SearchRequestDTO {
 
     @Getter
+    @Setter
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
@@ -25,17 +27,17 @@ public class SearchRequestDTO {
 
         @Schema(description = "최소 나이 (18 이상).", example = "18")
         @Min(value = 18, message = "최소 나이는 18세 입니다.")
-        private Integer minAge = 18;
+        private Integer minAge;
 
         @Schema(description = "최대 나이 (60 이하).", example = "60")
         @Max(value = 60, message = "최대 나이는 60세 입니다.")
-        private Integer maxAge = 60;
+        private Integer maxAge;
 
         @Schema(description = "스터디 온라인 진행 여부 (true, false).", example = "true")
-        private Boolean isOnline = true;
+        private Boolean isOnline;
 
         @Schema(description = "스터디 활동비 유무 (true, false).", example = "false")
-        private Boolean hasFee = true;
+        private Boolean hasFee;
 
         @Schema(description = "스터디 최대 활동비.", example = "10000")
         @Max(value = 1000000, message = "최대 활동비는 1,000,000원 입니다.")

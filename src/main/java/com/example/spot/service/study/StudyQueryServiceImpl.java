@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -43,6 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class StudyQueryServiceImpl implements StudyQueryService {
 
     // 스터디 관련 조회
@@ -257,6 +259,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     }
 
     private static Map<String, Object> getSearchConditions(SearchRequestStudyDTO request) {
+        log.info("request: {}", request.getIsOnline());
         // 검색 조건 맵 생성
         Map<String, Object> search = new HashMap<>();
         if (request.getGender() != null)

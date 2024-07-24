@@ -18,10 +18,13 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 
 import static com.example.spot.domain.study.QStudy.study;
 @RequiredArgsConstructor
+@Slf4j
 public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
@@ -312,6 +315,5 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
             builder.and(study.fee.loe((Integer) search.get("fee")));
         }
     }
-
 
 }

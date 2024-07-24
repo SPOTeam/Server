@@ -22,8 +22,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @RestControllerAdvice
 public class ExceptionAdvice {
 
-
-
     @ExceptionHandler(GeneralException.class)
     public ApiResponse<ErrorStatus> BaseExceptionHandle(GeneralException exception) {
         log.warn("BaseException. error message: {}", exception.getMessage());
