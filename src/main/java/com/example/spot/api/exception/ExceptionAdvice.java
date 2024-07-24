@@ -23,10 +23,12 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class ExceptionAdvice {
 
 
+
     @ExceptionHandler(GeneralException.class)
     public ApiResponse<ErrorStatus> BaseExceptionHandle(GeneralException exception) {
         log.warn("BaseException. error message: {}", exception.getMessage());
         return new ApiResponse<>(exception.getStatus());
+
     }
 
     @ExceptionHandler(Exception.class)
@@ -56,6 +58,5 @@ public class ExceptionAdvice {
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
-
 
 }

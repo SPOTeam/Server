@@ -16,7 +16,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,6 +49,9 @@ public class Study extends BaseEntity {
     private Integer fee;
 
     @Column(nullable = false)
+    private String profileImage;
+
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private StudyState studyState;
 
@@ -80,13 +82,13 @@ public class Study extends BaseEntity {
     private Long maxPeople;
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
-    private List<Schedule> schedules;
+    private List<Schedule> schedules = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
-    private List<StudyPost> posts;
+    private List<StudyPost> posts = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
-    private List<Vote> votes;
+    private List<Vote> votes = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
     private List<StudyTheme> studyThemes;
@@ -96,6 +98,8 @@ public class Study extends BaseEntity {
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
     private List<RegionStudy> regionStudies;
+
+
 
 /* ----------------------------- 생성자 ------------------------------------- */
 
@@ -146,5 +150,4 @@ public class Study extends BaseEntity {
         studyThemes.add(studyTheme);
         studyTheme.setStudy(this);
     }
-
 }
