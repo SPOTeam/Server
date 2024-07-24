@@ -283,8 +283,8 @@ public class SearchController {
 
 
     /* ----------------------------- 진행중인 스터디 목록 조회  ------------------------------------- */
-    @Operation(summary = "[진행중인 스터디] 진행중인 스터디 목록 불러오기", description = """ 
-        ## [진행중인 스터디] 마이페이지 > 진행중 클릭, 로그인한 회원이 진행중인 스터디 목록을 불러옵니다.
+    @Operation(summary = "[참여하고 있는 스터디 조회] 내가 참여하고 있는 스터디 목록 불러오기", description = """ 
+        ## [진행중인 스터디] 마이페이지 > 진행중 클릭, 로그인한 회원이 참여하고 있는 스터디 목록을 불러옵니다.
         로그인한 회원이 참여하는 스터디 중 status = ON인 스터디의 목록이 반환됩니다.
         """)
     @GetMapping("/search/studies/on-studies/members/{memberId}")

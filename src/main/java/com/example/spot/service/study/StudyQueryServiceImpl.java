@@ -229,6 +229,22 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return getDTOs(studies, pageable, totalElements);
     }
 
+    @Override
+    public StudyPreviewDTO findStudiesByMemberId(Pageable pageable, Long memberId,
+        StudySortBy sortBy) {
+        return null;
+    }
+
+    @Override
+    public StudyPreviewDTO findAppliedStudies(Pageable pageable, Long memberId) {
+        return null;
+    }
+
+    @Override
+    public StudyPreviewDTO findMyRecruitingStudies(Pageable pageable, Long memberId) {
+        return null;
+    }
+
     private static Map<String, Object> getSearchConditions(SearchRequestStudyDTO request) {
         // 검색 조건 맵 생성
         Map<String, Object> search = new HashMap<>();
