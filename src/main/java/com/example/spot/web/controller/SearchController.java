@@ -282,4 +282,35 @@ public class SearchController {
     }
 
 
+    /* ----------------------------- 진행중인 스터디 목록 조회  ------------------------------------- */
+    @Operation(summary = "[진행중인 스터디] 진행중인 스터디 목록 불러오기", description = """ 
+        ## [진행중인 스터디] 마이페이지 > 진행중 클릭, 로그인한 회원이 진행중인 스터디 목록을 불러옵니다.
+        로그인한 회원이 참여하는 스터디 중 status = ON인 스터디의 목록이 반환됩니다.
+        """)
+    @GetMapping("/members/{memberId}/on-studies")
+    public void getAllOnStudies(@PathVariable Long memberId) {
+    }
+
+    /* ----------------------------- 모집중인 스터디 목록 조회  ------------------------------------- */
+
+    @Operation(summary = "[모집중인 스터디] 모집중인 스터디 목록 불러오기", description = """ 
+        ## [모집중인 스터디] 마이페이지 > 모집중 클릭, 로그인한 회원이 모집중인 스터디 목록을 불러옵니다.
+        로그인한 회원이 운영하는 스터디 중 study_state = RECRUITING인 스터디의 목록이 반환됩니다.
+        """)
+    @GetMapping("/members/{memberId}/recruiting-studies")
+    public void getAllRecruitingStudies(@PathVariable Long memberId) {
+    }
+
+
+    /* ----------------------------- 신청한 스터디 목록 조회  ------------------------------------- */
+    @Operation(summary = "[신청한 스터디] 신청한 스터디 목록 불러오기", description = """ 
+        ## [신청한 스터디] 마이페이지 > 신청한, 로그인한 회원이 신청한 스터디 목록을 불러옵니다.
+        로그인한 회원이 신청한 스터디(ApplicationStatus = APPLIED)의 목록이 반환됩니다.
+        """)
+    @GetMapping("/members/{memberId}/applied-studies")
+    public void getAppliedStudies(@PathVariable Long memberId) {
+    }
+
+
+
 }

@@ -22,21 +22,6 @@ public class MemberStudyController {
 
 /* ----------------------------- 진행중인 스터디 관련 API ------------------------------------- */
 
-    @Operation(summary = "[진행중인 스터디] 진행중인 스터디 개수 불러오기", description = """ 
-        ## [진행중인 스터디] 마이페이지에 로그인한 회원이 참여하는 스터디 개수를 불러옵니다.
-        로그인한 회원이 참여하는 스터디 중 status = ON인 스터디의 개수가 반환됩니다.
-        """)
-    @GetMapping("/members/{memberId}/on-studies/num")
-    public void getNumOfOnStudies(@PathVariable Long memberId) {
-    }
-
-    @Operation(summary = "[진행중인 스터디] 진행중인 스터디 목록 불러오기", description = """ 
-        ## [진행중인 스터디] 마이페이지 > 진행중 클릭, 로그인한 회원이 진행중인 스터디 목록을 불러옵니다.
-        로그인한 회원이 참여하는 스터디 중 status = ON인 스터디의 목록이 반환됩니다.
-        """)
-    @GetMapping("/members/{memberId}/on-studies")
-    public void getAllOnStudies(@PathVariable Long memberId) {
-    }
 
     @Operation(summary = "[진행중인 스터디] 스터디 탈퇴하기", description = """ 
         ## [진행중인 스터디] 마이페이지 > 진행중 > 진행중인 스터디의 메뉴 클릭, 로그인한 회원이 현재 진행중인 스터디에서 탈퇴합니다.
@@ -68,22 +53,6 @@ public class MemberStudyController {
 
 /* ----------------------------- 모집중인 스터디 관련 API ------------------------------------- */
 
-
-    @Operation(summary = "[모집중인 스터디] 모집중인 스터디 개수 불러오기", description = """ 
-        ## [모집중인 스터디] 마이페이지에 로그인한 회원이 모집중인 스터디 개수를 불러옵니다.
-        로그인한 회원이 운영하는 스터디 중 study_state = RECRUITING인 스터디의 개수가 반환됩니다.
-        """)
-    @GetMapping("/members/{memberId}/recruiting-studies/num")
-    public void getNumOfRecruitingStudies(@PathVariable Long memberId) {
-    }
-
-    @Operation(summary = "[모집중인 스터디] 모집중인 스터디 목록 불러오기", description = """ 
-        ## [모집중인 스터디] 마이페이지 > 모집중 클릭, 로그인한 회원이 모집중인 스터디 목록을 불러옵니다.
-        로그인한 회원이 운영하는 스터디 중 study_state = RECRUITING인 스터디의 목록이 반환됩니다.
-        """)
-    @GetMapping("/members/{memberId}/recruiting-studies")
-    public void getAllRecruitingStudies(@PathVariable Long memberId) {
-    }
 
     @Operation(summary = "[모집중인 스터디] 스터디별 신청 회원 목록 불러오기", description = """ 
         ## [모집중인 스터디] 마이페이지 > 모집중 > 스터디 클릭, 로그인한 회원이 모집중인 스터디에 신청한 회원 목록을 불러옵니다.
@@ -117,23 +86,7 @@ public class MemberStudyController {
     public void acceptApplicant(@PathVariable Long studyId, @PathVariable Long applicantId) {
     }
 
-/* ----------------------------- 신청한 스터디 관련 API ------------------------------------- */
 
-    @Operation(summary = "[신청한 스터디] 신청한 스터디 개수 불러오기", description = """ 
-        ## [신청한 스터디] 마이페이지에 로그인한 회원이 신청한 스터디 개수를 불러옵니다.
-        로그인한 회원이 신청한 스터디(ApplicationStatus = APPLIED)의 개수가 반환됩니다.
-        """)
-    @GetMapping("/members/{memberId}/applied-studies/num")
-    public void getNumOfAppliedStudies(@PathVariable Long memberId) {
-    }
-
-    @Operation(summary = "[신청한 스터디] 신청한 스터디 목록 불러오기", description = """ 
-        ## [신청한 스터디] 마이페이지 > 신청한, 로그인한 회원이 신청한 스터디 목록을 불러옵니다.
-        로그인한 회원이 신청한 스터디(ApplicationStatus = APPLIED)의 목록이 반환됩니다.
-        """)
-    @GetMapping("/members/{memberId}/applied-studies")
-    public void getAppliedStudies(@PathVariable Long memberId) {
-    }
 
 /* ----------------------------- 스터디 상세 정보 관련 API ------------------------------------- */
 
