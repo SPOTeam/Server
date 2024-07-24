@@ -242,7 +242,10 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
     @Override
     public StudyPreviewDTO findAppliedStudies(Pageable pageable, Long memberId) {
-        return null;
+        List<MemberStudy> memberStudies = memberStudyRepository.findAllByMemberIdAndStatus(
+            memberId, ApplicationStatus.APPLIED);
+        List<Study> studies = studyRepository.findByMemberStudy(memberStudies, pageable);
+        return getDTOs(studies, pageable, studies.size());
     }
 
     @Override
