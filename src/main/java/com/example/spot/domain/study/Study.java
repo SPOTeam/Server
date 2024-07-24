@@ -5,6 +5,7 @@ import com.example.spot.domain.enums.Gender;
 import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.enums.StudyState;
 import com.example.spot.domain.mapping.MemberStudy;
+import com.example.spot.domain.mapping.PreferredStudy;
 import com.example.spot.domain.mapping.RegionStudy;
 import com.example.spot.domain.mapping.StudyTheme;
 import jakarta.persistence.CascadeType;
