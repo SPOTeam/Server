@@ -100,6 +100,9 @@ public class Study extends BaseEntity {
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
     private List<RegionStudy> regionStudies;
 
+    @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
+    private List<PreferredStudy> preferredStudies;
+
 
 
 /* ----------------------------- 생성자 ------------------------------------- */
@@ -129,6 +132,7 @@ public class Study extends BaseEntity {
         this.posts = new ArrayList<>();
         this.votes = new ArrayList<>();
         this.studyThemes = new ArrayList<>();
+        this.preferredStudies = new ArrayList<>();
         this.memberStudies = new ArrayList<>();
         this.regionStudies = new ArrayList<>();
 

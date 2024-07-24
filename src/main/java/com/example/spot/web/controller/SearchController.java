@@ -231,7 +231,7 @@ public class SearchController {
             찜한 스터디 목록이 반환 됩니다.""",
         security = @SecurityRequirement(name = "accessToken")
     )
-    @Parameter(name = "userId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
+    @Parameter(name = "memberId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
     public ApiResponse<StudyPreviewDTO> likedStudies(
         @PathVariable @ExistMember long memberId) {
         // 메소드 구현
