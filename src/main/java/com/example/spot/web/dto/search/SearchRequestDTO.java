@@ -1,7 +1,6 @@
 package com.example.spot.web.dto.search;
 
 import com.example.spot.domain.enums.Gender;
-import com.example.spot.domain.enums.StudySortBy;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Max;
@@ -11,7 +10,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 public class SearchRequestDTO {
