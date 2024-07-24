@@ -15,6 +15,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 
@@ -34,6 +35,14 @@ public class ExceptionAdvice {
         log.error("Exception has occured. {}", exception);
         return new ApiResponse<>(ErrorStatus._INTERNAL_SERVER_ERROR);
     }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ApiResponse handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
+        String errorMessage = String.format("잘못된 enum 값을 입력 하셨습니다. %s: %s", ex.getName(), ex.getValue());
+        log.warn("MethodArgumentTypeMismatchException. error message: {}", errorMessage);
+        return new ApiResponse<>(ErrorStatus._BAD_ENUM_REQUEST, errorMessage);
+    }
+
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ApiResponse<List<String>>> handleConstraintViolationException(ConstraintViolationException exception) {

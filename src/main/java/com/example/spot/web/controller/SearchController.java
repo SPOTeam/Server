@@ -6,6 +6,8 @@ import com.example.spot.domain.enums.StudySortBy;
 import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.service.study.StudyQueryService;
 import com.example.spot.validation.annotation.ExistMember;
+import com.example.spot.validation.annotation.ExistRegion;
+import com.example.spot.validation.annotation.ExistTheme;
 import com.example.spot.web.dto.search.SearchRequestDTO.SearchRequestStudyDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.SearchStudyDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.StudyPreviewDTO;
@@ -14,6 +16,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -172,7 +175,7 @@ public class SearchController {
     - hasFee: 스터디 활동비 유무 (true, false)
     - fee: 스터디 최대 활동비 
     """, required = false)
-    @Parameter(name = "regionCode", description = "조회할 지역 코드를 입력 받습니다. 지역 코드는 5자리의 문자열 입니다. ex) 11000", required = true)
+    @Parameter(name = "regionCode", description = "조회할 지역 코드를 입력 받습니다. 지역 코드는 10자리의 문자열 입니다. ex) 1111051500", required = true)
     @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
     @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = true)
@@ -263,7 +266,7 @@ public class SearchController {
     }
 
     /* ----------------------------- 테마 별 스터디 검색  ------------------------------------- */
-    @GetMapping("/search/studies/theme/{theme}")
+    @GetMapping("/search/studies/theme/")
     @Operation(
         summary = "[테마 별 스터디 검색] 테마 별 스터디 검색",
         description = """
@@ -275,7 +278,7 @@ public class SearchController {
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
     @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = true)
     public ApiResponse<StudyPreviewDTO> searchStudiesByTheme(
-        @PathVariable ThemeType theme,
+        @RequestParam ThemeType theme,
         @RequestParam Integer page,
         @RequestParam Integer size,
         @RequestParam StudySortBy sortBy) {
@@ -294,7 +297,10 @@ public class SearchController {
     @Parameter(name = "memberId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
     @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
-    public ApiResponse<StudyPreviewDTO> getAllOnStudies(@PathVariable @ExistMember Long memberId, @RequestParam Integer page, @RequestParam Integer size) {
+    public ApiResponse<StudyPreviewDTO> getAllOnStudies(
+        @PathVariable @ExistMember Long memberId,
+        @RequestParam Integer page,
+        @RequestParam Integer size) {
         StudyPreviewDTO studies = studyQueryService.findOngoingStudiesByMemberId(
             PageRequest.of(page, size), memberId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
@@ -310,7 +316,10 @@ public class SearchController {
     @Parameter(name = "memberId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
     @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
-    public ApiResponse<StudyPreviewDTO> getAllMyRecruitingStudies(@PathVariable @ExistMember Long memberId, @RequestParam Integer page, @RequestParam Integer size) {
+    public ApiResponse<StudyPreviewDTO> getAllMyRecruitingStudies(
+        @PathVariable @ExistMember Long memberId,
+        @RequestParam Integer page,
+        @RequestParam Integer size) {
         StudyPreviewDTO studies = studyQueryService.findMyRecruitingStudies(
             PageRequest.of(page, size), memberId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
@@ -326,7 +335,10 @@ public class SearchController {
     @Parameter(name = "memberId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
     @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
-    public ApiResponse<StudyPreviewDTO> getAppliedStudies(@PathVariable @ExistMember Long memberId, @RequestParam Integer page, @RequestParam Integer size) {
+    public ApiResponse<StudyPreviewDTO> getAppliedStudies(
+        @PathVariable @ExistMember Long memberId,
+        @RequestParam Integer page,
+        @RequestParam Integer size) {
         StudyPreviewDTO studies = studyQueryService.findAppliedStudies(
             PageRequest.of(page, size), memberId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
