@@ -1,26 +1,34 @@
-package com.example.spot.jwt.util;
+package com.example.spot.jwt;
 
-import com.example.spot.repository.MemberRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Date;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class JwtUtil {
+public class JwtTokenProvider {
+
+    private static final String MEMBER_ID = "memberId";
+    private static final Long EXPIRATION_TIME = 1000L * 60 * 60 * 24;
 
     @Value("${jwt.secret}")
     private String JWT_SECRET_KEY;
 
-    private final MemberRepository memberRepository;
+    @PostConstruct
+    protected void init() {
+        JWT_SECRET_KEY = Base64.getEncoder().encodeToString(JWT_SECRET_KEY.getBytes(StandardCharsets.UTF_8));
+    }
 
     private SecretKey getSigningKey() {
         byte[] keyBytes = Decoders.BASE64.decode(JWT_SECRET_KEY);
@@ -62,6 +70,20 @@ public class JwtUtil {
             log.error("JWT claims string is empty: {}", e.getMessage());
             return JwtValidationType.EMPTY_JWT_TOKEN;
         }
+    }
+
+    private Claims getBody(final String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    public Long getMemberFromJwt(String token) {
+        Claims claims = getBody(token);
+        return Long.valueOf(claims.get("memberId").toString());
+
     }
 
     public boolean isTokenExpired(String token) {
