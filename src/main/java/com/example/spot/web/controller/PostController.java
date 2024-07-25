@@ -134,14 +134,16 @@ public class PostController {
 
     @Operation(summary = "게시글 삭제 API", description = "게시글 Id를 받아 게시글을 삭제합니다.")
     @DeleteMapping("/{postId}")
-    public void delete(
+    public ApiResponse<Void> delete(
             @Parameter(
                     description = "삭제할 게시글의 ID입니다.",
                     schema = @Schema(type = "integer", format = "int64")
             )
             @PathVariable Long postId
     ) {
-//        postCommandService.deletePost(postId);
+        postCommandService.deletePost(postId);
+        return ApiResponse.onSuccess(SuccessStatus._NO_CONTENT);
+
     }
 
 

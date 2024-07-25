@@ -8,4 +8,7 @@ public interface PostCommandService {
 
     PostCreateResponse createPost(PostCreateRequest postCreateRequest);
 
+    void deletePost(Long postId);
+
+
 }

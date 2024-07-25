@@ -54,7 +54,15 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_THEME_IS_NULL(HttpStatus.BAD_REQUEST, "STUDY6004", "스터디 관심사가 입력되지 않았습니다."),
     _STUDY_REGION_IS_NULL(HttpStatus.BAD_REQUEST, "STUDY6005", "스터디 지역이 입력되지 않았습니다."),
     _STUDY_SORT_BY_IS_NULL(HttpStatus.BAD_REQUEST, "STUDY6006", "스터디 정렬 기준이 입력되지 않았습니다."),
-    _STUDY_SORT_BY_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY6007", "스터디 정렬 기준을 찾을 수 없습니다."),;
+    _STUDY_SORT_BY_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY6007", "스터디 정렬 기준을 찾을 수 없습니다."),
+
+    //게시글 관련 에러
+    _POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST5001", "게시글을 찾을 수 없습니다."),
+    _POST_TITLE_INVALID(HttpStatus.BAD_REQUEST, "POST5002", "게시글 제목이 유효하지 않습니다."),
+    _POST_CONTENT_INVALID(HttpStatus.BAD_REQUEST, "POST5003", "게시글 내용이 유효하지 않습니다."),
+    _POST_NOT_AUTHOR(HttpStatus.BAD_REQUEST, "POST5004", "게시글 작성자가 아닙니다."),
+
+    ;
 
 
     private final HttpStatus httpStatus;

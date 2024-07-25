@@ -2,6 +2,7 @@ package com.example.spot.service.post;
 
 import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.handler.MemberHandler;
+import com.example.spot.api.exception.handler.PostHandler;
 import com.example.spot.domain.Member;
 import com.example.spot.domain.Post;
 import com.example.spot.repository.MemberRepository;
@@ -55,5 +56,27 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .build();
     }
 
+
+    @Transactional
+    @Override
+    public void deletePost(Long postId) {
+        // ToDo 임시 Mock data, 추후에 시큐리티를 통해 Member 추출
+        Long memberId = 0L;
+
+        // 회원 정보 가져오기
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        // 게시글 조회
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostHandler(ErrorStatus._POST_NOT_FOUND));
+
+        // 현재 멤버와 게시글 작성자 일치 여부 확인
+        if (!post.getMember().getId().equals(memberId)) {
+            throw new PostHandler(ErrorStatus._POST_NOT_AUTHOR); // 권한 없음을 나타내는 에러 처리
+        }
+        // 게시글 삭제
+        postRepository.delete(post);
+    }
 
 }
