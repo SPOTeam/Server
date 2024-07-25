@@ -53,7 +53,7 @@ public interface StudyQueryService {
     StudyPreviewDTO findMyRecruitingStudies(Pageable pageable, Long memberId);
 
     // 스터디 공지 게시글 불러오기
-    StudyPostResponseDTO findStudyPost(Long studyId);
+    StudyPostResponseDTO findStudyAnnouncementPost(Long studyId);
 
     // 스터디 다가오는 모임 일정 불러오기
     StudyScheduleResponseDTO findStudySchedule(Long studyId, Pageable pageable);

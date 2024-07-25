@@ -58,6 +58,7 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_ID_NULL(HttpStatus.BAD_REQUEST, "STUDY6008", "스터디 아이디가 입력되지 않았습니다."),;
 
 
+
     private final HttpStatus httpStatus;
     private final String code;
     private final String message;
