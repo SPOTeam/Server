@@ -54,7 +54,8 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_THEME_IS_NULL(HttpStatus.BAD_REQUEST, "STUDY6004", "스터디 관심사가 입력되지 않았습니다."),
     _STUDY_REGION_IS_NULL(HttpStatus.BAD_REQUEST, "STUDY6005", "스터디 지역이 입력되지 않았습니다."),
     _STUDY_SORT_BY_IS_NULL(HttpStatus.BAD_REQUEST, "STUDY6006", "스터디 정렬 기준이 입력되지 않았습니다."),
-    _STUDY_SORT_BY_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY6007", "스터디 정렬 기준을 찾을 수 없습니다."),;
+    _STUDY_SORT_BY_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY6007", "스터디 정렬 기준을 찾을 수 없습니다."),
+    _STUDY_ID_NULL(HttpStatus.BAD_REQUEST, "STUDY6008", "스터디 아이디가 입력되지 않았습니다."),;
 
 
     private final HttpStatus httpStatus;
