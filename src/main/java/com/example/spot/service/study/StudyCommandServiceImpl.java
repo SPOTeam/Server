@@ -115,14 +115,14 @@ public class StudyCommandServiceImpl implements StudyCommandService {
     public StudyLikeResponseDTO likeStudy(Long memberId, Long studyId) {
 
         // 회원과 스터디 조회
-        Member member = memberRepository.findById(memberId)
-            .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
         Study study = studyRepository.findById(studyId)
             .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
 
         // 현재 좋아요 상태 확인 -> 만약 없다면, 객체 하나 생성
         PreferredStudy preferredStudy = preferredStudyRepository
-            .findByMemberAndStudy(memberId, studyId)
+            .findByMemberIdAndStudyId(memberId, studyId)
             .orElse(PreferredStudy.builder()
                 .member(member)
                 .study(study)

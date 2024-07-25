@@ -10,5 +10,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface PreferredStudyRepository extends JpaRepository<PreferredStudy, Long> {
 
     List<PreferredStudy> findByMemberIdOrderByCreatedAtDesc(Long memberId);
-    Optional<PreferredStudy> findByMemberAndStudy(Long memberId, Long studyId);
+    Optional<PreferredStudy> findByMemberIdAndStudyId(Long memberId, Long studyId);
 }

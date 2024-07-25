@@ -10,6 +10,7 @@ import com.example.spot.web.dto.study.request.StudyJoinRequestDTO;
 import com.example.spot.web.dto.study.request.StudyRegisterRequestDTO;
 import com.example.spot.web.dto.study.response.StudyInfoResponseDTO;
 import com.example.spot.web.dto.study.response.StudyJoinResponseDTO;
+import com.example.spot.web.dto.study.response.StudyLikeResponseDTO;
 import com.example.spot.web.dto.study.response.StudyRegisterResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -72,12 +73,11 @@ public class StudyController {
         """)
     @Parameter(name = "studyId", description = "찜할 스터디의 ID를 입력 받습니다.", required = true)
     @Parameter(name = "memberId", description = "찜을 누를 회원의 ID를 입력 받습니다.", required = true)
-    public void likeStudy(
+    public ApiResponse<StudyLikeResponseDTO> likeStudy(
         @PathVariable("studyId") @ExistStudy Long studyId,
         @PathVariable("memberId") @ExistMember Long memberId) {
-        // 메소드 구현
+        System.out.println("studyId = " + studyId);
+        System.out.println("memberId = " + memberId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_LIKED, studyCommandService.likeStudy(memberId, studyId));
     }
-
-
-
 }
