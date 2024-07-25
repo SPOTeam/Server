@@ -23,7 +23,7 @@ public enum SuccessStatus implements BaseCode {
     _MEMBER_LIST_FOUND(HttpStatus.OK, "MEMBER2005", "회원 목록 조회 완료"),
 
     //스터디 게시물 관련 응답
-    STUDY_POST_CREATED(HttpStatus.CREATED, "STUDYPOST3001", "스터디 게시글 작성 완료"),
+    _STUDY_POST_CREATED(HttpStatus.CREATED, "STUDYPOST3001", "스터디 게시글 작성 완료"),
     _STUDY_POST_UPDATED(HttpStatus.OK, "STUDYPOST3002", "스터디 게시글 수정 완료"),
     _STUDY_POST_DELETED(HttpStatus.OK, "STUDYPOST3003", "스터디 게시글 삭제 완료"),
     _STUDY_POST_FOUND(HttpStatus.OK, "STUDYPOST3004", "스터디 게시글 조회 완료"),
@@ -41,6 +41,10 @@ public enum SuccessStatus implements BaseCode {
     _STUDY_MEMBER_CREATED(HttpStatus.CREATED, "STUDY4004", "스터디 참여 완료"),
     _STUDY_MEMBER_DELETED(HttpStatus.OK, "STUDY4005", "스터디 탈퇴 완료"),
     _STUDY_TERMINATED(HttpStatus.OK, "STUDY4006", "스터디 종료 완료"),
+
+    // 스터디 일정 관련 응답
+    _STUDY_SCHEDULE_CREATED(HttpStatus.CREATED, "SCHEDULE2001", "스터디 일정 생성 완료"),
+    _STUDY_SCHEDULE_FOUND(HttpStatus.OK, "SCHEDULE2002", "스터디 일정 조회 완료")
 
 
     ;
