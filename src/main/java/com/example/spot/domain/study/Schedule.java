@@ -3,11 +3,8 @@ import com.example.spot.domain.common.BaseEntity;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+
+import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -23,6 +20,7 @@ public class Schedule extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_id", nullable = false)
     private Study study;
@@ -34,9 +32,29 @@ public class Schedule extends BaseEntity {
     private String location;
 
     @Column(nullable = false)
-    private LocalDateTime staredAt;
+    private LocalDateTime startedAt;
 
     @Column(nullable = false)
     private LocalDateTime finishedAt;
+
+    @Column(nullable = false, columnDefinition = "BIT DEFAULT 0")
+    private Boolean isAllDay;
+
+    @Column(nullable = false, columnDefinition = "BIT DEFAULT 0")
+    private Boolean isIterated;
+
+/* ----------------------------- 생성자 ------------------------------------- */
+
+    @Builder
+    public Schedule(String title, String location,
+                    LocalDateTime staredAt, LocalDateTime finishedAt,
+                    Boolean isAllDay, Boolean isIterated) {
+        this.title = title;
+        this.location = location;
+        this.startedAt = staredAt;
+        this.finishedAt = finishedAt;
+        this.isAllDay = isAllDay;
+        this.isIterated = isIterated;
+    }
 
 }

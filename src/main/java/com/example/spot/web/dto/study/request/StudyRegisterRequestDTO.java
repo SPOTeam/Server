@@ -16,17 +16,20 @@ public class StudyRegisterRequestDTO {
     @AllArgsConstructor
     public static class RegisterDTO {
 
-        private List<ThemeType> themes;
-        private String title;
-        private String goal;
-        private String introduction;
-        private Boolean isOnline;
-        private List<RegionDTO> regions;
-        private Long maxPeople;
         private Gender gender;
         private Integer minAge;
         private Integer maxAge;
         private Integer fee;
+        private String profileImage;
+        private Boolean isOnline;
+        private boolean hasFee;
+        private String goal;
+        private String introduction;
+        private String title;
+        private Long maxPeople;
+        private List<RegionDTO> regions;
+        private List<ThemeType> themes;
+
     }
 
     @Getter

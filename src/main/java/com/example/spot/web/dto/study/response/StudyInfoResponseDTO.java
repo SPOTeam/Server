@@ -20,7 +20,7 @@ public class StudyInfoResponseDTO {
         private final String studyName;
         private final StudyOwnerDTO studyOwner;
         private final Long hitNum;
-        private final Integer heartCount;
+        private final Long heartCount;
         private final Integer memberCount;
         private final Gender gender;
         private final Integer minAge;
@@ -33,7 +33,7 @@ public class StudyInfoResponseDTO {
 
         @Builder(access = AccessLevel.PRIVATE)
         private StudyInfoDTO(Long studyId, String studyName, StudyOwnerDTO studyOwner,
-                             Long hitNum, Integer heartCount, Integer memberCount, Gender gender,
+                             Long hitNum, Long heartCount, Integer memberCount, Gender gender,
                              Integer minAge, Integer maxAge, Integer fee, Boolean isOnline,
                              List<ThemeType> themes, String goal, String introduction) {
             this.studyId = studyId;
