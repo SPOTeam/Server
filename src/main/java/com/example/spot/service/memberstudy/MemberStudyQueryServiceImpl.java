@@ -30,7 +30,7 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 
     @Override
     public StudyPostResponseDTO findStudyAnnouncementPost(Long studyId) {
-        StudyPost studyPost = studyPostRepository.findByStudyIdAndAnnouncementIs(
+        StudyPost studyPost = studyPostRepository.findByStudyIdAndIsAnnouncement(
             studyId, true).orElseThrow(() -> new GeneralException(ErrorStatus._STUDY_POST_NOT_FOUND));
 
         return StudyPostResponseDTO.builder()
@@ -41,6 +41,9 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
     @Override
     public StudyScheduleResponseDTO findStudySchedule(Long studyId, Pageable pageable) {
         List<Schedule> schedules = scheduleRepository.findAllByStudyId(studyId, pageable);
+        if (schedules.isEmpty())
+            throw  new GeneralException(ErrorStatus._STUDY_SCHEDULE_NOT_FOUND);
+
         List<StudyScheduleDTO> scheduleDTOS = schedules.stream().map(schedule -> StudyScheduleDTO.builder()
             .title(schedule.getTitle())
             .location(schedule.getLocation())
@@ -53,6 +56,8 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
     @Override
     public StudyMemberResponseDTO findStudyMembers(Long studyId) {
         List<MemberStudy> memberStudies = memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED);
+        if (memberStudies.isEmpty())
+            throw new GeneralException(ErrorStatus._STUDY_MEMBER_NOT_FOUND);
         List<StudyMemberDTO> memberDTOS = memberStudies.stream().map(memberStudy -> StudyMemberDTO.builder()
             .memberId(memberStudy.getMember().getId())
             .nickname(memberStudy.getMember().getName())

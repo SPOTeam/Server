@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface StudyPostRepository extends JpaRepository<StudyPost, Long> {
-    Optional<StudyPost> findByStudyIdAndAnnouncementIs(Long studyId, boolean isAnnouncement);
+    Optional<StudyPost> findByStudyIdAndIsAnnouncement(Long studyId, boolean isAnnouncement);
 }
