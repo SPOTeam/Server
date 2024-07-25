@@ -14,6 +14,7 @@ import com.example.spot.domain.mapping.PreferredRegion;
 import com.example.spot.domain.mapping.PreferredStudy;
 import com.example.spot.domain.mapping.RegionStudy;
 import com.example.spot.domain.mapping.StudyTheme;
+import com.example.spot.domain.study.Schedule;
 import com.example.spot.domain.study.Study;
 import com.example.spot.domain.study.StudyPost;
 import com.example.spot.repository.MemberRepository;
@@ -23,6 +24,7 @@ import com.example.spot.repository.PreferredRegionRepository;
 import com.example.spot.repository.PreferredStudyRepository;
 import com.example.spot.repository.RegionRepository;
 import com.example.spot.repository.RegionStudyRepository;
+import com.example.spot.repository.ScheduleRepository;
 import com.example.spot.repository.StudyPostRepository;
 import com.example.spot.repository.StudyRepository;
 import com.example.spot.repository.StudyThemeRepository;
@@ -34,6 +36,7 @@ import com.example.spot.web.dto.search.SearchResponseDTO.StudyPreviewDTO;
 import com.example.spot.web.dto.study.response.StudyMemberResponseDTO;
 import com.example.spot.web.dto.study.response.StudyPostResponseDTO;
 import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO;
+import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO.StudyScheduleDTO;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,8 +60,8 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     private final MemberRepository memberRepository;
     private final MemberStudyRepository memberStudyRepository;
     private final PreferredStudyRepository preferredStudyRepository;
-
     private final StudyPostRepository studyPostRepository;
+    private final ScheduleRepository scheduleRepository;
 
     // 관심사 관련 조회
     private final ThemeRepository themeRepository;
@@ -277,8 +280,14 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
     @Override
     public StudyScheduleResponseDTO findStudySchedule(Long studyId, Pageable pageable) {
+        List<Schedule> schedules = scheduleRepository.findAllByStudyId(studyId, pageable);
+        List<StudyScheduleDTO> scheduleDTOS = schedules.stream().map(schedule -> StudyScheduleDTO.builder()
+            .title(schedule.getTitle())
+            .location(schedule.getLocation())
+            .staredAt(schedule.getStaredAt())
+            .build()).toList();
 
-        return null;
+        return new StudyScheduleResponseDTO(new PageImpl<>(scheduleDTOS, pageable, schedules.size()), scheduleDTOS, schedules.size());
     }
 
     @Override

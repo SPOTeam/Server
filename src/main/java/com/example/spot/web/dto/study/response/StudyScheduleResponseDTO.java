@@ -39,9 +39,7 @@ public class StudyScheduleResponseDTO {
     public static class StudyScheduleDTO{
         private LocalDateTime staredAt;
         private String title;
-        private String province;
-        private String district;
-        private String neighborhood;
+        private String location;
     }
 
 }
