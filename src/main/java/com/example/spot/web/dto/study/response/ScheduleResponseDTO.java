@@ -33,5 +33,11 @@ public class ScheduleResponseDTO {
         }
     }
 
-
+    //@Getter
+    //@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    //@Builder(access = AccessLevel.PRIVATE)
+    //public class MonthlyScheduleDTO {
+//
+    //    private
+    //}
 }

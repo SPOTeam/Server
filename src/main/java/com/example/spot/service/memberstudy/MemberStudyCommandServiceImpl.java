@@ -98,7 +98,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
                 .startedAt(scheduleRequestDTO.getStartedAt())
                 .finishedAt(scheduleRequestDTO.getFinishedAt())
                 .isAllDay(scheduleRequestDTO.getIsAllDay())
-                .isIterated(scheduleRequestDTO.getIsIterated())
+                .period(scheduleRequestDTO.getPeriod())
                 .build();
 
         study.addSchedule(schedule);

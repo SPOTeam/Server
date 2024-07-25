@@ -1,5 +1,6 @@
 package com.example.spot.domain.study;
 import com.example.spot.domain.common.BaseEntity;
+import com.example.spot.domain.enums.Period;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -40,21 +41,22 @@ public class Schedule extends BaseEntity {
     @Column(nullable = false, columnDefinition = "BIT DEFAULT 0")
     private Boolean isAllDay;
 
-    @Column(nullable = false, columnDefinition = "BIT DEFAULT 0")
-    private Boolean isIterated;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Period period;
 
 /* ----------------------------- 생성자 ------------------------------------- */
 
     @Builder
     public Schedule(String title, String location,
                     LocalDateTime staredAt, LocalDateTime finishedAt,
-                    Boolean isAllDay, Boolean isIterated) {
+                    Boolean isAllDay, Period period) {
         this.title = title;
         this.location = location;
         this.startedAt = staredAt;
         this.finishedAt = finishedAt;
         this.isAllDay = isAllDay;
-        this.isIterated = isIterated;
+        this.period = period;
     }
 
 }
