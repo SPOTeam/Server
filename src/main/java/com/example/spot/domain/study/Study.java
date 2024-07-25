@@ -58,8 +58,8 @@ public class Study extends BaseEntity {
     @Column(nullable = false)
     private Boolean isOnline;
 
-    @Column(nullable = false)
-    private Integer heartCount;
+    @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 0")
+    private Long heartCount;
 
     @Column(nullable = false)
     private String goal;
@@ -106,21 +106,22 @@ public class Study extends BaseEntity {
     protected Study() {}
 
     @Builder
-    public Study(Gender gender, Integer minAge, Integer maxAge, Integer fee, boolean hasFee,
-                    Boolean isOnline, String goal, String introduction, Integer heartCount,
-                    String title, Long maxPeople) {
+    public Study(Gender gender, Integer minAge, Integer maxAge, Integer fee,
+                 String profileImage, boolean hasFee,
+                 Boolean isOnline, String goal, String introduction,
+                 String title, Long maxPeople) {
         this.gender = gender;
         this.minAge = minAge;
         this.maxAge = maxAge;
         this.fee = fee;
-        this.studyState = StudyState.BEFORE;
+        this.profileImage = profileImage;
+        this.studyState = StudyState.RECRUITING;
         this.isOnline = isOnline;
-        this.heartCount = 0;
+        this.heartCount = 0L;
         this.hasFee = hasFee;
         this.goal = goal;
         this.introduction = introduction;
         this.title = title;
-        this.heartCount = heartCount;
         this.status = Status.ON;
         this.hitNum = 0L;
         this.maxPeople = maxPeople;
@@ -132,7 +133,6 @@ public class Study extends BaseEntity {
         this.regionStudies = new ArrayList<>();
 
     }
-
 
 /* ----------------------------- 연관관계 메소드 ------------------------------------- */
 
@@ -149,5 +149,10 @@ public class Study extends BaseEntity {
     public void addStudyTheme(StudyTheme studyTheme) {
         studyThemes.add(studyTheme);
         studyTheme.setStudy(this);
+    }
+
+    public void addSchedule(Schedule schedule) {
+        schedules.add(schedule);
+        schedule.setStudy(this);
     }
 }

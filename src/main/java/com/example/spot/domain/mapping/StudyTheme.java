@@ -48,7 +48,4 @@ public class StudyTheme {
         this.study = study;
     }
 
-    public void setStudy(Study study) {
-        this.study = study;
-    }
 }

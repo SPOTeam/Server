@@ -36,8 +36,5 @@ public class PreferredRegion {
     @JoinColumn(name = "region_id", nullable = false)
     private Region region;
 
-    public void setMember(Member member) {
-        this.member = member;
-    }
 
 }

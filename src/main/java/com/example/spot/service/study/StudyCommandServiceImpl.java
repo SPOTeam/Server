@@ -77,7 +77,7 @@ public class StudyCommandServiceImpl implements StudyCommandService {
         return StudyJoinResponseDTO.JoinDTO.toDTO(member, study);
     }
 
-    // [스터디 생성/참여] 참여 신청하기
+    // [스터디 생성/참여] 스터디 생성하기
     @Transactional
     public StudyRegisterResponseDTO.RegisterDTO registerStudy(Long memberId, StudyRegisterRequestDTO.RegisterDTO studyRegisterRequestDTO) {
 
@@ -89,7 +89,9 @@ public class StudyCommandServiceImpl implements StudyCommandService {
                 .minAge(studyRegisterRequestDTO.getMinAge())
                 .maxAge(studyRegisterRequestDTO.getMaxAge())
                 .fee(studyRegisterRequestDTO.getFee())
+                .profileImage(studyRegisterRequestDTO.getProfileImage())
                 .isOnline(studyRegisterRequestDTO.getIsOnline())
+                .hasFee(studyRegisterRequestDTO.isHasFee())
                 .goal(studyRegisterRequestDTO.getGoal())
                 .introduction(studyRegisterRequestDTO.getIntroduction())
                 .title(studyRegisterRequestDTO.getTitle())

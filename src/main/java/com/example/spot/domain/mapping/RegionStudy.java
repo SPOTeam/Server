@@ -49,7 +49,4 @@ public class RegionStudy extends BaseEntity {
         this.region = region;
     }
 
-    public void setStudy(Study study) {
-        this.study = study;
-    }
 }
