@@ -269,39 +269,6 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return getDTOs(studies, pageable, studies.size(), memberId);
     }
 
-    @Override
-    public StudyPostResponseDTO findStudyAnnouncementPost(Long studyId) {
-        StudyPost studyPost = studyPostRepository.findByStudyIdAndAnnouncementIs(
-            studyId, true).orElseThrow(() -> new GeneralException(ErrorStatus._STUDY_POST_NOT_FOUND));
-
-        return StudyPostResponseDTO.builder()
-            .title(studyPost.getTitle())
-            .content(studyPost.getContent()).build();
-    }
-
-    @Override
-    public StudyScheduleResponseDTO findStudySchedule(Long studyId, Pageable pageable) {
-        List<Schedule> schedules = scheduleRepository.findAllByStudyId(studyId, pageable);
-        List<StudyScheduleDTO> scheduleDTOS = schedules.stream().map(schedule -> StudyScheduleDTO.builder()
-            .title(schedule.getTitle())
-            .location(schedule.getLocation())
-            .staredAt(schedule.getStaredAt())
-            .build()).toList();
-
-        return new StudyScheduleResponseDTO(new PageImpl<>(scheduleDTOS, pageable, schedules.size()), scheduleDTOS, schedules.size());
-    }
-
-    @Override
-    public StudyMemberResponseDTO findStudyMembers(Long studyId, Pageable pageable) {
-        List<MemberStudy> memberStudies = memberStudyRepository.findAllByStudyId(studyId, pageable);
-        List<StudyMemberDTO> memberDTOS = memberStudies.stream().map(memberStudy -> StudyMemberDTO.builder()
-            .memberId(memberStudy.getMember().getId())
-            .nickname(memberStudy.getMember().getName())
-            .profileImage(memberStudy.getMember().getProfileImage())
-            .build()).toList();
-        return new StudyMemberResponseDTO(new PageImpl<>(memberDTOS, pageable, memberStudies.size()), memberDTOS, memberStudies.size());
-    }
-
     private static Map<String, Object> getSearchConditions(SearchRequestStudyDTO request) {
         log.info("request: {}", request.getIsOnline());
         // 검색 조건 맵 생성

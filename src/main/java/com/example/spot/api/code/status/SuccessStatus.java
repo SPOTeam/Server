@@ -48,7 +48,9 @@ public enum SuccessStatus implements BaseCode {
     _STUDY_MEMBER_CREATED(HttpStatus.CREATED, "STUDY4004", "스터디 참여 완료"),
     _STUDY_MEMBER_DELETED(HttpStatus.OK, "STUDY4005", "스터디 탈퇴 완료"),
     _STUDY_TERMINATED(HttpStatus.OK, "STUDY4006", "스터디 종료 완료"),
-    _STUDY_LIKED(HttpStatus.OK, "STUDY4007", "스터디 찜 요청이 정상적 처리 되었습니다.");
+    _STUDY_LIKED(HttpStatus.OK, "STUDY4007", "스터디 찜 요청이 정상적 처리 되었습니다."),
+    _STUDY_SCHEDULE_FOUND(HttpStatus.OK, "STUDY4008", "스터디 일정 조회 완료"),
+    _STUDY_MEMBER_FOUND(HttpStatus.OK, "STUDY4009", "스터디 참여 회원 조회 완료"),;
 
     private final HttpStatus httpStatus;
     private final String code;

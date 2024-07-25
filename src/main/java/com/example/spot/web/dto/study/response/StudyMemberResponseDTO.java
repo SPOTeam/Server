@@ -12,19 +12,11 @@ import org.springframework.data.domain.Page;
 @NoArgsConstructor
 @AllArgsConstructor
 public class StudyMemberResponseDTO {
-    private int totalPages;
     private long totalElements;
-    private boolean first;
-    private boolean last;
-    private int size;
     private List<StudyMemberDTO> members;
 
-    public StudyMemberResponseDTO(Page<?> page, List<StudyMemberDTO> members, long totalElements){
-        this.totalPages = totalElements == 0 ? 1 : (int) Math.ceil((double) totalElements / page.getSize());
-        this.totalElements = totalElements;
-        this.first = page.isFirst();
-        this.last = page.isLast();
-        this.size = page.getSize();
+    public StudyMemberResponseDTO(List<StudyMemberDTO> members){
+        this.totalElements = members.size();
         this.members = members;
     }
 

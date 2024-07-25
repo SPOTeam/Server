@@ -7,9 +7,13 @@ import com.example.spot.service.memberstudy.MemberStudyQueryService;
 import com.example.spot.validation.annotation.ExistStudy;
 import com.example.spot.web.dto.memberstudy.response.StudyTerminationResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyWithdrawalResponseDTO;
+import com.example.spot.web.dto.study.response.StudyMemberResponseDTO;
+import com.example.spot.web.dto.study.response.StudyPostResponseDTO;
+import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "MemberStudy", description = "MemberStudy API(내 스터디 관련 API)")
@@ -96,24 +100,35 @@ public class MemberStudyController {
         study_post의 announced_at이 가장 최근인 공지 1개가 반환됩니다.
         """)
     @GetMapping("/studies/{studyId}/announce")
-    public void getRecentAnnouncement(@PathVariable @ExistStudy Long studyId) {
+    public ApiResponse<StudyPostResponseDTO> getRecentAnnouncement(@PathVariable @ExistStudy Long studyId) {
+        StudyPostResponseDTO studyPostResponseDTO = memberStudyQueryService.findStudyAnnouncementPost(studyId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_FOUND, studyPostResponseDTO);
+
 
     }
 
     @Operation(summary = "[스터디 상세 정보] 다가오는 모임 목록 불러오기", description = """ 
-        ## [스터디 상세 정보] 내 스터디 > 스터디 클릭, 로그인한 회원이 참여하는 특정 스터디의 다가오는 모임 목록을 불러옵니다.
+        ## [스터디 상세 정보] 내 스터디 > 스터디 클릭, 로그인한 회원이 참여하는 특정 스터디의 다가오는 모임 목록을 페이징 조회 합니다.
         현재 시점 이후에 진행되는 모임 일정의 목록을 schedule에서 반환합니다.
         """)
     @GetMapping("/studies/{studyId}/upcoming-schedules")
-    public void getUpcomingSchedules(@PathVariable Long studyId) {
+    public ApiResponse<StudyScheduleResponseDTO> getUpcomingSchedules(
+        @PathVariable @ExistStudy Long studyId,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "1") int size){
+        StudyScheduleResponseDTO studyScheduleResponseDTO = memberStudyQueryService.findStudySchedule(studyId, PageRequest.of(page, size));
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_SCHEDULE_FOUND, studyScheduleResponseDTO);
     }
 
     @Operation(summary = "[스터디 상세 정보] 스터디에 참여하는 회원 목록 불러오기", description = """ 
-        ## [스터디 상세 정보] 로그인한 회원이 참여하는 특정 스터디의 회원 목록을 불러옵니다.
+        ## [스터디 상세 정보] 로그인한 회원이 참여하는 특정 스터디의 회원 목록을 전체 합니다.
         member_study에서 application_status=APPROVED인 회원의 목록(이름, 프로필 사진 포함)이 반환됩니다.
         """)
     @GetMapping("/studies/{studyId}/members")
-    public void getStudyMembers(@PathVariable Long studyId) {
+    public ApiResponse<StudyMemberResponseDTO> getStudyMembers(
+        @PathVariable @ExistStudy Long studyId){
+        StudyMemberResponseDTO studyMemberResponseDTO = memberStudyQueryService.findStudyMembers(studyId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_MEMBER_FOUND, studyMemberResponseDTO);
     }
 
 
