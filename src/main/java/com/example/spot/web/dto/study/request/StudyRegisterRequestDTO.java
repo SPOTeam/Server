@@ -21,6 +21,7 @@ public class StudyRegisterRequestDTO {
         private String goal;
         private String introduction;
         private Boolean isOnline;
+        private String profileImage;
         private List<RegionDTO> regions;
         private Long maxPeople;
         private Gender gender;
