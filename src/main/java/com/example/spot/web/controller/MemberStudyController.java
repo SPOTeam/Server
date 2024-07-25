@@ -6,6 +6,8 @@ import com.example.spot.service.memberstudy.MemberStudyCommandService;
 import com.example.spot.service.memberstudy.MemberStudyQueryService;
 import com.example.spot.web.dto.memberstudy.response.StudyTerminationResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyWithdrawalResponseDTO;
+import com.example.spot.web.dto.study.request.ScheduleRequestDTO;
+import com.example.spot.web.dto.study.response.ScheduleResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -178,7 +180,10 @@ public class MemberStudyController {
         로그인한 회원이 owner인 경우 schedule에 새로운 일정을 등록합니다.
         """)
     @PostMapping("/members/{memberId}/studies/{studyId}/schedules")
-    public void addSchedule(@PathVariable Long memberId, @PathVariable Long studyId) {
+    public ApiResponse<ScheduleResponseDTO.ScheduleDTO> addSchedule(@PathVariable Long memberId, @PathVariable Long studyId,
+                                                       @RequestBody ScheduleRequestDTO.ScheduleDTO scheduleRequestDTO) {
+        ScheduleResponseDTO.ScheduleDTO scheduleResponseDTO = memberStudyCommandService.addSchedule(memberId, studyId, scheduleRequestDTO);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_SCHEDULE_CREATED, scheduleResponseDTO);
     }
 
 
