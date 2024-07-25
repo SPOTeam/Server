@@ -1,0 +1,12 @@
+package com.example.spot.web.dto.user;
+
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+public record KakaoUserProfile(
+        String nickname,
+        String profileImageUrl,
+        String accountEmail
+) {
+}
