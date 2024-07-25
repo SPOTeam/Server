@@ -4,6 +4,9 @@ import com.example.spot.domain.enums.StudySortBy;
 import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.web.dto.search.SearchRequestDTO.SearchRequestStudyDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.StudyPreviewDTO;
+import com.example.spot.web.dto.study.response.StudyMemberResponseDTO;
+import com.example.spot.web.dto.study.response.StudyPostResponseDTO;
+import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO;
 import org.springframework.data.domain.Pageable;
 
 public interface StudyQueryService {
@@ -48,5 +51,14 @@ public interface StudyQueryService {
 
     // 내가 모집중인 스터디 조회
     StudyPreviewDTO findMyRecruitingStudies(Pageable pageable, Long memberId);
+
+    // 스터디 공지 게시글 불러오기
+    StudyPostResponseDTO findStudyPost(Long studyId);
+
+    // 스터디 다가오는 모임 일정 불러오기
+    StudyScheduleResponseDTO findStudySchedule(Long studyId, Pageable pageable);
+
+    // 참여하는 회원 목록 불러오기
+    StudyMemberResponseDTO findStudyMembers(Long studyId, Pageable pageable);
 
 }

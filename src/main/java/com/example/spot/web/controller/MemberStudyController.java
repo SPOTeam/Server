@@ -4,6 +4,7 @@ import com.example.spot.api.ApiResponse;
 import com.example.spot.api.code.status.SuccessStatus;
 import com.example.spot.service.memberstudy.MemberStudyCommandService;
 import com.example.spot.service.memberstudy.MemberStudyQueryService;
+import com.example.spot.validation.annotation.ExistStudy;
 import com.example.spot.web.dto.memberstudy.response.StudyTerminationResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyWithdrawalResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -48,7 +49,7 @@ public class MemberStudyController {
         로그인한 회원이 운영하는 특정 스터디에 대해 study 정보를 수정합니다.
         """)
     @PatchMapping("/studies/{studyId}")
-    public void updateStudy(@PathVariable Long studyId) {
+    public void updateStudy(@PathVariable @ExistStudy Long studyId) {
     }
 
 /* ----------------------------- 모집중인 스터디 관련 API ------------------------------------- */
@@ -95,7 +96,8 @@ public class MemberStudyController {
         study_post의 announced_at이 가장 최근인 공지 1개가 반환됩니다.
         """)
     @GetMapping("/studies/{studyId}/announce")
-    public void getRecentAnnouncement(@PathVariable Long studyId) {
+    public void getRecentAnnouncement(@PathVariable @ExistStudy Long studyId) {
+
     }
 
     @Operation(summary = "[스터디 상세 정보] 다가오는 모임 목록 불러오기", description = """ 
