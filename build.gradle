@@ -4,6 +4,10 @@ plugins {
     id 'io.spring.dependency-management' version '1.1.5'
 }
 
+ext {
+    springCloudVersion = "2023.0.3"
+}
+
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
 
@@ -45,15 +49,20 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
     implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
-
     // QueryDSL
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
     annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
-
     // ModelMapper
     implementation 'org.modelmapper:modelmapper:2.4.4'
+    // Feign
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.0.3'
+    // Spring Cloud Config
+    implementation 'org.springframework.cloud:spring-cloud-starter-config'
+
+
+
 
 }
 
@@ -64,6 +73,12 @@ tasks.named('test') {
 def querydslSrcDir = 'src/main/generated'
 clean {
     delete file(querydslSrcDir)
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
 }
 tasks.withType(JavaCompile) {
     options.generatedSourceOutputDirectory = file(querydslSrcDir)
