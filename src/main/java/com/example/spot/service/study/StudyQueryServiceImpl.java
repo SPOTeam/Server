@@ -34,6 +34,7 @@ import com.example.spot.web.dto.search.SearchResponseDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.SearchStudyDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.StudyPreviewDTO;
 import com.example.spot.web.dto.study.response.StudyMemberResponseDTO;
+import com.example.spot.web.dto.study.response.StudyMemberResponseDTO.StudyMemberDTO;
 import com.example.spot.web.dto.study.response.StudyPostResponseDTO;
 import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO;
 import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO.StudyScheduleDTO;
@@ -292,7 +293,13 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
     @Override
     public StudyMemberResponseDTO findStudyMembers(Long studyId, Pageable pageable) {
-        return null;
+        List<MemberStudy> memberStudies = memberStudyRepository.findAllByStudyId(studyId, pageable);
+        List<StudyMemberDTO> memberDTOS = memberStudies.stream().map(memberStudy -> StudyMemberDTO.builder()
+            .memberId(memberStudy.getMember().getId())
+            .nickname(memberStudy.getMember().getName())
+            .profileImage(memberStudy.getMember().getProfileImage())
+            .build()).toList();
+        return new StudyMemberResponseDTO(new PageImpl<>(memberDTOS, pageable, memberStudies.size()), memberDTOS, memberStudies.size());
     }
 
     private static Map<String, Object> getSearchConditions(SearchRequestStudyDTO request) {
