@@ -5,6 +5,7 @@ import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.api.exception.handler.PostHandler;
 import com.example.spot.domain.Member;
 import com.example.spot.domain.Post;
+import com.example.spot.domain.enums.Board;
 import com.example.spot.repository.MemberRepository;
 import com.example.spot.repository.PostRepository;
 import com.example.spot.web.dto.post.PostCreateRequest;
@@ -34,6 +35,11 @@ public class PostCommandServiceImpl implements PostCommandService {
         // 회원 정보 가져오기
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        // 공지"SPOT_ANNOUNCEMENT" 게시글은 관리자만 생성 가능
+        if (postCreateRequest.getType() == Board.SPOT_ANNOUNCEMENT && !member.getIsAdmin()) {
+            throw new PostHandler(ErrorStatus._FORBIDDEN); // 관리자만 접근 가능
+        }
 
         // Post 객체 생성 및 연관 관계 설정
         Post post = createPostEntity(postCreateRequest, member);
