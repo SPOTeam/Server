@@ -2,10 +2,12 @@ package com.example.spot.web.dto.post;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
 
+@Builder
 @Getter
 @AllArgsConstructor
 public class PostPagingResponse {

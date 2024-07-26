@@ -69,7 +69,8 @@ public class PostController {
             @RequestParam(required = false, defaultValue = "0") int pageNumber
     ) {
         Pageable pageable = PageRequest.of(pageNumber, PAGE_SIZE);
-        return null;
+        PostPagingResponse response = postQueryService.getPagingPosts(type, pageable);
+        return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
     @Operation(
