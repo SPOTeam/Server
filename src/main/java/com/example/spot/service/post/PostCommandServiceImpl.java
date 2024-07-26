@@ -10,6 +10,7 @@ import com.example.spot.repository.MemberRepository;
 import com.example.spot.repository.PostRepository;
 import com.example.spot.web.dto.post.PostCreateRequest;
 import com.example.spot.web.dto.post.PostCreateResponse;
+import com.example.spot.web.dto.post.PostUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,10 +28,6 @@ public class PostCommandServiceImpl implements PostCommandService {
 
         // ToDo 임시 Mock data, 추후에 시큐리티를 통해 Member 추출
         Long memberId = 0L;
-
-        /*
-        유저 정보를 Controller에서 받을 거면 @UserPrincipal로 받으실 건지, 아니면 SecurityUtil에서 현재 토큰으로 접근한 사용자에 대한 정보를 꺼내실건지 궁금합니다.
-         */
 
         // 회원 정보 가져오기
         Member member = memberRepository.findById(memberId)
@@ -65,6 +62,37 @@ public class PostCommandServiceImpl implements PostCommandService {
 
     @Transactional
     @Override
+    public PostCreateResponse updatePost(Long postId, PostUpdateRequest postUpdateRequest) {
+        // ToDo 임시 Mock data, 추후에 시큐리티를 통해 Member 추출
+        Long memberId = 0L;
+
+        // 회원 정보 가져오기
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        // 게시글 조회
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostHandler(ErrorStatus._POST_NOT_FOUND));
+
+        // 현재 멤버와 게시글 작성자 일치 여부 확인
+        if (!post.getMember().getId().equals(member.getId())) {
+            throw new PostHandler(ErrorStatus._POST_NOT_AUTHOR);
+        }
+
+        // 공지"SPOT_ANNOUNCEMENT" 게시글은 관리자만 가능
+        if (postUpdateRequest.getType() == Board.SPOT_ANNOUNCEMENT && !member.getIsAdmin()) {
+            throw new PostHandler(ErrorStatus._FORBIDDEN);
+        }
+
+        post.edit(postUpdateRequest);
+        //ToDo 사진 수정 추가 구현 예정
+
+        return PostCreateResponse.toDTO(post, member.getIsAdmin());
+    }
+
+
+    @Transactional
+    @Override
     public void deletePost(Long postId) {
         // ToDo 임시 Mock data, 추후에 시큐리티를 통해 Member 추출
         Long memberId = 0L;
@@ -78,7 +106,7 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .orElseThrow(() -> new PostHandler(ErrorStatus._POST_NOT_FOUND));
 
         // 현재 멤버와 게시글 작성자 일치 여부 확인
-        if (!post.getMember().getId().equals(memberId)) {
+        if (!post.getMember().getId().equals(member.getId())) {
             throw new PostHandler(ErrorStatus._POST_NOT_AUTHOR); // 권한 없음을 나타내는 에러 처리
         }
         // 게시글 삭제

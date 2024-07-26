@@ -34,7 +34,9 @@ public class PostController {
             security = @SecurityRequirement(name = "accessToken")
     )
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<PostCreateResponse> create(@ModelAttribute PostCreateRequest postCreateRequest) {
+    public ApiResponse<PostCreateResponse> create(
+            @ModelAttribute PostCreateRequest postCreateRequest
+    ) {
         PostCreateResponse response = postCommandService.createPost(postCreateRequest);
         return ApiResponse.onSuccess(SuccessStatus._CREATED, response);
     }
@@ -119,8 +121,8 @@ public class PostController {
             description = "게시글 Id를 받아 게시글을 수정합니다.",
             security = @SecurityRequirement(name = "accessToken")
     )
-    @PutMapping("/{postId}")
-    public void update(
+    @PatchMapping("/{postId}")
+    public ApiResponse<PostCreateResponse> update(
             @Parameter(
                     description = "수정할 게시글의 ID입니다.",
                     schema = @Schema(type = "integer", format = "int64")
@@ -129,12 +131,11 @@ public class PostController {
             @Parameter(
                     description = "수정할 게시글 데이터입니다."
             )
-            @RequestBody PostUpdateRequest postUpdateRequest
+            @ModelAttribute PostUpdateRequest postUpdateRequest
     ) {
-        //메서드
+        PostCreateResponse response = postCommandService.updatePost(postId, postUpdateRequest);
+        return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
-
-
 
     @Operation(summary = "게시글 삭제 API", description = "게시글 Id를 받아 게시글을 삭제합니다.")
     @DeleteMapping("/{postId}")
@@ -149,7 +150,5 @@ public class PostController {
         return ApiResponse.onSuccess(SuccessStatus._NO_CONTENT);
 
     }
-
-
 
 }

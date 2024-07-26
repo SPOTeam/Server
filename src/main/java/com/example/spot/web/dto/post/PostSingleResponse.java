@@ -107,13 +107,13 @@ public class PostSingleResponse {
                 .writer(writerName)
                 .writtenTime(post.getCreatedAt())
                 .scrapCount(post.getMemberScrapList().size())
-                //.fileUrls(post.getPostImageList().stream().map(PostImage::getUrl).collect(Collectors.toList()))
+                //.fileUrls(post.getPostImageList().stream().map(PostImage::getUrl).toList())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .likeCount(post.getLikeNum())
                 .commentCount(post.getPostCommentList().size())
                 .viewCount(post.getHitNum())
-                .commentResponses(post.getPostCommentList().stream().map(CommentResponse::toDTO).collect(Collectors.toList()))
+                .commentResponses(post.getPostCommentList().stream().map(CommentResponse::toDTO).toList())
                 .build();
     }
 }
