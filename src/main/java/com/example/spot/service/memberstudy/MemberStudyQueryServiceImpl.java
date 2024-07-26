@@ -10,6 +10,7 @@ import com.example.spot.repository.MemberStudyRepository;
 import com.example.spot.repository.ScheduleRepository;
 import com.example.spot.repository.StudyPostRepository;
 import com.example.spot.web.dto.study.response.StudyMemberResponseDTO;
+import com.example.spot.web.dto.study.response.StudyMemberResponseDTO.StudyApplyMemberDTO;
 import com.example.spot.web.dto.study.response.StudyMemberResponseDTO.StudyMemberDTO;
 import com.example.spot.web.dto.study.response.StudyPostResponseDTO;
 import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO;
@@ -68,6 +69,30 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
         return new StudyMemberResponseDTO(memberDTOS);
     }
 
+    @Override
+    public StudyMemberResponseDTO findStudyApplicants(Long studyId) {
+        List<MemberStudy> memberStudies = memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPLIED);
+        if (memberStudies.isEmpty())
+            throw new GeneralException(ErrorStatus._STUDY_APPLICANT_NOT_FOUND);
+        List<StudyMemberDTO> memberDTOS = memberStudies.stream().map(memberStudy -> StudyMemberDTO.builder()
+            .memberId(memberStudy.getMember().getId())
+            .nickname(memberStudy.getMember().getName())
+            .profileImage(memberStudy.getMember().getProfileImage())
+            .build()).toList();
+        return new StudyMemberResponseDTO(memberDTOS);
+    }
+
+    @Override
+    public StudyApplyMemberDTO findStudyApplication(Long studyId, Long memberId) {
+        MemberStudy memberStudy = memberStudyRepository.findByMemberIdAndStudyId(memberId, studyId)
+            .orElseThrow(() -> new GeneralException(ErrorStatus._STUDY_APPLICANT_NOT_FOUND));
+        return StudyApplyMemberDTO.builder()
+            .memberId(memberStudy.getMember().getId())
+            .introduction(memberStudy.getIntroduction())
+            .nickname(memberStudy.getMember().getName())
+            .profileImage(memberStudy.getMember().getProfileImage())
+            .build();
+    }
 
 
 }

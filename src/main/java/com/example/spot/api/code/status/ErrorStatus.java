@@ -33,6 +33,7 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_OWNER_CANNOT_WITHDRAW(HttpStatus.FORBIDDEN, "STUDY4006", "스터디장은 스터디를 탈퇴할 수 없습니다."),
     _STUDY_NOT_RECRUITING(HttpStatus.BAD_REQUEST, "STUDY4007", "스터디 모집기한이 아닙니다."),
     _STUDY_SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY4008", "스터디 일정을 찾을 수 없습니다."),
+    _STUDY_APPLICANT_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY4009", "스터디 신청자를 찾을 수 없습니다."),
 
     //스터디 게시물 관련 에러
     _STUDY_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST4001", "스터디 게시글을 찾을 수 없습니다."),

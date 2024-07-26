@@ -29,4 +29,15 @@ public class StudyMemberResponseDTO {
         private String nickname;
         private String profileImage;
     }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class StudyApplyMemberDTO{
+        private Long memberId;
+        private String nickname;
+        private String profileImage;
+        private String introduction;
+    }
 }
