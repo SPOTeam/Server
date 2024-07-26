@@ -76,8 +76,6 @@ public class StudyController {
     public ApiResponse<StudyLikeResponseDTO> likeStudy(
         @PathVariable("studyId") @ExistStudy Long studyId,
         @PathVariable("memberId") @ExistMember Long memberId) {
-        System.out.println("studyId = " + studyId);
-        System.out.println("memberId = " + memberId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_LIKED, studyCommandService.likeStudy(memberId, studyId));
     }
 }
