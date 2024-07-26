@@ -84,8 +84,10 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
 
         if (isAccept)
             memberStudy.setStatus(ApplicationStatus.APPROVED);
-        else
+        else {
             memberStudy.setStatus(ApplicationStatus.REJECTED);
+            memberStudyRepository.delete(memberStudy);
+        }
 
         return StudyApplyResponseDTO.builder()
             .status(memberStudy.getStatus())

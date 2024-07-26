@@ -42,9 +42,6 @@ public class PreferredStudy extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private StudyLikeStatus studyLikeStatus;
 
-
-
-
     // ------------------------------
     public void changeStatus(StudyLikeStatus status) {
         this.studyLikeStatus = status;
