@@ -44,15 +44,15 @@ public class PostCommandServiceImpl implements PostCommandService {
     private Post createPostEntity(PostCreateRequest postCreateRequest, Member currentMember) {
 
         return Post.builder()
-                .isAnonymous(false) // 필요에 따라 설정
+                .isAnonymous(false)
                 .title(postCreateRequest.getTitle())
                 .content(postCreateRequest.getContent())
-                .hit(0)
+                .scrapNum(0)
                 .likeNum(0)
                 .commentNum(0)
                 .hitNum(0)
                 .board(postCreateRequest.getType())
-                .member(currentMember) // 연관 관계 설정
+                .member(currentMember)
                 .build();
     }
 

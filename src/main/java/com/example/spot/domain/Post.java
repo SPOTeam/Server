@@ -29,7 +29,7 @@ public class Post extends BaseEntity {
 
     private String content;
 
-    private int hit;
+    private int scrapNum;
 
     private int likeNum;
 
