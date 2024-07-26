@@ -3,6 +3,7 @@ package com.example.spot.web.controller;
 import com.example.spot.api.ApiResponse;
 import com.example.spot.api.code.status.SuccessStatus;
 import com.example.spot.service.post.PostCommandService;
+import com.example.spot.service.post.PostQueryService;
 import com.example.spot.web.dto.post.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 public class PostController {
     
     private final PostCommandService postCommandService;
+    private final PostQueryService postQueryService;
     
 
     private final static int PAGE_SIZE = 10; //페이지당 개수
@@ -50,7 +52,8 @@ public class PostController {
             )
             @PathVariable Long postId
     ) {
-       return null;
+        PostSingleResponse response = postQueryService.getPostById(postId);
+        return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
     @Operation(

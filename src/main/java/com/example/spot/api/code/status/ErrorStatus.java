@@ -61,7 +61,7 @@ public enum ErrorStatus implements BaseErrorCode {
     _POST_TITLE_INVALID(HttpStatus.BAD_REQUEST, "POST5002", "게시글 제목이 유효하지 않습니다."),
     _POST_CONTENT_INVALID(HttpStatus.BAD_REQUEST, "POST5003", "게시글 내용이 유효하지 않습니다."),
     _POST_NOT_AUTHOR(HttpStatus.BAD_REQUEST, "POST5004", "게시글 작성자가 아닙니다."),
-
+    _POST_REPORTED(HttpStatus.FORBIDDEN, "POST5005", "신고된 게시글입니다."),
     ;
 
 
