@@ -31,7 +31,6 @@ public class StudyScheduleResponseDTO {
         this.schedules = schedules;
     }
 
-
     @Builder
     @Getter
     @NoArgsConstructor

@@ -8,19 +8,23 @@ import com.example.spot.validation.annotation.ExistMember;
 import com.example.spot.validation.annotation.ExistStudy;
 import com.example.spot.web.dto.memberstudy.response.StudyTerminationResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyWithdrawalResponseDTO;
+import com.example.spot.web.dto.study.response.StudyApplyResponseDTO;
 import com.example.spot.web.dto.study.response.StudyMemberResponseDTO;
 import com.example.spot.web.dto.study.response.StudyPostResponseDTO;
 import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "MemberStudy", description = "MemberStudy API(내 스터디 관련 API)")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/spot")
+@Validated
 public class MemberStudyController {
 
     private final MemberStudyQueryService memberStudyQueryService;
@@ -65,6 +69,7 @@ public class MemberStudyController {
         로그인한 회원이 모집중인 특정 스터디에 대해 member_study의 application_status가 APPLIED인 회원 목록이 반환됩니다.
         """)
     @GetMapping("/studies/{studyId}/applicants")
+    @Parameter(name = "studyId", description = "모집중인 스터디의 ID를 입력 받습니다.", required = true)
     public ApiResponse<StudyMemberResponseDTO> getAllApplicants(@PathVariable @ExistStudy Long studyId) {
         return ApiResponse.onSuccess(SuccessStatus._STUDY_APPLICANT_FOUND,
             memberStudyQueryService.findStudyApplicants(studyId));
@@ -75,6 +80,8 @@ public class MemberStudyController {
         로그인한 회원이 모집중인 특정 스터디에 신청한 회원의 정보(member.name & member_study.introduction)가 반환됩니다.
         """)
     @GetMapping("/studies/{studyId}/applicants/{applicantId}")
+    @Parameter(name = "studyId", description = "모집중인 스터디의 ID를 입력 받습니다.", required = true)
+    @Parameter(name = "applicantId", description = "신청자의 ID를 입력 받습니다.", required = true)
     public ApiResponse<StudyMemberResponseDTO.StudyApplyMemberDTO> getApplicantInfo(
         @PathVariable @ExistStudy Long studyId,
         @PathVariable @ExistMember Long applicantId) {
@@ -82,22 +89,22 @@ public class MemberStudyController {
             memberStudyQueryService.findStudyApplication(studyId, applicantId));
     }
 
-    @Operation(summary = "[모집중인 스터디] 스터디 신청 거절하기", description = """ 
-        ## [모집중인 스터디] 마이페이지 > 모집중 > 스터디 > 신청 회원 > 거절 클릭, 로그인한 회원이 모집중인 스터디에 신청한 회원을 거절합니다.
-        로그인한 회원이 모집중인 특정 스터디에 신청한 회원을 member_study에서 삭제합니다.
+    @Operation(summary = "[모집중인 스터디] 스터디 신청 처리하기", description = """ 
+        ## [모집중인 스터디] 마이페이지 > 모집중 > 스터디 > 신청 회원 > 거절 클릭, 로그인한 회원이 모집중인 스터디에 신청한 회원을 처리합니다.
+        isAccept가 true인 경우 member_study에서 application_status를 APPROVE로 수정합니다.
+        isAccept가 false인 경우 member_study에서 application_status를 REJECTED로 수정합니다.
+        스터디 신청 처리 결과를 응답으로 반환합니다. 
         """)
-    @DeleteMapping("/studies/{studyId}/applicants/{applicantId}")
-    public void rejectApplicant(@PathVariable Long studyId, @PathVariable Long applicantId) {
+    @PostMapping("/studies/{studyId}/applicants/{applicantId}")
+    @Parameter(name = "studyId", description = "모집중인 스터디의 ID를 입력 받습니다.", required = true)
+    @Parameter(name = "applicantId", description = "신청자의 ID를 입력 받습니다.", required = true)
+    public ApiResponse<StudyApplyResponseDTO> rejectApplicant(
+        @PathVariable @ExistStudy Long studyId,
+        @PathVariable @ExistMember Long applicantId,
+        @RequestParam boolean isAccept) {
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_APPLICANT_UPDATED,
+            memberStudyCommandService.acceptAndRejectStudyApply(applicantId, studyId, isAccept));
     }
-
-    @Operation(summary = "[모집중인 스터디] 스터디 신청 수락하기", description = """ 
-        ## [모집중인 스터디] 마이페이지 > 모집중 > 스터디 > 신청 회원 > 수락 클릭, 로그인한 회원이 모집중인 스터디에 신청한 회원을 수락합니다.
-        로그인한 회원이 모집중인 특정 스터디에 신청한 회원의 application_status를 APPROVED로 수정합니다.
-        """)
-    @PatchMapping("/studies/{studyId}/applicants/{applicantId}")
-    public void acceptApplicant(@PathVariable Long studyId, @PathVariable Long applicantId) {
-    }
-
 
 
 /* ----------------------------- 스터디 상세 정보 관련 API ------------------------------------- */

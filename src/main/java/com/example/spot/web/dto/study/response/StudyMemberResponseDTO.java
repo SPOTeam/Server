@@ -36,6 +36,7 @@ public class StudyMemberResponseDTO {
     @AllArgsConstructor
     public static class StudyApplyMemberDTO{
         private Long memberId;
+        private Long studyId;
         private String nickname;
         private String profileImage;
         private String introduction;

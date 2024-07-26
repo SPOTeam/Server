@@ -51,7 +51,8 @@ public enum SuccessStatus implements BaseCode {
     _STUDY_LIKED(HttpStatus.OK, "STUDY4007", "스터디 찜 요청이 정상적 처리 되었습니다."),
     _STUDY_SCHEDULE_FOUND(HttpStatus.OK, "STUDY4008", "스터디 일정 조회 완료"),
     _STUDY_MEMBER_FOUND(HttpStatus.OK, "STUDY4009", "스터디 참여 회원 조회 완료"),
-    _STUDY_APPLICANT_FOUND(HttpStatus.OK, "STUDY4010", "스터디 신청자 조회 완료");
+    _STUDY_APPLICANT_FOUND(HttpStatus.OK, "STUDY4010", "스터디 신청자 조회 완료"),
+    _STUDY_APPLICANT_UPDATED(HttpStatus.OK, "STUDY4011", "스터디 신청 처리 완료"),;
 
     private final HttpStatus httpStatus;
     private final String code;
