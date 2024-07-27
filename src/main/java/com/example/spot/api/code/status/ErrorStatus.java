@@ -65,13 +65,22 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_IS_NOT_MATCH(HttpStatus.BAD_REQUEST, "STUDY6010", "입력한 조건에 맞는 스터디가 존재하지 않습니다."),
 
 
+    // S3 관련 에러
+    _FILE_IS_NULL(HttpStatus.BAD_REQUEST, "S34001", "파일이 입력되지 않았습니다."),
+    _IO_EXCEPTION(HttpStatus.BAD_REQUEST, "S34002", "IO 오류가 발생했습니다."),
+    _BAD_FILE_EXTENTION(HttpStatus.BAD_REQUEST, "S34003", "잘못된 확장자입니다."),
+    _PUT_OBJECT_EXCEPTION(HttpStatus.BAD_REQUEST, "S34004", "이미지 업로드하는 과정에서 오류가 발생했습니다."),
+
+
     //게시글 관련 에러
     _POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST5001", "게시글을 찾을 수 없습니다."),
     _POST_TITLE_INVALID(HttpStatus.BAD_REQUEST, "POST5002", "게시글 제목이 유효하지 않습니다."),
     _POST_CONTENT_INVALID(HttpStatus.BAD_REQUEST, "POST5003", "게시글 내용이 유효하지 않습니다."),
     _POST_NOT_AUTHOR(HttpStatus.BAD_REQUEST, "POST5004", "게시글 작성자가 아닙니다."),
     _POST_REPORTED(HttpStatus.FORBIDDEN, "POST5005", "신고된 게시글입니다."),
-    _INVALID_BOARD_TYPE(HttpStatus.BAD_REQUEST, "POST5006", "유효하지 않은 게시판 타입입니다.");
+    _INVALID_BOARD_TYPE(HttpStatus.BAD_REQUEST, "POST5006", "유효하지 않은 게시판 타입입니다.")
+
+    ;
 
     private final HttpStatus httpStatus;
     private final String code;
