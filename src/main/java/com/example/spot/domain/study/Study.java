@@ -163,4 +163,15 @@ public class Study extends BaseEntity {
         studyThemes.add(studyTheme);
         studyTheme.setStudy(this);
     }
+
+    public void addPreferredStudy(PreferredStudy preferredStudy) {
+        preferredStudies.add(preferredStudy);
+        preferredStudy.changeStudy(this);
+        this.heartCount++;
+    }
+
+    // preferredStudy 삭제
+    public void deletePreferredStudy(PreferredStudy preferredStudy) {
+        this.heartCount--;
+    }
 }

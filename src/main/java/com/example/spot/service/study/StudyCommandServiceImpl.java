@@ -136,8 +136,10 @@ public class StudyCommandServiceImpl implements StudyCommandService {
         // 상태에 따라 변경
         if (preferredStudy.getStudyLikeStatus() == StudyLikeStatus.LIKE) {
             preferredStudy.changeStatus(StudyLikeStatus.DISLIKE);
+            study.deletePreferredStudy(preferredStudy);
         } else {
             preferredStudy.changeStatus(StudyLikeStatus.LIKE);
+            study.addPreferredStudy(preferredStudy);
         }
         // 저장 및 응답 객체 생성
         preferredStudyRepository.save(preferredStudy);
