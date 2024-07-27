@@ -18,12 +18,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PostCreateResponse {
-    @Schema(
-            description = "생성된 게시글에 첨부된 이미지 파일 리스트. 파일 형식은 binary이며, " +
-                    "지원되는 이미지 형식은 JPEG, PNG입니다. 크기는 10MB 이하로만 가능합니다.",
-            format = "binary"
-    )
-    private List<MultipartFile> files;
 
     @Schema(description = "게시글 ID", example = "1")
     private Long id;
@@ -79,9 +73,6 @@ public class PostCreateResponse {
                 .commentNum(post.getCommentNum())
                 .hitNum(post.getHitNum())
                 .type(post.getBoard().name())
-//                .files(post.getPostImageList().stream()
-//                        .map(PostImage::getImageUrl)
-//                        .collect(Collectors.toList()))
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
                 .build();

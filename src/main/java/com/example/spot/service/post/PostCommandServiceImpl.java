@@ -26,9 +26,6 @@ public class PostCommandServiceImpl implements PostCommandService {
     @Override
     public PostCreateResponse createPost(Long memberId, PostCreateRequest postCreateRequest) {
 
-        // 임시 Mock data, 추후에 시큐리티를 통해 Member 추출
-        //Long memberId = 0L;
-
         // 회원 정보 가져오기
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
@@ -63,8 +60,6 @@ public class PostCommandServiceImpl implements PostCommandService {
     @Transactional
     @Override
     public PostCreateResponse updatePost(Long memberId, Long postId, PostUpdateRequest postUpdateRequest) {
-        // 임시 Mock data, 추후에 시큐리티를 통해 Member 추출
-        //Long memberId = 0L;
 
         // 회원 정보 가져오기
         Member member = memberRepository.findById(memberId)
@@ -85,7 +80,6 @@ public class PostCommandServiceImpl implements PostCommandService {
         }
 
         post.edit(postUpdateRequest);
-        //ToDo 사진 수정 추가 구현 예정
 
         return PostCreateResponse.toDTO(post, member.getIsAdmin());
     }

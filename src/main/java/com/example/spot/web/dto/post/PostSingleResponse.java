@@ -16,10 +16,6 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class PostSingleResponse {
 
-    @Schema(
-            description = "게시글 타입입니다. 아래와 같이 작성해주세요.",
-            allowableValues = {"ALL", "PASS_EXPERIENCE", "INFORMATION_SHARING", "COUNSELING", "JOB_TALK", "FREE_TALK", "SPOT_ANNOUNCEMENT"}
-    )
     private String type;
 
     @Schema(
@@ -107,7 +103,6 @@ public class PostSingleResponse {
                 .writer(writerName)
                 .writtenTime(post.getCreatedAt())
                 .scrapCount(post.getMemberScrapList().size())
-                //.fileUrls(post.getPostImageList().stream().map(PostImage::getUrl).toList())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .likeCount(post.getLikeNum())

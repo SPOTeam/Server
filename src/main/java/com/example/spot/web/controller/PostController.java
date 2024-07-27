@@ -33,7 +33,7 @@ public class PostController {
             description = "form/data로 새로운 게시글을 생성합니다.",
             security = @SecurityRequirement(name = "accessToken")
     )
-    @PostMapping(value = "/{memberId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/{memberId}")
     public ApiResponse<PostCreateResponse> create(
             @PathVariable Long memberId,
             @ModelAttribute PostCreateRequest postCreateRequest
