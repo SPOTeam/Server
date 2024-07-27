@@ -4,8 +4,8 @@ import com.example.spot.api.ApiResponse;
 import com.example.spot.api.code.status.SuccessStatus;
 import com.example.spot.web.dto.notification.NotificationRequestDTO;
 import com.example.spot.web.dto.notification.NotificationResponseDTO;
-import com.example.spot.web.service.notification.NotificationCommandService;
-import com.example.spot.web.service.notification.NotificationQueryService;
+import com.example.spot.service.notification.NotificationCommandService;
+import com.example.spot.service.notification.NotificationQueryService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

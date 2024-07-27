@@ -88,6 +88,9 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             .toList();
         List<Study> studies = studyRepository.findByStudyTheme(studyThemes);
 
+        if (studies.isEmpty())
+            throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
+
         return getDTOs(studies, Pageable.unpaged(), studies.size(), memberId);
     }
 
@@ -111,6 +114,9 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         List<Study> studies = studyRepository.findStudyByConditionsAndThemeTypes(
             conditions, sortBy,
             pageable, studyThemes);
+
+        if (studies.isEmpty())
+            throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
 
         return getDTOs(studies, pageable, totalElements, memberId);
     }
@@ -142,6 +148,9 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         List<Study> studies = studyRepository.findStudyByConditionsAndThemeTypes(
             conditions, sortBy, pageable, studyThemes);
 
+        if (studies.isEmpty())
+            throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
+
         return getDTOs(studies, pageable, totalElements, memberId);
     }
 
@@ -167,6 +176,9 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             conditions, sortBy,
             pageable, regionStudies);
 
+        if (studies.isEmpty())
+            throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
+
         return getDTOs(studies, pageable, totalElements, memberId);
     }
 
@@ -180,7 +192,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             .toList();
 
         if (regions.stream().noneMatch(region -> region.getCode().equals(regionCode)))
-            throw new StudyHandler(ErrorStatus._BAD_REQUEST);
+            throw new StudyHandler(ErrorStatus._STUDY_REGION_IS_NOT_MATCH);
 
         Region region = findRegionByCode(regions, regionCode);
 
@@ -195,6 +207,9 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         List<Study> studies = studyRepository.findStudyByConditionsAndRegionStudies(
             conditions, sortBy, pageable, regionStudies);
 
+        if (studies.isEmpty())
+            throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
+
         return getDTOs(studies, pageable, totalElements, memberId);
     }
 
@@ -206,7 +221,12 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         List<Study> studies = studyRepository.findStudyByConditions(conditions,
             sortBy, pageable);
 
+        if (studies.isEmpty())
+            throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
+
         long totalElements = studyRepository.countStudyByConditions(conditions, sortBy);
+
+
 
         return getDTOs(studies, pageable, totalElements, null);
     }
@@ -218,6 +238,9 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             .map(PreferredStudy::getStudy)
             .toList();
 
+        if (studies.isEmpty())
+            throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
+
         return getDTOs(studies, Pageable.unpaged(), studies.size(), memberId);
     }
 
@@ -225,6 +248,9 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     public StudyPreviewDTO findStudiesByKeyword(Pageable pageable,
         String keyword, StudySortBy sortBy) {
         List<Study> studies = studyRepository.findAllByTitleContaining(keyword, sortBy, pageable);
+
+        if (studies.isEmpty())
+            throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
 
         long totalElements = studyRepository.countAllByTitleContaining(keyword, sortBy);
         return getDTOs(studies, pageable, totalElements, null);
@@ -239,6 +265,9 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
         List<Study> studies = studyRepository.findByStudyTheme(studyThemes, sortBy, pageable);
 
+        if (studies.isEmpty())
+            throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
+
 
         long totalElements = studyRepository.countStudyByStudyTheme(studyThemes, sortBy);
         return getDTOs(studies, pageable, totalElements, null);
@@ -247,8 +276,11 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     @Override
     public StudyPreviewDTO findOngoingStudiesByMemberId(Pageable pageable, Long memberId) {
         List<MemberStudy> memberStudies = memberStudyRepository.findAllByMemberIdAndStatus(
-            memberId, ApplicationStatus.ONGOING);
+            memberId, ApplicationStatus.APPROVED);
         List<Study> studies = studyRepository.findByMemberStudy(memberStudies, pageable);
+
+        if (studies.isEmpty())
+            throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
 
         return getDTOs(studies, pageable, studies.size(), memberId);
     }
@@ -258,6 +290,10 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         List<MemberStudy> memberStudies = memberStudyRepository.findAllByMemberIdAndStatus(
             memberId, ApplicationStatus.APPLIED);
         List<Study> studies = studyRepository.findByMemberStudy(memberStudies, pageable);
+
+        if (studies.isEmpty())
+            throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
+
         return getDTOs(studies, pageable, studies.size(), memberId);
     }
 
@@ -266,6 +302,10 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         List<MemberStudy> memberStudies = memberStudyRepository.findAllByMemberIdAndIsOwned(memberId, true);
 
         List<Study> studies = studyRepository.findRecruitingStudiesByMemberStudy(memberStudies, pageable);
+
+        if (studies.isEmpty())
+            throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
+
         return getDTOs(studies, pageable, studies.size(), memberId);
     }
 
