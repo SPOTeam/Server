@@ -24,10 +24,10 @@ public class PostCommandServiceImpl implements PostCommandService {
 
     @Transactional
     @Override
-    public PostCreateResponse createPost(PostCreateRequest postCreateRequest) {
+    public PostCreateResponse createPost(Long memberId, PostCreateRequest postCreateRequest) {
 
-        // ToDo 임시 Mock data, 추후에 시큐리티를 통해 Member 추출
-        Long memberId = 0L;
+        // 임시 Mock data, 추후에 시큐리티를 통해 Member 추출
+        //Long memberId = 0L;
 
         // 회원 정보 가져오기
         Member member = memberRepository.findById(memberId)
@@ -62,9 +62,9 @@ public class PostCommandServiceImpl implements PostCommandService {
 
     @Transactional
     @Override
-    public PostCreateResponse updatePost(Long postId, PostUpdateRequest postUpdateRequest) {
-        // ToDo 임시 Mock data, 추후에 시큐리티를 통해 Member 추출
-        Long memberId = 0L;
+    public PostCreateResponse updatePost(Long memberId, Long postId, PostUpdateRequest postUpdateRequest) {
+        // 임시 Mock data, 추후에 시큐리티를 통해 Member 추출
+        //Long memberId = 0L;
 
         // 회원 정보 가져오기
         Member member = memberRepository.findById(memberId)
@@ -93,9 +93,9 @@ public class PostCommandServiceImpl implements PostCommandService {
 
     @Transactional
     @Override
-    public void deletePost(Long postId) {
-        // ToDo 임시 Mock data, 추후에 시큐리티를 통해 Member 추출
-        Long memberId = 0L;
+    public void deletePost(Long memberId, Long postId) {
+        // 임시 Mock data, 추후에 시큐리티를 통해 Member 추출
+        //Long memberId = 0L;
 
         // 회원 정보 가져오기
         Member member = memberRepository.findById(memberId)

@@ -8,12 +8,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface PostCommandService {
 
-    PostCreateResponse createPost(PostCreateRequest postCreateRequest);
+    PostCreateResponse createPost(Long memberId, PostCreateRequest postCreateRequest);
 
-    @Transactional
-    void deletePost(Long postId);
+    void deletePost(Long memberId, Long postId);
 
-    @Transactional
-    PostCreateResponse updatePost(Long postId, PostUpdateRequest postUpdateRequest);
+    PostCreateResponse updatePost(Long memberId, Long postId, PostUpdateRequest postUpdateRequest);
 
 }

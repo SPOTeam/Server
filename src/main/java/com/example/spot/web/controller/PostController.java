@@ -33,11 +33,12 @@ public class PostController {
             description = "form/data로 새로운 게시글을 생성합니다.",
             security = @SecurityRequirement(name = "accessToken")
     )
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/{memberId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<PostCreateResponse> create(
+            @PathVariable Long memberId,
             @ModelAttribute PostCreateRequest postCreateRequest
     ) {
-        PostCreateResponse response = postCommandService.createPost(postCreateRequest);
+        PostCreateResponse response = postCommandService.createPost(memberId, postCreateRequest);
         return ApiResponse.onSuccess(SuccessStatus._CREATED, response);
     }
 
@@ -121,8 +122,9 @@ public class PostController {
             description = "게시글 Id를 받아 게시글을 수정합니다.",
             security = @SecurityRequirement(name = "accessToken")
     )
-    @PatchMapping("/{postId}")
+    @PatchMapping("/{memberId}/{postId}")
     public ApiResponse<PostCreateResponse> update(
+            @PathVariable Long memberId,
             @Parameter(
                     description = "수정할 게시글의 ID입니다.",
                     schema = @Schema(type = "integer", format = "int64")
@@ -133,20 +135,21 @@ public class PostController {
             )
             @ModelAttribute PostUpdateRequest postUpdateRequest
     ) {
-        PostCreateResponse response = postCommandService.updatePost(postId, postUpdateRequest);
+        PostCreateResponse response = postCommandService.updatePost(memberId, postId, postUpdateRequest);
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
     @Operation(summary = "게시글 삭제 API", description = "게시글 Id를 받아 게시글을 삭제합니다.")
-    @DeleteMapping("/{postId}")
+    @DeleteMapping("/{memberId}/{postId}")
     public ApiResponse<Void> delete(
+            @PathVariable Long memberId,
             @Parameter(
                     description = "삭제할 게시글의 ID입니다.",
                     schema = @Schema(type = "integer", format = "int64")
             )
             @PathVariable Long postId
     ) {
-        postCommandService.deletePost(postId);
+        postCommandService.deletePost(memberId, postId);
         return ApiResponse.onSuccess(SuccessStatus._NO_CONTENT);
 
     }
