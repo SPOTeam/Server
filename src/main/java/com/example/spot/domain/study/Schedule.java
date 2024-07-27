@@ -1,9 +1,12 @@
 package com.example.spot.domain.study;
 import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.enums.Period;
+import com.example.spot.web.dto.study.request.ScheduleRequestDTO;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Objects;
 
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
@@ -57,6 +60,17 @@ public class Schedule extends BaseEntity {
         this.finishedAt = finishedAt;
         this.isAllDay = isAllDay;
         this.period = period;
+    }
+
+/* ----------------------------- 메소드 ------------------------------------- */
+
+    public void modSchedule(ScheduleRequestDTO.ScheduleDTO scheduleDTO) {
+        this.title = scheduleDTO.getTitle();
+        this.location = scheduleDTO.getLocation();
+        this.startedAt = scheduleDTO.getStartedAt();
+        this.finishedAt = scheduleDTO.getFinishedAt();
+        this.isAllDay = scheduleDTO.getIsAllDay();
+        this.period = scheduleDTO.getPeriod();
     }
 
 }

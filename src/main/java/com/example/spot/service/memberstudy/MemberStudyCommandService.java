@@ -11,5 +11,7 @@ public interface MemberStudyCommandService {
 
     StudyTerminationResponseDTO.TerminationDTO terminateStudy(Long studyId);
 
-    ScheduleResponseDTO.ScheduleDTO addSchedule(Long memberId, Long studyId, ScheduleRequestDTO.ScheduleDTO scheduleRequestDTO);
+    ScheduleResponseDTO.ScheduleDTO addSchedule(Long studyId, ScheduleRequestDTO.ScheduleDTO scheduleRequestDTO);
+
+    ScheduleResponseDTO.ScheduleDTO modSchedule(Long studyId, Long scheduleId, ScheduleRequestDTO.ScheduleDTO scheduleModDTO);
 }

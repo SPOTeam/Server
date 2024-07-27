@@ -77,21 +77,14 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
 /* ----------------------------- 스터디 일정 관련 API ------------------------------------- */
 
     @Transactional
-    public ScheduleResponseDTO.ScheduleDTO addSchedule(Long memberId, Long studyId, ScheduleRequestDTO.ScheduleDTO scheduleRequestDTO) {
+    @Override
+    public ScheduleResponseDTO.ScheduleDTO addSchedule(Long studyId, ScheduleRequestDTO.ScheduleDTO scheduleRequestDTO) {
 
         //=== Exception ===//
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
-
         Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
 
-        memberStudyRepository.findByMemberIdAndStudyId(memberId, studyId)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
-
-
         //=== Feature ===//
-
         Schedule schedule = Schedule.builder()
                 .title(scheduleRequestDTO.getLocation())
                 .location(scheduleRequestDTO.getLocation())
@@ -102,6 +95,28 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
                 .build();
 
         study.addSchedule(schedule);
+        scheduleRepository.save(schedule);
+
+        return ScheduleResponseDTO.ScheduleDTO.toDTO(schedule);
+    }
+
+    @Transactional
+    @Override
+    public ScheduleResponseDTO.ScheduleDTO modSchedule(Long studyId, Long scheduleId, ScheduleRequestDTO.ScheduleDTO scheduleModDTO) {
+
+        //=== Exception ===//
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+
+        Schedule schedule = scheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_SCHEDULE_NOT_FOUND));
+
+        scheduleRepository.findByIdAndStudyId(scheduleId, studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_SCHEDULE_NOT_FOUND));
+
+        //=== Feature ===//
+        schedule.modSchedule(scheduleModDTO);
+        study.updateSchedule(schedule);
         scheduleRepository.save(schedule);
 
         return ScheduleResponseDTO.ScheduleDTO.toDTO(schedule);

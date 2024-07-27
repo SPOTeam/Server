@@ -155,4 +155,8 @@ public class Study extends BaseEntity {
         schedules.add(schedule);
         schedule.setStudy(this);
     }
+
+    public void updateSchedule(Schedule schedule) {
+        schedules.set(schedules.indexOf(schedule), schedule);
+    }
 }

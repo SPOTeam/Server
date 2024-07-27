@@ -179,16 +179,37 @@ public class MemberStudyController {
         return ApiResponse.onSuccess(SuccessStatus._STUDY_SCHEDULE_FOUND, monthlyScheduleDTO);
     }
 
+    @Operation(summary = "[스터디 일정] 상세 일정 불러오기", description = """ 
+        ## [스터디 일정] 내 스터디 > 스터디 > 캘린더 > 일정 클릭, 로그인한 회원이 참여하는 특정 스터디의 상세 일정을 불러옵니다.
+        스터디의 일정 정보를 상세하게 불러옵니다.
+        """)
+    @GetMapping("/studies/{studyId}/schedules/{scheduleId}")
+    public ApiResponse<ScheduleResponseDTO.MonthlyScheduleDTO> getSchedule(@PathVariable Long studyId, @PathVariable Long scheduleId) {
+        ScheduleResponseDTO.MonthlyScheduleDTO scheduleDTO = memberStudyQueryService.getSchedule(studyId, scheduleId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_SCHEDULE_FOUND, scheduleDTO);
+    }
+
     @Operation(summary = "[스터디 일정] 일정 추가하기", description = """ 
         ## [스터디 일정] 내 스터디 > 스터디 > 캘린더 > 추가 버튼 클릭, 로그인한 회원이 운영하는 특정 스터디에 일정을 추가합니다.
         로그인한 회원이 owner인 경우 schedule에 새로운 일정을 등록합니다.
         """)
-    @PostMapping("/members/{memberId}/studies/{studyId}/schedules")
-    public ApiResponse<ScheduleResponseDTO.ScheduleDTO> addSchedule(@PathVariable Long memberId, @PathVariable Long studyId,
-                                                       @RequestBody ScheduleRequestDTO.ScheduleDTO scheduleRequestDTO) {
-        ScheduleResponseDTO.ScheduleDTO scheduleResponseDTO = memberStudyCommandService.addSchedule(memberId, studyId, scheduleRequestDTO);
+    @PostMapping("/studies/{studyId}/schedules")
+    public ApiResponse<ScheduleResponseDTO.ScheduleDTO> addSchedule(@PathVariable Long studyId, @RequestBody ScheduleRequestDTO.ScheduleDTO scheduleRequestDTO) {
+        ScheduleResponseDTO.ScheduleDTO scheduleResponseDTO = memberStudyCommandService.addSchedule(studyId, scheduleRequestDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_SCHEDULE_CREATED, scheduleResponseDTO);
     }
+
+    @Operation(summary = "[스터디 일정] 일정 변경하기", description = """ 
+        ## [스터디 일정] 내 스터디 > 스터디 > 캘린더 > 일정 클릭, 로그인한 회원이 특정 스터디에 등록한 일정을 수정합니다.
+        로그인한 회원이 owner인 경우 schedule에 등록한 일정을 수정할 수 있습니다.
+        """)
+    @PatchMapping("/studies/{studyId}/schedules/{scheduleId}")
+    public ApiResponse<ScheduleResponseDTO.ScheduleDTO> modSchedule(@PathVariable Long studyId, @PathVariable Long scheduleId, @RequestBody ScheduleRequestDTO.ScheduleDTO scheduleModDTO) {
+        ScheduleResponseDTO.ScheduleDTO scheduleResponseDTO = memberStudyCommandService.modSchedule(studyId, scheduleId, scheduleModDTO);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_SCHEDULE_UPDATED, scheduleResponseDTO);
+    }
+
+
 
 
 /* ----------------------------- 스터디 게시글 관련 API ------------------------------------- */

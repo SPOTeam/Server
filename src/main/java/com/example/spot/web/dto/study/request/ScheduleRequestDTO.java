@@ -23,4 +23,5 @@ public class ScheduleRequestDTO {
         private Boolean isAllDay; // 종일 진행 여부
         private Period period; // 반복 일정 여부
     }
+
 }

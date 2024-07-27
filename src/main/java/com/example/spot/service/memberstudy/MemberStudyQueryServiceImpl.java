@@ -5,6 +5,7 @@ import com.example.spot.api.exception.handler.StudyHandler;
 import com.example.spot.domain.enums.Period;
 import com.example.spot.domain.study.Schedule;
 import com.example.spot.domain.study.Study;
+import com.example.spot.repository.ScheduleRepository;
 import com.example.spot.repository.StudyRepository;
 import com.example.spot.web.dto.study.response.ScheduleResponseDTO;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,9 @@ import java.util.List;
 public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 
     private final StudyRepository studyRepository;
+    private final ScheduleRepository scheduleRepository;
 
+    @Override
     public ScheduleResponseDTO.MonthlyScheduleListDTO getMonthlySchedules(Long studyId, int year, int month) {
 
         Study study = studyRepository.findById(studyId)
@@ -41,6 +44,26 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
                 });
 
         return ScheduleResponseDTO.MonthlyScheduleListDTO.toDTO(study, monthlyScheduleDTOS);
+    }
+
+    @Override
+    public ScheduleResponseDTO.MonthlyScheduleDTO getSchedule(Long studyId, Long scheduleId) {
+
+        // Exception
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+
+        Schedule schedule = scheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_SCHEDULE_NOT_FOUND));
+
+        List<Schedule> scheduleList = scheduleRepository.findByStudyId(studyId).stream()
+                .filter(studySchedule -> studySchedule.getStudy().equals(study))
+                .toList();
+        if (scheduleList.isEmpty()) {
+            throw new StudyHandler(ErrorStatus._STUDY_SCHEDULE_NOT_FOUND);
+        }
+
+        return ScheduleResponseDTO.MonthlyScheduleDTO.toDTO(schedule);
     }
 
     private void addSchedule(Schedule schedule, int year, int month, List<ScheduleResponseDTO.MonthlyScheduleDTO> monthlyScheduleDTOS) {
