@@ -58,8 +58,15 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_REGION_IS_NULL(HttpStatus.BAD_REQUEST, "STUDY6005", "스터디 지역이 입력되지 않았습니다."),
     _STUDY_SORT_BY_IS_NULL(HttpStatus.BAD_REQUEST, "STUDY6006", "스터디 정렬 기준이 입력되지 않았습니다."),
     _STUDY_SORT_BY_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY6007", "스터디 정렬 기준을 찾을 수 없습니다."),
-    _STUDY_ID_NULL(HttpStatus.BAD_REQUEST, "STUDY6008", "스터디 아이디가 입력되지 않았습니다."),;
+    _STUDY_ID_NULL(HttpStatus.BAD_REQUEST, "STUDY6008", "스터디 아이디가 입력되지 않았습니다."),
 
+
+    // S3 관련 에러
+    _FILE_IS_NULL(HttpStatus.BAD_REQUEST, "S34001", "파일이 입력되지 않았습니다."),
+    _IO_EXCEPTION(HttpStatus.BAD_REQUEST, "S34002", "IO 오류가 발생했습니다."),
+    _BAD_FILE_EXTENTION(HttpStatus.BAD_REQUEST, "S34003", "잘못된 확장자입니다."),
+    _PUT_OBJECT_EXCEPTION(HttpStatus.BAD_REQUEST, "S34004", "이미지 업로드하는 과정에서 오류가 발생했습니다."),
+    ;
 
 
     private final HttpStatus httpStatus;
