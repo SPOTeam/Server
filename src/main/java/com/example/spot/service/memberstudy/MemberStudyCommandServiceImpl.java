@@ -1,6 +1,7 @@
 package com.example.spot.service.memberstudy;
 
 import com.example.spot.api.code.status.ErrorStatus;
+import com.example.spot.api.exception.GeneralException;
 import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.api.exception.handler.StudyHandler;
 import com.example.spot.domain.Member;
@@ -13,6 +14,8 @@ import com.example.spot.repository.MemberStudyRepository;
 import com.example.spot.repository.StudyRepository;
 import com.example.spot.web.dto.memberstudy.response.StudyTerminationResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyWithdrawalResponseDTO;
+import com.example.spot.web.dto.study.response.StudyApplyResponseDTO;
+import com.example.spot.web.dto.study.response.StudyMemberResponseDTO.StudyApplyMemberDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class MemberStudyCommandServiceImpl implements MemberStudyCommandService {
 
     private final MemberRepository memberRepository;
@@ -66,5 +70,28 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         studyRepository.save(study);
 
         return StudyTerminationResponseDTO.TerminationDTO.toDTO(study);
+    }
+
+    @Override
+    public StudyApplyResponseDTO acceptAndRejectStudyApply(Long memberId, Long studyId,
+        boolean isAccept) {
+
+        MemberStudy memberStudy = memberStudyRepository.findByMemberIdAndStudyId(memberId, studyId)
+            .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_APPLICANT_NOT_FOUND));
+
+        if (memberStudy.getStatus() != ApplicationStatus.APPLIED)
+            throw new GeneralException(ErrorStatus._STUDY_APPLY_ALREADY_PROCESSED);
+
+        if (isAccept)
+            memberStudy.setStatus(ApplicationStatus.APPROVED);
+        else {
+            memberStudy.setStatus(ApplicationStatus.REJECTED);
+            memberStudyRepository.delete(memberStudy);
+        }
+
+        return StudyApplyResponseDTO.builder()
+            .status(memberStudy.getStatus())
+            .updatedAt(memberStudy.getUpdatedAt())
+            .build();
     }
 }

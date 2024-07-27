@@ -48,6 +48,9 @@ public class Member extends BaseEntity {
     @Column(nullable = false)
     private LocalDate birth;
 
+    @Column(nullable = false, length = 50)
+    private String profileImage;
+
     @Column
     private LocalDateTime inactive;
 

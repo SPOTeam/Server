@@ -26,8 +26,11 @@ import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
 @Getter
+@Builder
 @DynamicUpdate
 @DynamicInsert
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Study extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -83,31 +86,36 @@ public class Study extends BaseEntity {
     private Long maxPeople;
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<Schedule> schedules = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<StudyPost> posts = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<Vote> votes = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
-    private List<StudyTheme> studyThemes;
+    @Builder.Default
+    private List<StudyTheme> studyThemes = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
-    private List<MemberStudy> memberStudies;
+    @Builder.Default
+    private List<MemberStudy> memberStudies = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
-    private List<RegionStudy> regionStudies;
+    @Builder.Default
+    private List<RegionStudy> regionStudies = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
-    private List<PreferredStudy> preferredStudies;
+    @Builder.Default
+    private List<PreferredStudy> preferredStudies = new ArrayList<>();
 
 
 
 /* ----------------------------- 생성자 ------------------------------------- */
-
-    protected Study() {}
 
     @Builder
     public Study(Gender gender, Integer minAge, Integer maxAge, Integer fee, boolean hasFee,

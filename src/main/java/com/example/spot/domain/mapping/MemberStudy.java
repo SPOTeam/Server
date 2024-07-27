@@ -20,6 +20,7 @@ public class MemberStudy extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
+    @Setter
     private ApplicationStatus status;
 
     @Column(nullable = false, columnDefinition = "BIT DEFAULT 0")

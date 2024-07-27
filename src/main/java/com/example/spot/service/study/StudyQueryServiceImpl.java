@@ -1,6 +1,7 @@
 package com.example.spot.service.study;
 
 import com.example.spot.api.code.status.ErrorStatus;
+import com.example.spot.api.exception.GeneralException;
 import com.example.spot.api.exception.handler.StudyHandler;
 import com.example.spot.domain.Region;
 import com.example.spot.domain.Theme;
@@ -13,7 +14,9 @@ import com.example.spot.domain.mapping.PreferredRegion;
 import com.example.spot.domain.mapping.PreferredStudy;
 import com.example.spot.domain.mapping.RegionStudy;
 import com.example.spot.domain.mapping.StudyTheme;
+import com.example.spot.domain.study.Schedule;
 import com.example.spot.domain.study.Study;
+import com.example.spot.domain.study.StudyPost;
 import com.example.spot.repository.MemberRepository;
 import com.example.spot.repository.MemberStudyRepository;
 import com.example.spot.repository.MemberThemeRepository;
@@ -21,6 +24,8 @@ import com.example.spot.repository.PreferredRegionRepository;
 import com.example.spot.repository.PreferredStudyRepository;
 import com.example.spot.repository.RegionRepository;
 import com.example.spot.repository.RegionStudyRepository;
+import com.example.spot.repository.ScheduleRepository;
+import com.example.spot.repository.StudyPostRepository;
 import com.example.spot.repository.StudyRepository;
 import com.example.spot.repository.StudyThemeRepository;
 import com.example.spot.repository.ThemeRepository;
@@ -28,6 +33,11 @@ import com.example.spot.web.dto.search.SearchRequestDTO.SearchRequestStudyDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.SearchStudyDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.StudyPreviewDTO;
+import com.example.spot.web.dto.study.response.StudyMemberResponseDTO;
+import com.example.spot.web.dto.study.response.StudyMemberResponseDTO.StudyMemberDTO;
+import com.example.spot.web.dto.study.response.StudyPostResponseDTO;
+import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO;
+import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO.StudyScheduleDTO;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +61,8 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     private final MemberRepository memberRepository;
     private final MemberStudyRepository memberStudyRepository;
     private final PreferredStudyRepository preferredStudyRepository;
+    private final StudyPostRepository studyPostRepository;
+    private final ScheduleRepository scheduleRepository;
 
     // 관심사 관련 조회
     private final ThemeRepository themeRepository;
