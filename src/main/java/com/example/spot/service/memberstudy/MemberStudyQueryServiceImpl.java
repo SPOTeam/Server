@@ -84,7 +84,7 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 
     @Override
     public StudyApplyMemberDTO findStudyApplication(Long studyId, Long memberId) {
-        MemberStudy memberStudy = memberStudyRepository.findByMemberIdAndStudyId(memberId, studyId)
+        MemberStudy memberStudy = memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPLIED)
             .orElseThrow(() -> new GeneralException(ErrorStatus._STUDY_APPLICANT_NOT_FOUND));
 
         if (memberStudy.getIsOwned())
