@@ -13,6 +13,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Tag(name = "MemberStudy", description = "MemberStudy API(내 스터디 관련 API)")
 @RestController
 @RequiredArgsConstructor
@@ -172,7 +174,9 @@ public class MemberStudyController {
         캘린더를 넘기면 해당 연/월에 해당하는 일정 목록이 schedule에서 반환됩니다.
         """)
     @GetMapping("/studies/{studyId}/schedules")
-    public void getMonthlySchedules(@PathVariable Long studyId) {
+    public ApiResponse<ScheduleResponseDTO.MonthlyScheduleListDTO> getMonthlySchedules(@PathVariable Long studyId, @RequestParam Integer year, @RequestParam Integer month) {
+        ScheduleResponseDTO.MonthlyScheduleListDTO monthlyScheduleDTO = memberStudyQueryService.getMonthlySchedules(studyId, year, month);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_SCHEDULE_FOUND, monthlyScheduleDTO);
     }
 
     @Operation(summary = "[스터디 일정] 일정 추가하기", description = """ 
