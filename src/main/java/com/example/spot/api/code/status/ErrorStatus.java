@@ -35,6 +35,8 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY4008", "스터디 일정을 찾을 수 없습니다."),
     _STUDY_APPLICANT_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY4009", "처리를 기다리는 스터디 신청을 찾을 수 없습니다."),
     _STUDY_APPLY_ALREADY_PROCESSED(HttpStatus.BAD_REQUEST, "STUDY4010","스터디 신청이 이미 처리된 회원입니다."),
+    _STUDY_OWNER_CANNOT_APPLY(HttpStatus.BAD_REQUEST, "STUDY4011", "스터디장은 스터디에 신청할 수 없습니다."),
+    _STUDY_IS_FULL(HttpStatus.BAD_REQUEST, "STUDY4012", "스터디 인원이 가득 찼습니다."),
 
     //스터디 게시물 관련 에러
     _STUDY_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST4001", "스터디 게시글을 찾을 수 없습니다."),

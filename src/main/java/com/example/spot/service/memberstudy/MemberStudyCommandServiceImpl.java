@@ -79,6 +79,9 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         MemberStudy memberStudy = memberStudyRepository.findByMemberIdAndStudyId(memberId, studyId)
             .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_APPLICANT_NOT_FOUND));
 
+        if (memberStudy.getIsOwned())
+            throw new GeneralException(ErrorStatus._STUDY_OWNER_CANNOT_APPLY);
+
         if (memberStudy.getStatus() != ApplicationStatus.APPLIED)
             throw new GeneralException(ErrorStatus._STUDY_APPLY_ALREADY_PROCESSED);
 
