@@ -15,4 +15,13 @@ public class StudyQuizRequestDTO {
         private String question;
         private String answer;
     }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class AttendanceDTO {
+
+        private Long memberId;
+        private String answer;
+    }
 }
