@@ -53,18 +53,27 @@ public class StudyCommandServiceImpl implements StudyCommandService {
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
 
         // 모집중이지 않은 스터디에 신청할 수 없음
-        if (study.getStudyState() != StudyState.RECRUITING) {
+        if (study.getStudyState() != StudyState.RECRUITING)
             throw new StudyHandler(ErrorStatus._STUDY_NOT_RECRUITING);
-        }
+
+        if (study.getMaxPeople() <= memberStudyRepository.countByStatusAndStudyId(ApplicationStatus.APPROVED, studyId))
+            throw new StudyHandler(ErrorStatus._STUDY_IS_FULL);
+
 
         // 이미 신청한 스터디에 다시 신청할 수 없음
         List<MemberStudy> memberStudyList = memberStudyRepository.findByMemberId(memberId).stream()
                 .filter(memberStudy -> study.equals(memberStudy.getStudy()))
                 .toList();
 
+        // memberStudy에 내가 소유한 스터디가 있으면 에러 발생
+        if (memberStudyList.stream().anyMatch(MemberStudy::getIsOwned)) {
+            throw new StudyHandler(ErrorStatus._STUDY_OWNER_CANNOT_APPLY);
+        }
+
         if (!memberStudyList.isEmpty()) {
             throw new StudyHandler(ErrorStatus._STUDY_ALREADY_APPLIED);
         }
+
 
         MemberStudy memberStudy = MemberStudy.builder()
                 .isOwned(false)

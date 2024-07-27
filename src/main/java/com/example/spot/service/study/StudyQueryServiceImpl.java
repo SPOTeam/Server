@@ -276,7 +276,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     @Override
     public StudyPreviewDTO findOngoingStudiesByMemberId(Pageable pageable, Long memberId) {
         List<MemberStudy> memberStudies = memberStudyRepository.findAllByMemberIdAndStatus(
-            memberId, ApplicationStatus.ONGOING);
+            memberId, ApplicationStatus.APPROVED);
         List<Study> studies = studyRepository.findByMemberStudy(memberStudies, pageable);
 
         if (studies.isEmpty())
