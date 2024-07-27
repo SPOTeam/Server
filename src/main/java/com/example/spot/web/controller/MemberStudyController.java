@@ -295,7 +295,14 @@ public class MemberStudyController {
         특정 시점의 quiz에 대해 member_attendance 튜플을 추가합니다.
         """)
     @PostMapping("/studies/{studyId}/quizzes/{quizId}")
-    public void attendantStudy(@PathVariable Long studyId, @PathVariable Long quizId) {
+    public ApiResponse<StudyQuizResponseDTO.AttendanceDTO> attendantStudy(@PathVariable Long studyId, @PathVariable Long quizId,
+                                        @RequestBody StudyQuizRequestDTO.AttendanceDTO attendanceRequestDTO) {
+        StudyQuizResponseDTO.AttendanceDTO attendanceResponseDTO = memberStudyCommandService.attendantStudy(studyId, quizId, attendanceRequestDTO);
+        if (attendanceResponseDTO.getIsCorrect()) {
+            return ApiResponse.onSuccess(SuccessStatus._STUDY_ATTENDANCE_CREATED_CORRECT_ANSWER, attendanceResponseDTO);
+        } else {
+            return ApiResponse.onSuccess(SuccessStatus._STUDY_ATTENDANCE_CREATED_WRONG_ANSWER, attendanceResponseDTO);
+        }
     }
 
     @Operation(summary = "[스터디 출석체크] 출석 삭제하기", description = """ 

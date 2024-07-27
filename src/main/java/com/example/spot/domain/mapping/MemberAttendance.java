@@ -16,6 +16,9 @@ public class MemberAttendance extends BaseEntity {
     @Column(nullable = false, unique = true)
     private Long id;
 
+    @Column(nullable = false, columnDefinition = "BIT DEFAULT 0")
+    private Boolean isCorrect;
+
     //== 회원 ==//
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
@@ -27,4 +30,11 @@ public class MemberAttendance extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "quiz_id", nullable = false)
     private Quiz quiz;
+
+/* ----------------------------- 생성자 ------------------------------------- */
+
+    public MemberAttendance(Boolean isCorrect) {
+        this.isCorrect = isCorrect;
+    }
+
 }
