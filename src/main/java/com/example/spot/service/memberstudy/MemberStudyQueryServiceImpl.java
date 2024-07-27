@@ -54,25 +54,28 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
         Duration duration = Duration.between(schedule.getStartedAt(), schedule.getFinishedAt()); // 일정 수행 시간
         DayOfWeek targetDayOfWeek = schedule.getStartedAt().getDayOfWeek(); // 일정을 반복할 요일
         LocalDate firstDayOfMonth = LocalDate.of(year, month, 1); // 탐색 연월의 첫째 날
-        LocalDate newStartedAtDate = firstDayOfMonth.with(TemporalAdjusters.nextOrSame(targetDayOfWeek));
+        LocalDate newStartedAtDate = firstDayOfMonth.with(TemporalAdjusters.nextOrSame(targetDayOfWeek)); // 탐색할 첫 날짜
 
-        // 일정 시작일이 탐색 연월일 이전인 경우에만 반복 수행
-        while (newStartedAtDate.getMonthValue() == month) {
-            LocalDateTime newStartedAt = newStartedAtDate.atStartOfDay().with(schedule.getStartedAt().toLocalTime());
-            LocalDateTime newFinishedAt = newStartedAt.plus(duration);
+        // 일정 시작일이 탐색 연월 내에 있는 경우에만 반복
+        if (schedule.getStartedAt().isBefore(firstDayOfMonth.plusMonths(1).atStartOfDay())) {
+            while (newStartedAtDate.getMonthValue() == month) {
+                LocalDateTime newStartedAt = newStartedAtDate.atStartOfDay().with(schedule.getStartedAt().toLocalTime());
+                LocalDateTime newFinishedAt = newStartedAt.plus(duration);
 
-            monthlyScheduleDTOS.add(ScheduleResponseDTO.MonthlyScheduleDTO.toDTOWithDate(schedule, newStartedAt, newFinishedAt));
+                monthlyScheduleDTOS.add(ScheduleResponseDTO.MonthlyScheduleDTO.toDTOWithDate(schedule, newStartedAt, newFinishedAt));
 
-            if (schedule.getPeriod().equals(Period.DAILY)) {
-                newStartedAtDate = newStartedAtDate.plusDays(1);
-            } else if (schedule.getPeriod().equals(Period.WEEKLY)) {
-                newStartedAtDate = newStartedAtDate.plusWeeks(1);
-            } else if (schedule.getPeriod().equals(Period.BIWEEKLY)) {
-                newStartedAtDate = newStartedAtDate.plusWeeks(2);
-            } else if (schedule.getPeriod().equals(Period.MONTHLY)) {
-                newStartedAtDate = newStartedAtDate.plusMonths(1);
+                if (schedule.getPeriod().equals(Period.DAILY)) {
+                    newStartedAtDate = newStartedAtDate.plusDays(1);
+                } else if (schedule.getPeriod().equals(Period.WEEKLY)) {
+                    newStartedAtDate = newStartedAtDate.plusWeeks(1);
+                } else if (schedule.getPeriod().equals(Period.BIWEEKLY)) {
+                    newStartedAtDate = newStartedAtDate.plusWeeks(2);
+                } else if (schedule.getPeriod().equals(Period.MONTHLY)) {
+                    newStartedAtDate = newStartedAtDate.plusMonths(1);
+                }
             }
         }
+
     }
 
 }
