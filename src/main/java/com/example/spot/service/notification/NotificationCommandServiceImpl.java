@@ -1,4 +1,4 @@
-package com.example.spot.web.service.notification;
+package com.example.spot.service.notification;
 
 import com.example.spot.web.dto.notification.NotificationRequestDTO;
 import lombok.RequiredArgsConstructor;

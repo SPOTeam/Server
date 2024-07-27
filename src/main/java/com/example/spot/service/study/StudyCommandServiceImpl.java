@@ -179,7 +179,7 @@ public class StudyCommandServiceImpl implements StudyCommandService {
                 .forEach(stringRegion -> {
 
                     Region region = regionRepository
-                            .findByProvinceAndDistrictAndNeighborhood(stringRegion.getProvince(), stringRegion.getDistrict(), stringRegion.getNeighborhood())
+                            .findByCode(stringRegion)
                             .orElseThrow(() -> new StudyHandler(ErrorStatus._REGION_NOT_FOUND));
 
                     RegionStudy regionStudy = RegionStudy.builder()
