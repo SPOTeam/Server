@@ -7,8 +7,10 @@ import com.example.spot.domain.Member;
 import com.example.spot.domain.Region;
 import com.example.spot.domain.Theme;
 import com.example.spot.domain.enums.ApplicationStatus;
+import com.example.spot.domain.enums.StudyLikeStatus;
 import com.example.spot.domain.enums.StudyState;
 import com.example.spot.domain.mapping.MemberStudy;
+import com.example.spot.domain.mapping.PreferredStudy;
 import com.example.spot.domain.mapping.RegionStudy;
 import com.example.spot.domain.mapping.StudyTheme;
 import com.example.spot.domain.study.Study;
@@ -16,6 +18,7 @@ import com.example.spot.repository.*;
 import com.example.spot.web.dto.study.request.StudyJoinRequestDTO;
 import com.example.spot.web.dto.study.request.StudyRegisterRequestDTO;
 import com.example.spot.web.dto.study.response.StudyJoinResponseDTO;
+import com.example.spot.web.dto.study.response.StudyLikeResponseDTO;
 import com.example.spot.web.dto.study.response.StudyRegisterResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -35,6 +38,7 @@ public class StudyCommandServiceImpl implements StudyCommandService {
     private final MemberStudyRepository memberStudyRepository;
     private final RegionStudyRepository regionStudyRepository;
     private final StudyThemeRepository studyThemeRepository;
+    private final PreferredStudyRepository preferredStudyRepository;
 
     /* ----------------------------- 스터디 생성/참여 관련 API ------------------------------------- */
 
@@ -90,7 +94,11 @@ public class StudyCommandServiceImpl implements StudyCommandService {
                 .maxAge(studyRegisterRequestDTO.getMaxAge())
                 .fee(studyRegisterRequestDTO.getFee())
                 .isOnline(studyRegisterRequestDTO.getIsOnline())
+                .profileImage(studyRegisterRequestDTO.getProfileImage())
                 .goal(studyRegisterRequestDTO.getGoal())
+                .hitNum(0L)
+                .heartCount(0)
+                .studyState(StudyState.RECRUITING)
                 .introduction(studyRegisterRequestDTO.getIntroduction())
                 .title(studyRegisterRequestDTO.getTitle())
                 .maxPeople(studyRegisterRequestDTO.getMaxPeople())
@@ -105,6 +113,35 @@ public class StudyCommandServiceImpl implements StudyCommandService {
         studyRepository.save(study);
 
         return StudyRegisterResponseDTO.RegisterDTO.toDTO(study);
+    }
+
+    @Override
+    public StudyLikeResponseDTO likeStudy(Long memberId, Long studyId) {
+
+        // 회원과 스터디 조회
+        Study study = studyRepository.findById(studyId)
+            .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        // 현재 좋아요 상태 확인 -> 만약 없다면, 객체 하나 생성
+        PreferredStudy preferredStudy = preferredStudyRepository
+            .findByMemberIdAndStudyId(memberId, studyId)
+            .orElse(PreferredStudy.builder()
+                .member(member)
+                .study(study)
+                .studyLikeStatus(StudyLikeStatus.DISLIKE)
+                .build());
+
+        // 상태에 따라 변경
+        if (preferredStudy.getStudyLikeStatus() == StudyLikeStatus.LIKE) {
+            preferredStudy.changeStatus(StudyLikeStatus.DISLIKE);
+        } else {
+            preferredStudy.changeStatus(StudyLikeStatus.LIKE);
+        }
+        // 저장 및 응답 객체 생성
+        preferredStudyRepository.save(preferredStudy);
+        return new StudyLikeResponseDTO(preferredStudy);
     }
 
     private void createMemberStudy(Member member, Study study) {

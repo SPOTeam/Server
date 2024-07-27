@@ -221,6 +221,8 @@ public class SearchController {
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
     }
 
+    // 내가 모집 중인 스터디 조회
+
     /* ----------------------------- 찜한 스터디 검색  ------------------------------------- */
 
     @GetMapping("/search/studies/liked/members/{memberId}")
