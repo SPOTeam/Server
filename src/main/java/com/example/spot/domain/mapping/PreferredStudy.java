@@ -47,5 +47,9 @@ public class PreferredStudy extends BaseEntity {
         this.studyLikeStatus = status;
     }
 
+    public void changeStudy(Study study) {
+        this.study = study;
+    }
+
 
 }

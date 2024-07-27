@@ -49,7 +49,7 @@ public class StudyController {
     public ApiResponse<StudyJoinResponseDTO.JoinDTO> applyToStudy(@PathVariable Long memberId, @PathVariable Long studyId,
                                                                   @RequestBody StudyJoinRequestDTO.StudyJoinDTO studyJoinRequestDTO) {
         StudyJoinResponseDTO.JoinDTO studyJoinResponseDTO = studyCommandService.applyToStudy(memberId, studyId, studyJoinRequestDTO);
-        return ApiResponse.onSuccess(SuccessStatus._STUDY_MEMBER_CREATED, studyJoinResponseDTO);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_APPLY_COMPLETED, studyJoinResponseDTO);
     }
 
     @Operation(summary = "[스터디 생성/참여] 스터디 등록하기", description = """ 
