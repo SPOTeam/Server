@@ -37,6 +37,9 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_POST_TITLE_INVALID(HttpStatus.BAD_REQUEST, "POST4002", "스터디 게시글 제목이 유효하지 않습니다."),
     _STUDY_POST_CONTENT_INVALID(HttpStatus.BAD_REQUEST, "POST4003", "스터디 게시글 내용이 유효하지 않습니다."),
 
+    //스터디 일정 관련 에러
+    _STUDY_SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "SCHEDULE4001", "스터디 일정을 찾을 수 없습니다."),
+
     //지역 관련 에러
     _REGION_NOT_FOUND(HttpStatus.NOT_FOUND, "REGION4001", "지역을 찾을 수 없습니다."),
 

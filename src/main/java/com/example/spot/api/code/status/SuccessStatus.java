@@ -44,7 +44,8 @@ public enum SuccessStatus implements BaseCode {
 
     // 스터디 일정 관련 응답
     _STUDY_SCHEDULE_CREATED(HttpStatus.CREATED, "SCHEDULE2001", "스터디 일정 생성 완료"),
-    _STUDY_SCHEDULE_FOUND(HttpStatus.OK, "SCHEDULE2002", "스터디 일정 조회 완료")
+    _STUDY_SCHEDULE_FOUND(HttpStatus.OK, "SCHEDULE2002", "스터디 일정 조회 완료"),
+    _STUDY_SCHEDULE_UPDATED(HttpStatus.OK, "SCHEDULE2003", "스터디 일정 수정 완료"),
 
 
     ;
