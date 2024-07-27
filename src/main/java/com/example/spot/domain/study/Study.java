@@ -174,4 +174,9 @@ public class Study extends BaseEntity {
     public void deletePreferredStudy(PreferredStudy preferredStudy) {
         this.heartCount--;
     }
+
+    // hit 증가
+    public void increaseHit() {
+        this.hitNum++;
+    }
 }

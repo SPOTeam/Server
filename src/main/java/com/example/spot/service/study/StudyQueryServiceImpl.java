@@ -180,7 +180,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             .toList();
 
         if (regions.stream().noneMatch(region -> region.getCode().equals(regionCode)))
-            throw new StudyHandler(ErrorStatus._BAD_REQUEST);
+            throw new StudyHandler(ErrorStatus._STUDY_REGION_IS_NOT_MATCH);
 
         Region region = findRegionByCode(regions, regionCode);
 
