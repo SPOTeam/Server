@@ -22,7 +22,7 @@ public class StudyRegisterRequestDTO {
         private String introduction;
         private Boolean isOnline;
         private String profileImage;
-        private List<RegionDTO> regions;
+        private List<String> regions;
         private Long maxPeople;
         private Gender gender;
         private Integer minAge;
