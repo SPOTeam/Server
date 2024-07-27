@@ -1,5 +1,6 @@
 package com.example.spot.domain.study;
 
+import com.example.spot.domain.Quiz;
 import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.enums.Gender;
 import com.example.spot.domain.enums.Status;
@@ -113,7 +114,8 @@ public class Study extends BaseEntity {
     @Builder.Default
     private List<PreferredStudy> preferredStudies = new ArrayList<>();
 
-
+    @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
+    private List<Quiz> quizzes;
 
 /* ----------------------------- 생성자 ------------------------------------- */
 
@@ -178,5 +180,10 @@ public class Study extends BaseEntity {
     // hit 증가
     public void increaseHit() {
         this.hitNum++;
+    }
+
+    public void addQuiz(Quiz quiz) {
+        quizzes.add(quiz);
+        quiz.setStudy(this);
     }
 }

@@ -163,11 +163,20 @@ public class Member extends BaseEntity {
         this.regions.add(preferredRegion);
         preferredRegion.setMember(this); // 양방향 관계 설정
     }
+
     public void addMemberTheme(MemberTheme memberTheme) {
         if (this.memberThemeList == null) {
             this.memberThemeList = new ArrayList<>(); // 재초기화 (안정성 추가)
         }
         this.memberThemeList.add(memberTheme);
         memberTheme.setMember(this); // 양방향 관계 설정
+    }
+
+    public void addMemberAttendance(MemberAttendance memberAttendance) {
+        if (this.memberAttendanceList == null) {
+            this.memberAttendanceList = new ArrayList<>();
+        }
+        this.memberAttendanceList.add(memberAttendance);
+        memberAttendance.setMember(this);
     }
 }
