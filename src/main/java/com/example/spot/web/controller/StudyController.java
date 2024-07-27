@@ -37,7 +37,7 @@ public class StudyController {
         """)
     @GetMapping("/studies/{studyId}")
     public ApiResponse<StudyInfoResponseDTO.StudyInfoDTO> getStudyInfo(@PathVariable Long studyId) {
-//        StudyInfoResponseDTO.StudyInfoDTO studyInfoDTO = studyQueryService.getStudyInfo(studyId);
+       StudyInfoResponseDTO.StudyInfoDTO studyInfoDTO = studyQueryService.getStudyInfo(studyId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, null);
     }
 

@@ -54,6 +54,9 @@ public enum SuccessStatus implements BaseCode {
     _STUDY_APPLICANT_UPDATED(HttpStatus.OK, "STUDY4011", "스터디 신청 처리 완료"),
     _STUDY_APPLY_COMPLETED(HttpStatus.OK, "STUDY4012", "스터디 신청 완료"),
 
+    //스터디 퀴즈 관련
+    _STUDY_QUIZ_CREATED(HttpStatus.CREATED, "QUIZ2001", "스터디 퀴즈 생성 완료"),
+
     // 스터디 일정 관련 응답
     _STUDY_SCHEDULE_CREATED(HttpStatus.CREATED, "SCHEDULE2001", "스터디 일정 생성 완료"),
     _STUDY_SCHEDULE_FOUND(HttpStatus.OK, "SCHEDULE2002", "스터디 일정 조회 완료"),
@@ -61,7 +64,7 @@ public enum SuccessStatus implements BaseCode {
 
 
     ;
-  
+
     private final HttpStatus httpStatus;
     private final String code;
     private final String message;

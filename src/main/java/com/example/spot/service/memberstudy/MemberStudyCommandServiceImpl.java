@@ -14,6 +14,8 @@ import com.example.spot.repository.MemberRepository;
 import com.example.spot.repository.MemberStudyRepository;
 import com.example.spot.repository.ScheduleRepository;
 import com.example.spot.repository.StudyRepository;
+import com.example.spot.web.dto.memberstudy.request.StudyQuizRequestDTO;
+import com.example.spot.web.dto.memberstudy.response.StudyQuizResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyTerminationResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyWithdrawalResponseDTO;
 import com.example.spot.web.dto.study.response.StudyApplyResponseDTO;
@@ -144,5 +146,12 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         scheduleRepository.save(schedule);
 
         return ScheduleResponseDTO.ScheduleDTO.toDTO(schedule);
+    }
+
+/* ----------------------------- 스터디 출석 관련 API ------------------------------------- */
+    // [스터디 출석체크] 출석 퀴즈 생성하기
+    @Override
+    public StudyQuizResponseDTO.QuizDTO createAttendanceQuiz(Long studyId, StudyQuizRequestDTO.QuizDTO quizRequestDTO) {
+        return null;
     }
 }
