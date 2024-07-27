@@ -1,21 +1,15 @@
 package com.example.spot.api.exception;
 
-import com.example.spot.api.code.BaseErrorCode;
-import com.example.spot.api.code.ErrorReasonDTO;
-import lombok.AllArgsConstructor;
+import com.example.spot.api.code.status.ErrorStatus;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
-@AllArgsConstructor
+@Setter
 public class GeneralException extends RuntimeException {
-
-    private BaseErrorCode code;
-
-    public ErrorReasonDTO getErrorReason() {
-        return this.code.getReason();
-    }
-
-    public ErrorReasonDTO getErrorReasonHttpStatus() {
-        return this.code.getReasonHttpStatus();
+    private ErrorStatus status;
+    public GeneralException(ErrorStatus status) {
+        super(status.getCode());
+        this.status = status;
     }
 }

@@ -1,38 +1,46 @@
 package com.example.spot.web.controller;
 
+import com.example.spot.api.ApiResponse;
+import com.example.spot.api.code.status.SuccessStatus;
+import com.example.spot.service.memberstudy.MemberStudyCommandService;
+import com.example.spot.service.memberstudy.MemberStudyQueryService;
+import com.example.spot.validation.annotation.ExistMember;
+import com.example.spot.validation.annotation.ExistStudy;
+import com.example.spot.web.dto.memberstudy.response.StudyTerminationResponseDTO;
+import com.example.spot.web.dto.memberstudy.response.StudyWithdrawalResponseDTO;
+import com.example.spot.web.dto.study.response.StudyApplyResponseDTO;
+import com.example.spot.web.dto.study.response.StudyMemberResponseDTO;
+import com.example.spot.web.dto.study.response.StudyPostResponseDTO;
+import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "MemberStudy", description = "MemberStudy API(내 스터디 관련 API)")
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/spot")
+@Validated
 public class MemberStudyController {
+
+    private final MemberStudyQueryService memberStudyQueryService;
+    private final MemberStudyCommandService memberStudyCommandService;
 
 /* ----------------------------- 진행중인 스터디 관련 API ------------------------------------- */
 
-    @Operation(summary = "[진행중인 스터디] 진행중인 스터디 개수 불러오기", description = """ 
-        ## [진행중인 스터디] 마이페이지에 로그인한 회원이 참여하는 스터디 개수를 불러옵니다.
-        로그인한 회원이 참여하는 스터디 중 status = ON인 스터디의 개수가 반환됩니다.
-        """)
-    @GetMapping("/members/{memberId}/on-studies/num")
-    public void getNumOfOnStudies(@PathVariable Long memberId) {
-    }
-
-    @Operation(summary = "[진행중인 스터디] 진행중인 스터디 목록 불러오기", description = """ 
-        ## [진행중인 스터디] 마이페이지 > 진행중 클릭, 로그인한 회원이 진행중인 스터디 목록을 불러옵니다.
-        로그인한 회원이 참여하는 스터디 중 status = ON인 스터디의 목록이 반환됩니다.
-        """)
-    @GetMapping("/members/{memberId}/on-studies")
-    public void getAllOnStudies(@PathVariable Long memberId) {
-    }
 
     @Operation(summary = "[진행중인 스터디] 스터디 탈퇴하기", description = """ 
         ## [진행중인 스터디] 마이페이지 > 진행중 > 진행중인 스터디의 메뉴 클릭, 로그인한 회원이 현재 진행중인 스터디에서 탈퇴합니다.
         로그인한 회원이 참여하는 특정 스터디에 대해 member_study 튜플을 삭제합니다.
         """)
     @DeleteMapping("/members/{memberId}/studies/{studyId}/withdrawal")
-    public void withdrawFromStudy(@PathVariable Long memberId, @PathVariable Long studyId) {
+    public ApiResponse<StudyWithdrawalResponseDTO.WithdrawalDTO> withdrawFromStudy(@PathVariable Long memberId, @PathVariable Long studyId) {
+        StudyWithdrawalResponseDTO.WithdrawalDTO withdrawalDTO = memberStudyCommandService.withdrawFromStudy(memberId, studyId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_MEMBER_DELETED, withdrawalDTO);
     }
 
     @Operation(summary = "[진행중인 스터디] 스터디 끝내기", description = """ 
@@ -40,42 +48,31 @@ public class MemberStudyController {
         로그인한 회원이 운영하는 특정 스터디에 대해 study status OFF로 전환합니다.
         """)
     @PatchMapping("/studies/{studyId}/termination")
-    public void terminateStudy(@PathVariable Long studyId) {
+    public ApiResponse<StudyTerminationResponseDTO.TerminationDTO> terminateStudy(@PathVariable Long studyId) {
+        StudyTerminationResponseDTO.TerminationDTO terminationDTO = memberStudyCommandService.terminateStudy(studyId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_TERMINATED, terminationDTO);
     }
 
-    @Operation(summary = "[진행중인 스터디] 스터디 정보 수정하기", description = """ 
-        ## [진행중인 스터디] 마이페이지 > 진행중 > 진행중인 스터디의 메뉴 클릭, 로그인한 회원이 운영중인 스터디의 정보를 수정합니다.
-        로그인한 회원이 운영하는 특정 스터디에 대해 study 정보를 수정합니다.
-        """)
-    @PatchMapping("/studies/{studyId}")
-    public void updateStudy(@PathVariable Long studyId) {
-    }
+//    @Operation(summary = "[데모 데이 이후 개발 -> 진행중인 스터디] 스터디 정보 수정하기", description = """
+//        ## [진행중인 스터디] 마이페이지 > 진행중 > 진행중인 스터디의 메뉴 클릭, 로그인한 회원이 운영중인 스터디의 정보를 수정합니다.
+//        로그인한 회원이 운영하는 특정 스터디에 대해 study 정보를 수정합니다.
+//        """)
+//    @PatchMapping("/studies/{studyId}")
+//    public void updateStudy(@PathVariable @ExistStudy Long studyId) {
+//    }
 
 /* ----------------------------- 모집중인 스터디 관련 API ------------------------------------- */
 
-
-    @Operation(summary = "[모집중인 스터디] 모집중인 스터디 개수 불러오기", description = """ 
-        ## [모집중인 스터디] 마이페이지에 로그인한 회원이 모집중인 스터디 개수를 불러옵니다.
-        로그인한 회원이 운영하는 스터디 중 study_state = RECRUITING인 스터디의 개수가 반환됩니다.
-        """)
-    @GetMapping("/members/{memberId}/recruiting-studies/num")
-    public void getNumOfRecruitingStudies(@PathVariable Long memberId) {
-    }
-
-    @Operation(summary = "[모집중인 스터디] 모집중인 스터디 목록 불러오기", description = """ 
-        ## [모집중인 스터디] 마이페이지 > 모집중 클릭, 로그인한 회원이 모집중인 스터디 목록을 불러옵니다.
-        로그인한 회원이 운영하는 스터디 중 study_state = RECRUITING인 스터디의 목록이 반환됩니다.
-        """)
-    @GetMapping("/members/{memberId}/recruiting-studies")
-    public void getAllRecruitingStudies(@PathVariable Long memberId) {
-    }
 
     @Operation(summary = "[모집중인 스터디] 스터디별 신청 회원 목록 불러오기", description = """ 
         ## [모집중인 스터디] 마이페이지 > 모집중 > 스터디 클릭, 로그인한 회원이 모집중인 스터디에 신청한 회원 목록을 불러옵니다.
         로그인한 회원이 모집중인 특정 스터디에 대해 member_study의 application_status가 APPLIED인 회원 목록이 반환됩니다.
         """)
     @GetMapping("/studies/{studyId}/applicants")
-    public void getAllApplicants(@PathVariable Long studyId) {
+    @Parameter(name = "studyId", description = "모집중인 스터디의 ID를 입력 받습니다.", required = true)
+    public ApiResponse<StudyMemberResponseDTO> getAllApplicants(@PathVariable @ExistStudy Long studyId) {
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_APPLICANT_FOUND,
+            memberStudyQueryService.findStudyApplicants(studyId));
     }
 
     @Operation(summary = "[모집중인 스터디] 스터디 신청 정보(이름, 자기소개) 불러오기", description = """ 
@@ -83,42 +80,32 @@ public class MemberStudyController {
         로그인한 회원이 모집중인 특정 스터디에 신청한 회원의 정보(member.name & member_study.introduction)가 반환됩니다.
         """)
     @GetMapping("/studies/{studyId}/applicants/{applicantId}")
-    public void getApplicantInfo(@PathVariable Long studyId, @PathVariable Long applicantId) {
+    @Parameter(name = "studyId", description = "모집중인 스터디의 ID를 입력 받습니다.", required = true)
+    @Parameter(name = "applicantId", description = "신청자의 ID를 입력 받습니다.", required = true)
+    public ApiResponse<StudyMemberResponseDTO.StudyApplyMemberDTO> getApplicantInfo(
+        @PathVariable @ExistStudy Long studyId,
+        @PathVariable @ExistMember Long applicantId) {
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_APPLICANT_FOUND,
+            memberStudyQueryService.findStudyApplication(studyId, applicantId));
     }
 
-    @Operation(summary = "[모집중인 스터디] 스터디 신청 거절하기", description = """ 
-        ## [모집중인 스터디] 마이페이지 > 모집중 > 스터디 > 신청 회원 > 거절 클릭, 로그인한 회원이 모집중인 스터디에 신청한 회원을 거절합니다.
-        로그인한 회원이 모집중인 특정 스터디에 신청한 회원을 member_study에서 삭제합니다.
+    @Operation(summary = "[모집중인 스터디] 스터디 신청 처리하기", description = """ 
+        ## [모집중인 스터디] 마이페이지 > 모집중 > 스터디 > 신청 회원 > 거절 클릭, 로그인한 회원이 모집중인 스터디에 신청한 회원을 처리합니다.
+        isAccept가 true인 경우 member_study에서 application_status를 APPROVE로 수정합니다.
+        isAccept가 false인 경우 member_study에서 application_status를 REJECTED로 수정합니다.
+        스터디 신청 처리 결과를 응답으로 반환합니다. 
         """)
-    @DeleteMapping("/studies/{studyId}/applicants/{applicantId}")
-    public void rejectApplicant(@PathVariable Long studyId, @PathVariable Long applicantId) {
+    @PostMapping("/studies/{studyId}/applicants/{applicantId}")
+    @Parameter(name = "studyId", description = "모집중인 스터디의 ID를 입력 받습니다.", required = true)
+    @Parameter(name = "applicantId", description = "신청자의 ID를 입력 받습니다.", required = true)
+    public ApiResponse<StudyApplyResponseDTO> rejectApplicant(
+        @PathVariable @ExistStudy Long studyId,
+        @PathVariable @ExistMember Long applicantId,
+        @RequestParam boolean isAccept) {
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_APPLICANT_UPDATED,
+            memberStudyCommandService.acceptAndRejectStudyApply(applicantId, studyId, isAccept));
     }
 
-    @Operation(summary = "[모집중인 스터디] 스터디 신청 수락하기", description = """ 
-        ## [모집중인 스터디] 마이페이지 > 모집중 > 스터디 > 신청 회원 > 수락 클릭, 로그인한 회원이 모집중인 스터디에 신청한 회원을 수락합니다.
-        로그인한 회원이 모집중인 특정 스터디에 신청한 회원의 application_status를 APPROVED로 수정합니다.
-        """)
-    @PatchMapping("/studies/{studyId}/applicants/{applicantId}")
-    public void acceptApplicant(@PathVariable Long studyId, @PathVariable Long applicantId) {
-    }
-
-/* ----------------------------- 신청한 스터디 관련 API ------------------------------------- */
-
-    @Operation(summary = "[신청한 스터디] 신청한 스터디 개수 불러오기", description = """ 
-        ## [신청한 스터디] 마이페이지에 로그인한 회원이 신청한 스터디 개수를 불러옵니다.
-        로그인한 회원이 신청한 스터디(ApplicationStatus = APPLIED)의 개수가 반환됩니다.
-        """)
-    @GetMapping("/members/{memberId}/applied-studies/num")
-    public void getNumOfAppliedStudies(@PathVariable Long memberId) {
-    }
-
-    @Operation(summary = "[신청한 스터디] 신청한 스터디 목록 불러오기", description = """ 
-        ## [신청한 스터디] 마이페이지 > 신청한, 로그인한 회원이 신청한 스터디 목록을 불러옵니다.
-        로그인한 회원이 신청한 스터디(ApplicationStatus = APPLIED)의 목록이 반환됩니다.
-        """)
-    @GetMapping("/members/{memberId}/applied-studies")
-    public void getAppliedStudies(@PathVariable Long memberId) {
-    }
 
 /* ----------------------------- 스터디 상세 정보 관련 API ------------------------------------- */
 
@@ -127,23 +114,35 @@ public class MemberStudyController {
         study_post의 announced_at이 가장 최근인 공지 1개가 반환됩니다.
         """)
     @GetMapping("/studies/{studyId}/announce")
-    public void getRecentAnnouncement(@PathVariable Long studyId) {
+    public ApiResponse<StudyPostResponseDTO> getRecentAnnouncement(@PathVariable @ExistStudy Long studyId) {
+        StudyPostResponseDTO studyPostResponseDTO = memberStudyQueryService.findStudyAnnouncementPost(studyId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_FOUND, studyPostResponseDTO);
+
+
     }
 
     @Operation(summary = "[스터디 상세 정보] 다가오는 모임 목록 불러오기", description = """ 
-        ## [스터디 상세 정보] 내 스터디 > 스터디 클릭, 로그인한 회원이 참여하는 특정 스터디의 다가오는 모임 목록을 불러옵니다.
+        ## [스터디 상세 정보] 내 스터디 > 스터디 클릭, 로그인한 회원이 참여하는 특정 스터디의 다가오는 모임 목록을 페이징 조회 합니다.
         현재 시점 이후에 진행되는 모임 일정의 목록을 schedule에서 반환합니다.
         """)
     @GetMapping("/studies/{studyId}/upcoming-schedules")
-    public void getUpcomingSchedules(@PathVariable Long studyId) {
+    public ApiResponse<StudyScheduleResponseDTO> getUpcomingSchedules(
+        @PathVariable @ExistStudy Long studyId,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "1") int size){
+        StudyScheduleResponseDTO studyScheduleResponseDTO = memberStudyQueryService.findStudySchedule(studyId, PageRequest.of(page, size));
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_SCHEDULE_FOUND, studyScheduleResponseDTO);
     }
 
     @Operation(summary = "[스터디 상세 정보] 스터디에 참여하는 회원 목록 불러오기", description = """ 
-        ## [스터디 상세 정보] 로그인한 회원이 참여하는 특정 스터디의 회원 목록을 불러옵니다.
+        ## [스터디 상세 정보] 로그인한 회원이 참여하는 특정 스터디의 회원 목록을 전체 합니다.
         member_study에서 application_status=APPROVED인 회원의 목록(이름, 프로필 사진 포함)이 반환됩니다.
         """)
     @GetMapping("/studies/{studyId}/members")
-    public void getStudyMembers(@PathVariable Long studyId) {
+    public ApiResponse<StudyMemberResponseDTO> getStudyMembers(
+        @PathVariable @ExistStudy Long studyId){
+        StudyMemberResponseDTO studyMemberResponseDTO = memberStudyQueryService.findStudyMembers(studyId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_MEMBER_FOUND, studyMemberResponseDTO);
     }
 
 

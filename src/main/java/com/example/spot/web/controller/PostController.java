@@ -3,7 +3,6 @@ package com.example.spot.web.controller;
 import com.example.spot.api.ApiResponse;
 import com.example.spot.api.code.status.SuccessStatus;
 import com.example.spot.web.dto.post.*;
-import com.example.spot.web.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -21,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/spot/posts")
 public class PostController {
 
-    private final PostService postService;
 
     private final static int PAGE_SIZE = 10; //페이지당 개수
 
@@ -32,7 +30,7 @@ public class PostController {
     )
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public void create(@ModelAttribute PostCreateRequest postCreateRequest) {
-        postService.createPost(postCreateRequest);
+        //postService.createPost(postCreateRequest);
         // ToDo 응답 통일한 후 반환 타입 수정
     }
 
@@ -49,8 +47,7 @@ public class PostController {
             )
             @PathVariable Long postId
     ) {
-        PostSingleResponse postSingleResponse = postService.getSinglePost(postId);
-        return ApiResponse.onSuccess(SuccessStatus._OK, postSingleResponse);
+       return null;
     }
 
     @Operation(
@@ -66,8 +63,7 @@ public class PostController {
             @RequestParam(required = false, defaultValue = "0") int pageNumber
     ) {
         Pageable pageable = PageRequest.of(pageNumber, PAGE_SIZE);
-        PostPagingResponse postPagingResponse = postService.postTypePaging(type, pageable);
-        return ApiResponse.onSuccess(SuccessStatus._OK, postPagingResponse);
+        return null;
     }
 
     @Operation(
@@ -78,8 +74,7 @@ public class PostController {
             @Parameter(description = "인기글 종류. REAL_TIME, RECOMMEND, COMMENT 중 하나입니다.", required = true, example = "REAL_TIME")
             @RequestParam String sortType
     ) {
-        PostBest5Response postBest5Response = postService.getPostBest5(sortType);
-        return ApiResponse.onSuccess(SuccessStatus._OK, postBest5Response);
+        return null;
     }
 
     @Operation(
@@ -89,8 +84,6 @@ public class PostController {
     public void getPost(
 
     ) {
-        //PostBoard5Response postHomeResponse = postService.getPostHome(sortType);
-        //return ApiResponse.onSuccess(SuccessStatus._OK, postHomeResponse);
     }
 
     @Operation(
@@ -100,8 +93,6 @@ public class PostController {
     public void getPostAnnouncement(
 
     ) {
-        //PostBoard5Response postBoard5Response = postService.getPostAnnuncement(sortType);
-        //return ApiResponse.onSuccess(SuccessStatus._OK, postBoard5Response);
     }
 
     @Operation(summary = "댓글 조회 API", description = "댓글 ID를 받아 댓글을 조회합니다.")
@@ -147,7 +138,7 @@ public class PostController {
             )
             @PathVariable Long postId
     ) {
-        postService.deletePost(postId);
+//        postService.deletePost(postId);
     }
 
 

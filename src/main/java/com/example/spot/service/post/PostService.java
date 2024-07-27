@@ -1,4 +1,6 @@
-package com.example.spot.web.service;
+
+package com.example.spot.service.post;
+
 
 import com.example.spot.web.dto.post.*;
 import org.springframework.data.domain.Pageable;

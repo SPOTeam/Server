@@ -6,7 +6,9 @@ build/
 !**/src/test/**/build/
 .DS_Store
 src/main/resources/application.yml
-
+src/main/java/com/example/spot/web/dto/test
+src/main/java/com/example/spot/web/controller/TestController.java
+src/main/java/com/example/spot/service/test
 ### STS ###
 .apt_generated
 .classpath
@@ -18,6 +20,12 @@ src/main/resources/application.yml
 bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
+src/main/generated/
+src/main/java/com/example/spot/service/test/*
+src/main/java/com/example/spot/web/dto/test/*
+
+src/main/java/com/example/spot/web/controller/TestController.java
+**/generated
 
 ### IntelliJ IDEA ###
 .idea
