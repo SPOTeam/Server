@@ -62,7 +62,7 @@ public class Study extends BaseEntity {
     @Column(nullable = false)
     private Boolean isOnline;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 0")
     private Integer heartCount;
 
     @Column(nullable = false)
@@ -79,7 +79,7 @@ public class Study extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 0")
     private Long hitNum;
 
     @Column(nullable = false)
