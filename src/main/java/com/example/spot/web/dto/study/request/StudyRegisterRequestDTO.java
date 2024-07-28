@@ -28,6 +28,7 @@ public class StudyRegisterRequestDTO {
         private Integer minAge;
         private Integer maxAge;
         private Integer fee;
+        private boolean hasFee;
     }
 
     @Getter

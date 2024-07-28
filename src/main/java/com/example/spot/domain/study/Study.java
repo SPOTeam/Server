@@ -26,10 +26,8 @@ import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
 @Getter
-@Builder
 @DynamicUpdate
 @DynamicInsert
-@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Study extends BaseEntity {
 
@@ -62,7 +60,7 @@ public class Study extends BaseEntity {
     @Column(nullable = false)
     private Boolean isOnline;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 0")
     private Integer heartCount;
 
     @Column(nullable = false)
@@ -79,38 +77,31 @@ public class Study extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 0")
     private Long hitNum;
 
     @Column(nullable = false)
     private Long maxPeople;
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
-    @Builder.Default
     private List<Schedule> schedules = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
-    @Builder.Default
     private List<StudyPost> posts = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
-    @Builder.Default
     private List<Vote> votes = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
-    @Builder.Default
     private List<StudyTheme> studyThemes = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
-    @Builder.Default
     private List<MemberStudy> memberStudies = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
-    @Builder.Default
     private List<RegionStudy> regionStudies = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
-    @Builder.Default
     private List<PreferredStudy> preferredStudies = new ArrayList<>();
 
 
@@ -118,21 +109,22 @@ public class Study extends BaseEntity {
 /* ----------------------------- 생성자 ------------------------------------- */
 
     @Builder
-    public Study(Gender gender, Integer minAge, Integer maxAge, Integer fee, boolean hasFee,
-                    Boolean isOnline, String goal, String introduction, Integer heartCount,
-                    String title, Long maxPeople) {
+    public Study(Gender gender, Integer minAge, Integer maxAge, Integer fee,
+                 String profileImage, boolean hasFee,
+                 Boolean isOnline, String goal, String introduction,
+                 String title, Long maxPeople) {
         this.gender = gender;
         this.minAge = minAge;
         this.maxAge = maxAge;
         this.fee = fee;
-        this.studyState = StudyState.BEFORE;
+        this.profileImage = profileImage;
+        this.studyState = StudyState.RECRUITING;
         this.isOnline = isOnline;
         this.heartCount = 0;
         this.hasFee = hasFee;
         this.goal = goal;
         this.introduction = introduction;
         this.title = title;
-        this.heartCount = heartCount;
         this.status = Status.ON;
         this.hitNum = 0L;
         this.maxPeople = maxPeople;
@@ -145,7 +137,6 @@ public class Study extends BaseEntity {
         this.regionStudies = new ArrayList<>();
 
     }
-
 
 /* ----------------------------- 연관관계 메소드 ------------------------------------- */
 
@@ -178,5 +169,14 @@ public class Study extends BaseEntity {
     // hit 증가
     public void increaseHit() {
         this.hitNum++;
+    }
+
+    public void addSchedule(Schedule schedule) {
+        schedules.add(schedule);
+        schedule.setStudy(this);
+    }
+
+    public void updateSchedule(Schedule schedule) {
+        schedules.set(schedules.indexOf(schedule), schedule);
     }
 }

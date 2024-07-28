@@ -8,14 +8,17 @@ import com.example.spot.domain.Member;
 import com.example.spot.domain.enums.ApplicationStatus;
 import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.mapping.MemberStudy;
+import com.example.spot.domain.study.Schedule;
 import com.example.spot.domain.study.Study;
 import com.example.spot.repository.MemberRepository;
 import com.example.spot.repository.MemberStudyRepository;
+import com.example.spot.repository.ScheduleRepository;
 import com.example.spot.repository.StudyRepository;
 import com.example.spot.web.dto.memberstudy.response.StudyTerminationResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyWithdrawalResponseDTO;
 import com.example.spot.web.dto.study.response.StudyApplyResponseDTO;
-import com.example.spot.web.dto.study.response.StudyMemberResponseDTO.StudyApplyMemberDTO;
+import com.example.spot.web.dto.study.request.ScheduleRequestDTO;
+import com.example.spot.web.dto.study.response.ScheduleResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,12 +31,13 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
 
     private final MemberRepository memberRepository;
     private final StudyRepository studyRepository;
+    private final ScheduleRepository scheduleRepository;
+
     private final MemberStudyRepository memberStudyRepository;
 
 /* ----------------------------- 진행중인 스터디 관련 API ------------------------------------- */
 
     // [진행중인 스터디] 스터디 탈퇴하기
-    @Transactional
     public StudyWithdrawalResponseDTO.WithdrawalDTO withdrawFromStudy(Long memberId, Long studyId) {
 
         Member member = memberRepository.findById(memberId)
@@ -60,7 +64,6 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
     }
 
     // [진행중인 스터디] 스터디 끝내기
-    @Transactional
     public StudyTerminationResponseDTO.TerminationDTO terminateStudy(Long studyId) {
 
         Study study = studyRepository.findById(studyId)
@@ -96,5 +99,50 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
             .status(memberStudy.getStatus())
             .updatedAt(memberStudy.getUpdatedAt())
             .build();
+    }
+
+/* ----------------------------- 스터디 일정 관련 API ------------------------------------- */
+    @Override
+    public ScheduleResponseDTO.ScheduleDTO addSchedule(Long studyId, ScheduleRequestDTO.ScheduleDTO scheduleRequestDTO) {
+
+        //=== Exception ===//
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+
+        //=== Feature ===//
+        Schedule schedule = Schedule.builder()
+                .title(scheduleRequestDTO.getLocation())
+                .location(scheduleRequestDTO.getLocation())
+                .startedAt(scheduleRequestDTO.getStartedAt())
+                .finishedAt(scheduleRequestDTO.getFinishedAt())
+                .isAllDay(scheduleRequestDTO.getIsAllDay())
+                .period(scheduleRequestDTO.getPeriod())
+                .build();
+
+        study.addSchedule(schedule);
+        scheduleRepository.save(schedule);
+
+        return ScheduleResponseDTO.ScheduleDTO.toDTO(schedule);
+    }
+
+    @Override
+    public ScheduleResponseDTO.ScheduleDTO modSchedule(Long studyId, Long scheduleId, ScheduleRequestDTO.ScheduleDTO scheduleModDTO) {
+
+        //=== Exception ===//
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+
+        Schedule schedule = scheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_SCHEDULE_NOT_FOUND));
+
+        scheduleRepository.findByIdAndStudyId(scheduleId, studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_SCHEDULE_NOT_FOUND));
+
+        //=== Feature ===//
+        schedule.modSchedule(scheduleModDTO);
+        study.updateSchedule(schedule);
+        scheduleRepository.save(schedule);
+
+        return ScheduleResponseDTO.ScheduleDTO.toDTO(schedule);
     }
 }

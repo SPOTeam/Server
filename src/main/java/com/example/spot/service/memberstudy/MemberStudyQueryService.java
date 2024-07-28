@@ -1,5 +1,7 @@
 package com.example.spot.service.memberstudy;
 
+import com.example.spot.web.dto.study.response.ScheduleResponseDTO;
+
 import com.example.spot.web.dto.study.response.StudyMemberResponseDTO;
 import com.example.spot.web.dto.study.response.StudyPostResponseDTO;
 import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO;
@@ -7,6 +9,9 @@ import org.springframework.data.domain.Pageable;
 
 public interface MemberStudyQueryService {
 
+    ScheduleResponseDTO.MonthlyScheduleListDTO getMonthlySchedules(Long studyId, int year, int month);
+
+    ScheduleResponseDTO.MonthlyScheduleDTO getSchedule(Long studyId, Long scheduleId);
 
     // 스터디 공지 게시글 불러오기
     StudyPostResponseDTO findStudyAnnouncementPost(Long studyId);

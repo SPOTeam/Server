@@ -37,7 +37,7 @@ public enum SuccessStatus implements BaseCode {
     //알림 관련 응답
     _NOTIFICATION_FOUND(HttpStatus.OK, "NOTIFICATION4001", "전체 알림 조회 완료"),
     _NOTIFICATION_READ(HttpStatus.OK, "NOTIFICATION4002", "알림 읽음 처리 완료"),
-    _NOTIFICATINO_APPLIED_STUDY_FOUND(HttpStatus.OK, "NOTIFICATION4002", "참가 신청한 스터디 알림 조회 완료"),
+    _NOTIFICATION_APPLIED_STUDY_FOUND(HttpStatus.OK, "NOTIFICATION4002", "참가 신청한 스터디 알림 조회 완료"),
     _NOTIFICATION_APPLIED_STUDY_JOINED(HttpStatus.OK, "NOTIFICATION4003", "참가 신청한 스터디 최종 참여 확인 완료"),
     _NOTIFICATION_APPLIED_STUDY_REJECTED(HttpStatus.OK, "NOTIFICATION4004", "참가 신청한 스터디 최종 참여 거절 완료"),
 
@@ -49,12 +49,19 @@ public enum SuccessStatus implements BaseCode {
     _STUDY_MEMBER_DELETED(HttpStatus.OK, "STUDY4005", "스터디 탈퇴 완료"),
     _STUDY_TERMINATED(HttpStatus.OK, "STUDY4006", "스터디 종료 완료"),
     _STUDY_LIKED(HttpStatus.OK, "STUDY4007", "스터디 찜 요청이 정상적 처리 되었습니다."),
-    _STUDY_SCHEDULE_FOUND(HttpStatus.OK, "STUDY4008", "스터디 일정 조회 완료"),
     _STUDY_MEMBER_FOUND(HttpStatus.OK, "STUDY4009", "스터디 참여 회원 조회 완료"),
     _STUDY_APPLICANT_FOUND(HttpStatus.OK, "STUDY4010", "스터디 신청자 조회 완료"),
     _STUDY_APPLICANT_UPDATED(HttpStatus.OK, "STUDY4011", "스터디 신청 처리 완료"),
-    _STUDY_APPLY_COMPLETED(HttpStatus.OK, "STUDY4012", "스터디 신청 완료"),;
+    _STUDY_APPLY_COMPLETED(HttpStatus.OK, "STUDY4012", "스터디 신청 완료"),
 
+    // 스터디 일정 관련 응답
+    _STUDY_SCHEDULE_CREATED(HttpStatus.CREATED, "SCHEDULE2001", "스터디 일정 생성 완료"),
+    _STUDY_SCHEDULE_FOUND(HttpStatus.OK, "SCHEDULE2002", "스터디 일정 조회 완료"),
+    _STUDY_SCHEDULE_UPDATED(HttpStatus.OK, "SCHEDULE2003", "스터디 일정 수정 완료"),
+
+
+    ;
+  
     private final HttpStatus httpStatus;
     private final String code;
     private final String message;
