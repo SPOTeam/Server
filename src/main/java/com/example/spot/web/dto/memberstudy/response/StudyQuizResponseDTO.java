@@ -1,9 +1,7 @@
 package com.example.spot.web.dto.memberstudy.response;
 
-import com.example.spot.domain.Member;
 import com.example.spot.domain.Quiz;
 import com.example.spot.domain.mapping.MemberAttendance;
-import com.example.spot.domain.study.Study;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -51,4 +49,5 @@ public class StudyQuizResponseDTO {
                     .build();
         }
     }
+
 }

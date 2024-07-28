@@ -23,7 +23,12 @@ public interface MemberStudyCommandService {
     // 스터디 출석
     StudyQuizResponseDTO.AttendanceDTO attendantStudy(Long studyId, Long quizId, StudyQuizRequestDTO.AttendanceDTO attendanceRequestDTO);
 
+    // 스터디 퀴즈 삭제
+    StudyQuizResponseDTO.QuizDTO deleteAttendanceQuiz(Long studyId, Long quizId);
+
+    // 일정 생성
     ScheduleResponseDTO.ScheduleDTO addSchedule(Long studyId, ScheduleRequestDTO.ScheduleDTO scheduleRequestDTO);
 
+    // 일정 수정
     ScheduleResponseDTO.ScheduleDTO modSchedule(Long studyId, Long scheduleId, ScheduleRequestDTO.ScheduleDTO scheduleModDTO);
 }
