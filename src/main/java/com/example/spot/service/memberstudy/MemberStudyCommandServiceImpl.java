@@ -164,5 +164,22 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         return StudyQuizResponseDTO.AttendanceDTO.toDTO(memberAttendance);
     }
 
+    @Override
+    public StudyQuizResponseDTO.QuizDTO deleteAttendanceQuiz(Long studyId, Long quizId) {
+
+        //=== Exception ===//
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_QUIZ_NOT_FOUND));
+        quizRepository.findByIdAndStudyId(quizId, studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_QUIZ_NOT_FOUND));
+
+        //=== Feature ===//
+        memberAttendanceRepository.findByQuizId(quizId).forEach(quiz::deleteMemberAttendance);
+        quizRepository.delete(quiz);
+
+        return StudyQuizResponseDTO.QuizDTO.toDTO(quiz);
+    }
 
 }

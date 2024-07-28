@@ -20,4 +20,7 @@ public interface MemberStudyCommandService {
 
     // 스터디 출석
     StudyQuizResponseDTO.AttendanceDTO attendantStudy(Long studyId, Long quizId, StudyQuizRequestDTO.AttendanceDTO attendanceRequestDTO);
+
+    // 스터디 퀴즈 삭제
+    StudyQuizResponseDTO.QuizDTO deleteAttendanceQuiz(Long studyId, Long quizId);
 }
