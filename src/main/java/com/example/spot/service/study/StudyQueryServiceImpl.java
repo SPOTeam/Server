@@ -3,6 +3,7 @@ package com.example.spot.service.study;
 import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.GeneralException;
 import com.example.spot.api.exception.handler.StudyHandler;
+import com.example.spot.domain.Member;
 import com.example.spot.domain.Region;
 import com.example.spot.domain.Theme;
 import com.example.spot.domain.enums.ApplicationStatus;
@@ -33,6 +34,7 @@ import com.example.spot.web.dto.search.SearchRequestDTO.SearchRequestStudyDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.SearchStudyDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.StudyPreviewDTO;
+import com.example.spot.web.dto.study.response.StudyInfoResponseDTO;
 import com.example.spot.web.dto.study.response.StudyMemberResponseDTO;
 import com.example.spot.web.dto.study.response.StudyMemberResponseDTO.StudyMemberDTO;
 import com.example.spot.web.dto.study.response.StudyPostResponseDTO;
@@ -58,11 +60,8 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
     // 스터디 관련 조회
     private final StudyRepository studyRepository;
-    private final MemberRepository memberRepository;
     private final MemberStudyRepository memberStudyRepository;
     private final PreferredStudyRepository preferredStudyRepository;
-    private final StudyPostRepository studyPostRepository;
-    private final ScheduleRepository scheduleRepository;
 
     // 관심사 관련 조회
     private final ThemeRepository themeRepository;
@@ -70,9 +69,25 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     private final MemberThemeRepository memberThemeRepository;
 
     // 지역 관련 조회
-    private final RegionRepository regionRepository;
     private final PreferredRegionRepository preferredRegionRepository;
     private final RegionStudyRepository regionStudyRepository;
+
+    public StudyInfoResponseDTO.StudyInfoDTO getStudyInfo(Long studyId) {
+
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+
+        List<MemberStudy> memberStudyList = study.getMemberStudies().stream()
+                .filter(MemberStudy::getIsOwned)
+                .toList();
+
+        if (memberStudyList.isEmpty()) {
+            throw new StudyHandler(ErrorStatus._STUDY_OWNER_NOT_FOUND);
+        }
+
+        Member owner = memberStudyList.get(0).getMember();
+        return StudyInfoResponseDTO.StudyInfoDTO.toDTO(study, owner);
+    }
 
     @Override
     public StudyPreviewDTO findRecommendStudies(Long memberId) {
@@ -337,7 +352,6 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         Page<SearchResponseDTO.SearchStudyDTO> page = new PageImpl<>(stream, pageable, totalElements);
         return new StudyPreviewDTO(page, stream, totalElements);
     }
-
 
     private Theme findThemeByType(List<Theme> themes, ThemeType themeType) {
         return themes.stream()
