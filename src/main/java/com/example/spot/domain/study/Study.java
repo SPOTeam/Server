@@ -26,10 +26,8 @@ import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
 @Getter
-@Builder
 @DynamicUpdate
 @DynamicInsert
-@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Study extends BaseEntity {
 
@@ -86,31 +84,24 @@ public class Study extends BaseEntity {
     private Long maxPeople;
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
-    @Builder.Default
     private List<Schedule> schedules = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
-    @Builder.Default
     private List<StudyPost> posts = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
-    @Builder.Default
     private List<Vote> votes = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
-    @Builder.Default
     private List<StudyTheme> studyThemes = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
-    @Builder.Default
     private List<MemberStudy> memberStudies = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
-    @Builder.Default
     private List<RegionStudy> regionStudies = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
-    @Builder.Default
     private List<PreferredStudy> preferredStudies = new ArrayList<>();
 
 
