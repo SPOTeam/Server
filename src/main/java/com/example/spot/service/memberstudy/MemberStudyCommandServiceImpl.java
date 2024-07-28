@@ -24,7 +24,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -35,10 +39,9 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
     private final MemberRepository memberRepository;
     private final StudyRepository studyRepository;
     private final ScheduleRepository scheduleRepository;
-
-    private final MemberStudyRepository memberStudyRepository;
     private final QuizRepository quizRepository;
 
+    private final MemberStudyRepository memberStudyRepository;
     private final MemberAttendanceRepository memberAttendanceRepository;
 
 /* ----------------------------- 진행중인 스터디 관련 API ------------------------------------- */
@@ -155,12 +158,19 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
 /* ----------------------------- 스터디 출석 관련 API ------------------------------------- */
     // [스터디 출석체크] 출석 퀴즈 생성하기
     @Override
-    @Transactional
     public StudyQuizResponseDTO.QuizDTO createAttendanceQuiz(Long studyId, StudyQuizRequestDTO.QuizDTO quizRequestDTO) {
 
         //=== Exception ===//
         Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+
+        // 이미 출석 퀴즈가 생성되었는지 확인
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        LocalDateTime endOfDay = LocalDate.now().atTime(LocalTime.MAX);
+        List<Quiz> todayQuizzes = quizRepository.findAllByStudyIdAndCreatedAtBetween(studyId, startOfDay, endOfDay);
+        if (!todayQuizzes.isEmpty()) {
+            throw new StudyHandler(ErrorStatus._STUDY_QUIZ_ALREADY_EXIST);
+        }
 
         //=== Feature ===//
         Quiz quiz = Quiz.builder()
@@ -169,14 +179,13 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
                 .build();
 
         study.addQuiz(quiz);
-        quizRepository.save(quiz);
+        quiz = quizRepository.save(quiz);
 
         return StudyQuizResponseDTO.QuizDTO.toDTO(quiz);
     }
 
     // [스터디 출석체크] 출석 체크하기
     @Override
-    @Transactional
     public StudyQuizResponseDTO.AttendanceDTO attendantStudy(Long studyId, Long quizId, StudyQuizRequestDTO.AttendanceDTO attendanceRequestDTO) {
 
         //=== Exception ===//
@@ -195,10 +204,20 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         if (LocalDateTime.now().isAfter(quiz.getCreatedAt().plusMinutes(5))) {
             throw new StudyHandler(ErrorStatus._STUDY_QUIZ_NOT_VALID);
         }
+        // 이미 출석이 완료되었거나 시도 횟수를 초과하였는지 확인
+        List<MemberAttendance> attendanceList = memberAttendanceRepository.findByQuizIdAndMemberId(quizId, member.getId());
+        int try_num = 0;
+        for (MemberAttendance attendance : attendanceList) {
+            if (attendance.getIsCorrect())
+                throw new StudyHandler(ErrorStatus._STUDY_ATTENDANCE_ALREADY_EXIST);
+            else
+                try_num++;
+        }
+        if (try_num >= 3) {
+            throw new StudyHandler(ErrorStatus._STUDY_ATTENDANCE_ATTEMPT_LIMIT_EXCEEDED);
+        }
 
         //=== Feature ===//
-
-        // 정답 여부 확인
         Boolean isCorrect;
         if (attendanceRequestDTO.getAnswer().equals(quiz.getAnswer())) {
             isCorrect = Boolean.TRUE;
@@ -209,10 +228,12 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         MemberAttendance memberAttendance = new MemberAttendance(isCorrect);
         member.addMemberAttendance(memberAttendance);
         quiz.addMemberAttendance(memberAttendance);
+        memberAttendance = memberAttendanceRepository.save(memberAttendance);
 
         return StudyQuizResponseDTO.AttendanceDTO.toDTO(memberAttendance);
     }
 
+    // [스터디 출석체크] 출석 퀴즈 삭제하기
     @Override
     public StudyQuizResponseDTO.QuizDTO deleteAttendanceQuiz(Long studyId, Long quizId) {
 
@@ -225,10 +246,15 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_QUIZ_NOT_FOUND));
 
         //=== Feature ===//
-        memberAttendanceRepository.findByQuizId(quizId).forEach(quiz::deleteMemberAttendance);
+        memberAttendanceRepository.findByQuizId(quizId)
+                .forEach(memberAttendance -> {
+                    quiz.deleteMemberAttendance(memberAttendance);
+                    memberAttendanceRepository.delete(memberAttendance);
+                });
         quizRepository.delete(quiz);
 
         return StudyQuizResponseDTO.QuizDTO.toDTO(quiz);
     }
+
 
 }

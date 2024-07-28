@@ -62,14 +62,14 @@ public class S3ImageService {
     private void validateImageFileExtention(String filename) {
         int lastDotIndex = filename.lastIndexOf(".");
         if (lastDotIndex == -1) {
-            throw new S3Handler(ErrorStatus._BAD_FILE_EXTENTION);
+            throw new S3Handler(ErrorStatus._BAD_FILE_EXTENSION);
         }
 
         String extention = filename.substring(lastDotIndex + 1).toLowerCase();
         List<String> allowedExtentionList = Arrays.asList("jpg", "jpeg", "png", "gif");
 
         if (!allowedExtentionList.contains(extention)) {
-            throw new S3Handler(ErrorStatus._BAD_FILE_EXTENTION);
+            throw new S3Handler(ErrorStatus._BAD_FILE_EXTENSION);
         }
     }
 

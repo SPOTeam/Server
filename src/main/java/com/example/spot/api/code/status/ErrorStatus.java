@@ -68,14 +68,15 @@ public enum ErrorStatus implements BaseErrorCode {
     // 스터디 출석 관련 에러
     _STUDY_QUIZ_NOT_FOUND(HttpStatus.NOT_FOUND, "QUIZ4001", "출석 퀴즈를 찾을 수 없습니다."),
     _STUDY_QUIZ_NOT_VALID(HttpStatus.BAD_REQUEST, "QUIZ4002", "출석 퀴즈의 제한 시간이 초과되었습니다."),
-
+    _STUDY_QUIZ_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "QUIZ4003", "금일 출석 퀴즈가 이미 존재합니다."),
+    _STUDY_ATTENDANCE_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "QUIZ4004", "이미 출석 체크되었습니다."),
+    _STUDY_ATTENDANCE_ATTEMPT_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "QUIZ4005", "출석 퀴즈 시도 횟수가 초과되었습니다."),
 
     // S3 관련 에러
     _FILE_IS_NULL(HttpStatus.BAD_REQUEST, "S34001", "파일이 입력되지 않았습니다."),
     _IO_EXCEPTION(HttpStatus.BAD_REQUEST, "S34002", "IO 오류가 발생했습니다."),
-    _BAD_FILE_EXTENTION(HttpStatus.BAD_REQUEST, "S34003", "잘못된 확장자입니다."),
+    _BAD_FILE_EXTENSION(HttpStatus.BAD_REQUEST, "S34003", "잘못된 확장자입니다."),
     _PUT_OBJECT_EXCEPTION(HttpStatus.BAD_REQUEST, "S34004", "이미지 업로드하는 과정에서 오류가 발생했습니다."),
-
 
     //게시글 관련 에러
     _POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST5001", "게시글을 찾을 수 없습니다."),
