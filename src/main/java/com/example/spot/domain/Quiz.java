@@ -58,6 +58,5 @@ public class Quiz extends BaseEntity {
 
     public void deleteMemberAttendance(MemberAttendance memberAttendance) {
         memberAttendanceList.remove(memberAttendance);
-        memberAttendance.setQuiz(null);
     }
 }

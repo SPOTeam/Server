@@ -163,16 +163,6 @@ public class Study extends BaseEntity {
         this.heartCount++;
     }
 
-    // preferredStudy 삭제
-    public void deletePreferredStudy(PreferredStudy preferredStudy) {
-        this.heartCount--;
-    }
-
-    // hit 증가
-    public void increaseHit() {
-        this.hitNum++;
-    }
-
     public void addSchedule(Schedule schedule) {
         schedules.add(schedule);
         schedule.setStudy(this);
@@ -185,5 +175,15 @@ public class Study extends BaseEntity {
     public void addQuiz(Quiz quiz) {
         quizzes.add(quiz);
         quiz.setStudy(this);
+    }
+
+    // preferredStudy 삭제
+    public void deletePreferredStudy(PreferredStudy preferredStudy) {
+        this.heartCount--;
+    }
+
+    // hit 증가
+    public void increaseHit() {
+        this.hitNum++;
     }
 }
