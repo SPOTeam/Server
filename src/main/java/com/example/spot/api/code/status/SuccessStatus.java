@@ -59,6 +59,7 @@ public enum SuccessStatus implements BaseCode {
     _STUDY_ATTENDANCE_CREATED_CORRECT_ANSWER(HttpStatus.CREATED, "QUIZ2002", "스터디 출석 완료"),
     _STUDY_ATTENDANCE_CREATED_WRONG_ANSWER(HttpStatus.CREATED, "QUIZ2003", "스터디 퀴즈 오답"),
     _STUDY_QUIZ_DELETED(HttpStatus.OK, "QUIZ2004", "스터디 퀴즈 삭제 완료"),
+    _STUDY_MEMBER_ATTENDANCES_FOUND(HttpStatus.OK, "QUIZ2005", "금일 회원 출석부 조회 완료"),
 
     // 스터디 일정 관련 응답
     _STUDY_SCHEDULE_CREATED(HttpStatus.CREATED, "SCHEDULE2001", "스터디 일정 생성 완료"),

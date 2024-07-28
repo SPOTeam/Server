@@ -333,12 +333,22 @@ public class MemberStudyController {
     @Operation(summary = "[스터디 출석체크] 출석 퀴즈 삭제하기", description = """ 
         ## [스터디 출석체크] 기한이 지난 출석 퀴즈를 삭제합니다. (화면 X)
         PathVariable을 통해 전달받은 정보를 바탕으로 출석 퀴즈를 삭제합니다.
-        출석 퀴즈 정보와 함께 퀴즈에 대한 MemberAttendance 목록도 함께 삭제됩니다.
+        출석 퀴즈 정보와 함께 퀴즈에 대한 MemberAttendance(회원 출석) 목록도 함께 삭제됩니다.
         """)
     @DeleteMapping("/studies/{studyId}/quizzes/{quizId}")
     public ApiResponse<StudyQuizResponseDTO.QuizDTO> deleteAttendanceQuiz(@PathVariable Long studyId, @PathVariable Long quizId) {
         StudyQuizResponseDTO.QuizDTO quizDTO = memberStudyCommandService.deleteAttendanceQuiz(studyId, quizId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_QUIZ_DELETED, quizDTO);
+    }
+
+    @Operation(summary = "[스터디 출석체크] 금일 회원 출석부 불러오기", description = """ 
+        ## [스터디 출석체크] 금일 모든 스터디 회원의 출석 여부를 불러옵니다.
+        출석체크 화면에 표시되는 스터디 회원 정보(프로필 사진, 이름, 출석 여부, 스터디장 여부) 목록를 반환합니다.
+        """)
+    @GetMapping("/studies/{studyId}/quizzes/{quizId}/members")
+    public ApiResponse<StudyQuizResponseDTO.AttendanceListDTO> getAllAttendances(@PathVariable Long studyId, @PathVariable Long quizId) {
+        StudyQuizResponseDTO.AttendanceListDTO attendanceListDTO = memberStudyQueryService.getAllAttendances(studyId, quizId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_MEMBER_ATTENDANCES_FOUND, attendanceListDTO);
     }
 
 
