@@ -3,9 +3,10 @@ package com.example.spot.service.study;
 import com.example.spot.domain.enums.StudySortBy;
 import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.web.dto.search.SearchRequestDTO.SearchRequestStudyDTO;
-import com.example.spot.web.dto.search.SearchResponseDTO.SearchStudyDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.StudyPreviewDTO;
-import org.springframework.data.domain.Page;
+import com.example.spot.web.dto.study.response.StudyMemberResponseDTO;
+import com.example.spot.web.dto.study.response.StudyPostResponseDTO;
+import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO;
 import org.springframework.data.domain.Pageable;
 
 public interface StudyQueryService {
@@ -41,5 +42,15 @@ public interface StudyQueryService {
 
     // 테마 별 스터디 검색
     StudyPreviewDTO findStudiesByTheme(Pageable pageable, ThemeType theme, StudySortBy sortBy);
+
+    // 내가 참여하고 있는 스터디 조회
+    StudyPreviewDTO findOngoingStudiesByMemberId(Pageable pageable, Long memberId);
+
+    // 내가 신청한 스터디 조회
+    StudyPreviewDTO findAppliedStudies(Pageable pageable, Long memberId);
+
+    // 내가 모집중인 스터디 조회
+    StudyPreviewDTO findMyRecruitingStudies(Pageable pageable, Long memberId);
+
 
 }

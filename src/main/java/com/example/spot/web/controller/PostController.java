@@ -2,6 +2,8 @@ package com.example.spot.web.controller;
 
 import com.example.spot.api.ApiResponse;
 import com.example.spot.api.code.status.SuccessStatus;
+import com.example.spot.service.post.PostCommandService;
+import com.example.spot.service.post.PostQueryService;
 import com.example.spot.web.dto.post.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -19,7 +21,10 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/spot/posts")
 public class PostController {
-
+    
+    private final PostCommandService postCommandService;
+    private final PostQueryService postQueryService;
+    
 
     private final static int PAGE_SIZE = 10; //페이지당 개수
 
@@ -28,10 +33,13 @@ public class PostController {
             description = "form/data로 새로운 게시글을 생성합니다.",
             security = @SecurityRequirement(name = "accessToken")
     )
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public void create(@ModelAttribute PostCreateRequest postCreateRequest) {
-        //postService.createPost(postCreateRequest);
-        // ToDo 응답 통일한 후 반환 타입 수정
+    @PostMapping(value = "/{memberId}")
+    public ApiResponse<PostCreateResponse> create(
+            @PathVariable Long memberId,
+            @ModelAttribute PostCreateRequest postCreateRequest
+    ) {
+        PostCreateResponse response = postCommandService.createPost(memberId, postCreateRequest);
+        return ApiResponse.onSuccess(SuccessStatus._CREATED, response);
     }
 
     @Operation(
@@ -47,7 +55,8 @@ public class PostController {
             )
             @PathVariable Long postId
     ) {
-       return null;
+        PostSingleResponse response = postQueryService.getPostById(postId);
+        return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
     @Operation(
@@ -63,7 +72,8 @@ public class PostController {
             @RequestParam(required = false, defaultValue = "0") int pageNumber
     ) {
         Pageable pageable = PageRequest.of(pageNumber, PAGE_SIZE);
-        return null;
+        PostPagingResponse response = postQueryService.getPagingPosts(type, pageable);
+        return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
     @Operation(
@@ -112,8 +122,9 @@ public class PostController {
             description = "게시글 Id를 받아 게시글을 수정합니다.",
             security = @SecurityRequirement(name = "accessToken")
     )
-    @PutMapping("/{postId}")
-    public void update(
+    @PatchMapping("/{memberId}/{postId}")
+    public ApiResponse<PostCreateResponse> update(
+            @PathVariable Long memberId,
             @Parameter(
                     description = "수정할 게시글의 ID입니다.",
                     schema = @Schema(type = "integer", format = "int64")
@@ -122,25 +133,25 @@ public class PostController {
             @Parameter(
                     description = "수정할 게시글 데이터입니다."
             )
-            @RequestBody PostUpdateRequest postUpdateRequest
+            @ModelAttribute PostUpdateRequest postUpdateRequest
     ) {
-        //메서드
+        PostCreateResponse response = postCommandService.updatePost(memberId, postId, postUpdateRequest);
+        return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
-
-
     @Operation(summary = "게시글 삭제 API", description = "게시글 Id를 받아 게시글을 삭제합니다.")
-    @DeleteMapping("/{postId}")
-    public void delete(
+    @DeleteMapping("/{memberId}/{postId}")
+    public ApiResponse<Void> delete(
+            @PathVariable Long memberId,
             @Parameter(
                     description = "삭제할 게시글의 ID입니다.",
                     schema = @Schema(type = "integer", format = "int64")
             )
             @PathVariable Long postId
     ) {
-//        postService.deletePost(postId);
+        postCommandService.deletePost(memberId, postId);
+        return ApiResponse.onSuccess(SuccessStatus._NO_CONTENT);
+
     }
-
-
 
 }

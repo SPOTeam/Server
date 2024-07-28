@@ -15,6 +15,7 @@ public enum ErrorStatus implements BaseErrorCode {
     _BAD_REQUEST(HttpStatus.BAD_REQUEST, "COMMON4000", "잘못된 요청입니다."),
     _UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "COMMON4001", "인증되지 않은 요청입니다."),
     _FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON4002", "접근이 거부되었습니다."),
+    _BAD_ENUM_REQUEST(HttpStatus.BAD_REQUEST, "COMMON4003", "잘못된 열거형 요청입니다."),
     _INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "COMMON4004", "입력값이 유효하지 않습니다."),
 
     //멤버 관련 에러
@@ -31,6 +32,10 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_NOT_APPROVED(HttpStatus.FORBIDDEN, "STUDY4005", "승인되지 않은 스터디입니다."),
     _STUDY_OWNER_CANNOT_WITHDRAW(HttpStatus.FORBIDDEN, "STUDY4006", "스터디장은 스터디를 탈퇴할 수 없습니다."),
     _STUDY_NOT_RECRUITING(HttpStatus.BAD_REQUEST, "STUDY4007", "스터디 모집기한이 아닙니다."),
+    _STUDY_APPLICANT_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY4009", "처리를 기다리는 스터디 신청을 찾을 수 없습니다."),
+    _STUDY_APPLY_ALREADY_PROCESSED(HttpStatus.BAD_REQUEST, "STUDY4010","스터디 신청이 이미 처리된 회원입니다."),
+    _STUDY_OWNER_CANNOT_APPLY(HttpStatus.BAD_REQUEST, "STUDY4011", "스터디장은 스터디에 신청할 수 없습니다."),
+    _STUDY_IS_FULL(HttpStatus.BAD_REQUEST, "STUDY4012", "스터디 인원이 가득 찼습니다."),
 
     //스터디 게시물 관련 에러
     _STUDY_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST4001", "스터디 게시글을 찾을 수 없습니다."),
@@ -40,6 +45,9 @@ public enum ErrorStatus implements BaseErrorCode {
     //스터디 일정 관련 에러
     _STUDY_SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "SCHEDULE4001", "스터디 일정을 찾을 수 없습니다."),
 
+    //알림 관련 에러
+    _NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTIFICATION4001", "알림을 찾을 수 없습니다."),
+
     //지역 관련 에러
     _REGION_NOT_FOUND(HttpStatus.NOT_FOUND, "REGION4001", "지역을 찾을 수 없습니다."),
 
@@ -47,9 +55,33 @@ public enum ErrorStatus implements BaseErrorCode {
     _THEME_NOT_FOUND(HttpStatus.NOT_FOUND, "THEME4001", "스터디 테마를 찾을 수 없습니다."),
     _STUDY_THEME_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY4002", "스터디 관심사를 찾을 수 없습니다."),
     _STUDY_REGION_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY4003", "스터디 지역을 찾을 수 없습니다."),
+
     // 스터디 조회 관련 에러
     _STUDY_THEME_IS_NULL(HttpStatus.BAD_REQUEST, "STUDY6004", "스터디 관심사가 입력되지 않았습니다."),
-    _STUDY_REGION_IS_NULL(HttpStatus.BAD_REQUEST, "STUDY6005", "스터디 지역이 입력되지 않았습니다.");
+    _STUDY_REGION_IS_NULL(HttpStatus.BAD_REQUEST, "STUDY6005", "스터디 지역이 입력되지 않았습니다."),
+    _STUDY_SORT_BY_IS_NULL(HttpStatus.BAD_REQUEST, "STUDY6006", "스터디 정렬 기준이 입력되지 않았습니다."),
+    _STUDY_SORT_BY_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY6007", "스터디 정렬 기준을 찾을 수 없습니다."),
+    _STUDY_ID_NULL(HttpStatus.BAD_REQUEST, "STUDY6008", "스터디 아이디가 입력되지 않았습니다."),
+    _STUDY_REGION_IS_NOT_MATCH(HttpStatus.BAD_REQUEST, "STUDY6009", "입력한 회원의 관심 스터디 지역을 입력하세요."),
+    _STUDY_IS_NOT_MATCH(HttpStatus.BAD_REQUEST, "STUDY6010", "입력한 조건에 맞는 스터디가 존재하지 않습니다."),
+
+
+    // S3 관련 에러
+    _FILE_IS_NULL(HttpStatus.BAD_REQUEST, "S34001", "파일이 입력되지 않았습니다."),
+    _IO_EXCEPTION(HttpStatus.BAD_REQUEST, "S34002", "IO 오류가 발생했습니다."),
+    _BAD_FILE_EXTENTION(HttpStatus.BAD_REQUEST, "S34003", "잘못된 확장자입니다."),
+    _PUT_OBJECT_EXCEPTION(HttpStatus.BAD_REQUEST, "S34004", "이미지 업로드하는 과정에서 오류가 발생했습니다."),
+
+
+    //게시글 관련 에러
+    _POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST5001", "게시글을 찾을 수 없습니다."),
+    _POST_TITLE_INVALID(HttpStatus.BAD_REQUEST, "POST5002", "게시글 제목이 유효하지 않습니다."),
+    _POST_CONTENT_INVALID(HttpStatus.BAD_REQUEST, "POST5003", "게시글 내용이 유효하지 않습니다."),
+    _POST_NOT_AUTHOR(HttpStatus.BAD_REQUEST, "POST5004", "게시글 작성자가 아닙니다."),
+    _POST_REPORTED(HttpStatus.FORBIDDEN, "POST5005", "신고된 게시글입니다."),
+    _INVALID_BOARD_TYPE(HttpStatus.BAD_REQUEST, "POST5006", "유효하지 않은 게시판 타입입니다.")
+
+    ;
 
     private final HttpStatus httpStatus;
     private final String code;

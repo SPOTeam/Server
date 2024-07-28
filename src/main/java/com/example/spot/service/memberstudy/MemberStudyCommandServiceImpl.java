@@ -1,6 +1,7 @@
 package com.example.spot.service.memberstudy;
 
 import com.example.spot.api.code.status.ErrorStatus;
+import com.example.spot.api.exception.GeneralException;
 import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.api.exception.handler.StudyHandler;
 import com.example.spot.domain.Member;
@@ -15,6 +16,7 @@ import com.example.spot.repository.ScheduleRepository;
 import com.example.spot.repository.StudyRepository;
 import com.example.spot.web.dto.memberstudy.response.StudyTerminationResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyWithdrawalResponseDTO;
+import com.example.spot.web.dto.study.response.StudyApplyResponseDTO;
 import com.example.spot.web.dto.study.request.ScheduleRequestDTO;
 import com.example.spot.web.dto.study.response.ScheduleResponseDTO;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class MemberStudyCommandServiceImpl implements MemberStudyCommandService {
 
     private final MemberRepository memberRepository;
@@ -35,7 +38,6 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
 /* ----------------------------- 진행중인 스터디 관련 API ------------------------------------- */
 
     // [진행중인 스터디] 스터디 탈퇴하기
-    @Transactional
     public StudyWithdrawalResponseDTO.WithdrawalDTO withdrawFromStudy(Long memberId, Long studyId) {
 
         Member member = memberRepository.findById(memberId)
@@ -62,7 +64,6 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
     }
 
     // [진행중인 스터디] 스터디 끝내기
-    @Transactional
     public StudyTerminationResponseDTO.TerminationDTO terminateStudy(Long studyId) {
 
         Study study = studyRepository.findById(studyId)
@@ -74,9 +75,33 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         return StudyTerminationResponseDTO.TerminationDTO.toDTO(study);
     }
 
-/* ----------------------------- 스터디 일정 관련 API ------------------------------------- */
+    @Override
+    public StudyApplyResponseDTO acceptAndRejectStudyApply(Long memberId, Long studyId,
+        boolean isAccept) {
 
-    @Transactional
+        MemberStudy memberStudy = memberStudyRepository.findByMemberIdAndStudyId(memberId, studyId)
+            .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_APPLICANT_NOT_FOUND));
+
+        if (memberStudy.getIsOwned())
+            throw new GeneralException(ErrorStatus._STUDY_OWNER_CANNOT_APPLY);
+
+        if (memberStudy.getStatus() != ApplicationStatus.APPLIED)
+            throw new GeneralException(ErrorStatus._STUDY_APPLY_ALREADY_PROCESSED);
+
+        if (isAccept)
+            memberStudy.setStatus(ApplicationStatus.APPROVED);
+        else {
+            memberStudy.setStatus(ApplicationStatus.REJECTED);
+            memberStudyRepository.delete(memberStudy);
+        }
+
+        return StudyApplyResponseDTO.builder()
+            .status(memberStudy.getStatus())
+            .updatedAt(memberStudy.getUpdatedAt())
+            .build();
+    }
+
+/* ----------------------------- 스터디 일정 관련 API ------------------------------------- */
     @Override
     public ScheduleResponseDTO.ScheduleDTO addSchedule(Long studyId, ScheduleRequestDTO.ScheduleDTO scheduleRequestDTO) {
 
@@ -100,7 +125,6 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         return ScheduleResponseDTO.ScheduleDTO.toDTO(schedule);
     }
 
-    @Transactional
     @Override
     public ScheduleResponseDTO.ScheduleDTO modSchedule(Long studyId, Long scheduleId, ScheduleRequestDTO.ScheduleDTO scheduleModDTO) {
 

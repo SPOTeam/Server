@@ -1,10 +1,13 @@
 package com.example.spot.web.dto.post;
 
+import com.example.spot.domain.PostComment;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
+@Builder
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CommentResponse {
@@ -52,5 +55,28 @@ public class CommentResponse {
             format = "int"
     )
     private int disLikeCount;
+
+    public static CommentResponse toDTO(PostComment comment) {
+        // 작성자가 익명인지 확인하여 작성자 이름 설정
+        String writerName = judgeAnonymous(comment.isAnonymous(), comment.getMember().getName());
+
+        return CommentResponse.builder()
+                .commentId(comment.getId())
+                .commentContent(comment.getContent())
+                .parentId(comment.getParentComment() != null ? comment.getParentComment().getId() : null)
+                .writer(writerName)
+                .writtenTime(comment.getCreatedAt().toString())
+                .likeCount(comment.getLikeNum())
+                .disLikeCount(comment.getDisLikeNum())
+                .build();
+    }
+    public static String judgeAnonymous(Boolean isAnonymous, String writer) {
+
+        if (isAnonymous) {
+            return "익명";
+        }
+
+        return writer;
+    }
 
 }

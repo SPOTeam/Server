@@ -1,122 +1,88 @@
 package com.example.spot.web.controller;
 
-import com.example.spot.domain.enums.NotifyType;
+import com.example.spot.api.ApiResponse;
+import com.example.spot.api.code.status.SuccessStatus;
+import com.example.spot.web.dto.notification.NotificationRequestDTO;
+import com.example.spot.web.dto.notification.NotificationResponseDTO;
+import com.example.spot.service.notification.NotificationCommandService;
+import com.example.spot.service.notification.NotificationQueryService;
+
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
+import java.util.List;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Notification", description = "Notification API")
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/spot")
 public class NotificationController {
 
-    //TODO: NotificationService 구현
-    //private final NotificationService notificationService;
+    private final NotificationQueryService notificationQueryService;
+    private final NotificationCommandService notificationCommandService;
 
-    //TODO: NotificationService 생성자 주입
-    //public NotificationController(NotificationService notificationService) {}
-
-    // 내게 할당된 알림 전체 조회
-    @GetMapping("/notifications/")
-    @Operation(summary = "[알림 전체 조회 - 개발중]",
-            description = """
-                    ## [알림 전체 조회] 내게 할당된 알림 전체 조회
-                    내게 할당된 알림 전체를 조회합니다.
-                    """)
-    @Parameter(name = "userId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
-    @Parameter(name = "type", description = "조회할 알림의 타입을 입력 받습니다.", required = false)
-    @Parameter(name = "status", description = "조회할 알림의 상태를 입력 받습니다.", required = true)
-    @Parameter(name = "date", description = "조회할 알림의 날짜를 입력 받습니다.", required = true)
-    public void getAllNotification(
-            @RequestParam("userId") long userId,
-            @RequestParam(value = "type", required = false) NotifyType type,
-            @RequestParam(value = "status") String status,
-            @RequestParam(value = "date") String date
-    ) {
+    //알림 전체 조회
+    @Operation(summary = "[알림 전체 조회 - 개발중]", description = """
+            ## [알림 전체 조회] 내게 할당된 알림 전체 조회
+            내게 할당된 알림 전체를 조회합니다.
+            """)
+    @GetMapping("/members/{memberId}/notifications")
+    public ApiResponse<List<NotificationResponseDTO.NotificationDTO>> getAllNotifications(@PathVariable Long memberId) {
+        List<NotificationResponseDTO.NotificationDTO> notificationDTO = notificationQueryService.getAllNotifications(memberId);
+        return ApiResponse.onSuccess(SuccessStatus._NOTIFICATION_FOUND, notificationDTO);
     }
 
-    // 참가 신청한 스터디 최종 참여 확인 알림
-    @GetMapping("/notifications/applied-study")
+    //신청한 스터디 참여 확인 알림
     @Operation(summary = "[참가 신청한 스터디 알림 조회 - 개발중]", description = "유저가 참가 신청한 스터디 조회")
-    @Parameter(name = "userId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
-    @Parameter(name = "studyId", description = "조회할 스터디의 ID를 입력 받습니다.", required = true)
-    @Parameter(name = "status", description = "조회할 알림의 상태를 입력 받습니다.", required = false)
-    @Parameter(name = "date", description = "조회할 알림의 날짜를 입력 받습니다.", required = false)
-    public void getAppliedStudyNotification(
-            @RequestParam("userId") Long userId,
-            @RequestParam("studyId") long studyId,
-            @RequestParam(value = "status", required = false) String status,
-            @RequestParam(value = "date", required = false) String date
-    ) {
+    @GetMapping("/members/{memberId}/notifications/applied-study")
+    public ApiResponse<List<NotificationResponseDTO.NotificationDTO>> getAppliedStudyNotification(@PathVariable Long memberId) {
+        List<NotificationResponseDTO.NotificationDTO> notificationDTO = notificationQueryService.getAllAppliedStudyNotification(memberId);
+        return ApiResponse.onSuccess(SuccessStatus._NOTIFICATION_FOUND, notificationDTO);
+
     }
 
-    @GetMapping("/notifications/applied-study/{studyId}")
+    //알림 읽음 처리
+    @Operation(summary = "[알림 읽음 처리 - 개발중]", description = """
+            ## [알림 읽음 처리] 알림을 읽음 처리합니다.
+            알림을 읽음 처리합니다.
+            """)
+    @PostMapping("/members/{memberId}/notifications/{notificationId}/read")
+    public ApiResponse<NotificationResponseDTO.NotificationDTO> readNotification(@PathVariable Long memberId, @PathVariable Long notificationId) {
+        NotificationResponseDTO.NotificationDTO notificationDTO = notificationCommandService.readNotification(memberId, notificationId);
+        return ApiResponse.onSuccess(SuccessStatus._NOTIFICATION_READ, notificationDTO);
+
+    }
+
     @Operation(summary = "[참가 신청한 스터디 참여 여부 - 개발중]", description = "유저가 참가 신청한 스터디 참여 여부")
-    @Parameter(name = "studyId", description = "조회할 스터디의 ID를 입력 받습니다.", required = true)
-    @Parameter(name = "userId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
-    public void checkAppliedStudyNotification(
-            @PathVariable("studyId") long studyId,
-            @RequestParam("userId") Long userId
-    ) {
+    @GetMapping("/members/{memberId}/notifications/applied-study/{studyId}")
+    public ApiResponse<List<NotificationResponseDTO.NotificationDTO>> checkAppliedStudyNotification(@PathVariable Long memberId, @PathVariable Long studyId) {
+        return null;
     }
 
     // 신청한 스터디 참여
-    @PostMapping("/notifications/applied-study/{studyId}/confirm")
-    @Operation(summary = "[참가 신청한 스터디 참여 - 개발중]",
-            description = """
-                    ## [참가 신청한 스터디 참여 확인] 유저가 참가 신청한 스터디를 참여 처리합니다.
-                    해당 스터디 참석 처리
-                    """)
-    @Parameter(name = "studyId", description = "조회할 스터디의 ID를 입력 받습니다.", required = true)
-    @Parameter(name = "userId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
-    @Parameter(name = "status", description = "조회할 알림의 상태를 입력 받습니다.", required = true)
-    @Parameter(name = "date", description = "조회할 알림의 날짜를 입력 받습니다.", required = true)
-    public void confirmAppliedStudy(
-            @PathVariable("studyId") long studyId,
-            @RequestParam("userId") Long userId,
-            @RequestParam("status") String status,
-            @RequestParam("date") String date
-    ) {
+    @Operation(summary = "[참가 신청한 스터디 참여 처리  - 개발중]", description = """
+            ## [참가 신청한 스터디 참여 확인] 유저가 참가 신청한 스터디를 참여 처리합니다.
+            해당 스터디 참석 처리
+            """)
+    @PostMapping("/members/{memberId}/notifications/applied-study/{studyId}/join")
+    public ApiResponse<NotificationResponseDTO.NotificationDTO> joinAppliedStudy(@PathVariable Long memberId, @PathVariable Long studyId,
+                                                                                 @RequestBody NotificationRequestDTO.joinStudyDTO joinAppliedStudyRequestDTO) {
+        NotificationResponseDTO.NotificationDTO notification = notificationCommandService.joinAppliedStudy(studyId, memberId, joinAppliedStudyRequestDTO);
+        return ApiResponse.onSuccess(SuccessStatus._NOTIFICATION_APPLIED_STUDY_JOINED, notification);
     }
 
     // 신청한 스터디 불참
-    @PostMapping("/notifications/applied-study/{studyId}/cancel")
-    @Operation(summary = "[참가 신청한 스터디 불참 - 개발중]",
-            description = """
-                    ## [참가 신청한 스터디 참여 취소] 유저가 참가 신청한 스터디를 불참 처리합니다.
-                    해당 스터디 참석 불참 처리
-                    """)
-    @Parameter(name = "studyId", description = "조회할 스터디의 ID를 입력 받습니다.", required = true)
-    @Parameter(name = "userId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
-    @Parameter(name = "status", description = "조회할 알림의 상태를 입력 받습니다.", required = true)
-    @Parameter(name = "date", description = "조회할 알림의 날짜를 입력 받습니다.", required = true)
-    public void cancelAppliedStudy(
-            @PathVariable("studyId") Long studyId,
-            @RequestParam("userId") Long userId,
-            @RequestParam("status") String status,
-            @RequestParam("date") String date
-    ) {
-    }
-
-    // 알림 존재 유무(알림 있으면 알림 아이콘 옆 붉은 점 표시)
-    @GetMapping("/notifications/exist")
-    @Operation(summary = "[알림 존재 유무 - 개발중]", description = "알림 존재 유무 조회(붉은 점 표시)")
-    public boolean existNotification(
-            @RequestParam("userId") Long userId
-    ) {
-        return true;
-    }
-
-    // 알림 확인 유무
-    @GetMapping("/notifications/check")
-    @Operation(summary = "[알림 확인 유무 - 개발중]", description = "알림 확인 유무 조회")
-    public boolean checkNotification(
-            @RequestParam("userId") Long userId,
-            @RequestParam("type") String type,
-            @RequestParam("status") String status,
-            @RequestParam("date") String date
-    ) {
-        return true;
+    @Operation(summary = "[참가 신청한 스터디 불참 - 개발중]", description = """
+            ## [참가 신청한 스터디 참여 취소] 유저가 참가 신청한 스터디를 불참 처리합니다.
+            해당 스터디 참석 불참 처리
+            """)
+    @PostMapping("/members/{memberId}/notifications/applied-study/{studyId}/reject")
+    public ApiResponse<NotificationResponseDTO.NotificationDTO> rejectAppliedStudy(@PathVariable Long memberId, @PathVariable Long studyId,
+                                                                                   @RequestBody NotificationRequestDTO.rejectStudyDTO rejectAppliedStudyRequestDTO) {
+        NotificationResponseDTO.NotificationDTO notification = notificationCommandService.rejectAppliedStudy(studyId, memberId, rejectAppliedStudyRequestDTO);
+        return ApiResponse.onSuccess(SuccessStatus._NOTIFICATION_APPLIED_STUDY_REJECTED, notification);
     }
 }

@@ -6,6 +6,7 @@ import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.enums.StudySortBy;
 import com.example.spot.domain.enums.StudyState;
 import com.example.spot.domain.enums.ThemeType;
+import com.example.spot.domain.mapping.MemberStudy;
 import com.example.spot.domain.mapping.RegionStudy;
 import com.example.spot.domain.mapping.StudyTheme;
 import com.example.spot.domain.study.QStudy;
@@ -17,10 +18,13 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 
 import static com.example.spot.domain.study.QStudy.study;
 @RequiredArgsConstructor
+@Slf4j
 public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
@@ -166,6 +170,28 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
         return query.fetch();
     }
 
+    @Override
+    public List<Study> findByMemberStudy(List<MemberStudy> memberStudy, Pageable pageable) {
+        QStudy study = QStudy.study;
+        return queryFactory.selectFrom(study)
+            .where(study.memberStudies.any().in(memberStudy))
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .fetch();
+    }
+
+    @Override
+    public List<Study> findRecruitingStudiesByMemberStudy(List<MemberStudy> memberStudy,
+        Pageable pageable) {
+        QStudy study = QStudy.study;
+        return queryFactory.selectFrom(study)
+            .where(study.memberStudies.any().in(memberStudy))
+            .where(study.studyState.eq(StudyState.RECRUITING))
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .fetch();
+    }
+
 
     @Override
     public long countStudyByConditionsAndThemeTypes(
@@ -289,6 +315,5 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
             builder.and(study.fee.loe((Integer) search.get("fee")));
         }
     }
-
 
 }

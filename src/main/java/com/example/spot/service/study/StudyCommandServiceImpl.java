@@ -7,8 +7,10 @@ import com.example.spot.domain.Member;
 import com.example.spot.domain.Region;
 import com.example.spot.domain.Theme;
 import com.example.spot.domain.enums.ApplicationStatus;
+import com.example.spot.domain.enums.StudyLikeStatus;
 import com.example.spot.domain.enums.StudyState;
 import com.example.spot.domain.mapping.MemberStudy;
+import com.example.spot.domain.mapping.PreferredStudy;
 import com.example.spot.domain.mapping.RegionStudy;
 import com.example.spot.domain.mapping.StudyTheme;
 import com.example.spot.domain.study.Study;
@@ -16,6 +18,7 @@ import com.example.spot.repository.*;
 import com.example.spot.web.dto.study.request.StudyJoinRequestDTO;
 import com.example.spot.web.dto.study.request.StudyRegisterRequestDTO;
 import com.example.spot.web.dto.study.response.StudyJoinResponseDTO;
+import com.example.spot.web.dto.study.response.StudyLikeResponseDTO;
 import com.example.spot.web.dto.study.response.StudyRegisterResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -35,6 +38,7 @@ public class StudyCommandServiceImpl implements StudyCommandService {
     private final MemberStudyRepository memberStudyRepository;
     private final RegionStudyRepository regionStudyRepository;
     private final StudyThemeRepository studyThemeRepository;
+    private final PreferredStudyRepository preferredStudyRepository;
 
     /* ----------------------------- 스터디 생성/참여 관련 API ------------------------------------- */
 
@@ -53,10 +57,19 @@ public class StudyCommandServiceImpl implements StudyCommandService {
             throw new StudyHandler(ErrorStatus._STUDY_NOT_RECRUITING);
         }
 
+        if (study.getMaxPeople() <= memberStudyRepository.countByStatusAndStudyId(ApplicationStatus.APPROVED, studyId))
+            throw new StudyHandler(ErrorStatus._STUDY_IS_FULL);
+
+
         // 이미 신청한 스터디에 다시 신청할 수 없음
         List<MemberStudy> memberStudyList = memberStudyRepository.findByMemberId(memberId).stream()
                 .filter(memberStudy -> study.equals(memberStudy.getStudy()))
                 .toList();
+
+        // memberStudy에 내가 소유한 스터디가 있으면 에러 발생
+        if (memberStudyList.stream().anyMatch(MemberStudy::getIsOwned)) {
+            throw new StudyHandler(ErrorStatus._STUDY_OWNER_CANNOT_APPLY);
+        }
 
         if (!memberStudyList.isEmpty()) {
             throw new StudyHandler(ErrorStatus._STUDY_ALREADY_APPLIED);
@@ -89,8 +102,8 @@ public class StudyCommandServiceImpl implements StudyCommandService {
                 .minAge(studyRegisterRequestDTO.getMinAge())
                 .maxAge(studyRegisterRequestDTO.getMaxAge())
                 .fee(studyRegisterRequestDTO.getFee())
-                .profileImage(studyRegisterRequestDTO.getProfileImage())
                 .isOnline(studyRegisterRequestDTO.getIsOnline())
+                .profileImage(studyRegisterRequestDTO.getProfileImage())
                 .hasFee(studyRegisterRequestDTO.isHasFee())
                 .goal(studyRegisterRequestDTO.getGoal())
                 .introduction(studyRegisterRequestDTO.getIntroduction())
@@ -107,6 +120,37 @@ public class StudyCommandServiceImpl implements StudyCommandService {
         studyRepository.save(study);
 
         return StudyRegisterResponseDTO.RegisterDTO.toDTO(study);
+    }
+
+    @Override
+    public StudyLikeResponseDTO likeStudy(Long memberId, Long studyId) {
+
+        // 회원과 스터디 조회
+        Study study = studyRepository.findById(studyId)
+            .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        // 현재 좋아요 상태 확인 -> 만약 없다면, 객체 하나 생성
+        PreferredStudy preferredStudy = preferredStudyRepository
+            .findByMemberIdAndStudyId(memberId, studyId)
+            .orElse(PreferredStudy.builder()
+                .member(member)
+                .study(study)
+                .studyLikeStatus(StudyLikeStatus.DISLIKE)
+                .build());
+
+        // 상태에 따라 변경
+        if (preferredStudy.getStudyLikeStatus() == StudyLikeStatus.LIKE) {
+            preferredStudy.changeStatus(StudyLikeStatus.DISLIKE);
+            study.deletePreferredStudy(preferredStudy);
+        } else {
+            preferredStudy.changeStatus(StudyLikeStatus.LIKE);
+            study.addPreferredStudy(preferredStudy);
+        }
+        // 저장 및 응답 객체 생성
+        preferredStudyRepository.save(preferredStudy);
+        return new StudyLikeResponseDTO(preferredStudy);
     }
 
     private void createMemberStudy(Member member, Study study) {
@@ -133,7 +177,7 @@ public class StudyCommandServiceImpl implements StudyCommandService {
                 .forEach(stringRegion -> {
 
                     Region region = regionRepository
-                            .findByProvinceAndDistrictAndNeighborhood(stringRegion.getProvince(), stringRegion.getDistrict(), stringRegion.getNeighborhood())
+                            .findByCode(stringRegion)
                             .orElseThrow(() -> new StudyHandler(ErrorStatus._REGION_NOT_FOUND));
 
                     RegionStudy regionStudy = RegionStudy.builder()

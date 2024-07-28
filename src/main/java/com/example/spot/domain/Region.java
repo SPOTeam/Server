@@ -1,5 +1,6 @@
 package com.example.spot.domain;
 
+import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.mapping.RegionStudy;
 import com.example.spot.domain.mapping.PreferredRegion;
 import jakarta.persistence.*;
@@ -14,7 +15,7 @@ import java.util.List;
 
 @Entity
 @Getter
-public class Region {
+public class Region extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

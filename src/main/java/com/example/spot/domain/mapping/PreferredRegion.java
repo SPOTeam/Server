@@ -2,6 +2,7 @@ package com.example.spot.domain.mapping;
 
 import com.example.spot.domain.Region;
 import com.example.spot.domain.Member;
+import com.example.spot.domain.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -19,7 +20,7 @@ import org.hibernate.annotations.DynamicUpdate;
 @DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class PreferredRegion {
+public class PreferredRegion extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

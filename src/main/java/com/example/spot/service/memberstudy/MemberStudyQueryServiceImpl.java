@@ -9,7 +9,22 @@ import com.example.spot.repository.ScheduleRepository;
 import com.example.spot.repository.StudyRepository;
 import com.example.spot.web.dto.study.response.ScheduleResponseDTO;
 import lombok.RequiredArgsConstructor;
+import com.example.spot.api.exception.GeneralException;
+import com.example.spot.domain.enums.ApplicationStatus;
+import com.example.spot.domain.mapping.MemberStudy;
+import com.example.spot.domain.study.StudyPost;
+import com.example.spot.repository.MemberStudyRepository;
+import com.example.spot.repository.StudyPostRepository;
+import com.example.spot.web.dto.study.response.StudyMemberResponseDTO;
+import com.example.spot.web.dto.study.response.StudyMemberResponseDTO.StudyApplyMemberDTO;
+import com.example.spot.web.dto.study.response.StudyMemberResponseDTO.StudyMemberDTO;
+import com.example.spot.web.dto.study.response.StudyPostResponseDTO;
+import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO;
+import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO.StudyScheduleDTO;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -21,11 +36,83 @@ import java.util.List;
 
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 
     private final StudyRepository studyRepository;
+    private final StudyPostRepository studyPostRepository;
     private final ScheduleRepository scheduleRepository;
+    private final MemberStudyRepository memberStudyRepository;
+
+
+    @Override
+    public StudyPostResponseDTO findStudyAnnouncementPost(Long studyId) {
+        StudyPost studyPost = studyPostRepository.findByStudyIdAndIsAnnouncement(
+            studyId, true).orElseThrow(() -> new GeneralException(ErrorStatus._STUDY_POST_NOT_FOUND));
+
+        return StudyPostResponseDTO.builder()
+            .title(studyPost.getTitle())
+            .content(studyPost.getContent()).build();
+    }
+
+    @Override
+    public StudyScheduleResponseDTO findStudySchedule(Long studyId, Pageable pageable) {
+        List<Schedule> schedules = scheduleRepository.findAllByStudyId(studyId, pageable);
+        if (schedules.isEmpty())
+            throw  new GeneralException(ErrorStatus._STUDY_SCHEDULE_NOT_FOUND);
+
+        List<StudyScheduleDTO> scheduleDTOS = schedules.stream().map(schedule -> StudyScheduleDTO.builder()
+            .title(schedule.getTitle())
+            .location(schedule.getLocation())
+            .staredAt(schedule.getStartedAt())
+            .build()).toList();
+
+        return new StudyScheduleResponseDTO(new PageImpl<>(scheduleDTOS, pageable, schedules.size()), scheduleDTOS, schedules.size());
+    }
+
+    @Override
+    public StudyMemberResponseDTO findStudyMembers(Long studyId) {
+        List<MemberStudy> memberStudies = memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED);
+        if (memberStudies.isEmpty())
+            throw new GeneralException(ErrorStatus._STUDY_MEMBER_NOT_FOUND);
+        List<StudyMemberDTO> memberDTOS = memberStudies.stream().map(memberStudy -> StudyMemberDTO.builder()
+            .memberId(memberStudy.getMember().getId())
+            .nickname(memberStudy.getMember().getName())
+            .profileImage(memberStudy.getMember().getProfileImage())
+            .build()).toList();
+        return new StudyMemberResponseDTO(memberDTOS);
+    }
+
+    @Override
+    public StudyMemberResponseDTO findStudyApplicants(Long studyId) {
+        List<MemberStudy> memberStudies = memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPLIED);
+        if (memberStudies.isEmpty())
+            throw new GeneralException(ErrorStatus._STUDY_APPLICANT_NOT_FOUND);
+        List<StudyMemberDTO> memberDTOS = memberStudies.stream().map(memberStudy -> StudyMemberDTO.builder()
+            .memberId(memberStudy.getMember().getId())
+            .nickname(memberStudy.getMember().getName())
+            .profileImage(memberStudy.getMember().getProfileImage())
+            .build()).toList();
+        return new StudyMemberResponseDTO(memberDTOS);
+    }
+
+    @Override
+    public StudyApplyMemberDTO findStudyApplication(Long studyId, Long memberId) {
+        MemberStudy memberStudy = memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPLIED)
+            .orElseThrow(() -> new GeneralException(ErrorStatus._STUDY_APPLICANT_NOT_FOUND));
+
+        if (memberStudy.getIsOwned())
+            throw new GeneralException(ErrorStatus._STUDY_OWNER_CANNOT_APPLY);
+
+        return StudyApplyMemberDTO.builder()
+            .memberId(memberStudy.getMember().getId())
+            .studyId(memberStudy.getStudy().getId())
+            .introduction(memberStudy.getIntroduction())
+            .nickname(memberStudy.getMember().getName())
+            .profileImage(memberStudy.getMember().getProfileImage())
+            .build();
+    }
 
     @Override
     public ScheduleResponseDTO.MonthlyScheduleListDTO getMonthlySchedules(Long studyId, int year, int month) {

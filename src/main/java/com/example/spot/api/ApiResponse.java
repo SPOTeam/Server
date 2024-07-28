@@ -39,6 +39,11 @@ public class ApiResponse<T> {
         return new ApiResponse<>(true, code.getReasonHttpStatus().getCode(), code.getReasonHttpStatus().getMessage(), result);
     }
 
+    // 성공한 경우 응답 생성 (Void 타입 지원)
+    public static ApiResponse<Void> onSuccess(SuccessStatus code) {
+        return new ApiResponse<>(true, code.getCode(), code.getMessage(), null);
+    }
+
     // 실패한 경우 응답 생성
     public static <T> ApiResponse<T> onFailure(String code, String message, T data) {
         return new ApiResponse<>(false, code, message, data);
@@ -50,9 +55,10 @@ public class ApiResponse<T> {
         this.code = status.getCode();
     }
 
-    public ApiResponse(String message) {
+    public ApiResponse(ErrorStatus status, T result) {
         this.isSuccess = false;
-        this.message = message;
-        this.code = HttpStatus.BAD_REQUEST.toString();
+        this.message = status.getMessage();
+        this.code = status.getCode();
+        this.result = result;
     }
 }

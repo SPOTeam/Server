@@ -5,6 +5,7 @@ import com.example.spot.domain.enums.Gender;
 import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.enums.StudyState;
 import com.example.spot.domain.mapping.MemberStudy;
+import com.example.spot.domain.mapping.PreferredStudy;
 import com.example.spot.domain.mapping.RegionStudy;
 import com.example.spot.domain.mapping.StudyTheme;
 import jakarta.persistence.CascadeType;
@@ -25,8 +26,11 @@ import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
 @Getter
+@Builder
 @DynamicUpdate
 @DynamicInsert
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Study extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -58,8 +62,8 @@ public class Study extends BaseEntity {
     @Column(nullable = false)
     private Boolean isOnline;
 
-    @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 0")
-    private Long heartCount;
+    @Column(nullable = false)
+    private Integer heartCount;
 
     @Column(nullable = false)
     private String goal;
@@ -82,28 +86,36 @@ public class Study extends BaseEntity {
     private Long maxPeople;
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<Schedule> schedules = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<StudyPost> posts = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<Vote> votes = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
-    private List<StudyTheme> studyThemes;
+    @Builder.Default
+    private List<StudyTheme> studyThemes = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
-    private List<MemberStudy> memberStudies;
+    @Builder.Default
+    private List<MemberStudy> memberStudies = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
-    private List<RegionStudy> regionStudies;
+    @Builder.Default
+    private List<RegionStudy> regionStudies = new ArrayList<>();
+
+    @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<PreferredStudy> preferredStudies = new ArrayList<>();
 
 
 
 /* ----------------------------- 생성자 ------------------------------------- */
-
-    protected Study() {}
 
     @Builder
     public Study(Gender gender, Integer minAge, Integer maxAge, Integer fee,
@@ -117,7 +129,7 @@ public class Study extends BaseEntity {
         this.profileImage = profileImage;
         this.studyState = StudyState.RECRUITING;
         this.isOnline = isOnline;
-        this.heartCount = 0L;
+        this.heartCount = 0;
         this.hasFee = hasFee;
         this.goal = goal;
         this.introduction = introduction;
@@ -129,6 +141,7 @@ public class Study extends BaseEntity {
         this.posts = new ArrayList<>();
         this.votes = new ArrayList<>();
         this.studyThemes = new ArrayList<>();
+        this.preferredStudies = new ArrayList<>();
         this.memberStudies = new ArrayList<>();
         this.regionStudies = new ArrayList<>();
 
@@ -149,6 +162,22 @@ public class Study extends BaseEntity {
     public void addStudyTheme(StudyTheme studyTheme) {
         studyThemes.add(studyTheme);
         studyTheme.setStudy(this);
+    }
+
+    public void addPreferredStudy(PreferredStudy preferredStudy) {
+        preferredStudies.add(preferredStudy);
+        preferredStudy.changeStudy(this);
+        this.heartCount++;
+    }
+
+    // preferredStudy 삭제
+    public void deletePreferredStudy(PreferredStudy preferredStudy) {
+        this.heartCount--;
+    }
+
+    // hit 증가
+    public void increaseHit() {
+        this.hitNum++;
     }
 
     public void addSchedule(Schedule schedule) {
