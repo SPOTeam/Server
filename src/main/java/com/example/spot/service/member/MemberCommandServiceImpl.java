@@ -5,6 +5,8 @@ import com.example.spot.service.member.oauth.KaKaoOAuthService;
 import com.example.spot.web.dto.member.kakao.KaKaoOAuthToken.KaKaoOAuthTokenDTO;
 import com.example.spot.web.dto.member.kakao.KaKaoUser;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 public class MemberCommandServiceImpl implements MemberCommandService {
 
     private final KaKaoOAuthService kaKaoOAuthService;
+    private final HttpServletResponse response;
     private final MemberRepository memberRepository;
 
     @Override
@@ -26,5 +29,10 @@ public class MemberCommandServiceImpl implements MemberCommandService {
         KaKaoUser kaKaoUser = kaKaoOAuthService.getUserInfo(userInfoResponse);
         log.info("kaKaoUser = {}", kaKaoUser);
 
+    }
+
+    @Override
+    public void redirectURL() throws IOException {
+        response.sendRedirect(kaKaoOAuthService.getOauthRedirectURL());
     }
 }
