@@ -23,6 +23,7 @@ public enum ErrorStatus implements BaseErrorCode {
     _MEMBER_NAME_INVALID(HttpStatus.BAD_REQUEST, "MEMBER4002", "회원 이름이 유효하지 않습니다."),
     _MEMBER_ID_NULL(HttpStatus.BAD_REQUEST, "MEMBER4003", "회원 아이디가 입력되지 않았습니다. "),
     _MEMBER_BIRTH_INVALID(HttpStatus.BAD_REQUEST, "MEMBER4005", "생년월일이 유효하지 않습니다."),
+    _MEMBER_EMAIL_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "MEMBER4006", "이미 존재하는 이메일입니다."),
 
     //스터디 관련 에러
     _STUDY_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY4001", "스터디를 찾을 수 없습니다."),

@@ -2,6 +2,7 @@ package com.example.spot.domain;
 
 import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.enums.Carrier;
+import com.example.spot.domain.enums.LoginType;
 import com.example.spot.domain.mapping.*;
 import com.example.spot.domain.study.Study;
 import com.example.spot.domain.study.StudyPost;
@@ -38,6 +39,9 @@ public class Member extends BaseEntity {
     @Column(nullable = false, length = 20)
     private String name;
 
+    @Column(nullable = false, length = 50, unique = true)
+    private String email;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 5)
     private Carrier carrier;
@@ -63,87 +67,110 @@ public class Member extends BaseEntity {
     @Column(nullable = false, columnDefinition = "BIT DEFAULT 0")
     private Boolean isAdmin;
 
+    @Enumerated(EnumType.STRING)
+    private LoginType loginType;
 
     //== 스터디 희망사유 ==//
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private List<StudyReason> studyReasonList;
+    @Builder.Default
+    private List<StudyReason> studyReasonList = new ArrayList<>();
 
     //== 알림 ==//
+    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private List<Notification> notificationList;
+    private List<Notification> notificationList = new ArrayList<>();
 
     //== 해당 회원에 대한 신고 내역 ==//
+    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private List<MemberReport> memberReportList;
+    private List<MemberReport> memberReportList = new ArrayList<>();
 
     //== 회원이 선호하는 테마 ==//
+    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<MemberTheme> memberThemeList = new ArrayList<>();
 
     //== 회원의 출석 목록 ==//
+    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private List<MemberAttendance> memberAttendanceList;
+    private List<MemberAttendance> memberAttendanceList = new ArrayList<>();
 
     //== 회원이 참여하는 스터디 목록 ==//
+    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private List<MemberStudy> memberStudyList;
+    private List<MemberStudy> memberStudyList = new ArrayList<>();
 
     //== 회원이 찜한 스터디 목록 ==//
+    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private List<PreferredStudy> preferredStudyList;
+    private List<PreferredStudy> preferredStudyList = new ArrayList<>();
 
     //== 회원이 선호하는 지역 목록 ==//
+    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<PreferredRegion> preferredRegionList = new ArrayList<>();
 
    ////== 회원이 작성한 게시글 목록 ==//
+   @Builder.Default
    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-   private List<Post> postList;
+   private List<Post> postList = new ArrayList<>();
 
    ////== 회원이 좋아요한 게시글 목록 ==//
+   @Builder.Default
    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-   private List<LikedPost> likedPostList;
+   private List<LikedPost> likedPostList = new ArrayList<>();
 
    ////== 회원이 선호하는 지역 목록 ==//
+   @Builder.Default
    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
    private List<PostReport> postReportList = new ArrayList<>();
 
    ////== 회원이 스크랩한 게시글 목록 ==//
+   @Builder.Default
    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-   private List<MemberScrap> memberScrapList;
+   private List<MemberScrap> memberScrapList = new ArrayList<>();
 
    ////== 회원이 작성한 게시글 댓글 목록 ==//
+   @Builder.Default
    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-   private List<PostComment> postCommentList;
+   private List<PostComment> postCommentList = new ArrayList<>();
 
    ////== 회원이 좋아요한 게시글 댓글 목록 ==//
+   @Builder.Default
    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-   private List<LikedPostComment> likedCommentList;
+   private List<LikedPostComment> likedCommentList = new ArrayList<>();
 
     //== 회원이 작성한 스터디 게시글 목록 ==//
+    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private List<StudyPost> studyPostList;
+    private List<StudyPost> studyPostList = new ArrayList<>();
 
     //== 회원이 좋아요한 스터디 게시글 목록 ==//
+    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private List<StudyLikedPost> studyLikedPostList;
+    private List<StudyLikedPost> studyLikedPostList = new ArrayList<>();
 
     //== 회원이 작성한 스터디 게시글 댓글 목록 ==//
+    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private List<StudyPostComment> studyPostCommentList;
+    private List<StudyPostComment> studyPostCommentList = new ArrayList<>();
 
     //== 회원이 좋아요한 게시글 댓글 목록 ==//
+    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private List<StudyLikedComment> studyLikedCommentList;
+    private List<StudyLikedComment> studyLikedCommentList = new ArrayList<>();
 
     //== 회원이 생성한 투표 목록 ==//
+    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private List<Vote> voteList;
+    private List<Vote> voteList = new ArrayList<>();
 
     //== 회원이 투표한 항목 목록 ==//
+    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private List<MemberVote> memberVoteList;
+    private List<MemberVote> memberVoteList = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<PreferredRegion> regions = new ArrayList<>();
 

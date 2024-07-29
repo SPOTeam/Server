@@ -1,5 +1,7 @@
 package com.example.spot.service.member;
 
+import com.example.spot.api.code.status.ErrorStatus;
+import com.example.spot.api.exception.GeneralException;
 import com.example.spot.repository.MemberRepository;
 import com.example.spot.service.member.oauth.KaKaoOAuthService;
 import com.example.spot.web.dto.member.kakao.KaKaoOAuthToken.KaKaoOAuthTokenDTO;
@@ -27,8 +29,10 @@ public class MemberCommandServiceImpl implements MemberCommandService {
         KaKaoOAuthTokenDTO oAuthToken = kaKaoOAuthService.getAccessToken(accessTokenResponse);
         ResponseEntity<String> userInfoResponse = kaKaoOAuthService.requestUserInfo(oAuthToken);
         KaKaoUser kaKaoUser = kaKaoOAuthService.getUserInfo(userInfoResponse);
-        log.info("kaKaoUser = {}", kaKaoUser);
 
+        if (memberRepository.existsByEmail(kaKaoUser.toMember().getEmail()))
+            throw new GeneralException(ErrorStatus._MEMBER_EMAIL_ALREADY_EXISTS);
+        memberRepository.save(kaKaoUser.toMember());
     }
 
     @Override

@@ -1,5 +1,9 @@
 package com.example.spot.web.dto.member.kakao;
 
+import com.example.spot.domain.Member;
+import com.example.spot.domain.enums.Carrier;
+import com.example.spot.domain.enums.LoginType;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,6 +41,21 @@ public class KaKaoUser {
         String nickname;
         String profile_image;
         String thumbnail_image;
+    }
+
+    public Member toMember(){
+        return Member.builder()
+            .name(properties.getNickname())
+            .email(kakao_account.getEmail())
+            .profileImage(properties.getProfile_image())
+            .carrier(Carrier.NONE)
+            .phone("NONE")
+            .birth(LocalDate.now())
+            .personalInfo(false)
+            .idInfo(false)
+            .isAdmin(false)
+            .loginType(LoginType.KAKAO)
+            .build();
     }
 
 }
