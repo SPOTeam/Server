@@ -5,15 +5,16 @@ import com.example.spot.api.exception.GeneralException;
 import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.api.exception.handler.StudyHandler;
 import com.example.spot.domain.Member;
+import com.example.spot.domain.Quiz;
 import com.example.spot.domain.enums.ApplicationStatus;
 import com.example.spot.domain.enums.Status;
+import com.example.spot.domain.mapping.MemberAttendance;
 import com.example.spot.domain.mapping.MemberStudy;
 import com.example.spot.domain.study.Schedule;
 import com.example.spot.domain.study.Study;
-import com.example.spot.repository.MemberRepository;
-import com.example.spot.repository.MemberStudyRepository;
-import com.example.spot.repository.ScheduleRepository;
-import com.example.spot.repository.StudyRepository;
+import com.example.spot.repository.*;
+import com.example.spot.web.dto.memberstudy.request.StudyQuizRequestDTO;
+import com.example.spot.web.dto.memberstudy.response.StudyQuizResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyTerminationResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyWithdrawalResponseDTO;
 import com.example.spot.web.dto.study.response.StudyApplyResponseDTO;
@@ -22,6 +23,12 @@ import com.example.spot.web.dto.study.response.ScheduleResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -32,8 +39,10 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
     private final MemberRepository memberRepository;
     private final StudyRepository studyRepository;
     private final ScheduleRepository scheduleRepository;
+    private final QuizRepository quizRepository;
 
     private final MemberStudyRepository memberStudyRepository;
+    private final MemberAttendanceRepository memberAttendanceRepository;
 
 /* ----------------------------- 진행중인 스터디 관련 API ------------------------------------- */
 
@@ -145,4 +154,107 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
 
         return ScheduleResponseDTO.ScheduleDTO.toDTO(schedule);
     }
+
+/* ----------------------------- 스터디 출석 관련 API ------------------------------------- */
+    // [스터디 출석체크] 출석 퀴즈 생성하기
+    @Override
+    public StudyQuizResponseDTO.QuizDTO createAttendanceQuiz(Long studyId, StudyQuizRequestDTO.QuizDTO quizRequestDTO) {
+
+        //=== Exception ===//
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+
+        // 이미 출석 퀴즈가 생성되었는지 확인
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        LocalDateTime endOfDay = LocalDate.now().atTime(LocalTime.MAX);
+        List<Quiz> todayQuizzes = quizRepository.findAllByStudyIdAndCreatedAtBetween(studyId, startOfDay, endOfDay);
+        if (!todayQuizzes.isEmpty()) {
+            throw new StudyHandler(ErrorStatus._STUDY_QUIZ_ALREADY_EXIST);
+        }
+
+        //=== Feature ===//
+        Quiz quiz = Quiz.builder()
+                .question(quizRequestDTO.getQuestion())
+                .answer(quizRequestDTO.getAnswer())
+                .build();
+
+        study.addQuiz(quiz);
+        quiz = quizRepository.save(quiz);
+
+        return StudyQuizResponseDTO.QuizDTO.toDTO(quiz);
+    }
+
+    // [스터디 출석체크] 출석 체크하기
+    @Override
+    public StudyQuizResponseDTO.AttendanceDTO attendantStudy(Long studyId, Long quizId, StudyQuizRequestDTO.AttendanceDTO attendanceRequestDTO) {
+
+        //=== Exception ===//
+        Member member = memberRepository.findById(attendanceRequestDTO.getMemberId())
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_QUIZ_NOT_FOUND));
+        quizRepository.findByIdAndStudyId(quizId, studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_QUIZ_NOT_FOUND));
+        memberStudyRepository.findByMemberIdAndStudyId(member.getId(), study.getId())
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
+
+        // 퀴즈 제한시간 확인
+        if (LocalDateTime.now().isAfter(quiz.getCreatedAt().plusMinutes(5))) {
+            throw new StudyHandler(ErrorStatus._STUDY_QUIZ_NOT_VALID);
+        }
+        // 이미 출석이 완료되었거나 시도 횟수를 초과하였는지 확인
+        List<MemberAttendance> attendanceList = memberAttendanceRepository.findByQuizIdAndMemberId(quizId, member.getId());
+        int try_num = 0;
+        for (MemberAttendance attendance : attendanceList) {
+            if (attendance.getIsCorrect())
+                throw new StudyHandler(ErrorStatus._STUDY_ATTENDANCE_ALREADY_EXIST);
+            else
+                try_num++;
+        }
+        if (try_num >= 3) {
+            throw new StudyHandler(ErrorStatus._STUDY_ATTENDANCE_ATTEMPT_LIMIT_EXCEEDED);
+        }
+
+        //=== Feature ===//
+        Boolean isCorrect;
+        if (attendanceRequestDTO.getAnswer().equals(quiz.getAnswer())) {
+            isCorrect = Boolean.TRUE;
+        } else {
+            isCorrect = Boolean.FALSE;
+        }
+
+        MemberAttendance memberAttendance = new MemberAttendance(isCorrect);
+        member.addMemberAttendance(memberAttendance);
+        quiz.addMemberAttendance(memberAttendance);
+        memberAttendance = memberAttendanceRepository.save(memberAttendance);
+
+        return StudyQuizResponseDTO.AttendanceDTO.toDTO(memberAttendance);
+    }
+
+    // [스터디 출석체크] 출석 퀴즈 삭제하기
+    @Override
+    public StudyQuizResponseDTO.QuizDTO deleteAttendanceQuiz(Long studyId, Long quizId) {
+
+        //=== Exception ===//
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_QUIZ_NOT_FOUND));
+        quizRepository.findByIdAndStudyId(quizId, studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_QUIZ_NOT_FOUND));
+
+        //=== Feature ===//
+        memberAttendanceRepository.findByQuizId(quizId)
+                .forEach(memberAttendance -> {
+                    quiz.deleteMemberAttendance(memberAttendance);
+                    memberAttendanceRepository.delete(memberAttendance);
+                });
+        quizRepository.delete(quiz);
+
+        return StudyQuizResponseDTO.QuizDTO.toDTO(quiz);
+    }
+
+
 }

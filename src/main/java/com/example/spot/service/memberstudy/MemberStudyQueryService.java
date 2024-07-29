@@ -1,5 +1,6 @@
 package com.example.spot.service.memberstudy;
 
+import com.example.spot.web.dto.memberstudy.response.StudyQuizResponseDTO;
 import com.example.spot.web.dto.study.response.ScheduleResponseDTO;
 
 import com.example.spot.web.dto.study.response.StudyMemberResponseDTO;
@@ -27,4 +28,7 @@ public interface MemberStudyQueryService {
 
     // 스터디 신청 정보 가져오기
     StudyMemberResponseDTO.StudyApplyMemberDTO findStudyApplication(Long studyId, Long memberId);
+
+    // 금일 회원 출석 여부 불러오기
+    StudyQuizResponseDTO.AttendanceListDTO getAllAttendances(Long studyId, Long quizId);
 }

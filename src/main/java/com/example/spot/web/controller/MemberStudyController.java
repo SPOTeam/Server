@@ -6,6 +6,8 @@ import com.example.spot.service.memberstudy.MemberStudyCommandService;
 import com.example.spot.service.memberstudy.MemberStudyQueryService;
 import com.example.spot.validation.annotation.ExistMember;
 import com.example.spot.validation.annotation.ExistStudy;
+import com.example.spot.web.dto.memberstudy.request.StudyQuizRequestDTO;
+import com.example.spot.web.dto.memberstudy.response.StudyQuizResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyTerminationResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyWithdrawalResponseDTO;
 import com.example.spot.web.dto.study.request.ScheduleRequestDTO;
@@ -308,16 +310,48 @@ public class MemberStudyController {
         로그인한 회원이 스터디장인 경우 quiz에 새로운 퀴즈를 생성합니다.
         """)
     @PostMapping("/studies/{studyId}/quizzes")
-    public void createAttendanceQuiz(@PathVariable Long studyId) {
+    public ApiResponse<StudyQuizResponseDTO.QuizDTO> createAttendanceQuiz(@PathVariable Long studyId, @RequestBody StudyQuizRequestDTO.QuizDTO quizRequestDTO) {
+        StudyQuizResponseDTO.QuizDTO quizResponseDTO = memberStudyCommandService.createAttendanceQuiz(studyId, quizRequestDTO);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_QUIZ_CREATED, quizResponseDTO);
     }
 
     @Operation(summary = "[스터디 출석체크] 출석 체크하기", description = """ 
         ## [스터디 출석체크] 내 스터디 > 스터디 > 캘린더 > 이미지 클릭, 로그인한 회원이 참여하는 스터디에서 오늘의 퀴즈를 풀어 출석을 체크합니다.
         특정 시점의 quiz에 대해 member_attendance 튜플을 추가합니다.
         """)
-    @PostMapping("/members/{memberId}/studies/{studyId}/quizzes/{quizId}")
-    public void attendantStudy(@PathVariable Long memberId, @PathVariable Long studyId, @PathVariable Long quizId) {
+    @PostMapping("/studies/{studyId}/quizzes/{quizId}")
+    public ApiResponse<StudyQuizResponseDTO.AttendanceDTO> attendantStudy(@PathVariable Long studyId, @PathVariable Long quizId,
+                                        @RequestBody StudyQuizRequestDTO.AttendanceDTO attendanceRequestDTO) {
+        StudyQuizResponseDTO.AttendanceDTO attendanceResponseDTO = memberStudyCommandService.attendantStudy(studyId, quizId, attendanceRequestDTO);
+        if (attendanceResponseDTO.getIsCorrect()) {
+            return ApiResponse.onSuccess(SuccessStatus._STUDY_ATTENDANCE_CREATED_CORRECT_ANSWER, attendanceResponseDTO);
+        } else {
+            return ApiResponse.onSuccess(SuccessStatus._STUDY_ATTENDANCE_CREATED_WRONG_ANSWER, attendanceResponseDTO);
+        }
     }
+
+    @Operation(summary = "[스터디 출석체크] 출석 퀴즈 삭제하기", description = """ 
+        ## [스터디 출석체크] 기한이 지난 출석 퀴즈를 삭제합니다. (화면 X)
+        PathVariable을 통해 전달받은 정보를 바탕으로 출석 퀴즈를 삭제합니다.
+        출석 퀴즈 정보와 함께 퀴즈에 대한 MemberAttendance(회원 출석) 목록도 함께 삭제됩니다.
+        """)
+    @DeleteMapping("/studies/{studyId}/quizzes/{quizId}")
+    public ApiResponse<StudyQuizResponseDTO.QuizDTO> deleteAttendanceQuiz(@PathVariable Long studyId, @PathVariable Long quizId) {
+        StudyQuizResponseDTO.QuizDTO quizDTO = memberStudyCommandService.deleteAttendanceQuiz(studyId, quizId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_QUIZ_DELETED, quizDTO);
+    }
+
+    @Operation(summary = "[스터디 출석체크] 금일 회원 출석부 불러오기", description = """ 
+        ## [스터디 출석체크] 금일 모든 스터디 회원의 출석 여부를 불러옵니다.
+        출석체크 화면에 표시되는 스터디 회원 정보(프로필 사진, 이름, 출석 여부, 스터디장 여부) 목록를 반환합니다.
+        """)
+    @GetMapping("/studies/{studyId}/quizzes/{quizId}/members")
+    public ApiResponse<StudyQuizResponseDTO.AttendanceListDTO> getAllAttendances(@PathVariable Long studyId, @PathVariable Long quizId) {
+        StudyQuizResponseDTO.AttendanceListDTO attendanceListDTO = memberStudyQueryService.getAllAttendances(studyId, quizId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_MEMBER_ATTENDANCES_FOUND, attendanceListDTO);
+    }
+
+
 
 /* ----------------------------- 스터디 회원 신고 관련 API ------------------------------------- */
 

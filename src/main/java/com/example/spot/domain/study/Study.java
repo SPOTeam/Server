@@ -1,5 +1,6 @@
 package com.example.spot.domain.study;
 
+import com.example.spot.domain.Quiz;
 import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.enums.Gender;
 import com.example.spot.domain.enums.Status;
@@ -104,7 +105,8 @@ public class Study extends BaseEntity {
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
     private List<PreferredStudy> preferredStudies = new ArrayList<>();
 
-
+    @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
+    private List<Quiz> quizzes;
 
 /* ----------------------------- 생성자 ------------------------------------- */
 
@@ -135,7 +137,7 @@ public class Study extends BaseEntity {
         this.preferredStudies = new ArrayList<>();
         this.memberStudies = new ArrayList<>();
         this.regionStudies = new ArrayList<>();
-
+        this.quizzes = new ArrayList<>();
     }
 
 /* ----------------------------- 연관관계 메소드 ------------------------------------- */
@@ -161,6 +163,20 @@ public class Study extends BaseEntity {
         this.heartCount++;
     }
 
+    public void addSchedule(Schedule schedule) {
+        schedules.add(schedule);
+        schedule.setStudy(this);
+    }
+
+    public void updateSchedule(Schedule schedule) {
+        schedules.set(schedules.indexOf(schedule), schedule);
+    }
+
+    public void addQuiz(Quiz quiz) {
+        quizzes.add(quiz);
+        quiz.setStudy(this);
+    }
+
     // preferredStudy 삭제
     public void deletePreferredStudy(PreferredStudy preferredStudy) {
         this.heartCount--;
@@ -169,14 +185,5 @@ public class Study extends BaseEntity {
     // hit 증가
     public void increaseHit() {
         this.hitNum++;
-    }
-
-    public void addSchedule(Schedule schedule) {
-        schedules.add(schedule);
-        schedule.setStudy(this);
-    }
-
-    public void updateSchedule(Schedule schedule) {
-        schedules.set(schedules.indexOf(schedule), schedule);
     }
 }

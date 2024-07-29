@@ -2,19 +2,19 @@ package com.example.spot.service.memberstudy;
 
 import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.handler.StudyHandler;
+import com.example.spot.domain.Quiz;
 import com.example.spot.domain.enums.Period;
+import com.example.spot.domain.mapping.MemberAttendance;
 import com.example.spot.domain.study.Schedule;
 import com.example.spot.domain.study.Study;
-import com.example.spot.repository.ScheduleRepository;
-import com.example.spot.repository.StudyRepository;
+import com.example.spot.repository.*;
+import com.example.spot.web.dto.memberstudy.response.StudyQuizResponseDTO;
 import com.example.spot.web.dto.study.response.ScheduleResponseDTO;
 import lombok.RequiredArgsConstructor;
 import com.example.spot.api.exception.GeneralException;
 import com.example.spot.domain.enums.ApplicationStatus;
 import com.example.spot.domain.mapping.MemberStudy;
 import com.example.spot.domain.study.StudyPost;
-import com.example.spot.repository.MemberStudyRepository;
-import com.example.spot.repository.StudyPostRepository;
 import com.example.spot.web.dto.study.response.StudyMemberResponseDTO;
 import com.example.spot.web.dto.study.response.StudyMemberResponseDTO.StudyApplyMemberDTO;
 import com.example.spot.web.dto.study.response.StudyMemberResponseDTO.StudyMemberDTO;
@@ -44,6 +44,8 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
     private final StudyPostRepository studyPostRepository;
     private final ScheduleRepository scheduleRepository;
     private final MemberStudyRepository memberStudyRepository;
+    private final MemberAttendanceRepository memberAttendanceRepository;
+    private final QuizRepository quizRepository;
 
 
     @Override
@@ -112,6 +114,35 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
             .nickname(memberStudy.getMember().getName())
             .profileImage(memberStudy.getMember().getProfileImage())
             .build();
+    }
+
+    @Override
+    public StudyQuizResponseDTO.AttendanceListDTO getAllAttendances(Long studyId, Long quizId) {
+
+        //=== Exception ===//
+        studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_QUIZ_NOT_FOUND));
+        quizRepository.findByIdAndStudyId(quizId, studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_QUIZ_NOT_FOUND));
+
+        //=== Feature ===//
+        List<StudyQuizResponseDTO.StudyMemberDTO> studyMembers = memberStudyRepository.findByStudyId(studyId).stream()
+                .map(memberStudy -> {
+                    List<MemberAttendance> attendanceList = memberAttendanceRepository.findByQuizIdAndMemberId(quizId, memberStudy.getMember().getId());
+                    for (MemberAttendance attendance : attendanceList) {
+                        // MemberAttendance에 퀴즈에 대한 정답이 저장되어 있으면 금일 출석 성공
+                        if (attendance.getIsCorrect())
+                            return StudyQuizResponseDTO.StudyMemberDTO.toDTO(memberStudy, Boolean.TRUE);
+                    }
+                    // 퀴즈를 풀지 않았거나 MemberAttendance에 오답만 저장되어 있으면 금일 출석 실패
+                    return StudyQuizResponseDTO.StudyMemberDTO.toDTO(memberStudy, Boolean.FALSE);
+                })
+                .toList();
+
+        return StudyQuizResponseDTO.AttendanceListDTO.toDTO(quiz, studyMembers);
+
     }
 
     @Override

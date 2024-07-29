@@ -4,23 +4,19 @@ import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.mapping.MemberAttendance;
 import com.example.spot.domain.study.Study;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
-import lombok.NoArgsConstructor;
+
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
 @Getter
-@Builder
 @DynamicUpdate
 @DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 public class Quiz extends BaseEntity {
 
     @Id
@@ -39,7 +35,28 @@ public class Quiz extends BaseEntity {
     private List<MemberAttendance> memberAttendanceList;
 
     //== 해당 퀴즈를 생성한 스터디 ==//
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_id", nullable = false)
     private Study study;
+
+/* ----------------------------- 생성자 ------------------------------------- */
+
+    @Builder
+    public Quiz(String question, String answer) {
+        this.question = question;
+        this.answer = answer;
+        this.memberAttendanceList = new ArrayList<>();
+    }
+
+/* ----------------------------- 연관관계 메소드 ------------------------------------- */
+
+    public void addMemberAttendance(MemberAttendance memberAttendance) {
+        memberAttendanceList.add(memberAttendance);
+        memberAttendance.setQuiz(this);
+    }
+
+    public void deleteMemberAttendance(MemberAttendance memberAttendance) {
+        memberAttendanceList.remove(memberAttendance);
+    }
 }
