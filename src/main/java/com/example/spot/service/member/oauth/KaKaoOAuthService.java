@@ -25,6 +25,7 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 @RequiredArgsConstructor
 public class KaKaoOAuthService {
+
     @Value("${spring.OAuth2.kakao.url}")
     private String KAKAO_SNS_URL;
 
@@ -33,6 +34,7 @@ public class KaKaoOAuthService {
 
     @Value("${spring.OAuth2.kakao.callback-login-url}")
     private String KAKAO_SNS_CALLBACK_LOGIN_URL;
+
 
     private final ObjectMapper objectMapper;
     private final RestTemplate restTemplate;
