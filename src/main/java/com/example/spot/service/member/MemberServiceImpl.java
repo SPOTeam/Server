@@ -23,6 +23,16 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import com.example.spot.domain.Region;
+import com.example.spot.domain.Theme;
+import com.example.spot.domain.mapping.MemberTheme;
+import com.example.spot.domain.mapping.PreferredRegion;
+import com.example.spot.repository.MemberThemeRepository;
+import com.example.spot.repository.PreferredRegionRepository;
+import com.example.spot.web.dto.member.MemberRequestDTO.MemberCheckListDTO;
+import com.example.spot.web.dto.member.MemberRequestDTO.MemberInfoListDTO;
+import com.example.spot.web.dto.member.MemberResponseDTO.MemberUpdateDTO;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -33,6 +43,9 @@ public class MemberServiceImpl implements MemberService {
     private final JwtTokenProvider jwtTokenProvider;
     private final HttpServletResponse response;
     private final MemberRepository memberRepository;
+
+    private final MemberThemeRepository memberThemeRepository;
+    private final PreferredRegionRepository preferredRegionRepository;
 
     @Override
     public MemberResponseDTO.MemberSignInDTO signUpByKAKAO(String accessToken) throws JsonProcessingException {
@@ -65,9 +78,48 @@ public class MemberServiceImpl implements MemberService {
         String token = jwtTokenProvider.createToken(member.getEmail());
 
         // 회원 가입 DTO 반환
-        return MemberResponseDTO.MemberSignInDTO.builder()
+        return MemberSignInDTO.builder()
             .accessToken(token)
-            .email(member.getEmail())
+            .email(member.getEmail()).build();
+    }
+
+
+    @Override
+    public MemberUpdateDTO updateCheckList(Long memberId, MemberCheckListDTO requestDTO) {
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
+
+        List<Theme> themes = requestDTO.getThemes().stream()
+            .map(themeType -> Theme.builder().studyTheme(themeType).build())
+            .toList();
+
+        List<MemberTheme> memberThemes = themes.stream()
+            .map(theme -> MemberTheme.builder().member(member).theme(theme).build())
+            .toList();
+
+        List<Region> regions = requestDTO.getRegionCodes().stream()
+            .map(regionCode -> Region.builder().code(regionCode).build())
+            .toList();
+
+        List<PreferredRegion> preferredRegions = regions.stream()
+            .map(region -> PreferredRegion.builder().member(member).region(region).build())
+            .toList();
+
+        // 기존의 MemberTheme과 PreferredRegion 삭제
+        memberThemeRepository.deleteByMemberId(member.getId());
+        preferredRegionRepository.deleteByMemberId(member.getId());
+
+        // 새로운 MemberTheme과 PreferredRegion을 저장
+        memberThemeRepository.saveAll(memberThemes);
+        preferredRegionRepository.saveAll(preferredRegions);
+
+        member.updateCheckList(memberThemes, preferredRegions);
+
+        memberRepository.save(member);
+
+        return MemberUpdateDTO.builder()
+            .memberId(member.getId())
+            .updatedAt(member.getUpdatedAt())
             .build();
     }
 
@@ -144,5 +196,7 @@ public class MemberServiceImpl implements MemberService {
         return memberRepository.existsByEmail(email);
     }
 
-
+    public MemberUpdateDTO updateProfile(Long memberId, MemberInfoListDTO requestDTO) {
+        return null;
+    }
 }

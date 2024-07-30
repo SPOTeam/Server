@@ -9,4 +9,6 @@ public interface MemberThemeRepository extends JpaRepository<MemberTheme, Long> 
     List<MemberTheme> findAllByMemberId(Long memberId);
     MemberTheme findByMemberId(Long memberId);
 
+    void deleteByMemberId(Long memberId);
+
 }

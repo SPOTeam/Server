@@ -2,6 +2,7 @@ package com.example.spot.web.dto.member;
 
 import com.example.spot.domain.enums.Carrier;
 import com.example.spot.domain.enums.Theme;
+import com.example.spot.domain.enums.ThemeType;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -18,7 +19,7 @@ public class MemberRequestDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class MemberCheckListDTO{
-        private List<Theme> themes;
+        private List<ThemeType> themes;
         private List<String> regionCodes;
     }
 

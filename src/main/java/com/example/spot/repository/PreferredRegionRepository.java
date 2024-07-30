@@ -8,4 +8,5 @@ public interface PreferredRegionRepository extends JpaRepository<PreferredRegion
 
     List<PreferredRegion> findAllByMemberId(Long memberId);
 
+    void deleteByMemberId(Long memberId);
 }

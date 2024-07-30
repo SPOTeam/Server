@@ -17,6 +17,10 @@ public class MemberResponseDTO {
         private String email;
     }
 
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class MemberUpdateDTO {
         private Long memberId;
         private LocalDateTime updatedAt;
