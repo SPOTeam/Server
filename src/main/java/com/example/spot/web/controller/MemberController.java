@@ -15,8 +15,17 @@ import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import com.example.spot.validation.annotation.ExistMember;
+import com.example.spot.web.dto.member.MemberRequestDTO.MemberCheckListDTO;
+import com.example.spot.web.dto.member.MemberRequestDTO.MemberInfoListDTO;
+import com.example.spot.web.dto.member.MemberResponseDTO.MemberUpdateDTO;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/spot")
 @RequiredArgsConstructor
+@Validated
 public class MemberController {
 
     private final MemberService memberService;
@@ -75,6 +85,36 @@ public class MemberController {
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_CREATED, dto);
     }
 
+    @PostMapping("/member/{memberId}/checklist")
+    @Operation(summary = "[회원 정보 업데이트] 체크리스트 입력 및 수정",
+        description = """
+            ## [회원 정보 업데이트] 해당하는 회원의 체크리스트를 입력 및 수정 합니다.
+            체크리스트에 해당하는 테마와 지역 코드를 리스트 형식으로 입력 받습니다.
+            대상 회원의 식별 아이디와 수정 시각이 반환 됩니다. 
+            """,
+        security = @SecurityRequirement(name = "accessToken"))
+    @Parameter(name = "memberId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
+    public ApiResponse<MemberUpdateDTO> getCheckList(
+        @PathVariable @ExistMember Long memberId,
+        @RequestBody @Valid MemberCheckListDTO requestDTO){
+        MemberUpdateDTO memberUpdateDTO = memberService.updateCheckList(memberId, requestDTO);
+        return ApiResponse.onSuccess(SuccessStatus._CREATED, memberUpdateDTO);
+    }
+    @PostMapping("/member/{memberId}/user-info")
+    @Operation(summary = "[회원 정보 업데이트] 체크리스트 입력 및 수정",
+        description = """
+            ## [회원 정보 업데이트] 해당하는 회원의 체크리스트를 입력 및 수정 합니다.
+            업데이트 할 회원의 정보를 입력 받습니다.
+            대상 회원의 식별 아이디와 수정 시각이 반환 됩니다. 
+            """,
+        security = @SecurityRequirement(name = "accessToken"))
+    @Parameter(name = "memberId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
+    public ApiResponse<MemberUpdateDTO> updateMemberInfo(
+        @PathVariable @ExistMember Long memberId,
+        @RequestBody @Valid MemberInfoListDTO requestDTO){
+        MemberUpdateDTO memberUpdateDTO = memberService.updateProfile(memberId, requestDTO);
+        return ApiResponse.onSuccess(SuccessStatus._CREATED, memberUpdateDTO);
+    }
 }
 
 

@@ -30,6 +30,8 @@ import com.example.spot.domain.mapping.MemberTheme;
 import com.example.spot.domain.mapping.PreferredRegion;
 import com.example.spot.repository.MemberThemeRepository;
 import com.example.spot.repository.PreferredRegionRepository;
+import com.example.spot.repository.RegionRepository;
+import com.example.spot.repository.ThemeRepository;
 import com.example.spot.web.dto.member.MemberRequestDTO.MemberCheckListDTO;
 import com.example.spot.web.dto.member.MemberRequestDTO.MemberInfoListDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.MemberUpdateDTO;
@@ -43,7 +45,8 @@ public class MemberServiceImpl implements MemberService {
     private final JwtTokenProvider jwtTokenProvider;
     private final HttpServletResponse response;
     private final MemberRepository memberRepository;
-
+    private final ThemeRepository themeRepository;
+    private final RegionRepository regionRepository;
     private final MemberThemeRepository memberThemeRepository;
     private final PreferredRegionRepository preferredRegionRepository;
 
@@ -90,7 +93,7 @@ public class MemberServiceImpl implements MemberService {
             .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
 
         List<Theme> themes = requestDTO.getThemes().stream()
-            .map(themeType -> Theme.builder().studyTheme(themeType).build())
+            .map(themeType -> themeRepository.findByStudyTheme(themeType).orElseThrow(() -> new GeneralException(ErrorStatus._THEME_NOT_FOUND)))
             .toList();
 
         List<MemberTheme> memberThemes = themes.stream()
@@ -98,7 +101,7 @@ public class MemberServiceImpl implements MemberService {
             .toList();
 
         List<Region> regions = requestDTO.getRegionCodes().stream()
-            .map(regionCode -> Region.builder().code(regionCode).build())
+            .map(regionCode -> regionRepository.findByCode(regionCode).orElseThrow(() -> new GeneralException(ErrorStatus._REGION_NOT_FOUND)))
             .toList();
 
         List<PreferredRegion> preferredRegions = regions.stream()
@@ -106,8 +109,12 @@ public class MemberServiceImpl implements MemberService {
             .toList();
 
         // 기존의 MemberTheme과 PreferredRegion 삭제
-        memberThemeRepository.deleteByMemberId(member.getId());
-        preferredRegionRepository.deleteByMemberId(member.getId());
+        if (memberThemeRepository.existsByMemberId(member.getId())) {
+            memberThemeRepository.deleteByMemberId(member.getId());
+        }
+        if (preferredRegionRepository.existsByMemberId(member.getId())) {
+            preferredRegionRepository.deleteByMemberId(member.getId());
+        }
 
         // 새로운 MemberTheme과 PreferredRegion을 저장
         memberThemeRepository.saveAll(memberThemes);
