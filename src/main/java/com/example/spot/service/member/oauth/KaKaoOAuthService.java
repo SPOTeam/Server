@@ -92,8 +92,6 @@ public class KaKaoOAuthService {
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity(headers);
         ResponseEntity<String> responseEntity = restTemplate.exchange(KAKAO_USER_INFO_REQUEST_URL, HttpMethod.GET, request, String.class);
 
-        log.info("response.getBody() = {}", responseEntity.getBody());
-
         return responseEntity;
     }
 
