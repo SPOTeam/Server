@@ -6,7 +6,9 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -24,6 +26,9 @@ public class JwtTokenProvider {
 
     @Value("${jwt.secret}")
     private String JWT_SECRET_KEY;
+
+    @Value("${jwt.expiration}")
+    private Long JWT_EXPIRATION_TIME;
 
     @PostConstruct
     protected void init() {
@@ -43,12 +48,19 @@ public class JwtTokenProvider {
                 .getBody();
     }
 
-    public String generateToken(Claims claims, long expirationMillis) {
-        Date now = new Date();
+    public String generateToken(Authentication authentication) {
+
+        final Date now = new Date();
+
+        final Claims claims = Jwts.claims()
+        .setIssuedAt(now)
+        .setExpiration(new Date(now.getTime() + EXPIRATION_TIME));
+
+        claims.put(MEMBER_ID, authentication.getPrincipal());
+
         return Jwts.builder()
+        .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .setClaims(claims)
-                .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + expirationMillis))
                 .signWith(getSigningKey())
                 .compact();
     }
@@ -82,7 +94,7 @@ public class JwtTokenProvider {
 
     public Long getMemberFromJwt(String token) {
         Claims claims = getBody(token);
-        return Long.valueOf(claims.get("memberId").toString());
+        return Long.valueOf(claims.get(MEMBER_ID).toString());
 
     }
 
