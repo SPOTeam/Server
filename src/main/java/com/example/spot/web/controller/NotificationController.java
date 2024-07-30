@@ -58,7 +58,7 @@ public class NotificationController {
 
     @Operation(summary = "[참가 신청한 스터디 참여 여부 - 개발중]", description = "유저가 참가 신청한 스터디 참여 여부")
     @GetMapping("/members/{memberId}/notifications/applied-study/{studyId}")
-    public ApiResponse<List<NotificationResponseDTO.NotificationDTO>> checkAppliedStudyNotification(@PathVariable Long memberId, @PathVariable Long studyId) {
+    public ApiResponse<NotificationResponseDTO.NotificationDTO> checkAppliedStudyNotification(@PathVariable Long memberId, @PathVariable Long studyId) {
         return null;
     }
 

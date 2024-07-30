@@ -10,6 +10,17 @@ import java.util.List;
 
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
+
     List<Notification> findByMemberId(Long memberId);
+
     List<Notification> findByType(NotifyType type);
+
+    List<Notification> findAllByMemberIdAndType(Long memberId, NotifyType type);
+
+    List<Notification> findAllByMemberIdAndIsChecked(Long memberId, Boolean isChecked);
+
+    List<Notification> findAllByMemberIdAndTypeAndIsChecked(Long memberId, NotifyType type, Boolean isChecked);
+
+    List<Notification> findAppliedStudyByMemberId(Long memberId);
+
 }
