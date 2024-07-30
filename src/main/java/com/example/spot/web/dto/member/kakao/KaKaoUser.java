@@ -3,6 +3,7 @@ package com.example.spot.web.dto.member.kakao;
 import com.example.spot.domain.Member;
 import com.example.spot.domain.enums.Carrier;
 import com.example.spot.domain.enums.LoginType;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -13,8 +14,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor
+@NoArgsConstructor
 public class KaKaoUser {
     Long id;
     String connected_at;
@@ -22,9 +24,10 @@ public class KaKaoUser {
     KaKaoAccountDTO kakao_account;
 
     @Getter
-    @Builder
-    @NoArgsConstructor
+    @Setter
+    @JsonIgnoreProperties(ignoreUnknown = true)
     @AllArgsConstructor
+    @NoArgsConstructor
     public static class KaKaoAccountDTO {
         Boolean has_email;
         Boolean email_needs_agreement;
@@ -34,9 +37,10 @@ public class KaKaoUser {
     }
 
     @Getter
-    @Builder
-    @NoArgsConstructor
+    @Setter
+    @JsonIgnoreProperties(ignoreUnknown = true)
     @AllArgsConstructor
+    @NoArgsConstructor
     public static class KaKaoPropertiesDTO{
         String nickname;
         String profile_image;

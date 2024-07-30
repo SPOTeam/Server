@@ -18,7 +18,7 @@ public class SwaggerConfig {
                 .title("SPOT API")
                 .description("SPOT API 명세서");
 
-        String jwtSchemeName = "JWT TOKEN";
+        String jwtSchemeName = "accessToken";
 
         SecurityRequirement securityRequirement = new SecurityRequirement().addList(jwtSchemeName);
 

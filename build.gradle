@@ -41,6 +41,9 @@ dependencies {
 	// apache common csv
 	implementation 'org.apache.commons:commons-csv:1.8'
 
+    // Oauth2
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
     // Spring Security
     implementation 'org.springframework.boot:spring-boot-starter-security'
 
