@@ -72,6 +72,9 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_ATTENDANCE_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "QUIZ4004", "이미 출석 체크되었습니다."),
     _STUDY_ATTENDANCE_ATTEMPT_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "QUIZ4005", "출석 퀴즈 시도 횟수가 초과되었습니다."),
 
+    // 스터디 게시글 관련 에러
+    _STUDY_POST_ANNOUNCEMENT_INVALID(HttpStatus.BAD_REQUEST, "STUDYPOST4001", "일반 스터디원에게는 공지 권한이 없습니다."),
+
     // S3 관련 에러
     _FILE_IS_NULL(HttpStatus.BAD_REQUEST, "S34001", "파일이 입력되지 않았습니다."),
     _IO_EXCEPTION(HttpStatus.BAD_REQUEST, "S34002", "IO 오류가 발생했습니다."),
