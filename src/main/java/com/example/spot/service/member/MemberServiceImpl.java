@@ -197,6 +197,13 @@ public class MemberServiceImpl implements MemberService {
     }
 
     public MemberUpdateDTO updateProfile(Long memberId, MemberInfoListDTO requestDTO) {
-        return null;
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
+        member.updateInfo(requestDTO);
+        memberRepository.save(member);
+        return MemberUpdateDTO.builder()
+            .memberId(member.getId())
+            .updatedAt(member.getUpdatedAt())
+            .build();
     }
 }

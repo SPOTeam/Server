@@ -30,6 +30,7 @@ public class MemberRequestDTO {
     @NoArgsConstructor
     public static class MemberInfoListDTO{
         private String name;
+        private String email;
         private LocalDate birth;
         private Carrier carrier;
         private String phone;
