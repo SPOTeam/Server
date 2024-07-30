@@ -1,14 +1,17 @@
 package com.example.spot.utils.jwt;
 
+import com.example.spot.api.exception.GeneralException;
 import com.example.spot.service.member.MemberService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.PrintWriter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -24,14 +27,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
         FilterChain filterChain) throws ServletException, IOException {
-        //log.info(request.getRequestURI());
-        String token = jwtTokenProvider.resolveToken(request);
-        if (token != null && jwtTokenProvider.validateToken(token)) {
-            String email = jwtTokenProvider.getUserPk(token);
-            UserDetails userDetails = memberService.loadUserByUsername(email); // UserDetails 조회
-            Authentication authentication = jwtTokenProvider.getAuthentication(token, userDetails);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        try {
+            //log.info(request.getRequestURI());
+            String token = jwtTokenProvider.resolveToken(request);
+            if (token != null && jwtTokenProvider.validateToken(token)) {
+                String email = jwtTokenProvider.getUserPk(token);
+                UserDetails userDetails = memberService.loadUserByUsername(email); // UserDetails 조회
+                Authentication authentication = jwtTokenProvider.getAuthentication(token, userDetails);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+            filterChain.doFilter(request, response);
+        }catch (GeneralException e){
+            response.setContentType("text/plain");
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+
+            try (PrintWriter writer = response.getWriter()) {
+                writer.write("Invalid JWT token: " + e.getStatus().getMessage());
+                writer.flush();
+            }
         }
-        filterChain.doFilter(request, response);
     }
 }

@@ -1,5 +1,6 @@
 package com.example.spot.utils.jwt;
 
+import com.example.spot.api.ApiResponse;
 import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.GeneralException;
 import io.jsonwebtoken.*;
