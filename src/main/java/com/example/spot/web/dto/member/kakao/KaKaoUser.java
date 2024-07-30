@@ -53,6 +53,7 @@ public class KaKaoUser {
             .email(kakao_account.getEmail())
             .profileImage(properties.getProfile_image())
             .carrier(Carrier.NONE)
+            .password("default")
             .phone("NONE")
             .birth(LocalDate.now())
             .personalInfo(false)
