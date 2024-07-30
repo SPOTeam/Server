@@ -1,4 +1,4 @@
-package com.example.spot.config.jwt;
+package com.example.spot.utils.jwt;
 
 import com.example.spot.service.member.MemberService;
 import jakarta.servlet.FilterChain;
@@ -24,6 +24,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
         FilterChain filterChain) throws ServletException, IOException {
+        //log.info(request.getRequestURI());
         String token = jwtTokenProvider.resolveToken(request);
         if (token != null && jwtTokenProvider.validateToken(token)) {
             String email = jwtTokenProvider.getUserPk(token);

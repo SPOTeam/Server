@@ -2,9 +2,8 @@ package com.example.spot.service.member;
 
 import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.GeneralException;
-import com.example.spot.config.jwt.JwtTokenProvider;
+import com.example.spot.utils.jwt.JwtTokenProvider;
 import com.example.spot.domain.Member;
-import com.example.spot.domain.enums.Status;
 import com.example.spot.repository.MemberRepository;
 import com.example.spot.service.member.oauth.KaKaoOAuthService;
 import com.example.spot.web.dto.member.MemberResponseDTO;

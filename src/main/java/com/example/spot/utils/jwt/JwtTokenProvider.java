@@ -1,5 +1,7 @@
-package com.example.spot.config.jwt;
+package com.example.spot.utils.jwt;
 
+import com.example.spot.api.code.status.ErrorStatus;
+import com.example.spot.api.exception.GeneralException;
 import io.jsonwebtoken.*;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
@@ -47,13 +49,11 @@ public class JwtTokenProvider {
             Claims body = Jwts.parser().setSigningKey(JWT_SECRET_KEY).parseClaimsJws(token).getBody();
             boolean isTokenExpired = body.getExpiration().before(new Date());
             if (isTokenExpired) {
-                log.error("[validateToken] 토큰이 만료되었습니다.");
-                return false;
+                throw new GeneralException(ErrorStatus._EXPIRED_JWT);
             }
             return true;
         } catch (Exception e) {
-            log.error("[validateToken] 유효하지 않은 토큰입니다.");
-            return false;
+            throw new GeneralException(ErrorStatus._INVALID_JWT);
         }
     }
 
@@ -63,10 +63,16 @@ public class JwtTokenProvider {
 
     public String resolveToken(HttpServletRequest request) {
         String authorization = request.getHeader("Authorization");
-        return authorization.substring("Bearer ".length());
+
+        // Authorization 헤더가 null이거나 "Bearer "로 시작하지 않는 경우 null 반환
+        if (authorization == null || !authorization.startsWith("Bearer ")) {
+            return null;
+        }
+
+        // "Bearer " 접두사 제거 후 토큰 반환
+        return authorization.substring("Bearer ".length()).trim();
     }
 
-    // 토큰에서 회원 정보 추출
     public String getUserPk(String token) {
         return Jwts.parser().setSigningKey(JWT_SECRET_KEY).parseClaimsJws(token).getBody().getSubject();
     }

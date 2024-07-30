@@ -1,17 +1,13 @@
 package com.example.spot.config;
 
 
-import com.example.spot.config.jwt.JwtAuthenticationFilter;
-import com.example.spot.config.jwt.JwtTokenProvider;
+import com.example.spot.utils.jwt.JwtAuthenticationFilter;
+import com.example.spot.utils.jwt.JwtTokenProvider;
 import com.example.spot.service.member.MemberService;
-import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -31,19 +27,16 @@ public class WebSecurity {
 
         http.csrf( (csrf) -> csrf.disable());
 
-
         http.authorizeHttpRequests((authz) -> authz
-                .requestMatchers(new AntPathRequestMatcher("/login/**")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/login")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/spot/login", "GET")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/spot/members/sign-in/kakao", "GET")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/api-docs/**")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/api/swagger-config", "GET")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/v3/api-docs/**", "GET")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/api-docs")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/v3/**", "GET")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**", "GET")).permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(getJwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-
             .sessionManagement((session) -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.headers((headers) -> headers.frameOptions((frameOptions) -> frameOptions.sameOrigin()));
