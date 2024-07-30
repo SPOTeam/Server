@@ -3,7 +3,6 @@ package com.example.spot.domain;
 import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.enums.Carrier;
 import com.example.spot.domain.mapping.*;
-import com.example.spot.domain.study.Study;
 import com.example.spot.domain.study.StudyPost;
 import com.example.spot.domain.study.StudyPostComment;
 import com.example.spot.domain.study.Vote;
@@ -178,5 +177,29 @@ public class Member extends BaseEntity {
         }
         this.memberAttendanceList.add(memberAttendance);
         memberAttendance.setMember(this);
+    }
+
+    public void addStudyPost(StudyPost studyPost) {
+        if (this.studyPostList == null) {
+            this.studyPostList = new ArrayList<>();
+        }
+        this.studyPostList.add(studyPost);
+        studyPost.setMember(this);
+    }
+
+    public void updateStudyPost(StudyPost studyPost) {
+        studyPostList.set(studyPostList.indexOf(studyPost), studyPost);
+    }
+
+    public void addStudyLikedPost(StudyLikedPost studyLikedPost) {
+        if (this.studyLikedPostList == null) {
+            this.studyLikedPostList = new ArrayList<>();
+        }
+        this.studyLikedPostList.add(studyLikedPost);
+        studyLikedPost.setMember(this);
+    }
+
+    public void deleteStudyPost(StudyPost studyPost) {
+        this.studyPostList.remove(studyPost);
     }
 }

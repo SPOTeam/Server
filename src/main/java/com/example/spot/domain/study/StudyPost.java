@@ -5,51 +5,42 @@ import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.enums.Theme;
 import com.example.spot.domain.mapping.StudyLikedPost;
 import com.example.spot.domain.mapping.StudyPostImage;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+
+import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
 @Getter
-@Builder
 @DynamicUpdate
 @DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 public class StudyPost extends BaseEntity {
 
-    @Id @GeneratedValue
-    private long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_id", nullable = false)
     private Study study;
 
-    @Column(nullable = false)
-    private boolean isAnnouncement;
+    @Column(nullable = false, columnDefinition = "BIT DEFAULT 0")
+    private Boolean isAnnouncement;
 
-    @Column(nullable = false)
+    @Setter
+    @Column
     private LocalDateTime announcedAt;
 
     @Column(nullable = false)
@@ -80,4 +71,51 @@ public class StudyPost extends BaseEntity {
     @OneToMany(mappedBy = "studyPost", cascade = CascadeType.ALL)
     private List<StudyLikedPost> likedPosts;
 
+/* ----------------------------- 생성자 ------------------------------------- */
+
+    @Builder
+    public StudyPost(Boolean isAnnouncement, Theme theme, String title, String content) {
+        this.isAnnouncement = isAnnouncement;
+        this.theme = theme;
+        this.title = title;
+        this.content = content;
+        this.likeNum = 0;
+        this.hitNum = 0;
+        this.commentNum = 0;
+        this.images = new ArrayList<>();
+        this.comments = new ArrayList<>();
+        this.likedPosts = new ArrayList<>();
+    }
+/* ----------------------------- 연관관계 메소드 ------------------------------------- */
+
+    public void addImage(StudyPostImage image) {
+        images.add(image);
+        image.setStudyPost(this);
+    }
+
+    public void addComment(StudyPostComment comment) {
+        comments.add(comment);
+        comment.setStudyPost(this);
+    }
+
+    public void addLikedPost(StudyLikedPost likedPost) {
+        likedPosts.add(likedPost);
+        likedPost.setStudyPost(this);
+    }
+
+    public void deleteImage(StudyPostImage image) {
+        images.remove(image);
+    }
+
+    public void deleteComment(StudyPostComment comment) {
+        comments.remove(comment);
+    }
+
+    public void deleteLikedPost(StudyLikedPost likedPost) {
+        likedPosts.remove(likedPost);
+    }
+
+    public void updateImage(StudyPostImage studyPostImage) {
+        images.set(images.indexOf(studyPostImage), studyPostImage);
+    }
 }
