@@ -10,25 +10,33 @@ import com.example.spot.domain.enums.ApplicationStatus;
 import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.mapping.MemberAttendance;
 import com.example.spot.domain.mapping.MemberStudy;
+import com.example.spot.domain.mapping.StudyLikedPost;
+import com.example.spot.domain.mapping.StudyPostImage;
 import com.example.spot.domain.study.Schedule;
 import com.example.spot.domain.study.Study;
+import com.example.spot.domain.study.StudyPost;
+import com.example.spot.domain.study.StudyPostComment;
 import com.example.spot.repository.*;
+import com.example.spot.service.s3.S3ImageService;
 import com.example.spot.web.dto.memberstudy.request.StudyQuizRequestDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyQuizResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyTerminationResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyWithdrawalResponseDTO;
+import com.example.spot.web.dto.study.request.StudyPostRequestDTO;
 import com.example.spot.web.dto.study.response.StudyApplyResponseDTO;
 import com.example.spot.web.dto.study.request.ScheduleRequestDTO;
 import com.example.spot.web.dto.study.response.ScheduleResponseDTO;
+import com.example.spot.web.dto.study.response.StudyPostResDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 
 @Service
@@ -43,6 +51,13 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
 
     private final MemberStudyRepository memberStudyRepository;
     private final MemberAttendanceRepository memberAttendanceRepository;
+    private final StudyPostRepository studyPostRepository;
+    private final StudyPostImageRepository studyPostImageRepository;
+    private final StudyPostCommentRepository studyPostCommentRepository;
+    private final StudyLikedPostRepository studyLikedPostRepository;
+
+    // S3 Service
+    private final S3ImageService s3ImageService;
 
 /* ----------------------------- 진행중인 스터디 관련 API ------------------------------------- */
 
@@ -238,7 +253,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
     public StudyQuizResponseDTO.QuizDTO deleteAttendanceQuiz(Long studyId, Long quizId) {
 
         //=== Exception ===//
-        Study study = studyRepository.findById(studyId)
+        studyRepository.findById(studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
         Quiz quiz = quizRepository.findById(quizId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_QUIZ_NOT_FOUND));
@@ -256,5 +271,112 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         return StudyQuizResponseDTO.QuizDTO.toDTO(quiz);
     }
 
+/* ----------------------------- 스터디 게시글 관련 API ------------------------------------- */
 
+    @Override
+    public StudyPostResDTO.PostPreviewDTO createPost(Long studyId, StudyPostRequestDTO.PostDTO postRequestDTO) {
+
+        //=== Exception ===//
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        Member member = memberRepository.findById(postRequestDTO.getMemberId())
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(member.getId(), studyId, ApplicationStatus.APPROVED)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
+
+        // 스터디장만 공지 가능
+        MemberStudy memberStudy = memberStudyRepository.findByMemberIdAndStudyId(member.getId(), studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
+        if (!memberStudy.getIsOwned() && postRequestDTO.getIsAnnouncement()) {
+            throw new StudyHandler(ErrorStatus._STUDY_POST_ANNOUNCEMENT_INVALID);
+        }
+
+        //=== Feature ===//
+        StudyPost studyPost = StudyPost.builder()
+                .isAnnouncement(postRequestDTO.getIsAnnouncement())
+                .theme(postRequestDTO.getTheme())
+                .title(postRequestDTO.getTitle())
+                .content(postRequestDTO.getContent())
+                .build();
+
+        // 공지면 announcedAt 설정
+        if (studyPost.getIsAnnouncement()) {
+            studyPost.setAnnouncedAt(LocalDateTime.now());
+        }
+
+        member.addStudyPost(studyPost);
+        study.addStudyPost(studyPost);
+        studyPost = studyPostRepository.save(studyPost);
+
+        List<MultipartFile> images = postRequestDTO.getImages();
+        if (images != null && !images.isEmpty()) {
+            for (MultipartFile image : images) {
+                String imageUrl = s3ImageService.upload(image);
+                StudyPostImage studyPostImage = new StudyPostImage(imageUrl);
+                studyPost.addImage(studyPostImage); // image id가 저장되지 않음
+                studyPostImage = studyPostImageRepository.save(studyPostImage);
+                studyPost.updateImage(studyPostImage); // image id 저장
+            }
+        }
+
+        member.updateStudyPost(studyPost);
+        study.updateStudyPost(studyPost);
+
+        return StudyPostResDTO.PostPreviewDTO.toDTO(studyPost);
+    }
+
+    private StudyPost createPostImages(StudyPostRequestDTO.PostDTO postRequestDTO, StudyPost studyPost, Member member, Study study) {
+
+        List<MultipartFile> images = postRequestDTO.getImages();
+        if (images != null && !images.isEmpty()) {
+            images.forEach(image -> {
+                String imageUrl = s3ImageService.upload(image);
+                StudyPostImage studyPostImage = new StudyPostImage(imageUrl);
+                studyPostImage = studyPostImageRepository.save(studyPostImage);
+                studyPost.addImage(studyPostImage);
+            });
+        }
+        member.updateStudyPost(studyPost);
+        study.updateStudyPost(studyPost);
+        return studyPostRepository.save(studyPost);
+
+    }
+
+    @Override
+    public StudyPostResDTO.PostPreviewDTO deletePost(Long studyId, Long postId) {
+
+        //=== Exception ===//
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        StudyPost studyPost = studyPostRepository.findById(postId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
+
+        // 로그인한 회원과 게시글 작성자가 일치하는지 확인
+        //Member member = memberRepository.findById(memberId)
+        //        .orElseThrow(() -> new StudyHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        //=== Feature ===//
+        List<StudyPostImage> imagesCopy = new ArrayList<>(studyPost.getImages());
+        imagesCopy.forEach(image -> {
+            studyPost.deleteImage(image);
+            s3ImageService.deleteImageFromS3(image.getUrl());
+            studyPostImageRepository.delete(image);
+        });
+        List<StudyPostComment> commentsCopy = new ArrayList<>(studyPost.getComments());
+        commentsCopy.forEach(comment -> {
+            studyPost.deleteComment(comment);
+            studyPostCommentRepository.delete(comment);
+        });
+        List<StudyLikedPost> likedPostsCopy = new ArrayList<>(studyPost.getLikedPosts());
+        likedPostsCopy.forEach(likedPost -> {
+            studyPost.deleteLikedPost(likedPost);
+            studyLikedPostRepository.delete(likedPost);
+        });
+
+        //member.deleteStudyPost(studyPost);
+        study.deleteStudyPost(studyPost);
+        studyPostRepository.delete(studyPost);
+
+        return StudyPostResDTO.PostPreviewDTO.toDTO(studyPost);
+    }
 }
