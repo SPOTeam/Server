@@ -18,4 +18,5 @@ public interface MemberService extends UserDetailsService {
 
     boolean isMemberExists(String email);
 
+
 }
