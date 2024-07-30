@@ -50,7 +50,6 @@ public class KaKaoOAuthService {
             .collect(Collectors.joining("&"));
 
         String redirectURL = KAKAO_SNS_URL + "?" + parameterString;
-        log.info("redirectURL = {}", redirectURL);
         return redirectURL;
     }
 
@@ -77,18 +76,18 @@ public class KaKaoOAuthService {
 
     public KaKaoOAuthTokenDTO getAccessToken(ResponseEntity<String> response)
         throws JsonProcessingException {
-        log.info("response.getBody() = {}", response.getBody());
 
         KaKaoOAuthToken.KaKaoOAuthTokenDTO kaKaoOAuthTokenDTO= objectMapper.readValue(response.getBody(),
             KaKaoOAuthTokenDTO.class);
         return kaKaoOAuthTokenDTO;
     }
 
-    public ResponseEntity<String> requestUserInfo(KaKaoOAuthTokenDTO kaKaoOAuthTokenDTO) {
+    public ResponseEntity<String> requestUserInfo(String accessToken) {
+        log.info("accessToken = {}", accessToken);
         String KAKAO_USER_INFO_REQUEST_URL = "https://kapi.kakao.com/v2/user/me";
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + kaKaoOAuthTokenDTO.getAccess_token());
+        headers.add("Authorization", "Bearer " + accessToken);
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity(headers);
         ResponseEntity<String> responseEntity = restTemplate.exchange(KAKAO_USER_INFO_REQUEST_URL, HttpMethod.GET, request, String.class);

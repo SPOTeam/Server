@@ -10,6 +10,8 @@ public interface MemberService extends UserDetailsService {
 
     MemberResponseDTO.MemberSignInDTO signUpByKAKAO(String code) throws JsonProcessingException;
 
+    MemberResponseDTO.MemberSignInDTO signUpByKAKAOForTest(String code) throws JsonProcessingException;
+
     void redirectURL() throws IOException;
 
     Member findMemberByEmail(String email);
