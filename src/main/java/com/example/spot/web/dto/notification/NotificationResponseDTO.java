@@ -2,35 +2,44 @@ package com.example.spot.web.dto.notification;
 
 import com.example.spot.domain.Notification;
 import com.example.spot.domain.enums.NotifyType;
-import lombok.AllArgsConstructor;
+
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
 
+@Getter
 public class NotificationResponseDTO {
-    @Builder
+
     @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
     public static class NotificationDTO {
-        public NotificationDTO(Notification notification) {
 
-            this.notificationId = notification.getId();
-            this.title = notification.getTitle();
-            this.content = notification.getContent();
-            this.type = notification.getType();
-            this.isChecked = notification.getIsChecked();
-            this.createdAt = notification.getCreatedAt();
+        private final Long notificationId;
+        private final String title;
+        private final String content;
+        private final NotifyType type;
+        private final Boolean isChecked;
+        private final LocalDateTime createdAt;
 
+        @Builder(access = AccessLevel.PRIVATE)
+        private NotificationDTO(Long notificationId, String title, String content, NotifyType type, Boolean isChecked, LocalDateTime createdAt) {
+            this.notificationId = notificationId;
+            this.title = title;
+            this.content = content;
+            this.type = type;
+            this.isChecked = isChecked;
+            this.createdAt = createdAt;
         }
 
-        Long notificationId;
-        String title;
-        String content;
-        NotifyType type;
-        Boolean isChecked;
-        LocalDateTime createdAt;
+        public static NotificationDTO fromEntity(Notification notification) {
+            return NotificationDTO.builder()
+                    .notificationId(notification.getId())
+                    .title(notification.getTitle())
+                    .content(notification.getContent())
+                    .type(notification.getType())
+                    .isChecked(notification.getIsChecked())
+                    .createdAt(notification.getCreatedAt())
+                    .build();
+        }
     }
 }
