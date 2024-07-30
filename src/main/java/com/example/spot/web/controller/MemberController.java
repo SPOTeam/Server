@@ -7,6 +7,10 @@ import com.example.spot.service.member.MemberService;
 import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.MemberSignInDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.example.spot.validation.annotation.ExistMember;
+import com.example.spot.web.dto.member.MemberRequestDTO;
+import com.example.spot.web.dto.member.MemberRequestDTO.MemberInfoListDTO;
+import com.example.spot.web.dto.member.MemberResponseDTO.MemberUpdateDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -14,12 +18,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
-
-import com.example.spot.validation.annotation.ExistMember;
-import com.example.spot.web.dto.member.MemberRequestDTO;
-import com.example.spot.web.dto.member.MemberRequestDTO.MemberInfoListDTO;
-import com.example.spot.web.dto.member.MemberResponseDTO.MemberUpdateDTO;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
@@ -88,7 +86,7 @@ public class MemberController {
     @Operation(summary = "[회원 정보 업데이트] 관심 분야 입력 및 수정",
         description = """
             ## [회원 정보 업데이트] 해당하는 회원의 관심 분야를 입력 및 수정 합니다.
-            체크리스트에 해당하는 테마를 리스트 형식으로 입력 받습니다.
+            테마를 리스트 형식으로 입력 받습니다.
             대상 회원의 식별 아이디와 수정 시각이 반환 됩니다. 
             """,
         security = @SecurityRequirement(name = "accessToken"))
@@ -101,10 +99,10 @@ public class MemberController {
     }
 
     @PostMapping("/member/{memberId}/region")
-    @Operation(summary = "[회원 정보 업데이트] 체크리스트 입력 및 수정",
+    @Operation(summary = "[회원 정보 업데이트] 관심 지역 입력 및 수정",
         description = """
-            ## [회원 정보 업데이트] 해당하는 회원의 체크리스트를 입력 및 수정 합니다.
-            체크리스트에 해당하는 테마와 지역 코드를 리스트 형식으로 입력 받습니다.
+            ## [회원 정보 업데이트] 해당하는 회원의 관심 지역을 입력 및 수정 합니다.
+            지역 코드를 리스트 형식으로 입력 받습니다.
             대상 회원의 식별 아이디와 수정 시각이 반환 됩니다. 
             """,
         security = @SecurityRequirement(name = "accessToken"))
