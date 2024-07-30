@@ -32,8 +32,9 @@ import com.example.spot.repository.MemberThemeRepository;
 import com.example.spot.repository.PreferredRegionRepository;
 import com.example.spot.repository.RegionRepository;
 import com.example.spot.repository.ThemeRepository;
-import com.example.spot.web.dto.member.MemberRequestDTO.MemberCheckListDTO;
 import com.example.spot.web.dto.member.MemberRequestDTO.MemberInfoListDTO;
+import com.example.spot.web.dto.member.MemberRequestDTO.MemberRegionDTO;
+import com.example.spot.web.dto.member.MemberRequestDTO.MemberThemeDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.MemberUpdateDTO;
 import org.springframework.stereotype.Service;
 
@@ -88,7 +89,8 @@ public class MemberServiceImpl implements MemberService {
 
 
     @Override
-    public MemberUpdateDTO updateCheckList(Long memberId, MemberCheckListDTO requestDTO) {
+
+    public MemberUpdateDTO updateTheme(Long memberId, MemberThemeDTO requestDTO) {
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
 
@@ -100,7 +102,28 @@ public class MemberServiceImpl implements MemberService {
             .map(theme -> MemberTheme.builder().member(member).theme(theme).build())
             .toList();
 
-        List<Region> regions = requestDTO.getRegionCodes().stream()
+        if (memberThemeRepository.existsByMemberId(member.getId()))
+            memberThemeRepository.deleteByMemberId(member.getId());
+
+        // 새로운 MemberTheme과 PreferredRegion을 저장
+        memberThemeRepository.saveAll(memberThemes);
+
+        member.updateThemes(memberThemes);
+
+        memberRepository.save(member);
+
+        return MemberUpdateDTO.builder()
+            .memberId(member.getId())
+            .updatedAt(member.getUpdatedAt())
+            .build();
+    }
+
+    @Override
+    public MemberUpdateDTO updateRegion(Long memberId, MemberRegionDTO requestDTO) {
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
+
+        List<Region> regions = requestDTO.getRegions().stream()
             .map(regionCode -> regionRepository.findByCode(regionCode).orElseThrow(() -> new GeneralException(ErrorStatus._REGION_NOT_FOUND)))
             .toList();
 
@@ -109,18 +132,14 @@ public class MemberServiceImpl implements MemberService {
             .toList();
 
         // 기존의 MemberTheme과 PreferredRegion 삭제
-        if (memberThemeRepository.existsByMemberId(member.getId())) {
-            memberThemeRepository.deleteByMemberId(member.getId());
-        }
-        if (preferredRegionRepository.existsByMemberId(member.getId())) {
-            preferredRegionRepository.deleteByMemberId(member.getId());
-        }
 
-        // 새로운 MemberTheme과 PreferredRegion을 저장
-        memberThemeRepository.saveAll(memberThemes);
+        if (preferredRegionRepository.existsByMemberId(member.getId()))
+            preferredRegionRepository.deleteByMemberId(member.getId());
+
+
         preferredRegionRepository.saveAll(preferredRegions);
 
-        member.updateCheckList(memberThemes, preferredRegions);
+        member.updateRegions(preferredRegions);
 
         memberRepository.save(member);
 

@@ -21,9 +21,17 @@ public class MemberRequestDTO {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class MemberCheckListDTO{
+    public static class MemberThemeDTO{
         private List<ThemeType> themes;
-        private List<String> regionCodes;
+    }
+
+    @Getter
+    @Setter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class MemberRegionDTO{
+        private List<String> regions;
     }
 
     @Getter
@@ -48,9 +56,4 @@ public class MemberRequestDTO {
             return phone.length() <= 11;
         }
     }
-
-
-
-
-
 }

@@ -9,7 +9,6 @@ import com.example.spot.domain.study.Study;
 import com.example.spot.domain.study.StudyPost;
 import com.example.spot.domain.study.StudyPostComment;
 import com.example.spot.domain.study.Vote;
-import com.example.spot.web.dto.member.MemberRequestDTO.MemberCheckListDTO;
 import com.example.spot.web.dto.member.MemberRequestDTO.MemberInfoListDTO;
 import jakarta.persistence.*;
 import java.util.ArrayList;
@@ -217,11 +216,12 @@ public class Member extends BaseEntity {
         memberAttendance.setMember(this);
     }
 
-    public void updateCheckList(List<MemberTheme> memberThemes, List<PreferredRegion> preferredRegions) {
+    public void updateThemes(List<MemberTheme> memberThemes) {
         this.memberThemeList.clear();
-        this.preferredRegionList.clear();
-
         this.memberThemeList.addAll(memberThemes);
+    }
+    public void updateRegions(List<PreferredRegion> preferredRegions) {
+        this.preferredRegionList.clear();
         this.preferredRegionList.addAll(preferredRegions);
     }
 
