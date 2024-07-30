@@ -1,9 +1,12 @@
 package com.example.spot.web.controller;
 
 import com.example.spot.api.ApiResponse;
+import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.code.status.SuccessStatus;
+import com.example.spot.api.exception.handler.StudyHandler;
 import com.example.spot.service.memberstudy.MemberStudyCommandService;
 import com.example.spot.service.memberstudy.MemberStudyQueryService;
+import com.example.spot.service.s3.S3ImageService;
 import com.example.spot.validation.annotation.ExistMember;
 import com.example.spot.validation.annotation.ExistStudy;
 import com.example.spot.web.dto.memberstudy.request.StudyQuizRequestDTO;
@@ -11,18 +14,25 @@ import com.example.spot.web.dto.memberstudy.response.StudyQuizResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyTerminationResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyWithdrawalResponseDTO;
 import com.example.spot.web.dto.study.request.ScheduleRequestDTO;
-import com.example.spot.web.dto.study.response.ScheduleResponseDTO;
-import com.example.spot.web.dto.study.response.StudyApplyResponseDTO;
-import com.example.spot.web.dto.study.response.StudyMemberResponseDTO;
-import com.example.spot.web.dto.study.response.StudyPostResponseDTO;
-import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO;
+import com.example.spot.web.dto.study.request.StudyPostRequestDTO;
+import com.example.spot.web.dto.study.response.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.List;
 
 @Tag(name = "MemberStudy", description = "MemberStudy API(내 스터디 관련 API)")
 @RestController
@@ -121,8 +131,6 @@ public class MemberStudyController {
     public ApiResponse<StudyPostResponseDTO> getRecentAnnouncement(@PathVariable @ExistStudy Long studyId) {
         StudyPostResponseDTO studyPostResponseDTO = memberStudyQueryService.findStudyAnnouncementPost(studyId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_FOUND, studyPostResponseDTO);
-
-
     }
 
     @Operation(summary = "[스터디 상세 정보] 다가오는 모임 목록 불러오기", description = """ 
@@ -195,9 +203,34 @@ public class MemberStudyController {
 
 /* ----------------------------- 스터디 게시글 관련 API ------------------------------------- */
 
+    @Operation(summary = "[스터디 게시글] 게시글 작성하기", description = """
+        ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 작성 버튼 클릭, 로그인한 회원이 참여하는 특정 스터디에서 새로운 게시글을 등록합니다.
+        스터디에 참여하는 회원이 작성한 게시글을 `study_post`에 저장합니다.
+        """)
+    @PostMapping(value = "/studies/{studyId}/posts", consumes = "multipart/form-data")
+    public ApiResponse<StudyPostResDTO.PostPreviewDTO> createPost(
+            @PathVariable Long studyId,
+            @ModelAttribute(value = "post") @Parameter(content = @Content(mediaType = "multipart/form-data")) StudyPostRequestDTO.PostDTO postRequestDTO) {
+
+        StudyPostResDTO.PostPreviewDTO postPreviewDTO = memberStudyCommandService.createPost(studyId, postRequestDTO);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_CREATED, postPreviewDTO);
+    }
+
+    @Operation(summary = "[스터디 게시글] 게시글 삭제하기", description = """ 
+        ## [스터디 게시글] 로그인한 회원이 참여하는 특정 스터디에서 작성한 게시글을 삭제합니다.
+        스터디에 참여하는 회원이 작성한 게시글을 study_post에서 삭제합니다.
+        """)
+    @DeleteMapping("/studies/{studyId}/posts/{postId}")
+    public ApiResponse<StudyPostResDTO.PostPreviewDTO> deletePost(@PathVariable Long studyId, @PathVariable Long postId) {
+        StudyPostResDTO.PostPreviewDTO postPreviewDTO = memberStudyCommandService.deletePost(studyId, postId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_DELETED, postPreviewDTO);
+    }
+
     @Operation(summary = "[스터디 게시글] 글 목록 불러오기", description = """ 
         ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 클릭, 로그인한 회원이 참여하는 특정 스터디의 게시글 목록을 불러옵니다.
         로그인한 회원이 참여하는 특정 스터디의 study_post 목록이 최신순으로 반환됩니다.
+        query를 추가하는 경우 해당 카테고리에 속한 스터디 게시글 목록을 반환합니다.
+        (* 페이징 필요)
         """)
     @GetMapping("/studies/{studyId}/posts")
     public void getAllPosts(@PathVariable Long studyId) {
@@ -207,35 +240,56 @@ public class MemberStudyController {
         ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 게시글 클릭, 로그인한 회원이 참여하는 특정 스터디의 게시글을 불러옵니다.
         로그인한 회원이 참여하는 특정 스터디의 study_post 정보가 반환됩니다.
         """)
-    @GetMapping("/studies/{studyId}/posts/{studyPostId}")
-    public void getPost(@PathVariable Long studyId, @PathVariable Long studyPostId) {
+    @GetMapping("/studies/{studyId}/posts/{postId}")
+    public void getPost(@PathVariable Long studyId, @PathVariable Long postId) {
     }
 
     @Operation(summary = "[스터디 게시글] 좋아요 개수 불러오기", description = """ 
         ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 게시글 클릭, 로그인한 회원이 참여하는 특정 스터디의 게시글에 눌린 좋아요 개수를 불러옵니다.
         로그인한 회원이 참여하는 특정 스터디의 study_post의 like_num이 반환됩니다.
         """)
-    @GetMapping("/studies/{studyId}/posts/{studyPostId}/like-num")
-    public void getLikeNum(@PathVariable Long studyId, @PathVariable Long studyPostId) {
-    }
-
-    @Operation(summary = "[스터디 게시글] 댓글 개수 불러오기", description = """ 
-        ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 게시글 클릭, 로그인한 회원이 참여하는 특정 스터디의 게시글에 달린 댓/답글 개수를 불러옵니다.
-        로그인한 회원이 참여하는 특정 스터디의 study_post의 comment_num이 반환됩니다.
-        """)
-    @GetMapping("/studies/{studyId}/posts/{studyPostId}/comment-num")
-    public void getCommentNum(@PathVariable Long studyId, @PathVariable Long studyPostId) {
+    @GetMapping("/studies/{studyId}/posts/{postId}/like-num")
+    public void getLikeNum(@PathVariable Long studyId, @PathVariable Long postId) {
     }
 
     @Operation(summary = "[스터디 게시글] 조회수 불러오기", description = """ 
         ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 게시글 클릭, 로그인한 회원이 참여하는 특정 스터디의 게시글에 대한 조회수를 불러옵니다.
         로그인한 회원이 참여하는 특정 스터디의 study_post의 hit_num이 반환됩니다.
         """)
-    @GetMapping("/studies/{studyId}/posts/{studyPostId}/hit-num")
-    public void getHitNum(@PathVariable Long studyId, @PathVariable Long studyPostId) {
+    @GetMapping("/studies/{studyId}/posts/{postId}/hit-num")
+    public void getHitNum(@PathVariable Long studyId, @PathVariable Long postId) {
     }
 
-    @Operation(summary = "[스터디 게시글] 전체 댓글 불러오기", description = """ 
+    @Operation(summary = "[스터디 게시글 - 댓글] 댓글 작성하기", description = """ 
+        ## [스터디 게시글] 로그인한 회원이 참여하는 특정 스터디의 게시글에 댓글을 작성합니다.
+        RequestBody로 내용과 회원 정보를 입력 받아 댓글 정보를 반환합니다.
+        """)
+    @PostMapping("/studies/{studyId}/posts/{postId}/comments")
+    public void createComment(@PathVariable Long studyId, @PathVariable Long postId) {}
+
+    @Operation(summary = "[스터디 게시글 - 댓글] 답글 작성하기", description = """ 
+        ## [스터디 게시글] 로그인한 회원이 참여하는 특정 스터디 게시글의 댓글에 대하여 답글을 작성합니다.
+        RequestBody로 내용과 회원 정보를 입력 받아 답글 정보를 반환합니다.
+        """)
+    @PostMapping("/studies/{studyId}/posts/{postId}/comments/{commentId}/replies")
+    public void createReply(@PathVariable Long studyId, @PathVariable Long postId, @PathVariable Long commentId) {}
+
+    @Operation(summary = "[스터디 게시글 - 댓글] 댓글 삭제하기", description = """ 
+        ## [스터디 게시글] 로그인한 회원이 참여하는 특정 스터디 게시글의 댓글을 삭제합니다.
+        댓글의 id를 PathVariable로 받아 삭제한 후 삭제된 댓글 정보를 반환합니다.
+        """)
+    @DeleteMapping("/studies/{studyId}/posts/{postId}/comments/{commentId}")
+    public void deleteComment(@PathVariable Long studyId, @PathVariable Long postId, @PathVariable Long commentId) {}
+
+    @Operation(summary = "[스터디 게시글 - 댓글] 답글 삭제하기", description = """ 
+        ## [스터디 게시글] 로그인한 회원이 참여하는 특정 스터디 게시글의 댓글에 대한 답글을 삭제합니다.
+        댓글과 답글의 id를 PathVariable로 받아 삭제한 후 삭제된 답글 정보를 반환합니다.
+        """)
+    @DeleteMapping("/studies/{studyId}/posts/{postId}/comments/{commentId}/replies/{replyId}")
+    public void deleteReply(@PathVariable Long studyId, @PathVariable Long postId,
+                            @PathVariable Long commentId, @PathVariable Long replyId) {}
+
+    @Operation(summary = "[스터디 게시글 - 댓글] 전체 댓글 불러오기", description = """ 
         ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 게시글 클릭, 로그인한 회원이 참여하는 특정 스터디의 게시글에 달린 모든 댓글을 불러옵니다.
         특정 study_post에 대한 comment(댓/답글) 목록이 반환됩니다.
         """)
@@ -243,13 +297,14 @@ public class MemberStudyController {
     public void getAllComments(@PathVariable Long studyId, @PathVariable Long studyPostId) {
     }
 
-    @Operation(summary = "[스터디 게시글] 게시글 작성하기", description = """ 
-        ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 작성 버튼 클릭, 로그인한 회원이 참여하는 특정 스터디에서 새로운 게시글을 등록합니다.
-        스터디에 참여하는 회원이 작성한 게시글을 study_post에 저장합니다.
+    @Operation(summary = "[스터디 게시글 - 댓글] 댓글 개수 불러오기", description = """ 
+        ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 게시글 클릭, 로그인한 회원이 참여하는 특정 스터디의 게시글에 달린 댓/답글 개수를 불러옵니다.
+        로그인한 회원이 참여하는 특정 스터디의 study_post의 comment_num이 반환됩니다.
         """)
-    @PostMapping("/members/{memberId}/studies/{studyId}/posts")
-    public void createPost(@PathVariable Long memberId, @PathVariable Long studyId) {
+    @GetMapping("/studies/{studyId}/posts/{studyPostId}/comment-num")
+    public void getCommentNum(@PathVariable Long studyId, @PathVariable Long studyPostId) {
     }
+
 
 /* ----------------------------- 스터디 투표 관련 API ------------------------------------- */
 
@@ -291,7 +346,7 @@ public class MemberStudyController {
         ## [스터디 갤러리] 내 스터디 > 스터디 > 갤러리 클릭, 로그인한 회원이 참여하는 스터디의 이미지 목록을 불러옵니다.
         study_post에 존재하는 모든 게시글의 이미지를 최신순으로 반환합니다.
         """)
-    @GetMapping("/studies/{studyId}/posts/images")
+    @GetMapping("/studies/{studyId}/images")
     public void getAllStudyImages(@PathVariable Long studyId) {
     }
 
@@ -299,7 +354,7 @@ public class MemberStudyController {
         ## [스터디 갤러리] 내 스터디 > 스터디 > 갤러리 > 이미지 클릭, 로그인한 회원이 참여하는 스터디의 특정 이미지를 불러옵니다.
         특정 study_post의 image 하나를 반환합니다.
         """)
-    @GetMapping("/studies/{studyId}/posts/{studyPostId}/images/{studyPostImageId}")
+    @GetMapping("/studies/{studyId}/images/{studyPostImageId}")
     public void getStudyImage(@PathVariable Long studyId, @PathVariable Long studyPostId, @PathVariable Long studyPostImageId) {
     }
 
