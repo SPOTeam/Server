@@ -115,7 +115,6 @@ public class MemberServiceImpl implements MemberService {
             .build();
     }
 
-
     @Override
     public void redirectURL() throws IOException {
         response.sendRedirect(kaKaoOAuthService.getOauthRedirectURL());
@@ -144,9 +143,6 @@ public class MemberServiceImpl implements MemberService {
     public boolean isMemberExists(String email) {
         return memberRepository.existsByEmail(email);
     }
-    public Authentication authenticate(String token) {
-        String userEmail = jwtTokenProvider.getUserPk(token);
-        UserDetails userDetails = loadUserByUsername(userEmail);
-        return jwtTokenProvider.getAuthentication(token, userDetails);
-    }
+
+
 }

@@ -77,5 +77,4 @@ public class JwtTokenProvider {
     public String getUserPk(String token) {
         return Jwts.parser().setSigningKey(JWT_SECRET_KEY).parseClaimsJws(token).getBody().getSubject();
     }
-
 }
