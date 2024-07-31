@@ -208,4 +208,7 @@ public class Member extends BaseEntity {
     }
 
 
+    public void addComment(StudyPostComment studyPostComment) {
+        this.studyPostCommentList.add(studyPostComment);
+    }
 }
