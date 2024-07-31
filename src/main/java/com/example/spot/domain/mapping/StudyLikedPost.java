@@ -16,16 +16,14 @@ import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
 @Getter
-@Builder
 @DynamicUpdate
 @DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 public class StudyLikedPost extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
@@ -37,4 +35,11 @@ public class StudyLikedPost extends BaseEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
+/* ----------------------------- 생성자 ------------------------------------- */
+
+    @Builder
+    public StudyLikedPost(Member member, StudyPost studyPost) {
+        this.member = member;
+        this.studyPost = studyPost;
+    }
 }

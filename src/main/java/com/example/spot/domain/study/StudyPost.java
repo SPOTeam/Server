@@ -118,4 +118,16 @@ public class StudyPost extends BaseEntity {
     public void updateImage(StudyPostImage studyPostImage) {
         images.set(images.indexOf(studyPostImage), studyPostImage);
     }
+
+    public void plusHitNum() {
+        hitNum++;
+    }
+
+    public void plusLikeNum() {
+        likeNum++;
+    }
+
+    public void minusLikeNum() {
+        likeNum--;
+    }
 }

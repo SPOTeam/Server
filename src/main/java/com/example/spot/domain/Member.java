@@ -187,11 +187,15 @@ public class Member extends BaseEntity {
         studyPost.setMember(this);
     }
 
+    public void deleteStudyPost(StudyPost studyPost) {
+        this.studyPostList.remove(studyPost);
+    }
+
     public void updateStudyPost(StudyPost studyPost) {
         studyPostList.set(studyPostList.indexOf(studyPost), studyPost);
     }
 
-    public void addStudyLikedPost(StudyLikedPost studyLikedPost) {
+    public void addLikedPost(StudyLikedPost studyLikedPost) {
         if (this.studyLikedPostList == null) {
             this.studyLikedPostList = new ArrayList<>();
         }
@@ -199,7 +203,9 @@ public class Member extends BaseEntity {
         studyLikedPost.setMember(this);
     }
 
-    public void deleteStudyPost(StudyPost studyPost) {
-        this.studyPostList.remove(studyPost);
+    public void deleteLikedPost(StudyLikedPost studyLikedPost) {
+        this.studyLikedPostList.remove(studyLikedPost);
     }
+
+
 }
