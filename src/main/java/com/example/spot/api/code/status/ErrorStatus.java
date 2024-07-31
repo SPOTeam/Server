@@ -37,12 +37,14 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_OWNER_CANNOT_APPLY(HttpStatus.BAD_REQUEST, "STUDY4011", "스터디장은 스터디에 신청할 수 없습니다."),
     _STUDY_IS_FULL(HttpStatus.BAD_REQUEST, "STUDY4012", "스터디 인원이 가득 찼습니다."),
 
-    //스터디 게시물 관련 에러
+    //스터디 게시글 관련 에러
     _STUDY_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST4001", "스터디 게시글을 찾을 수 없습니다."),
     _STUDY_POST_TITLE_INVALID(HttpStatus.BAD_REQUEST, "POST4002", "스터디 게시글 제목이 유효하지 않습니다."),
     _STUDY_POST_CONTENT_INVALID(HttpStatus.BAD_REQUEST, "POST4003", "스터디 게시글 내용이 유효하지 않습니다."),
     _STUDY_POST_ALREADY_LIKED(HttpStatus.BAD_REQUEST, "POST4004", "이미 좋아요 한 게시글입니다."),
     _STUDY_LIKED_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST4005", "좋아요를 누르지 않은 게시글의 좋아요를 취소할 수 없습니다."),
+    _STUDY_POST_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "POST4006", "스터디 게시글의 댓글을 찾을 수 없습니다."),
+    _STUDY_POST_ANNOUNCEMENT_INVALID(HttpStatus.BAD_REQUEST, "POST4007", "일반 스터디원에게는 공지 권한이 없습니다."),
 
     //스터디 일정 관련 에러
     _STUDY_SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "SCHEDULE4001", "스터디 일정을 찾을 수 없습니다."),
@@ -73,9 +75,6 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_QUIZ_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "QUIZ4003", "금일 출석 퀴즈가 이미 존재합니다."),
     _STUDY_ATTENDANCE_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "QUIZ4004", "이미 출석 체크되었습니다."),
     _STUDY_ATTENDANCE_ATTEMPT_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "QUIZ4005", "출석 퀴즈 시도 횟수가 초과되었습니다."),
-
-    // 스터디 게시글 관련 에러
-    _STUDY_POST_ANNOUNCEMENT_INVALID(HttpStatus.BAD_REQUEST, "STUDYPOST4001", "일반 스터디원에게는 공지 권한이 없습니다."),
 
     // S3 관련 에러
     _FILE_IS_NULL(HttpStatus.BAD_REQUEST, "S34001", "파일이 입력되지 않았습니다."),
