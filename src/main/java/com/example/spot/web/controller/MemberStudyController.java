@@ -1,13 +1,10 @@
 package com.example.spot.web.controller;
 
 import com.example.spot.api.ApiResponse;
-import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.code.status.SuccessStatus;
-import com.example.spot.api.exception.handler.StudyHandler;
 import com.example.spot.domain.enums.Theme;
 import com.example.spot.service.memberstudy.MemberStudyCommandService;
 import com.example.spot.service.memberstudy.MemberStudyQueryService;
-import com.example.spot.service.s3.S3ImageService;
 import com.example.spot.validation.annotation.ExistMember;
 import com.example.spot.validation.annotation.ExistStudy;
 import com.example.spot.web.dto.memberstudy.request.StudyQuizRequestDTO;
@@ -15,26 +12,18 @@ import com.example.spot.web.dto.memberstudy.response.StudyQuizResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyTerminationResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyWithdrawalResponseDTO;
 import com.example.spot.web.dto.study.request.ScheduleRequestDTO;
+import com.example.spot.web.dto.study.request.StudyPostCommentRequestDTO;
 import com.example.spot.web.dto.study.request.StudyPostRequestDTO;
 import com.example.spot.web.dto.study.response.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.List;
 
 @Tag(name = "MemberStudy", description = "MemberStudy API(내 스터디 관련 API)")
 @RestController
@@ -269,8 +258,8 @@ public class MemberStudyController {
         ** 인증 구현 이후 /members/{memberId} 삭제 **
         """)
     @DeleteMapping("/studies/{studyId}/posts/{postId}/likes/members/{memberId}")
-    public ApiResponse<StudyPostResDTO.PostLikeNumDTO> dislikePost(@PathVariable Long studyId, @PathVariable Long postId, @PathVariable Long memberId) {
-        StudyPostResDTO.PostLikeNumDTO postLikeNumDTO = memberStudyCommandService.dislikePost(studyId, postId, memberId);
+    public ApiResponse<StudyPostResDTO.PostLikeNumDTO> cancelPostLike(@PathVariable Long studyId, @PathVariable Long postId, @PathVariable Long memberId) {
+        StudyPostResDTO.PostLikeNumDTO postLikeNumDTO = memberStudyCommandService.cancelPostLike(studyId, postId, memberId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_DISLIKED, postLikeNumDTO);
     }
 
@@ -279,14 +268,22 @@ public class MemberStudyController {
         RequestBody로 내용과 회원 정보를 입력 받아 댓글 정보를 반환합니다.
         """)
     @PostMapping("/studies/{studyId}/posts/{postId}/comments")
-    public void createComment(@PathVariable Long studyId, @PathVariable Long postId) {}
+    public ApiResponse<StudyPostCommentResponseDTO.CommentDTO> createComment(@PathVariable Long studyId, @PathVariable Long postId,
+                    @RequestBody StudyPostCommentRequestDTO.CommentDTO commentRequestDTO) {
+        StudyPostCommentResponseDTO.CommentDTO commentResponseDTO = memberStudyCommandService.createComment(studyId, postId, commentRequestDTO);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_COMMENT_CREATED, commentResponseDTO);
+    }
 
     @Operation(summary = "[스터디 게시글 - 댓글] 답글 작성하기", description = """ 
         ## [스터디 게시글] 로그인한 회원이 참여하는 특정 스터디 게시글의 댓글에 대하여 답글을 작성합니다.
         RequestBody로 내용과 회원 정보를 입력 받아 답글 정보를 반환합니다.
         """)
     @PostMapping("/studies/{studyId}/posts/{postId}/comments/{commentId}/replies")
-    public void createReply(@PathVariable Long studyId, @PathVariable Long postId, @PathVariable Long commentId) {}
+    public ApiResponse<StudyPostCommentResponseDTO.CommentDTO> createReply(@PathVariable Long studyId, @PathVariable Long postId, @PathVariable Long commentId,
+                                                                           @RequestBody StudyPostCommentRequestDTO.CommentDTO commentRequestDTO) {
+        StudyPostCommentResponseDTO.CommentDTO commentResponseDTO = memberStudyCommandService.createReply(studyId, postId, commentId, commentRequestDTO);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_COMMENT_CREATED, commentResponseDTO);
+    }
 
     @Operation(summary = "[스터디 게시글 - 댓글] 댓글 삭제하기", description = """ 
         ## [스터디 게시글] 로그인한 회원이 참여하는 특정 스터디 게시글의 댓글을 삭제합니다.
@@ -295,13 +292,13 @@ public class MemberStudyController {
     @DeleteMapping("/studies/{studyId}/posts/{postId}/comments/{commentId}")
     public void deleteComment(@PathVariable Long studyId, @PathVariable Long postId, @PathVariable Long commentId) {}
 
-    @Operation(summary = "[스터디 게시글 - 댓글] 답글 삭제하기", description = """ 
-        ## [스터디 게시글] 로그인한 회원이 참여하는 특정 스터디 게시글의 댓글에 대한 답글을 삭제합니다.
-        댓글과 답글의 id를 PathVariable로 받아 삭제한 후 삭제된 답글 정보를 반환합니다.
-        """)
-    @DeleteMapping("/studies/{studyId}/posts/{postId}/comments/{commentId}/replies/{replyId}")
-    public void deleteReply(@PathVariable Long studyId, @PathVariable Long postId,
-                            @PathVariable Long commentId, @PathVariable Long replyId) {}
+    public void likeComment() {}
+
+    public void cancelCommentLike() {}
+
+    public void dislikeComment() {}
+
+    public void cancelCommentDislike() {}
 
     @Operation(summary = "[스터디 게시글 - 댓글] 전체 댓글 불러오기", description = """ 
         ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 게시글 클릭, 로그인한 회원이 참여하는 특정 스터디의 게시글에 달린 모든 댓글을 불러옵니다.

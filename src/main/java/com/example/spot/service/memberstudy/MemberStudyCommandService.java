@@ -5,9 +5,11 @@ import com.example.spot.web.dto.memberstudy.response.StudyQuizResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyTerminationResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyWithdrawalResponseDTO;
 import com.example.spot.web.dto.study.request.ScheduleRequestDTO;
+import com.example.spot.web.dto.study.request.StudyPostCommentRequestDTO;
 import com.example.spot.web.dto.study.request.StudyPostRequestDTO;
 import com.example.spot.web.dto.study.response.ScheduleResponseDTO;
 import com.example.spot.web.dto.study.response.StudyApplyResponseDTO;
+import com.example.spot.web.dto.study.response.StudyPostCommentResponseDTO;
 import com.example.spot.web.dto.study.response.StudyPostResDTO;
 
 public interface MemberStudyCommandService {
@@ -44,5 +46,11 @@ public interface MemberStudyCommandService {
     StudyPostResDTO.PostLikeNumDTO likePost(Long studyId, Long postId, Long memberId);
 
     // 스터디 게시글 좋아요 취소
-    StudyPostResDTO.PostLikeNumDTO dislikePost(Long studyId, Long postId, Long memberId);
+    StudyPostResDTO.PostLikeNumDTO cancelPostLike(Long studyId, Long postId, Long memberId);
+
+    // 스터디 게시글 댓글 생성
+    StudyPostCommentResponseDTO.CommentDTO createComment(Long studyId, Long postId, StudyPostCommentRequestDTO.CommentDTO commentRequestDTO);
+
+    // 스터디 게시글 답글 생성
+    StudyPostCommentResponseDTO.CommentDTO createReply(Long studyId, Long postId, Long commentId, StudyPostCommentRequestDTO.CommentDTO commentRequestDTO);
 }

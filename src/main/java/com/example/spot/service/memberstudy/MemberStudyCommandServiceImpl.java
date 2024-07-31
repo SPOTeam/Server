@@ -22,12 +22,15 @@ import com.example.spot.web.dto.memberstudy.request.StudyQuizRequestDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyQuizResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyTerminationResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyWithdrawalResponseDTO;
+import com.example.spot.web.dto.study.request.StudyPostCommentRequestDTO;
 import com.example.spot.web.dto.study.request.StudyPostRequestDTO;
 import com.example.spot.web.dto.study.response.StudyApplyResponseDTO;
 import com.example.spot.web.dto.study.request.ScheduleRequestDTO;
 import com.example.spot.web.dto.study.response.ScheduleResponseDTO;
+import com.example.spot.web.dto.study.response.StudyPostCommentResponseDTO;
 import com.example.spot.web.dto.study.response.StudyPostResDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,6 +46,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional
 public class MemberStudyCommandServiceImpl implements MemberStudyCommandService {
+
+    @Value("${cloud.aws.default-image}")
+    private String defaultImage;
 
     private final MemberRepository memberRepository;
     private final StudyRepository studyRepository;
@@ -351,9 +357,11 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         StudyPost studyPost = studyPostRepository.findById(postId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
 
-        // 로그인한 회원과 게시글 작성자가 일치하는지 확인
+        // 로그인한 회원과 게시글 작성자가 일치하는지, 회원이 스터디에 속해있는지 확인
         //Member member = memberRepository.findById(memberId)
         //        .orElseThrow(() -> new StudyHandler(ErrorStatus._MEMBER_NOT_FOUND));
+        //memberStudyRepository.findByMemberIdAndStudyIdAndStatus(member.getId(), studyId, ApplicationStatus.APPROVED)
+        //                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
 
         //=== Feature ===//
         List<StudyPostImage> imagesCopy = new ArrayList<>(studyPost.getImages());
@@ -388,6 +396,8 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
         studyRepository.findById(studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(member.getId(), studyId, ApplicationStatus.APPROVED)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
         StudyPost studyPost = studyPostRepository.findById(postId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
 
@@ -411,13 +421,15 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
     }
 
     @Override
-    public StudyPostResDTO.PostLikeNumDTO dislikePost(Long studyId, Long postId, Long memberId) {
+    public StudyPostResDTO.PostLikeNumDTO cancelPostLike(Long studyId, Long postId, Long memberId) {
 
         //=== Exception ===//
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
         studyRepository.findById(studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(member.getId(), studyId, ApplicationStatus.APPROVED)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
         StudyPost studyPost = studyPostRepository.findById(postId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
 
@@ -431,5 +443,105 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         studyLikedPostRepository.delete(studyLikedPost);
 
         return StudyPostResDTO.PostLikeNumDTO.toDTO(studyPost);
+    }
+
+    @Override
+    public StudyPostCommentResponseDTO.CommentDTO createComment(Long studyId, Long postId, StudyPostCommentRequestDTO.CommentDTO commentRequestDTO) {
+
+        //=== Exception ===//
+        Member member = memberRepository.findById(commentRequestDTO.getMemberId())
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+        studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(member.getId(), studyId, ApplicationStatus.APPROVED)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
+        StudyPost studyPost = studyPostRepository.findById(postId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
+        studyPostRepository.findByIdAndStudyId(postId, studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
+
+        //=== Feature ===//
+        Integer anonymousNum = getAnonymousNum(postId, commentRequestDTO, member);
+
+        StudyPostComment studyPostComment = StudyPostComment.builder()
+                .studyPost(studyPost)
+                .member(member)
+                .content(commentRequestDTO.getContent())
+                .isAnonymous(commentRequestDTO.getIsAnonymous())
+                .parentComment(null)
+                .anonymousNum(anonymousNum)
+                .build();
+
+        studyPostCommentRepository.save(studyPostComment);
+        studyPost.addComment(studyPostComment);
+        member.addComment(studyPostComment);
+
+        return StudyPostCommentResponseDTO.CommentDTO.toDTO(studyPostComment, "익명"+anonymousNum, defaultImage);
+    }
+
+    @Override
+    public StudyPostCommentResponseDTO.CommentDTO createReply(Long studyId, Long postId, Long commentId, StudyPostCommentRequestDTO.CommentDTO commentRequestDTO) {
+
+        //=== Exception ===//
+        Member member = memberRepository.findById(commentRequestDTO.getMemberId())
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+        studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(member.getId(), studyId, ApplicationStatus.APPROVED)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
+        StudyPost studyPost = studyPostRepository.findById(postId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
+        studyPostRepository.findByIdAndStudyId(postId, studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
+        StudyPostComment parentComment = studyPostCommentRepository.findById(commentId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_COMMENT_NOT_FOUND));
+
+        //=== Feature ===//
+        Integer anonymousNum = getAnonymousNum(postId, commentRequestDTO, member);
+
+        StudyPostComment studyPostComment = StudyPostComment.builder()
+                .studyPost(studyPost)
+                .member(member)
+                .content(commentRequestDTO.getContent())
+                .isAnonymous(commentRequestDTO.getIsAnonymous())
+                .anonymousNum(anonymousNum)
+                .parentComment(parentComment)
+                .build();
+
+        studyPostCommentRepository.save(studyPostComment);
+        studyPost.addComment(studyPostComment);
+        member.addComment(studyPostComment);
+
+        return StudyPostCommentResponseDTO.CommentDTO.toDTO(studyPostComment, "익명"+anonymousNum, defaultImage);
+    }
+
+    private Integer getAnonymousNum(Long postId, StudyPostCommentRequestDTO.CommentDTO commentRequestDTO, Member member) {
+        Integer anonymousNum = null;
+
+        List<StudyPostComment> studyPostComments = studyPostCommentRepository.findByStudyPostId(postId);
+        List<StudyPostComment> myStudyPostComments = studyPostCommentRepository.findByMemberIdAndStudyPostId(member.getId(), postId);
+
+        // 회원이 익명 댓글을 요청할 경우 anonymousNum 부여
+        if (commentRequestDTO.getIsAnonymous()) {
+            // anonymousNum의 (최댓값+1) 계산
+            int maxAnonymousNum = 0;
+            for (StudyPostComment studyPostComment : studyPostComments) {
+                if (studyPostComment.getAnonymousNum() != null && studyPostComment.getAnonymousNum() > maxAnonymousNum) {
+                    maxAnonymousNum = studyPostComment.getAnonymousNum();
+                }
+            }
+            anonymousNum = maxAnonymousNum+1;
+            // 회원의 댓글 이력이 존재하는 경우 익명 작성 여부 확인
+            // 해당 post에 익명으로 댓글을 남긴 이력이 있으면 해당 번호를 가져옴
+            if (!myStudyPostComments.isEmpty()) {
+                for (StudyPostComment myStudyPostComment : myStudyPostComments) {
+                    if (myStudyPostComment.getIsAnonymous()) {
+                        anonymousNum = myStudyPostComment.getAnonymousNum();
+                    }
+                }
+                // 댓글은 있지만 익명으로 댓글을 남긴 이력이 없으면 그대로 최댓값+1 부여
+            }
+        }
+        return anonymousNum;
     }
 }
