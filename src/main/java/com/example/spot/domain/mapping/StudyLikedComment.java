@@ -34,9 +34,10 @@ public class StudyLikedComment extends BaseEntity {
 /* ----------------------------- 생성자 ------------------------------------- */
 
     @Builder
-    public StudyLikedComment(StudyPostComment studyPostComment, Member member) {
+    public StudyLikedComment(StudyPostComment studyPostComment, Member member, Boolean isLiked) {
         this.studyPostComment = studyPostComment;
         this.member = member;
+        this.isLiked = isLiked;
     }
 
 }

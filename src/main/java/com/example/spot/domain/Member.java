@@ -187,6 +187,14 @@ public class Member extends BaseEntity {
         studyPost.setMember(this);
     }
 
+    public void addStudyLikedComment(StudyLikedComment studyLikedComment) {
+        if (this.likedCommentList == null) {
+            this.likedCommentList = new ArrayList<>();
+        }
+        this.studyLikedCommentList.add(studyLikedComment);
+        studyLikedComment.setMember(this);
+    }
+
     public void deleteStudyPost(StudyPost studyPost) {
         this.studyPostList.remove(studyPost);
     }
@@ -199,7 +207,7 @@ public class Member extends BaseEntity {
         studyPostCommentList.set(studyPostCommentList.indexOf(studyPostComment), studyPostComment);
     }
 
-    public void addLikedPost(StudyLikedPost studyLikedPost) {
+    public void addStudyLikedPost(StudyLikedPost studyLikedPost) {
         if (this.studyLikedPostList == null) {
             this.studyLikedPostList = new ArrayList<>();
         }
@@ -207,12 +215,17 @@ public class Member extends BaseEntity {
         studyLikedPost.setMember(this);
     }
 
-    public void deleteLikedPost(StudyLikedPost studyLikedPost) {
+    public void deleteStudyLikedPost(StudyLikedPost studyLikedPost) {
         this.studyLikedPostList.remove(studyLikedPost);
     }
 
+    public void deleteStudyLikedComment(StudyLikedComment studyLikedComment) {
+        this.studyLikedCommentList.remove(studyLikedComment);
+    }
 
     public void addComment(StudyPostComment studyPostComment) {
         this.studyPostCommentList.add(studyPostComment);
     }
+
+
 }
