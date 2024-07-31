@@ -47,6 +47,10 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_POST_ANNOUNCEMENT_INVALID(HttpStatus.BAD_REQUEST, "POST4007", "일반 스터디원에게는 공지 권한이 없습니다."),
     _STUDY_POST_COMMENT_DELETE_INVALID(HttpStatus.FORBIDDEN, "POST4008", "댓글은 작성자만 삭제할 수 있습니다."),
     _STUDY_POST_COMMENT_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "POST4009", "이미 삭제된 댓글입니다."),
+    _STUDY_POST_COMMENT_ALREADY_LIKED(HttpStatus.BAD_REQUEST, "POST4010", "이미 좋아요 한 댓글입니다."),
+    _STUDY_POST_COMMENT_ALREADY_DISLIKED(HttpStatus.BAD_REQUEST, "POST4011", "이미 싫어요 한 댓글입니다."),
+    _STUDY_LIKED_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "POST4012", "좋아요를 누르지 않은 게시글의 좋아요를 취소할 수 없습니다."),
+    _STUDY_DISLIKED_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "POST4013", "싫어요를 누르지 않은 게시글의 싫어요를 취소할 수 없습니다."),
 
     //스터디 일정 관련 에러
     _STUDY_SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "SCHEDULE4001", "스터디 일정을 찾을 수 없습니다."),
