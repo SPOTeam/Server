@@ -61,7 +61,25 @@ public class StudyPostCommentResponseDTO {
 
     @Getter
     @RequiredArgsConstructor
-    public static class CommentPreviewDTO {
+    public static class CommentIdDTO {
         private final Long commentId;
+    }
+
+    @Getter
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    @Builder(access = AccessLevel.PRIVATE)
+    public static class CommentPreviewDTO {
+
+        private final Long commentId;
+        private final Integer likeCount;
+        private final Integer dislikeCount;
+
+        public static CommentPreviewDTO toDTO(StudyPostComment comment) {
+            return CommentPreviewDTO.builder()
+                    .commentId(comment.getId())
+                    .likeCount(comment.getLikeCount())
+                    .dislikeCount(comment.getDislikeCount())
+                    .build();
+        }
     }
 }
