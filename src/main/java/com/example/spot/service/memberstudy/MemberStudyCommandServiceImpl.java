@@ -580,46 +580,17 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
 
     @Override
     public StudyPostCommentResponseDTO.CommentPreviewDTO likeComment(Long studyId, Long postId, Long commentId, Long memberId) {
-
-        //=== Exception ===//
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
-        studyRepository.findById(studyId)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
-        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(member.getId(), studyId, ApplicationStatus.APPROVED)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
-        studyPostRepository.findById(postId)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
-        StudyPostComment studyPostComment = studyPostCommentRepository.findById(commentId)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_COMMENT_NOT_FOUND));
-
-        // 이미 좋아요나 싫어요를 눌렀다면 좋아요 할 수 없음
-        if (studyLikedCommentRepository.findByMemberIdAndStudyPostCommentIdAndIsLiked(memberId, commentId, Boolean.TRUE).isPresent()) {
-            throw new StudyHandler(ErrorStatus._STUDY_POST_COMMENT_ALREADY_LIKED);
-        }
-        if (studyLikedCommentRepository.findByMemberIdAndStudyPostCommentIdAndIsLiked(memberId, commentId, Boolean.FALSE).isPresent()) {
-            throw new StudyHandler(ErrorStatus._STUDY_POST_COMMENT_ALREADY_DISLIKED);
-        }
-
-        //=== Feature ===//
-        StudyLikedComment studyLikedComment = StudyLikedComment.builder()
-                .studyPostComment(studyPostComment)
-                .member(member)
-                .isLiked(Boolean.TRUE)
-                .build();
-
-        studyLikedComment = studyLikedCommentRepository.save(studyLikedComment);
-        member.addStudyLikedComment(studyLikedComment);
-        studyPostComment.addLikedComment(studyLikedComment);
-
-        studyPostComment.plusLikeCount();
-        studyPostCommentRepository.save(studyPostComment);
-
+        StudyPostComment studyPostComment = saveStudyPostComment(studyId, postId, commentId, memberId, Boolean.TRUE);
         return StudyPostCommentResponseDTO.CommentPreviewDTO.toDTO(studyPostComment);
     }
 
     @Override
     public StudyPostCommentResponseDTO.CommentPreviewDTO dislikeComment(Long studyId, Long postId, Long commentId, Long memberId) {
+        StudyPostComment studyPostComment = saveStudyPostComment(studyId, postId, commentId, memberId, Boolean.FALSE);
+        return StudyPostCommentResponseDTO.CommentPreviewDTO.toDTO(studyPostComment);
+    }
+
+    private StudyPostComment saveStudyPostComment(Long studyId, Long postId, Long commentId, Long memberId, Boolean isLiked) {
 
         //=== Exception ===//
         Member member = memberRepository.findById(memberId)
@@ -645,50 +616,45 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         StudyLikedComment studyLikedComment = StudyLikedComment.builder()
                 .studyPostComment(studyPostComment)
                 .member(member)
-                .isLiked(Boolean.FALSE)
+                .isLiked(isLiked)
                 .build();
 
         studyLikedComment = studyLikedCommentRepository.save(studyLikedComment);
         member.addStudyLikedComment(studyLikedComment);
         studyPostComment.addLikedComment(studyLikedComment);
 
-        studyPostComment.plusDislikeCount();
-        studyPostCommentRepository.save(studyPostComment);
+        if (studyLikedComment.getIsLiked()) {
+            studyPostComment.plusLikeCount();
+        } else {
+            studyPostComment.plusDislikeCount();
+        }
 
-        return StudyPostCommentResponseDTO.CommentPreviewDTO.toDTO(studyPostComment);
+        studyPostCommentRepository.save(studyPostComment);
+        return studyPostComment;
     }
 
     @Override
     public StudyPostCommentResponseDTO.CommentPreviewDTO cancelCommentLike(Long studyId, Long postId, Long commentId, Long likeId, Long memberId) {
 
-        //=== Exception ===//
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
-        studyRepository.findById(studyId)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
-        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(member.getId(), studyId, ApplicationStatus.APPROVED)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
-        studyPostRepository.findById(postId)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
-        StudyPostComment studyPostComment = studyPostCommentRepository.findById(commentId)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_COMMENT_NOT_FOUND));
-
-        //=== Feature ===//
         StudyLikedComment studyLikedComment = studyLikedCommentRepository.findByMemberIdAndStudyPostCommentIdAndIsLiked(memberId, commentId, Boolean.TRUE)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_LIKED_COMMENT_NOT_FOUND));
 
-        member.deleteStudyLikedComment(studyLikedComment);
-        studyPostComment.deleteLikedComment(studyLikedComment);
-        studyPostComment.minusLikeCount();
-        studyLikedCommentRepository.delete(studyLikedComment);
-        studyPostCommentRepository.save(studyPostComment);
-
+        StudyPostComment studyPostComment = deleteStudyLikedComment(studyId, postId, commentId, memberId, studyLikedComment);
         return StudyPostCommentResponseDTO.CommentPreviewDTO.toDTO(studyPostComment);
     }
 
     @Override
     public StudyPostCommentResponseDTO.CommentPreviewDTO cancelCommentDislike(Long studyId, Long postId, Long commentId, Long dislikeId, Long memberId) {
 
+        StudyLikedComment studyLikedComment = studyLikedCommentRepository.findByMemberIdAndStudyPostCommentIdAndIsLiked(memberId, commentId, Boolean.FALSE)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_DISLIKED_COMMENT_NOT_FOUND));
+
+        StudyPostComment studyPostComment = deleteStudyLikedComment(studyId, postId, commentId, memberId, studyLikedComment);
+        return StudyPostCommentResponseDTO.CommentPreviewDTO.toDTO(studyPostComment);
+    }
+
+    private StudyPostComment deleteStudyLikedComment(Long studyId, Long postId, Long commentId, Long memberId, StudyLikedComment studyLikedComment) {
+
         //=== Exception ===//
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
@@ -702,17 +668,17 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_COMMENT_NOT_FOUND));
 
         //=== Feature ===//
-        StudyLikedComment studyLikedComment = studyLikedCommentRepository.findByMemberIdAndStudyPostCommentIdAndIsLiked(memberId, commentId, Boolean.FALSE)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_DISLIKED_COMMENT_NOT_FOUND));
-
         member.deleteStudyLikedComment(studyLikedComment);
         studyPostComment.deleteLikedComment(studyLikedComment);
-        studyPostComment.minusDislikeCount();
+
+        if (studyLikedComment.getIsLiked()) {
+            studyPostComment.minusLikeCount();
+        } else {
+            studyPostComment.minusDislikeCount();
+        }
+
         studyLikedCommentRepository.delete(studyLikedComment);
         studyPostCommentRepository.save(studyPostComment);
-
-        return StudyPostCommentResponseDTO.CommentPreviewDTO.toDTO(studyPostComment);
+        return studyPostComment;
     }
-
-
 }
