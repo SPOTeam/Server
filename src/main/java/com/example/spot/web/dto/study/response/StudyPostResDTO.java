@@ -87,6 +87,7 @@ public class StudyPostResDTO {
     @Builder(access = AccessLevel.PRIVATE)
     public static class PostDetailDTO {
 
+        private final Long memberId;
         private final Long postId;
         private final String title;
         private final String content;
@@ -100,6 +101,7 @@ public class StudyPostResDTO {
 
         public static PostDetailDTO toDTO(StudyPost studyPost) {
             return PostDetailDTO.builder()
+                    .memberId(studyPost.getMember().getId())
                     .postId(studyPost.getId())
                     .title(studyPost.getTitle())
                     .content(studyPost.getContent())
@@ -112,5 +114,24 @@ public class StudyPostResDTO {
                     .studyPostImages(studyPost.getImages())
                     .build();
         }
+    }
+
+    @Getter
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    @Builder(access = AccessLevel.PRIVATE)
+    public static  class PostLikeNumDTO {
+
+        private final Long postId;
+        private final String title;
+        private final Integer likeNum;
+
+        public static PostLikeNumDTO toDTO(StudyPost studyPost) {
+            return PostLikeNumDTO.builder()
+                    .postId(studyPost.getId())
+                    .title(studyPost.getTitle())
+                    .likeNum(studyPost.getLikeNum())
+                    .build();
+        }
+
     }
 }
