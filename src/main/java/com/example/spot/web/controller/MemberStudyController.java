@@ -4,6 +4,7 @@ import com.example.spot.api.ApiResponse;
 import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.code.status.SuccessStatus;
 import com.example.spot.api.exception.handler.StudyHandler;
+import com.example.spot.domain.enums.Theme;
 import com.example.spot.service.memberstudy.MemberStudyCommandService;
 import com.example.spot.service.memberstudy.MemberStudyQueryService;
 import com.example.spot.service.s3.S3ImageService;
@@ -24,6 +25,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
@@ -233,7 +235,10 @@ public class MemberStudyController {
         (* 페이징 필요)
         """)
     @GetMapping("/studies/{studyId}/posts")
-    public void getAllPosts(@PathVariable Long studyId) {
+    public ApiResponse<StudyPostResDTO.PostListDTO> getAllPosts(@PathVariable Long studyId, @RequestParam(required = false) Theme theme,
+                                                                @RequestParam @Min(0) Integer offset, @RequestParam @Min(1) Integer limit) {
+        StudyPostResDTO.PostListDTO postListDTO = memberStudyQueryService.getAllPosts(PageRequest.of(offset, limit), studyId, theme);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_LIST_FOUND, postListDTO);
     }
 
     @Operation(summary = "[스터디 게시글] 게시글 불러오기", description = """ 
@@ -244,11 +249,18 @@ public class MemberStudyController {
     public void getPost(@PathVariable Long studyId, @PathVariable Long postId) {
     }
 
+    @Operation(summary = "[스터디 게시글] 좋아요 누르기", description = """ 
+        ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 게시글 클릭, 로그인한 회원이 참여하는 특정 스터디의 게시글에 좋아요를 누릅니다.
+        study_liked_post에 좋아요를 누른 회원의 정보를 저장하고 게시글의 like_num을 업데이트합니다.
+        """)
+    @PostMapping("/studies/{studyId}/posts/{postId}/likes")
+    public void pushLikeButton(@PathVariable Long studyId, @PathVariable Long postId) {}
+
     @Operation(summary = "[스터디 게시글] 좋아요 개수 불러오기", description = """ 
         ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 게시글 클릭, 로그인한 회원이 참여하는 특정 스터디의 게시글에 눌린 좋아요 개수를 불러옵니다.
         로그인한 회원이 참여하는 특정 스터디의 study_post의 like_num이 반환됩니다.
         """)
-    @GetMapping("/studies/{studyId}/posts/{postId}/like-num")
+    @GetMapping("/studies/{studyId}/posts/{postId}/likes")
     public void getLikeNum(@PathVariable Long studyId, @PathVariable Long postId) {
     }
 

@@ -4,24 +4,23 @@ import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.handler.StudyHandler;
 import com.example.spot.domain.Quiz;
 import com.example.spot.domain.enums.Period;
+import com.example.spot.domain.enums.Theme;
 import com.example.spot.domain.mapping.MemberAttendance;
 import com.example.spot.domain.study.Schedule;
 import com.example.spot.domain.study.Study;
 import com.example.spot.repository.*;
 import com.example.spot.web.dto.memberstudy.response.StudyQuizResponseDTO;
-import com.example.spot.web.dto.study.response.ScheduleResponseDTO;
+import com.example.spot.web.dto.study.response.*;
 import lombok.RequiredArgsConstructor;
 import com.example.spot.api.exception.GeneralException;
 import com.example.spot.domain.enums.ApplicationStatus;
 import com.example.spot.domain.mapping.MemberStudy;
 import com.example.spot.domain.study.StudyPost;
-import com.example.spot.web.dto.study.response.StudyMemberResponseDTO;
 import com.example.spot.web.dto.study.response.StudyMemberResponseDTO.StudyApplyMemberDTO;
 import com.example.spot.web.dto.study.response.StudyMemberResponseDTO.StudyMemberDTO;
-import com.example.spot.web.dto.study.response.StudyPostResponseDTO;
-import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO;
 import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO.StudyScheduleDTO;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +31,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -142,6 +142,25 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
                 .toList();
 
         return StudyQuizResponseDTO.AttendanceListDTO.toDTO(quiz, studyMembers);
+
+    }
+
+    @Override
+    public StudyPostResDTO.PostListDTO getAllPosts(PageRequest pageRequest, Long studyId, Theme theme) {
+
+        //=== Exception ===//
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+
+        //=== Feature ===//
+        List<StudyPostResDTO.PostDTO> studyPosts =
+                (theme == null ? studyPostRepository.findAllByStudyId(studyId, pageRequest)
+                        : studyPostRepository.findAllByStudyIdAndTheme(studyId, theme, pageRequest))
+                .stream()
+                .map(StudyPostResDTO.PostDTO::toDTO)
+                .toList();
+
+        return StudyPostResDTO.PostListDTO.toDTO(study, studyPosts);
 
     }
 
