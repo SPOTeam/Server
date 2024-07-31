@@ -17,6 +17,17 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 
 public class SearchResponseDTO {
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class MyPageDTO{
+        private String name;
+        private Long appliedStudies;
+        private Long ongoingStudies;
+        private Long myRecruitingStudies;
+    }
+
 
     @Builder
     @Getter

@@ -32,6 +32,7 @@ import com.example.spot.repository.StudyThemeRepository;
 import com.example.spot.repository.ThemeRepository;
 import com.example.spot.web.dto.search.SearchRequestDTO.SearchRequestStudyDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO;
+import com.example.spot.web.dto.search.SearchResponseDTO.MyPageDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.SearchStudyDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.StudyPreviewDTO;
 import com.example.spot.web.dto.study.response.StudyInfoResponseDTO;
@@ -57,6 +58,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 @Slf4j
 public class StudyQueryServiceImpl implements StudyQueryService {
+
+    private final MemberRepository memberRepository;
 
     // 스터디 관련 조회
     private final StudyRepository studyRepository;
@@ -87,6 +90,21 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
         Member owner = memberStudyList.get(0).getMember();
         return StudyInfoResponseDTO.StudyInfoDTO.toDTO(study, owner);
+    }
+
+    @Override
+    public MyPageDTO getMyPageStudyCount(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
+        long appliedStudies = memberStudyRepository.countByMemberIdAndStatus(memberId, ApplicationStatus.APPLIED);
+        long ongoingStudies = memberStudyRepository.countByMemberIdAndStatus(memberId, ApplicationStatus.ONGOING);
+        long myRecruitingStudies = memberStudyRepository.countByMemberIdAndIsOwned(memberId, true);
+        return MyPageDTO.builder()
+            .name(member.getName())
+            .appliedStudies(appliedStudies)
+            .ongoingStudies(ongoingStudies)
+            .myRecruitingStudies(myRecruitingStudies)
+            .build();
     }
 
     @Override

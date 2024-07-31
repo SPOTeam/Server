@@ -7,6 +7,7 @@ import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.service.study.StudyQueryService;
 import com.example.spot.validation.annotation.ExistMember;
 import com.example.spot.web.dto.search.SearchRequestDTO.SearchRequestStudyDTO;
+import com.example.spot.web.dto.search.SearchResponseDTO.MyPageDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.StudyPreviewDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -40,6 +41,18 @@ public class SearchController {
     public ApiResponse<StudyPreviewDTO> recommendStudiesForMain(@PathVariable @ExistMember long memberId) {
        StudyPreviewDTO recommendStudies = studyQueryService.findRecommendStudies(memberId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, recommendStudies);
+    }
+
+    @GetMapping("/search/studies/my-page/members/{memberId}")
+    @Operation(summary = "[마이 페이지] 마이 페이지 내 스터디 정보 조회",
+        description = """
+            ## [마이 페이지] 마이 페이지 나와 관련된 스터디 갯수 정보를 조회합니다.
+            스터디 갯수 정보가 반환 됩니다.""",
+        security = @SecurityRequirement(name = "accessToken"))
+    @Parameter(name = "memberId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
+    public ApiResponse<MyPageDTO> myPage(@PathVariable @ExistMember long memberId) {
+        MyPageDTO myPageStudyCount = studyQueryService.getMyPageStudyCount(memberId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND,  myPageStudyCount);
     }
 
 
