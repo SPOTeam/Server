@@ -58,4 +58,10 @@ public class StudyPostCommentResponseDTO {
             }
         }
     }
+
+    @Getter
+    @RequiredArgsConstructor
+    public static class CommentPreviewDTO {
+        private final Long commentId;
+    }
 }
