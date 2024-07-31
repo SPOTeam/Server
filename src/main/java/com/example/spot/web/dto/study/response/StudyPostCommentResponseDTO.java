@@ -6,7 +6,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+
+import java.util.List;
 
 @Getter
 public class StudyPostCommentResponseDTO {
@@ -79,6 +80,54 @@ public class StudyPostCommentResponseDTO {
                     .commentId(comment.getId())
                     .likeCount(comment.getLikeCount())
                     .dislikeCount(comment.getDislikeCount())
+                    .build();
+        }
+    }
+
+    @Getter
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    @Builder(access = AccessLevel.PRIVATE)
+    public static class CommentReplyListDTO {
+
+        private final Long postId;
+        private final List<CommentReplyDTO> comments;
+
+        public static CommentReplyListDTO toDTO(Long postId, List<StudyPostComment> comments, String defaultImage) {
+            return CommentReplyListDTO.builder()
+                    .postId(postId)
+                    .comments(comments.stream()
+                            .map(comment -> CommentReplyDTO.toDTO(comment, defaultImage))
+                            .toList())
+                    .build();
+        }
+    }
+
+    @Getter
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    @Builder(access = AccessLevel.PRIVATE)
+    public static class CommentReplyDTO {
+
+        private final Long commentId;
+        private final MemberInfoDTO member;
+        private final String content;
+        private final Integer likeCount;
+        private final Integer dislikeCount;
+        private final Boolean isDeleted;
+        private final List<CommentReplyDTO> applies;
+
+        public static CommentReplyDTO toDTO(StudyPostComment comment, String defaultImage) {
+
+            String anonymity = "익명" + comment.getAnonymousNum();
+            return CommentReplyDTO.builder()
+                    .commentId(comment.getId())
+                    .member(MemberInfoDTO.toDTO(comment.getMember(), anonymity, comment.getIsAnonymous(), defaultImage))
+                    .content(comment.getContent())
+                    .likeCount(comment.getLikeCount())
+                    .dislikeCount(comment.getDislikeCount())
+                    .isDeleted(comment.getIsDeleted())
+                    .applies(comment.getChildrenComment().stream()
+                            .map(child -> CommentReplyDTO.toDTO(child, defaultImage))
+                            .toList())
                     .build();
         }
     }
