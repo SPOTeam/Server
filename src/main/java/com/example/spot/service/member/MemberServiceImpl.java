@@ -17,7 +17,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -37,9 +36,11 @@ import com.example.spot.web.dto.member.MemberRequestDTO.MemberRegionDTO;
 import com.example.spot.web.dto.member.MemberRequestDTO.MemberThemeDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.MemberUpdateDTO;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
+@Transactional
 @RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService {
     private final KaKaoOAuthService kaKaoOAuthService;
@@ -89,7 +90,6 @@ public class MemberServiceImpl implements MemberService {
 
 
     @Override
-
     public MemberUpdateDTO updateTheme(Long memberId, MemberThemeDTO requestDTO) {
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
@@ -222,6 +222,7 @@ public class MemberServiceImpl implements MemberService {
         return memberRepository.existsByEmail(email);
     }
 
+    @Override
     public MemberUpdateDTO updateProfile(Long memberId, MemberInfoListDTO requestDTO) {
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));

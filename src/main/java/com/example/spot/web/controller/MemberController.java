@@ -90,12 +90,12 @@ public class MemberController {
             대상 회원의 식별 아이디와 수정 시각이 반환 됩니다. 
             """,
         security = @SecurityRequirement(name = "accessToken"))
-    @Parameter(name = "memberId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
+    @Parameter(name = "memberId", description = "업데이트할 유저의 ID를 입력 받습니다.", required = true)
     public ApiResponse<MemberUpdateDTO> updateThemes(
         @PathVariable @ExistMember Long memberId,
         @RequestBody @Valid MemberRequestDTO.MemberThemeDTO requestDTO){
         MemberUpdateDTO memberUpdateDTO = memberService.updateTheme(memberId, requestDTO);
-        return ApiResponse.onSuccess(SuccessStatus._CREATED, memberUpdateDTO);
+        return ApiResponse.onSuccess(SuccessStatus._MEMBER_THEME_UPDATE, memberUpdateDTO);
     }
 
     @PostMapping("/member/{memberId}/region")
@@ -106,12 +106,12 @@ public class MemberController {
             대상 회원의 식별 아이디와 수정 시각이 반환 됩니다. 
             """,
         security = @SecurityRequirement(name = "accessToken"))
-    @Parameter(name = "memberId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
+    @Parameter(name = "memberId", description = "업데이트할 유저의 ID를 입력 받습니다.", required = true)
     public ApiResponse<MemberUpdateDTO> updateRegions(
         @PathVariable @ExistMember Long memberId,
         @RequestBody @Valid MemberRequestDTO.MemberRegionDTO requestDTO){
         MemberUpdateDTO memberUpdateDTO = memberService.updateRegion(memberId, requestDTO);
-        return ApiResponse.onSuccess(SuccessStatus._CREATED, memberUpdateDTO);
+        return ApiResponse.onSuccess(SuccessStatus._MEMBER_REGION_UPDATE, memberUpdateDTO);
     }
     @PostMapping("/member/{memberId}/user-info")
     @Operation(summary = "[회원 정보 업데이트] 개인 정보 입력 및 수정",
@@ -121,12 +121,12 @@ public class MemberController {
             대상 회원의 식별 아이디와 수정 시각이 반환 됩니다. 
             """,
         security = @SecurityRequirement(name = "accessToken"))
-    @Parameter(name = "memberId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
+    @Parameter(name = "memberId", description = "업데이트할 유저의 ID를 입력 받습니다.", required = true)
     public ApiResponse<MemberUpdateDTO> updateMemberInfo(
         @PathVariable @ExistMember Long memberId,
         @RequestBody @Valid MemberInfoListDTO requestDTO){
         MemberUpdateDTO memberUpdateDTO = memberService.updateProfile(memberId, requestDTO);
-        return ApiResponse.onSuccess(SuccessStatus._CREATED, memberUpdateDTO);
+        return ApiResponse.onSuccess(SuccessStatus._MEMBER_INFO_UPDATE, memberUpdateDTO);
     }
 }
 
