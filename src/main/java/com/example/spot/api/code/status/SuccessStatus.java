@@ -33,10 +33,11 @@ public enum SuccessStatus implements BaseCode {
     _STUDY_POST_COMMENT_CREATED(HttpStatus.CREATED, "STUDYPOST3008", "스터디 게시글 댓글 작성 완료"),
     _STUDY_POST_COMMENT_UPDATED(HttpStatus.OK, "STUDYPOST3009", "스터디 게시글 댓글 수정 완료"),
     _STUDY_POST_COMMENT_DELETED(HttpStatus.OK, "STUDYPOST3010", "스터디 게시글 댓글 삭제 완료"),
-    _STUDY_POST_COMMENT_LIKED(HttpStatus.CREATED, "STUDYPOST3011", "스터디 게시글 댓글 좋아요 완료"),
-    _STUDY_POST_COMMENT_DISLIKED(HttpStatus.CREATED, "STUDYPOST3012", "스터디 게시글 댓글 싫어요 완료"),
-    _STUDY_POST_COMMENT_LIKE_CANCELED(HttpStatus.OK, "STUDYPOST3013", "스터디 게시글 댓글 좋아요 취소 완료"),
-    _STUDY_POST_COMMENT_DISLIKE_CANCELED(HttpStatus.OK, "STUDYPOST3014", "스터디 게시글 댓글 싫어요 취소 완료"),
+    _STUDY_POST_COMMENT_FOUND(HttpStatus.OK, "STUDYPOST3011", "스터디 게시글 댓글 조회 완료"),
+    _STUDY_POST_COMMENT_LIKED(HttpStatus.CREATED, "STUDYPOST3012", "스터디 게시글 댓글 좋아요 완료"),
+    _STUDY_POST_COMMENT_DISLIKED(HttpStatus.CREATED, "STUDYPOST3013", "스터디 게시글 댓글 싫어요 완료"),
+    _STUDY_POST_COMMENT_LIKE_CANCELED(HttpStatus.OK, "STUDYPOST3014", "스터디 게시글 댓글 좋아요 취소 완료"),
+    _STUDY_POST_COMMENT_DISLIKE_CANCELED(HttpStatus.OK, "STUDYPOST3015", "스터디 게시글 댓글 싫어요 취소 완료"),
 
     //알림 관련 응답
     _NOTIFICATION_FOUND(HttpStatus.OK, "NOTIFICATION4001", "전체 알림 조회 완료"),
