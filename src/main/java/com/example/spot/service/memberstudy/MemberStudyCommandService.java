@@ -53,4 +53,7 @@ public interface MemberStudyCommandService {
 
     // 스터디 게시글 답글 생성
     StudyPostCommentResponseDTO.CommentDTO createReply(Long studyId, Long postId, Long commentId, StudyPostCommentRequestDTO.CommentDTO commentRequestDTO);
+
+    // 스터디 게시글 댓글 삭제 (댓/답글 구분 X)
+    StudyPostCommentResponseDTO.CommentPreviewDTO deleteComment(Long studyId, Long postId, Long commentId);
 }

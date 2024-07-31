@@ -511,8 +511,42 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         studyPostCommentRepository.save(studyPostComment);
         studyPost.addComment(studyPostComment);
         member.addComment(studyPostComment);
+        parentComment.addChildrenComment(studyPostComment);
 
         return StudyPostCommentResponseDTO.CommentDTO.toDTO(studyPostComment, "익명"+anonymousNum, defaultImage);
+    }
+
+    @Override
+    public StudyPostCommentResponseDTO.CommentPreviewDTO deleteComment(Long studyId, Long postId, Long commentId) {
+        //=== Exception ===//
+        studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        StudyPost studyPost = studyPostRepository.findById(postId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
+        studyPostRepository.findByIdAndStudyId(postId, studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
+        StudyPostComment studyPostComment = studyPostCommentRepository.findById(commentId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_COMMENT_NOT_FOUND));
+        // 스터디 회원 인증 & 댓글 본인 인증
+        // memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
+        //                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
+        // if(studyPostComment.getMember().equals(member)) {
+        //            throw new StudyHandler(ErrorStatus._STUDY_POST_COMMENT_DELETE_INVALID);
+        //        }
+
+        //=== Feature ===//
+
+        if (studyPostComment.getIsDeleted()) {
+            throw new StudyHandler(ErrorStatus._STUDY_POST_COMMENT_ALREADY_DELETED);
+        }
+        studyPostComment.deleteComment();
+        studyPost.updateComment(studyPostComment);
+        //member.updateComment(studyPostComment);
+
+        studyPostCommentRepository.save(studyPostComment);
+        return new StudyPostCommentResponseDTO.CommentPreviewDTO(commentId);
+
+
     }
 
     private Integer getAnonymousNum(Long postId, StudyPostCommentRequestDTO.CommentDTO commentRequestDTO, Member member) {

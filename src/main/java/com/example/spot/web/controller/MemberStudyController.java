@@ -210,6 +210,7 @@ public class MemberStudyController {
     @Operation(summary = "[스터디 게시글] 게시글 삭제하기", description = """ 
         ## [스터디 게시글] 로그인한 회원이 참여하는 특정 스터디에서 작성한 게시글을 삭제합니다.
         스터디에 참여하는 회원이 작성한 게시글을 study_post에서 삭제합니다.
+        게시글에 작성된 댓글도 함께 삭제됩니다.
         """)
     @DeleteMapping("/studies/{studyId}/posts/{postId}")
     public ApiResponse<StudyPostResDTO.PostPreviewDTO> deletePost(@PathVariable Long studyId, @PathVariable Long postId) {
@@ -287,10 +288,13 @@ public class MemberStudyController {
 
     @Operation(summary = "[스터디 게시글 - 댓글] 댓글 삭제하기", description = """ 
         ## [스터디 게시글] 로그인한 회원이 참여하는 특정 스터디 게시글의 댓글을 삭제합니다.
-        댓글의 id를 PathVariable로 받아 삭제한 후 삭제된 댓글 정보를 반환합니다.
+        댓글의 id를 PathVariable로 받아 content와 isDeleted를 수정합니다.
         """)
-    @DeleteMapping("/studies/{studyId}/posts/{postId}/comments/{commentId}")
-    public void deleteComment(@PathVariable Long studyId, @PathVariable Long postId, @PathVariable Long commentId) {}
+    @PatchMapping("/studies/{studyId}/posts/{postId}/comments/{commentId}")
+    public ApiResponse<StudyPostCommentResponseDTO.CommentPreviewDTO> deleteComment(@PathVariable Long studyId, @PathVariable Long postId, @PathVariable Long commentId) {
+        StudyPostCommentResponseDTO.CommentPreviewDTO commentPreviewDTO = memberStudyCommandService.deleteComment(studyId, postId, commentId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_COMMENT_DELETED, commentPreviewDTO);
+    }
 
     public void likeComment() {}
 
