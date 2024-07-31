@@ -13,4 +13,6 @@ import org.springframework.stereotype.Repository;
 public interface StudyPostRepository extends JpaRepository<StudyPost, Long>, StudyPostRepositoryCustom {
 
     Optional<StudyPost> findByStudyIdAndIsAnnouncement(Long studyId, boolean isAnnouncement);
+
+    Optional<StudyPost> findByIdAndStudyId(Long postId, Long studyId);
 }
