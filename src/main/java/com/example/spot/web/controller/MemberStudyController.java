@@ -353,8 +353,10 @@ public class MemberStudyController {
         특정 study_post에 대한 comment(댓/답글) 목록이 반환됩니다.
         ** 인증 구현 이후 Request Body 삭제 **
         """)
-    @GetMapping("/studies/{studyId}/posts/{studyPostId}/comments")
-    public void getAllComments(@PathVariable Long studyId, @PathVariable Long studyPostId) {
+    @GetMapping("/studies/{studyId}/posts/{postId}/comments")
+    public ApiResponse<StudyPostCommentResponseDTO.CommentReplyListDTO> getAllComments(@PathVariable Long studyId, @PathVariable Long postId) {
+        StudyPostCommentResponseDTO.CommentReplyListDTO commentReplyListDTO = memberStudyQueryService.getAllComments(studyId, postId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_COMMENT_FOUND, commentReplyListDTO);
     }
 
 

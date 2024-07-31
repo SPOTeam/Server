@@ -19,6 +19,7 @@ import com.example.spot.domain.study.StudyPost;
 import com.example.spot.web.dto.study.response.StudyMemberResponseDTO.StudyApplyMemberDTO;
 import com.example.spot.web.dto.study.response.StudyMemberResponseDTO.StudyMemberDTO;
 import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO.StudyScheduleDTO;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -39,6 +40,9 @@ import java.util.List;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
+
+    @Value("${cloud.aws.default-image}")
+    private String defaultImage;
 
     private final StudyRepository studyRepository;
     private final StudyPostRepository studyPostRepository;
@@ -183,6 +187,22 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
         studyPost.plusHitNum();
 
         return StudyPostResDTO.PostDetailDTO.toDTO(studyPost);
+    }
+
+    @Override
+    public StudyPostCommentResponseDTO.CommentReplyListDTO getAllComments(Long studyId, Long postId) {
+
+        //=== Exception ===//
+        studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        StudyPost studyPost = studyPostRepository.findById(postId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
+        studyPostRepository.findByIdAndStudyId(postId, studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
+
+        //=== Feature ===//
+
+        return StudyPostCommentResponseDTO.CommentReplyListDTO.toDTO(studyPost.getId(), studyPost.getComments(), defaultImage);
     }
 
     /* ----------------------------- 스터디 일정 관련 API ------------------------------------- */

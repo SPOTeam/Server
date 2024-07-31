@@ -36,4 +36,7 @@ public interface MemberStudyQueryService {
 
     // 스터디 게시글 불러오기
     StudyPostResDTO.PostDetailDTO getPost(Long studyId, Long postId);
+
+    // 스터디 게시글 댓글 목록 불러오기
+    StudyPostCommentResponseDTO.CommentReplyListDTO getAllComments(Long studyId, Long postId);
 }
