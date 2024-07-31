@@ -41,6 +41,8 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST4001", "스터디 게시글을 찾을 수 없습니다."),
     _STUDY_POST_TITLE_INVALID(HttpStatus.BAD_REQUEST, "POST4002", "스터디 게시글 제목이 유효하지 않습니다."),
     _STUDY_POST_CONTENT_INVALID(HttpStatus.BAD_REQUEST, "POST4003", "스터디 게시글 내용이 유효하지 않습니다."),
+    _STUDY_POST_ALREADY_LIKED(HttpStatus.BAD_REQUEST, "POST4004", "이미 좋아요 한 게시글입니다."),
+    _STUDY_LIKED_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST4005", "좋아요를 누르지 않은 게시글의 좋아요를 취소할 수 없습니다."),
 
     //스터디 일정 관련 에러
     _STUDY_SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "SCHEDULE4001", "스터디 일정을 찾을 수 없습니다."),
