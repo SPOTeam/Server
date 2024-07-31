@@ -291,22 +291,67 @@ public class MemberStudyController {
         댓글의 id를 PathVariable로 받아 content와 isDeleted를 수정합니다.
         """)
     @PatchMapping("/studies/{studyId}/posts/{postId}/comments/{commentId}")
-    public ApiResponse<StudyPostCommentResponseDTO.CommentPreviewDTO> deleteComment(@PathVariable Long studyId, @PathVariable Long postId, @PathVariable Long commentId) {
-        StudyPostCommentResponseDTO.CommentPreviewDTO commentPreviewDTO = memberStudyCommandService.deleteComment(studyId, postId, commentId);
+    public ApiResponse<StudyPostCommentResponseDTO.CommentIdDTO> deleteComment(@PathVariable Long studyId, @PathVariable Long postId, @PathVariable Long commentId) {
+        StudyPostCommentResponseDTO.CommentIdDTO commentPreviewDTO = memberStudyCommandService.deleteComment(studyId, postId, commentId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_COMMENT_DELETED, commentPreviewDTO);
     }
 
-    public void likeComment() {}
+    @Operation(summary = "[스터디 게시글 - 댓글] 댓글 좋아요 누르기", description = """ 
+        ## [스터디 게시글] 로그인한 회원이 참여하는 특정 스터디 게시글의 댓글에 좋아요를 누릅니다.
+        study_liked_comment에 좋아요 내역이 추가되고 study_post_comment의 like_count가 증가합니다.
+        ** 인증 구현 이후 RequestParam 삭제 **
+        """)
+    @PostMapping("/studies/{studyId}/posts/{postId}/comments/{commentId}/likes")
+    public ApiResponse<StudyPostCommentResponseDTO.CommentPreviewDTO> likeComment(
+            @PathVariable Long studyId, @PathVariable Long postId,
+            @PathVariable Long commentId, @RequestParam Long memberId) {
+        StudyPostCommentResponseDTO.CommentPreviewDTO commentPreviewDTO = memberStudyCommandService.likeComment(studyId, postId, commentId, memberId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_COMMENT_LIKED, commentPreviewDTO);
+    }
 
-    public void cancelCommentLike() {}
+    @Operation(summary = "[스터디 게시글 - 댓글] 댓글 싫어요 누르기", description = """ 
+        ## [스터디 게시글] 로그인한 회원이 참여하는 특정 스터디 게시글의 댓글에 싫어요를 누릅니다.
+        study_liked_comment에 싫어요 내역이 추가되고 study_post_comment의 dislike_count가 증가합니다.
+        ** 인증 구현 이후 RequestParam 삭제 **
+        """)
+    @PostMapping("/studies/{studyId}/posts/{postId}/comments/{commentId}/dislikes")
+    public ApiResponse<StudyPostCommentResponseDTO.CommentPreviewDTO> dislikeComment(
+            @PathVariable Long studyId, @PathVariable Long postId,
+            @PathVariable Long commentId, @RequestParam Long memberId) {
+        StudyPostCommentResponseDTO.CommentPreviewDTO commentPreviewDTO = memberStudyCommandService.dislikeComment(studyId, postId, commentId, memberId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_COMMENT_DISLIKED, commentPreviewDTO);
+    }
 
-    public void dislikeComment() {}
+    @Operation(summary = "[스터디 게시글 - 댓글] 댓글 좋아요 취소하기", description = """ 
+        ## [스터디 게시글] 로그인한 회원이 참여하는 특정 스터디 게시글 댓글에 달린 좋아요를 취소합니다.
+        study_liked_comment에서 좋아요 내역이 삭제되고 study_post_comment의 like_count가 감소합니다.
+        ** 인증 구현 이후 RequestParam 삭제 **
+        """)
+    @DeleteMapping("/studies/{studyId}/posts/{postId}/comments/{commentId}/likes/{likeId}")
+    public ApiResponse<StudyPostCommentResponseDTO.CommentPreviewDTO> cancelCommentLike(
+            @PathVariable Long studyId, @PathVariable Long postId,
+            @PathVariable Long commentId, @PathVariable Long likeId, @RequestParam Long memberId) {
+        StudyPostCommentResponseDTO.CommentPreviewDTO commentPreviewDTO = memberStudyCommandService.cancelCommentLike(studyId, postId, commentId, likeId, memberId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_COMMENT_LIKE_CANCELED, commentPreviewDTO);
+    }
 
-    public void cancelCommentDislike() {}
+    @Operation(summary = "[스터디 게시글 - 댓글] 댓글 싫어요 취소하기", description = """ 
+        ## [스터디 게시글] 로그인한 회원이 참여하는 특정 스터디 게시글 댓글에 달린 싫어요를 취소합니다.
+        study_liked_comment에서 싫어요 내역이 삭제되고 study_post_comment의 dislike_count가 감소합니다.
+        ** 인증 구현 이후 RequestParam 삭제 **
+        """)
+    @DeleteMapping("/studies/{studyId}/posts/{postId}/comments/{commentId}/dislikes/{dislikeId}")
+    public ApiResponse<StudyPostCommentResponseDTO.CommentPreviewDTO> cancelCommentDislike(
+            @PathVariable Long studyId, @PathVariable Long postId,
+            @PathVariable Long commentId, @PathVariable Long dislikeId, @RequestParam Long memberId) {
+        StudyPostCommentResponseDTO.CommentPreviewDTO commentPreviewDTO = memberStudyCommandService.cancelCommentDislike(studyId, postId, commentId, dislikeId, memberId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_COMMENT_DISLIKE_CANCELED, commentPreviewDTO);
+    }
 
     @Operation(summary = "[스터디 게시글 - 댓글] 전체 댓글 불러오기", description = """ 
         ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 게시글 클릭, 로그인한 회원이 참여하는 특정 스터디의 게시글에 달린 모든 댓글을 불러옵니다.
         특정 study_post에 대한 comment(댓/답글) 목록이 반환됩니다.
+        ** 인증 구현 이후 Request Body 삭제 **
         """)
     @GetMapping("/studies/{studyId}/posts/{studyPostId}/comments")
     public void getAllComments(@PathVariable Long studyId, @PathVariable Long studyPostId) {

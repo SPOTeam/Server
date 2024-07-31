@@ -55,5 +55,17 @@ public interface MemberStudyCommandService {
     StudyPostCommentResponseDTO.CommentDTO createReply(Long studyId, Long postId, Long commentId, StudyPostCommentRequestDTO.CommentDTO commentRequestDTO);
 
     // 스터디 게시글 댓글 삭제 (댓/답글 구분 X)
-    StudyPostCommentResponseDTO.CommentPreviewDTO deleteComment(Long studyId, Long postId, Long commentId);
+    StudyPostCommentResponseDTO.CommentIdDTO deleteComment(Long studyId, Long postId, Long commentId);
+
+    // 스터디 게시글 댓글 좋아요
+    StudyPostCommentResponseDTO.CommentPreviewDTO likeComment(Long studyId, Long postId, Long commentId, Long memberId);
+
+    // 스터디 게시글 댓글 싫어요
+    StudyPostCommentResponseDTO.CommentPreviewDTO dislikeComment(Long studyId, Long postId, Long commentId, Long memberId);
+
+    // 스터디 게시글 댓글 좋아요 취소
+    StudyPostCommentResponseDTO.CommentPreviewDTO cancelCommentLike(Long studyId, Long postId, Long commentId, Long likeId, Long memberId);
+
+    // 스터디 게시글 댓글 싫어요 취소
+    StudyPostCommentResponseDTO.CommentPreviewDTO cancelCommentDislike(Long studyId, Long postId, Long commentId, Long dislikeId, Long memberId);
 }

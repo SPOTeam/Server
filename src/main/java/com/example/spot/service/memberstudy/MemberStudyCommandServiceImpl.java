@@ -8,10 +8,7 @@ import com.example.spot.domain.Member;
 import com.example.spot.domain.Quiz;
 import com.example.spot.domain.enums.ApplicationStatus;
 import com.example.spot.domain.enums.Status;
-import com.example.spot.domain.mapping.MemberAttendance;
-import com.example.spot.domain.mapping.MemberStudy;
-import com.example.spot.domain.mapping.StudyLikedPost;
-import com.example.spot.domain.mapping.StudyPostImage;
+import com.example.spot.domain.mapping.*;
 import com.example.spot.domain.study.Schedule;
 import com.example.spot.domain.study.Study;
 import com.example.spot.domain.study.StudyPost;
@@ -61,6 +58,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
     private final StudyPostImageRepository studyPostImageRepository;
     private final StudyPostCommentRepository studyPostCommentRepository;
     private final StudyLikedPostRepository studyLikedPostRepository;
+    private final StudyLikedCommentRepository studyLikedCommentRepository;
 
     // S3 Service
     private final S3ImageService s3ImageService;
@@ -413,9 +411,11 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
                 .build();
 
         studyLikedPost = studyLikedPostRepository.save(studyLikedPost);
-        member.addLikedPost(studyLikedPost);
+        member.addStudyLikedPost(studyLikedPost);
         studyPost.addLikedPost(studyLikedPost);
+
         studyPost.plusLikeNum();
+        studyPost = studyPostRepository.save(studyPost);
 
         return StudyPostResDTO.PostLikeNumDTO.toDTO(studyPost);
     }
@@ -437,10 +437,11 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         StudyLikedPost studyLikedPost = studyLikedPostRepository.findByMemberIdAndStudyPostId(memberId, postId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_LIKED_POST_NOT_FOUND));
 
-        member.deleteLikedPost(studyLikedPost);
+        member.deleteStudyLikedPost(studyLikedPost);
         studyPost.deleteLikedPost(studyLikedPost);
         studyPost.minusLikeNum();
         studyLikedPostRepository.delete(studyLikedPost);
+        studyPostRepository.save(studyPost);
 
         return StudyPostResDTO.PostLikeNumDTO.toDTO(studyPost);
     }
@@ -516,39 +517,6 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         return StudyPostCommentResponseDTO.CommentDTO.toDTO(studyPostComment, "익명"+anonymousNum, defaultImage);
     }
 
-    @Override
-    public StudyPostCommentResponseDTO.CommentPreviewDTO deleteComment(Long studyId, Long postId, Long commentId) {
-        //=== Exception ===//
-        studyRepository.findById(studyId)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
-        StudyPost studyPost = studyPostRepository.findById(postId)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
-        studyPostRepository.findByIdAndStudyId(postId, studyId)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
-        StudyPostComment studyPostComment = studyPostCommentRepository.findById(commentId)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_COMMENT_NOT_FOUND));
-        // 스터디 회원 인증 & 댓글 본인 인증
-        // memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
-        //                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
-        // if(studyPostComment.getMember().equals(member)) {
-        //            throw new StudyHandler(ErrorStatus._STUDY_POST_COMMENT_DELETE_INVALID);
-        //        }
-
-        //=== Feature ===//
-
-        if (studyPostComment.getIsDeleted()) {
-            throw new StudyHandler(ErrorStatus._STUDY_POST_COMMENT_ALREADY_DELETED);
-        }
-        studyPostComment.deleteComment();
-        studyPost.updateComment(studyPostComment);
-        //member.updateComment(studyPostComment);
-
-        studyPostCommentRepository.save(studyPostComment);
-        return new StudyPostCommentResponseDTO.CommentPreviewDTO(commentId);
-
-
-    }
-
     private Integer getAnonymousNum(Long postId, StudyPostCommentRequestDTO.CommentDTO commentRequestDTO, Member member) {
         Integer anonymousNum = null;
 
@@ -578,4 +546,173 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         }
         return anonymousNum;
     }
+
+    @Override
+    public StudyPostCommentResponseDTO.CommentIdDTO deleteComment(Long studyId, Long postId, Long commentId) {
+        //=== Exception ===//
+        studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        StudyPost studyPost = studyPostRepository.findById(postId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
+        studyPostRepository.findByIdAndStudyId(postId, studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
+        StudyPostComment studyPostComment = studyPostCommentRepository.findById(commentId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_COMMENT_NOT_FOUND));
+        // 스터디 회원 인증 & 댓글 본인 인증
+        // memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
+        //                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
+        // if(studyPostComment.getMember().equals(member)) {
+        //            throw new StudyHandler(ErrorStatus._STUDY_POST_COMMENT_DELETE_INVALID);
+        //        }
+
+        //=== Feature ===//
+
+        if (studyPostComment.getIsDeleted()) {
+            throw new StudyHandler(ErrorStatus._STUDY_POST_COMMENT_ALREADY_DELETED);
+        }
+        studyPostComment.deleteComment();
+        studyPost.updateComment(studyPostComment);
+        //member.updateComment(studyPostComment);
+
+        studyPostCommentRepository.save(studyPostComment);
+        return new StudyPostCommentResponseDTO.CommentIdDTO(commentId);
+    }
+
+    @Override
+    public StudyPostCommentResponseDTO.CommentPreviewDTO likeComment(Long studyId, Long postId, Long commentId, Long memberId) {
+
+        //=== Exception ===//
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+        studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(member.getId(), studyId, ApplicationStatus.APPROVED)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
+        studyPostRepository.findById(postId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
+        StudyPostComment studyPostComment = studyPostCommentRepository.findById(commentId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_COMMENT_NOT_FOUND));
+
+        // 이미 좋아요나 싫어요를 눌렀다면 좋아요 할 수 없음
+        if (studyLikedCommentRepository.findByMemberIdAndStudyPostCommentIdAndIsLiked(memberId, commentId, Boolean.TRUE).isPresent()) {
+            throw new StudyHandler(ErrorStatus._STUDY_POST_COMMENT_ALREADY_LIKED);
+        }
+        if (studyLikedCommentRepository.findByMemberIdAndStudyPostCommentIdAndIsLiked(memberId, commentId, Boolean.FALSE).isPresent()) {
+            throw new StudyHandler(ErrorStatus._STUDY_POST_COMMENT_ALREADY_DISLIKED);
+        }
+
+        //=== Feature ===//
+        StudyLikedComment studyLikedComment = StudyLikedComment.builder()
+                .studyPostComment(studyPostComment)
+                .member(member)
+                .isLiked(Boolean.TRUE)
+                .build();
+
+        studyLikedComment = studyLikedCommentRepository.save(studyLikedComment);
+        member.addStudyLikedComment(studyLikedComment);
+        studyPostComment.addLikedComment(studyLikedComment);
+
+        studyPostComment.plusLikeCount();
+        studyPostCommentRepository.save(studyPostComment);
+
+        return StudyPostCommentResponseDTO.CommentPreviewDTO.toDTO(studyPostComment);
+    }
+
+    @Override
+    public StudyPostCommentResponseDTO.CommentPreviewDTO dislikeComment(Long studyId, Long postId, Long commentId, Long memberId) {
+
+        //=== Exception ===//
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+        studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(member.getId(), studyId, ApplicationStatus.APPROVED)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
+        studyPostRepository.findById(postId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
+        StudyPostComment studyPostComment = studyPostCommentRepository.findById(commentId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_COMMENT_NOT_FOUND));
+
+        // 이미 좋아요나 싫어요를 눌렀다면 싫어요 할 수 없음
+        if (studyLikedCommentRepository.findByMemberIdAndStudyPostCommentIdAndIsLiked(memberId, commentId, Boolean.TRUE).isPresent()) {
+            throw new StudyHandler(ErrorStatus._STUDY_POST_COMMENT_ALREADY_LIKED);
+        }
+        if (studyLikedCommentRepository.findByMemberIdAndStudyPostCommentIdAndIsLiked(memberId, commentId, Boolean.FALSE).isPresent()) {
+            throw new StudyHandler(ErrorStatus._STUDY_POST_COMMENT_ALREADY_DISLIKED);
+        }
+
+        //=== Feature ===//
+        StudyLikedComment studyLikedComment = StudyLikedComment.builder()
+                .studyPostComment(studyPostComment)
+                .member(member)
+                .isLiked(Boolean.FALSE)
+                .build();
+
+        studyLikedComment = studyLikedCommentRepository.save(studyLikedComment);
+        member.addStudyLikedComment(studyLikedComment);
+        studyPostComment.addLikedComment(studyLikedComment);
+
+        studyPostComment.plusDislikeCount();
+        studyPostCommentRepository.save(studyPostComment);
+
+        return StudyPostCommentResponseDTO.CommentPreviewDTO.toDTO(studyPostComment);
+    }
+
+    @Override
+    public StudyPostCommentResponseDTO.CommentPreviewDTO cancelCommentLike(Long studyId, Long postId, Long commentId, Long likeId, Long memberId) {
+
+        //=== Exception ===//
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+        studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(member.getId(), studyId, ApplicationStatus.APPROVED)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
+        studyPostRepository.findById(postId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
+        StudyPostComment studyPostComment = studyPostCommentRepository.findById(commentId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_COMMENT_NOT_FOUND));
+
+        //=== Feature ===//
+        StudyLikedComment studyLikedComment = studyLikedCommentRepository.findByMemberIdAndStudyPostCommentIdAndIsLiked(memberId, commentId, Boolean.TRUE)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_LIKED_COMMENT_NOT_FOUND));
+
+        member.deleteStudyLikedComment(studyLikedComment);
+        studyPostComment.deleteLikedComment(studyLikedComment);
+        studyPostComment.minusLikeCount();
+        studyLikedCommentRepository.delete(studyLikedComment);
+        studyPostCommentRepository.save(studyPostComment);
+
+        return StudyPostCommentResponseDTO.CommentPreviewDTO.toDTO(studyPostComment);
+    }
+
+    @Override
+    public StudyPostCommentResponseDTO.CommentPreviewDTO cancelCommentDislike(Long studyId, Long postId, Long commentId, Long dislikeId, Long memberId) {
+
+        //=== Exception ===//
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+        studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(member.getId(), studyId, ApplicationStatus.APPROVED)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
+        studyPostRepository.findById(postId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
+        StudyPostComment studyPostComment = studyPostCommentRepository.findById(commentId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_COMMENT_NOT_FOUND));
+
+        //=== Feature ===//
+        StudyLikedComment studyLikedComment = studyLikedCommentRepository.findByMemberIdAndStudyPostCommentIdAndIsLiked(memberId, commentId, Boolean.FALSE)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_DISLIKED_COMMENT_NOT_FOUND));
+
+        member.deleteStudyLikedComment(studyLikedComment);
+        studyPostComment.deleteLikedComment(studyLikedComment);
+        studyPostComment.minusDislikeCount();
+        studyLikedCommentRepository.delete(studyLikedComment);
+        studyPostCommentRepository.save(studyPostComment);
+
+        return StudyPostCommentResponseDTO.CommentPreviewDTO.toDTO(studyPostComment);
+    }
+
+
 }
