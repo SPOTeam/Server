@@ -2,6 +2,8 @@ package com.example.spot.domain;
 
 import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.enums.Carrier;
+import com.example.spot.domain.enums.LoginType;
+import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.mapping.*;
 import com.example.spot.domain.study.StudyPost;
 import com.example.spot.domain.study.StudyPostComment;
@@ -37,6 +39,12 @@ public class Member extends BaseEntity {
     @Column(nullable = false, length = 20)
     private String name;
 
+    @Column(nullable = false, length = 100)
+    private String password;
+
+    @Column(nullable = false, length = 50, unique = true)
+    private String email;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 5)
     private Carrier carrier;
@@ -62,6 +70,12 @@ public class Member extends BaseEntity {
     @Column(nullable = false, columnDefinition = "BIT DEFAULT 0")
     private Boolean isAdmin;
 
+    @Enumerated(EnumType.STRING)
+    private LoginType loginType;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
     //== 스터디 희망사유 ==//
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)

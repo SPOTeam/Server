@@ -13,7 +13,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 @AllArgsConstructor
 @JsonPropertyOrder({"isSuccess", "code", "message", "result"})
-public class ApiResponse<T> {
+public class ApiResponse<T>  {
 
     @JsonProperty("isSuccess")
     private final boolean isSuccess;
