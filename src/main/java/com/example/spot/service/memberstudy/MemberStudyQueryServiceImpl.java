@@ -116,6 +116,8 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
             .build();
     }
 
+/* ----------------------------- 스터디 출석 관련 API ------------------------------------- */
+
     @Override
     public StudyQuizResponseDTO.AttendanceListDTO getAllAttendances(Long studyId, Long quizId) {
 
@@ -145,6 +147,8 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 
     }
 
+/* ----------------------------- 스터디 게시글 관련 API ------------------------------------- */
+
     @Override
     public StudyPostResDTO.PostListDTO getAllPosts(PageRequest pageRequest, Long studyId, Theme theme) {
 
@@ -163,6 +167,25 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
         return StudyPostResDTO.PostListDTO.toDTO(study, studyPosts);
 
     }
+
+    @Override
+    public StudyPostResDTO.PostDetailDTO getPost(Long studyId, Long postId) {
+
+        //=== Exception ===//
+        studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        StudyPost studyPost = studyPostRepository.findById(postId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
+        studyPostRepository.findByIdAndStudyId(postId, studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
+
+        //=== Feature ===//
+        studyPost.plusHitNum();
+
+        return StudyPostResDTO.PostDetailDTO.toDTO(studyPost);
+    }
+
+    /* ----------------------------- 스터디 일정 관련 API ------------------------------------- */
 
     @Override
     public ScheduleResponseDTO.MonthlyScheduleListDTO getMonthlySchedules(Long studyId, int year, int month) {

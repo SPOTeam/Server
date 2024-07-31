@@ -379,4 +379,57 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
 
         return StudyPostResDTO.PostPreviewDTO.toDTO(studyPost);
     }
+
+    @Override
+    public StudyPostResDTO.PostLikeNumDTO likePost(Long studyId, Long postId, Long memberId) {
+
+        //=== Exception ===//
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+        studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        StudyPost studyPost = studyPostRepository.findById(postId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
+
+        // 이미 좋아요를 눌렀다면 다시 좋아요 할 수 없음
+        if (studyLikedPostRepository.findByMemberIdAndStudyPostId(memberId, postId).isPresent()) {
+            throw new StudyHandler(ErrorStatus._STUDY_POST_ALREADY_LIKED);
+        }
+
+        //=== Feature ===//
+        StudyLikedPost studyLikedPost = StudyLikedPost.builder()
+                .member(member)
+                .studyPost(studyPost)
+                .build();
+
+        studyLikedPost = studyLikedPostRepository.save(studyLikedPost);
+        member.addLikedPost(studyLikedPost);
+        studyPost.addLikedPost(studyLikedPost);
+        studyPost.plusLikeNum();
+
+        return StudyPostResDTO.PostLikeNumDTO.toDTO(studyPost);
+    }
+
+    @Override
+    public StudyPostResDTO.PostLikeNumDTO dislikePost(Long studyId, Long postId, Long memberId) {
+
+        //=== Exception ===//
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+        studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        StudyPost studyPost = studyPostRepository.findById(postId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
+
+        //=== Feature ===//
+        StudyLikedPost studyLikedPost = studyLikedPostRepository.findByMemberIdAndStudyPostId(memberId, postId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_LIKED_POST_NOT_FOUND));
+
+        member.deleteLikedPost(studyLikedPost);
+        studyPost.deleteLikedPost(studyLikedPost);
+        studyPost.minusLikeNum();
+        studyLikedPostRepository.delete(studyLikedPost);
+
+        return StudyPostResDTO.PostLikeNumDTO.toDTO(studyPost);
+    }
 }

@@ -40,5 +40,9 @@ public interface MemberStudyCommandService {
     // 스터디 게시글 삭제
     StudyPostResDTO.PostPreviewDTO deletePost(Long studyId, Long postId);
 
+    // 스터디 게시글 좋아요
+    StudyPostResDTO.PostLikeNumDTO likePost(Long studyId, Long postId, Long memberId);
 
+    // 스터디 게시글 좋아요 취소
+    StudyPostResDTO.PostLikeNumDTO dislikePost(Long studyId, Long postId, Long memberId);
 }

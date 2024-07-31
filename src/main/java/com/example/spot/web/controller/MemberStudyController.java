@@ -246,30 +246,32 @@ public class MemberStudyController {
         로그인한 회원이 참여하는 특정 스터디의 study_post 정보가 반환됩니다.
         """)
     @GetMapping("/studies/{studyId}/posts/{postId}")
-    public void getPost(@PathVariable Long studyId, @PathVariable Long postId) {
+    public ApiResponse<StudyPostResDTO.PostDetailDTO> getPost(@PathVariable Long studyId, @PathVariable Long postId) {
+
+        StudyPostResDTO.PostDetailDTO postDetailDTO = memberStudyQueryService.getPost(studyId, postId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_FOUND, postDetailDTO);
     }
 
     @Operation(summary = "[스터디 게시글] 좋아요 누르기", description = """ 
         ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 게시글 클릭, 로그인한 회원이 참여하는 특정 스터디의 게시글에 좋아요를 누릅니다.
         study_liked_post에 좋아요를 누른 회원의 정보를 저장하고 게시글의 like_num을 업데이트합니다.
+        ** 인증 구현 이후 /members/{memberId} 삭제 **
         """)
-    @PostMapping("/studies/{studyId}/posts/{postId}/likes")
-    public void pushLikeButton(@PathVariable Long studyId, @PathVariable Long postId) {}
-
-    @Operation(summary = "[스터디 게시글] 좋아요 개수 불러오기", description = """ 
-        ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 게시글 클릭, 로그인한 회원이 참여하는 특정 스터디의 게시글에 눌린 좋아요 개수를 불러옵니다.
-        로그인한 회원이 참여하는 특정 스터디의 study_post의 like_num이 반환됩니다.
-        """)
-    @GetMapping("/studies/{studyId}/posts/{postId}/likes")
-    public void getLikeNum(@PathVariable Long studyId, @PathVariable Long postId) {
+    @PostMapping("/studies/{studyId}/posts/{postId}/likes/members/{memberId}")
+    public ApiResponse<StudyPostResDTO.PostLikeNumDTO> likePost(@PathVariable Long studyId, @PathVariable Long postId, @PathVariable Long memberId) {
+        StudyPostResDTO.PostLikeNumDTO postLikeNumDTO = memberStudyCommandService.likePost(studyId, postId, memberId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_LIKED, postLikeNumDTO);
     }
 
-    @Operation(summary = "[스터디 게시글] 조회수 불러오기", description = """ 
-        ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 게시글 클릭, 로그인한 회원이 참여하는 특정 스터디의 게시글에 대한 조회수를 불러옵니다.
-        로그인한 회원이 참여하는 특정 스터디의 study_post의 hit_num이 반환됩니다.
+    @Operation(summary = "[스터디 게시글] 좋아요 취소하기", description = """ 
+        ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 게시글 클릭, 로그인한 회원이 참여하는 특정 스터디의 게시글에 좋아요를 취소합니다.
+        study_liked_post에 좋아요를 누른 회원의 정보를 저장하고 게시글의 like_num을 업데이트합니다.
+        ** 인증 구현 이후 /members/{memberId} 삭제 **
         """)
-    @GetMapping("/studies/{studyId}/posts/{postId}/hit-num")
-    public void getHitNum(@PathVariable Long studyId, @PathVariable Long postId) {
+    @DeleteMapping("/studies/{studyId}/posts/{postId}/likes/members/{memberId}")
+    public ApiResponse<StudyPostResDTO.PostLikeNumDTO> dislikePost(@PathVariable Long studyId, @PathVariable Long postId, @PathVariable Long memberId) {
+        StudyPostResDTO.PostLikeNumDTO postLikeNumDTO = memberStudyCommandService.dislikePost(studyId, postId, memberId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_DISLIKED, postLikeNumDTO);
     }
 
     @Operation(summary = "[스터디 게시글 - 댓글] 댓글 작성하기", description = """ 
@@ -307,14 +309,6 @@ public class MemberStudyController {
         """)
     @GetMapping("/studies/{studyId}/posts/{studyPostId}/comments")
     public void getAllComments(@PathVariable Long studyId, @PathVariable Long studyPostId) {
-    }
-
-    @Operation(summary = "[스터디 게시글 - 댓글] 댓글 개수 불러오기", description = """ 
-        ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 게시글 클릭, 로그인한 회원이 참여하는 특정 스터디의 게시글에 달린 댓/답글 개수를 불러옵니다.
-        로그인한 회원이 참여하는 특정 스터디의 study_post의 comment_num이 반환됩니다.
-        """)
-    @GetMapping("/studies/{studyId}/posts/{studyPostId}/comment-num")
-    public void getCommentNum(@PathVariable Long studyId, @PathVariable Long studyPostId) {
     }
 
 

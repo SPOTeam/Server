@@ -33,4 +33,7 @@ public interface MemberStudyQueryService {
 
     // 스터디 게시글 목록 불러오기
     StudyPostResDTO.PostListDTO getAllPosts(PageRequest pageRequest, Long studyId, Theme theme);
+
+    // 스터디 게시글 불러오기
+    StudyPostResDTO.PostDetailDTO getPost(Long studyId, Long postId);
 }
