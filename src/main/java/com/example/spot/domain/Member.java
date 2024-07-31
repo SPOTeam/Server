@@ -195,6 +195,10 @@ public class Member extends BaseEntity {
         studyPostList.set(studyPostList.indexOf(studyPost), studyPost);
     }
 
+    public void updateComment(StudyPostComment studyPostComment) {
+        studyPostCommentList.set(studyPostCommentList.indexOf(studyPostComment), studyPostComment);
+    }
+
     public void addLikedPost(StudyLikedPost studyLikedPost) {
         if (this.studyLikedPostList == null) {
             this.studyLikedPostList = new ArrayList<>();

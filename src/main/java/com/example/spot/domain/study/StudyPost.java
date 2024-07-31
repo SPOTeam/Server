@@ -119,6 +119,10 @@ public class StudyPost extends BaseEntity {
         images.set(images.indexOf(studyPostImage), studyPostImage);
     }
 
+    public void updateComment(StudyPostComment studyPostComment) {
+        comments.set(comments.indexOf(studyPostComment), studyPostComment);
+    }
+
     public void plusHitNum() {
         hitNum++;
     }

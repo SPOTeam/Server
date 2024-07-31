@@ -48,6 +48,9 @@ public class StudyPostComment extends BaseEntity {
     @Column
     private Integer anonymousNum;
 
+    @Column(nullable = false, columnDefinition = "BIT DEFAULT 0")
+    private Boolean isDeleted;
+
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_comment_id")
@@ -71,6 +74,7 @@ public class StudyPostComment extends BaseEntity {
         this.dislikeCount = 0;
         this.isAnonymous = isAnonymous;
         this.anonymousNum = anonymousNum;
+        this.isDeleted = Boolean.FALSE;
         this.parentComment = parentComment;
         this.childrenComment = new ArrayList<>();
         this.likedComments = new ArrayList<>();
@@ -83,10 +87,6 @@ public class StudyPostComment extends BaseEntity {
         studyPostComment.setParentComment(this);
     }
 
-    public void deleteChildrenComment(StudyPostComment studyPostComment) {
-        childrenComment.remove(studyPostComment);
-    }
-
     public void addLikedComment(StudyLikedComment studyLikedComment) {
         likedComments.add(studyLikedComment);
         studyLikedComment.setStudyPostComment(this);
@@ -94,6 +94,11 @@ public class StudyPostComment extends BaseEntity {
 
     public void deleteLikedComment(StudyLikedComment studyLikedComment) {
         likedComments.remove(studyLikedComment);
+    }
+
+    public void deleteComment() {
+        content = "삭제된 댓글입니다.";
+        isDeleted = Boolean.TRUE;
     }
 
     public void plusLikeCount() {
