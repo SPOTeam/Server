@@ -2,17 +2,22 @@ package com.example.spot.service.member;
 
 import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.GeneralException;
+import com.example.spot.domain.enums.Carrier;
+import com.example.spot.domain.enums.Status;
 import com.example.spot.utils.jwt.JwtTokenProvider;
 import com.example.spot.domain.Member;
 import com.example.spot.repository.MemberRepository;
 import com.example.spot.service.member.oauth.KaKaoOAuthService;
+import com.example.spot.web.dto.member.MemberRequestDTO.TestMemberDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.MemberSignInDTO;
+import com.example.spot.web.dto.member.MemberResponseDTO.MemberTestDTO;
 import com.example.spot.web.dto.member.kakao.KaKaoOAuthToken.KaKaoOAuthTokenDTO;
 import com.example.spot.web.dto.member.kakao.KaKaoUser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +42,9 @@ import com.example.spot.web.dto.member.MemberRequestDTO.MemberThemeDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.MemberUpdateDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDate;
+import java.util.Random;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -51,6 +59,7 @@ public class MemberServiceImpl implements MemberService {
     private final RegionRepository regionRepository;
     private final MemberThemeRepository memberThemeRepository;
     private final PreferredRegionRepository preferredRegionRepository;
+
 
     @Override
     public MemberResponseDTO.MemberSignInDTO signUpByKAKAO(String accessToken) throws JsonProcessingException {
@@ -233,4 +242,42 @@ public class MemberServiceImpl implements MemberService {
             .updatedAt(member.getUpdatedAt())
             .build();
     }
+
+    @Override
+    public MemberTestDTO testMember(TestMemberDTO requestDTO) {
+        Random random = new Random();
+
+        String name = "testMember" + random.nextInt(1000);
+        String email = "test" + random.nextInt(1000) + "@gmail.com";
+        String password = UUID.randomUUID().toString().substring(0, 8);
+        String phone = "010" + (random.nextInt(90000000) + 10000000);
+        LocalDate birth = LocalDate.of(
+            random.nextInt(50) + 1970, // Year between 1970 and 2020
+            random.nextInt(12) + 1,    // Month between 1 and 12
+            random.nextInt(28) + 1     // Day between 1 and 28 to avoid invalid dates
+        );
+
+        Member member = Member.builder()
+            .name(name)
+            .email(email)
+            .password(password)
+            .carrier(Carrier.NONE)
+            .phone(phone)
+            .birth(birth)
+            .profileImage("test")
+            .personalInfo(true)
+            .idInfo(true)
+            .isAdmin(false)
+            .status(Status.ON)
+            .build();
+        memberRepository.save(member);
+        updateTheme(member.getId(), requestDTO.getThemes());
+        updateRegion(member.getId(), requestDTO.getRegions());
+
+        return MemberTestDTO.builder()
+            .memberId(member.getId())
+            .email(member.getEmail())
+            .build();
+    }
+
 }

@@ -6,6 +6,7 @@ import com.example.spot.api.code.status.SuccessStatus;
 import com.example.spot.service.member.MemberService;
 import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.MemberSignInDTO;
+import com.example.spot.web.dto.member.MemberResponseDTO.MemberTestDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.example.spot.validation.annotation.ExistMember;
 import com.example.spot.web.dto.member.MemberRequestDTO;
@@ -17,6 +18,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.GetMapping;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +38,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberController {
 
     private final MemberService memberService;
+    @Operation(summary = "!테스트 용! [회원 생성] 테스트 용 회원 생성 API",
+        description = """
+            ## [테스트 용 회원 생성] 임의의 정보를 가진 회원 객체가 생성 됩니다. 
+            다른 API를 테스트 하기 위해 회원이 필요한 경우 사용해주세요.
+            회원의 관심 분야 및 지역을 입력 받습니다.   
+           생성된 회원의 ID와 Email이 반환 됩니다. """)
+    @PostMapping("/member/test")
+    public ApiResponse<MemberResponseDTO.MemberTestDTO> testMember(
+        @RequestBody @Valid MemberRequestDTO.TestMemberDTO requestDTO){
+        MemberTestDTO dto = memberService.testMember(requestDTO);
+        return ApiResponse.onSuccess(SuccessStatus._MEMBER_CREATED, dto);
+    }
+
 
     @Operation(summary = "!테스트 용! [회원 가입 및 로그인] 카카오 로그인 및 회원가입 ",
         description = """

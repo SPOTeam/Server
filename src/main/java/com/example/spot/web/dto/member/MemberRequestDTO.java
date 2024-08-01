@@ -56,4 +56,13 @@ public class MemberRequestDTO {
             return phone.length() <= 11;
         }
     }
+    @Getter
+    @Setter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class TestMemberDTO{
+        private MemberRegionDTO regions;
+        private MemberThemeDTO themes;
+    }
 }
