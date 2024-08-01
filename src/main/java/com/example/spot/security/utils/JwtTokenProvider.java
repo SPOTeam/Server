@@ -59,6 +59,15 @@ public class JwtTokenProvider {
             .build();
     }
 
+    public boolean isRefreshTokenExpired(String refreshToken) {
+        try {
+            Jwts.parserBuilder().setSigningKey(JWT_SECRET_KEY).build().parseClaimsJws(refreshToken);
+            return false;
+        } catch (ExpiredJwtException e) {
+            return true;
+        }
+    }
+
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(JWT_SECRET_KEY).build().parseClaimsJws(token);
@@ -91,5 +100,12 @@ public class JwtTokenProvider {
 
     public String getUserPk(String token) {
         return Jwts.parser().setSigningKey(JWT_SECRET_KEY).parseClaimsJws(token).getBody().getSubject();
+    }
+
+    public TokenDTO reissueToken(String refreshToken) {
+        Claims claims = Jwts.parserBuilder().setSigningKey(JWT_SECRET_KEY).build().parseClaimsJws(refreshToken).getBody();
+        Long memberId = claims.get("memberId", Long.class);
+
+        return createToken(memberId);
     }
 }
