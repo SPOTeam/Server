@@ -3,6 +3,7 @@ package com.example.spot.service.study;
 import com.example.spot.domain.enums.StudySortBy;
 import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.web.dto.search.SearchRequestDTO.SearchRequestStudyDTO;
+import com.example.spot.web.dto.search.SearchResponseDTO.MyPageDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.StudyPreviewDTO;
 import com.example.spot.web.dto.study.response.StudyInfoResponseDTO;
 import com.example.spot.web.dto.study.response.StudyMemberResponseDTO;
@@ -14,6 +15,10 @@ public interface StudyQueryService {
 
     // 스터디 정보 조회
     StudyInfoResponseDTO.StudyInfoDTO getStudyInfo(Long studyId);
+
+    // 마이페이지 용 스터디 갯수 조회
+    MyPageDTO getMyPageStudyCount(Long memberId);
+
 
     // 내 추천 스터디 조회
     StudyPreviewDTO findRecommendStudies(Long memberId);

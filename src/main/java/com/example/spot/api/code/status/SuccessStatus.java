@@ -16,11 +16,14 @@ public enum SuccessStatus implements BaseCode {
     _NO_CONTENT(HttpStatus.NO_CONTENT, "COMMON204", "콘텐츠 없음"),
 
     //멤버 관련 응답
-    _MEMBER_CREATED(HttpStatus.CREATED, "MEMBER2001", "회원 가입 완료"),
+    _MEMBER_CREATED(HttpStatus.CREATED, "MEMBER2001", "회원 가입 및 로그인 완료"),
     _MEMBER_UPDATED(HttpStatus.OK, "MEMBER2002", "회원 정보 수정 완료"),
     _MEMBER_DELETED(HttpStatus.OK, "MEMBER2003", "회원 탈퇴 완료"),
     _MEMBER_FOUND(HttpStatus.OK, "MEMBER2004", "회원 조회 완료"),
     _MEMBER_LIST_FOUND(HttpStatus.OK, "MEMBER2005", "회원 목록 조회 완료"),
+    _MEMBER_THEME_UPDATE(HttpStatus.OK, "MEMBER2006", "회원 테마 수정 완료"),
+    _MEMBER_REGION_UPDATE(HttpStatus.OK, "MEMBER2007", "회원 지역 수정 완료"),
+    _MEMBER_INFO_UPDATE(HttpStatus.OK, "MEMBER2008", "회원 정보 수정 완료"),
 
     //스터디 게시글 관련 응답
     _STUDY_POST_CREATED(HttpStatus.CREATED, "STUDYPOST3001", "스터디 게시글 작성 완료"),

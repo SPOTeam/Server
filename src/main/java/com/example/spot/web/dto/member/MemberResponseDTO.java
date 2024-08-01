@@ -1,5 +1,6 @@
 package com.example.spot.web.dto.member;
 
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,4 +17,23 @@ public class MemberResponseDTO {
         private String email;
     }
 
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class MemberTestDTO{
+        private Long memberId;
+        private String email;
+
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class MemberUpdateDTO {
+        private Long memberId;
+        private LocalDateTime updatedAt;
+    }
 }
+

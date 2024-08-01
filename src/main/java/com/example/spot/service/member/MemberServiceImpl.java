@@ -2,37 +2,64 @@ package com.example.spot.service.member;
 
 import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.GeneralException;
+import com.example.spot.domain.enums.Carrier;
+import com.example.spot.domain.enums.Status;
 import com.example.spot.utils.jwt.JwtTokenProvider;
 import com.example.spot.domain.Member;
 import com.example.spot.repository.MemberRepository;
 import com.example.spot.service.member.oauth.KaKaoOAuthService;
+import com.example.spot.web.dto.member.MemberRequestDTO.TestMemberDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.MemberSignInDTO;
+import com.example.spot.web.dto.member.MemberResponseDTO.MemberTestDTO;
 import com.example.spot.web.dto.member.kakao.KaKaoOAuthToken.KaKaoOAuthTokenDTO;
 import com.example.spot.web.dto.member.kakao.KaKaoUser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import com.example.spot.domain.Region;
+import com.example.spot.domain.Theme;
+import com.example.spot.domain.mapping.MemberTheme;
+import com.example.spot.domain.mapping.PreferredRegion;
+import com.example.spot.repository.MemberThemeRepository;
+import com.example.spot.repository.PreferredRegionRepository;
+import com.example.spot.repository.RegionRepository;
+import com.example.spot.repository.ThemeRepository;
+import com.example.spot.web.dto.member.MemberRequestDTO.MemberInfoListDTO;
+import com.example.spot.web.dto.member.MemberRequestDTO.MemberRegionDTO;
+import com.example.spot.web.dto.member.MemberRequestDTO.MemberThemeDTO;
+import com.example.spot.web.dto.member.MemberResponseDTO.MemberUpdateDTO;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDate;
+import java.util.Random;
+import java.util.UUID;
 
 @Service
 @Slf4j
+@Transactional
 @RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService {
     private final KaKaoOAuthService kaKaoOAuthService;
     private final JwtTokenProvider jwtTokenProvider;
     private final HttpServletResponse response;
     private final MemberRepository memberRepository;
+    private final ThemeRepository themeRepository;
+    private final RegionRepository regionRepository;
+    private final MemberThemeRepository memberThemeRepository;
+    private final PreferredRegionRepository preferredRegionRepository;
+
 
     @Override
     public MemberResponseDTO.MemberSignInDTO signUpByKAKAO(String accessToken) throws JsonProcessingException {
@@ -65,9 +92,69 @@ public class MemberServiceImpl implements MemberService {
         String token = jwtTokenProvider.createToken(member.getEmail());
 
         // 회원 가입 DTO 반환
-        return MemberResponseDTO.MemberSignInDTO.builder()
+        return MemberSignInDTO.builder()
             .accessToken(token)
-            .email(member.getEmail())
+            .email(member.getEmail()).build();
+    }
+
+
+    @Override
+    public MemberUpdateDTO updateTheme(Long memberId, MemberThemeDTO requestDTO) {
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
+
+        List<Theme> themes = requestDTO.getThemes().stream()
+            .map(themeType -> themeRepository.findByStudyTheme(themeType).orElseThrow(() -> new GeneralException(ErrorStatus._THEME_NOT_FOUND)))
+            .toList();
+
+        List<MemberTheme> memberThemes = themes.stream()
+            .map(theme -> MemberTheme.builder().member(member).theme(theme).build())
+            .toList();
+
+        if (memberThemeRepository.existsByMemberId(member.getId()))
+            memberThemeRepository.deleteByMemberId(member.getId());
+
+        // 새로운 MemberTheme과 PreferredRegion을 저장
+        memberThemeRepository.saveAll(memberThemes);
+
+        member.updateThemes(memberThemes);
+
+        memberRepository.save(member);
+
+        return MemberUpdateDTO.builder()
+            .memberId(member.getId())
+            .updatedAt(member.getUpdatedAt())
+            .build();
+    }
+
+    @Override
+    public MemberUpdateDTO updateRegion(Long memberId, MemberRegionDTO requestDTO) {
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
+
+        List<Region> regions = requestDTO.getRegions().stream()
+            .map(regionCode -> regionRepository.findByCode(regionCode).orElseThrow(() -> new GeneralException(ErrorStatus._REGION_NOT_FOUND)))
+            .toList();
+
+        List<PreferredRegion> preferredRegions = regions.stream()
+            .map(region -> PreferredRegion.builder().member(member).region(region).build())
+            .toList();
+
+        // 기존의 MemberTheme과 PreferredRegion 삭제
+
+        if (preferredRegionRepository.existsByMemberId(member.getId()))
+            preferredRegionRepository.deleteByMemberId(member.getId());
+
+
+        preferredRegionRepository.saveAll(preferredRegions);
+
+        member.updateRegions(preferredRegions);
+
+        memberRepository.save(member);
+
+        return MemberUpdateDTO.builder()
+            .memberId(member.getId())
+            .updatedAt(member.getUpdatedAt())
             .build();
     }
 
@@ -144,5 +231,53 @@ public class MemberServiceImpl implements MemberService {
         return memberRepository.existsByEmail(email);
     }
 
+    @Override
+    public MemberUpdateDTO updateProfile(Long memberId, MemberInfoListDTO requestDTO) {
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
+        member.updateInfo(requestDTO);
+        memberRepository.save(member);
+        return MemberUpdateDTO.builder()
+            .memberId(member.getId())
+            .updatedAt(member.getUpdatedAt())
+            .build();
+    }
+
+    @Override
+    public MemberTestDTO testMember(TestMemberDTO requestDTO) {
+        Random random = new Random();
+
+        String name = "testMember" + random.nextInt(1000);
+        String email = "test" + random.nextInt(1000) + "@gmail.com";
+        String password = UUID.randomUUID().toString().substring(0, 8);
+        String phone = "010" + (random.nextInt(90000000) + 10000000);
+        LocalDate birth = LocalDate.of(
+            random.nextInt(50) + 1970, // Year between 1970 and 2020
+            random.nextInt(12) + 1,    // Month between 1 and 12
+            random.nextInt(28) + 1     // Day between 1 and 28 to avoid invalid dates
+        );
+
+        Member member = Member.builder()
+            .name(name)
+            .email(email)
+            .password(password)
+            .carrier(Carrier.NONE)
+            .phone(phone)
+            .birth(birth)
+            .profileImage("test")
+            .personalInfo(true)
+            .idInfo(true)
+            .isAdmin(false)
+            .status(Status.ON)
+            .build();
+        memberRepository.save(member);
+        updateTheme(member.getId(), requestDTO.getThemes());
+        updateRegion(member.getId(), requestDTO.getRegions());
+
+        return MemberTestDTO.builder()
+            .memberId(member.getId())
+            .email(member.getEmail())
+            .build();
+    }
 
 }
