@@ -59,9 +59,9 @@ public class JwtTokenProvider {
             .build();
     }
 
-    public boolean isRefreshTokenExpired(String refreshToken) {
+    public boolean isTokenExpired(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(JWT_SECRET_KEY).build().parseClaimsJws(refreshToken);
+            Jwts.parserBuilder().setSigningKey(JWT_SECRET_KEY).build().parseClaimsJws(token);
             return false;
         } catch (ExpiredJwtException e) {
             return true;
@@ -99,6 +99,9 @@ public class JwtTokenProvider {
         }
         // "Bearer " 접두사 제거 후 토큰 반환
         return authorization.substring("Bearer ".length()).trim();
+    }
+    public String resolveRefreshToken(HttpServletRequest request) {
+        return request.getHeader("refreshToken");
     }
 
     public String getUserPk(String token) {

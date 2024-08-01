@@ -1,5 +1,6 @@
 package com.example.spot.security.filters;
 
+import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.GeneralException;
 import com.example.spot.service.member.MemberService;
 import com.example.spot.security.utils.JwtTokenProvider;
@@ -8,6 +9,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -28,9 +30,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
         FilterChain filterChain) throws ServletException, IOException {
         try {
-            //log.info(request.getRequestURI());
             String token = jwtTokenProvider.resolveToken(request);
-            log.info("token : " + token);
+            if (Objects.equals(request.getRequestURI(), "/spot/reissue")){
+                filterChain.doFilter(request, response);
+                return;
+            }
+
             if (token != null && jwtTokenProvider.validateToken(token)) {
                 Long memberId = jwtTokenProvider.getMemberIdByToken(token);
                 UserDetails userDetails = memberService.loadUserByUsername(memberId.toString()); // UserDetails 조회

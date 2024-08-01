@@ -8,6 +8,7 @@ import com.example.spot.web.dto.token.TokenResponseDTO.TokenDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,12 +30,12 @@ public class AuthController {
         description = """
             ## [세션 유지] 액세스 토큰을 재발급 하는 API입니다.
             리프레시 토큰을 통해 액세스 토큰을 재발급 합니다. 
-            리프레스 토큰의 만료 기간 이전인 경우에만 재발급이 가능합니다. 
+            리프레시 토큰의 만료 기간 이전인 경우에만 재발급이 가능합니다. 
             액세스 토큰을 재발급 하는 경우, 리프레시 토큰도 재발급 됩니다. 
             """)
     @PostMapping("/reissue")
-    public ApiResponse<TokenDTO> reissueToken(@RequestParam String refreshToken) {
-        return ApiResponse.onSuccess(SuccessStatus._CREATED, authService.reissueToken(refreshToken));
+    public ApiResponse<TokenDTO> reissueToken(HttpServletRequest request) {
+        return ApiResponse.onSuccess(SuccessStatus._CREATED, authService.reissueToken(request));
     }
 
     @Operation(summary = "[회원 가입] 일반 회원 가입 API",
