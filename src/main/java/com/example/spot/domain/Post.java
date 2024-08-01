@@ -87,4 +87,13 @@ public class Post extends BaseEntity {
     public void viewHit() {
         this.hitNum++;
     }
+
+    public void incrementLikeNum() {
+        this.likeNum++;
+    }
+
+    public void decrementLikeNum() {
+        this.likeNum--;
+    }
+
 }

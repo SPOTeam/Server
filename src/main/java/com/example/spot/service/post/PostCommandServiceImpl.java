@@ -3,14 +3,14 @@ package com.example.spot.service.post;
 import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.api.exception.handler.PostHandler;
+import com.example.spot.domain.LikedPost;
 import com.example.spot.domain.Member;
 import com.example.spot.domain.Post;
 import com.example.spot.domain.enums.Board;
+import com.example.spot.repository.LikedPostRepository;
 import com.example.spot.repository.MemberRepository;
 import com.example.spot.repository.PostRepository;
-import com.example.spot.web.dto.post.PostCreateRequest;
-import com.example.spot.web.dto.post.PostCreateResponse;
-import com.example.spot.web.dto.post.PostUpdateRequest;
+import com.example.spot.web.dto.post.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +21,7 @@ public class PostCommandServiceImpl implements PostCommandService {
 
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
+    private final LikedPostRepository likedPostRepository;
 
     @Transactional
     @Override
@@ -106,5 +107,54 @@ public class PostCommandServiceImpl implements PostCommandService {
         // 게시글 삭제
         postRepository.delete(post);
     }
+
+    @Transactional
+    @Override
+    public PostLikeResponse likePost(PostLikeRequest request) {
+        // 회원 정보 가져오기
+        Member member = memberRepository.findById(request.getMemberId())
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+        // 게시글 조회
+        Post post = postRepository.findById(request.getPostId())
+                .orElseThrow(() -> new PostHandler(ErrorStatus._POST_NOT_FOUND));
+        //좋아요 여부 확인
+        if (likedPostRepository.findByMemberIdAndPostId(request.getMemberId(), request.getPostId()).isPresent()) {
+            throw new PostHandler(ErrorStatus._POST_ALREADY_LIKED);
+        }
+
+        LikedPost likedPost = new LikedPost(post, member);
+        likedPostRepository.save(likedPost);
+        post.incrementLikeNum();
+        postRepository.save(post);
+
+        return PostLikeResponse.builder()
+                .postId(post.getId())
+                .likeCount(post.getLikeNum())
+                .build();
+    }
+
+    @Transactional
+    @Override
+    public PostLikeResponse cancelPostLike(PostLikeRequest request) {
+        // 회원 정보 가져오기
+        Member member = memberRepository.findById(request.getMemberId())
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+        // 게시글 조회
+        Post post = postRepository.findById(request.getPostId())
+                .orElseThrow(() -> new PostHandler(ErrorStatus._POST_NOT_FOUND));
+        //좋아요 여부 확인
+        LikedPost likedPost = likedPostRepository.findByMemberIdAndPostId(request.getMemberId(), request.getPostId())
+                .orElseThrow(() -> new PostHandler(ErrorStatus._POST_NOT_LIKED));
+
+        likedPostRepository.delete(likedPost);
+        post.decrementLikeNum();
+        postRepository.save(post);
+
+        return PostLikeResponse.builder()
+                .postId(post.getId())
+                .likeCount(post.getLikeNum())
+                .build();
+    }
+
 
 }
