@@ -4,6 +4,7 @@ import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.GeneralException;
 import com.example.spot.web.dto.token.TokenResponseDTO.TokenDTO;
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -37,20 +38,8 @@ public class JwtTokenProvider {
 
     public TokenDTO createToken(Long memberId) {
         Date now = new Date();
-        Date accessTokenExpirationTime = new Date(now.getTime() + ACCESS_TOKEN_EXPIRATION_TIME);
-        String accessToken = Jwts.builder()
-            .claim("memberId", memberId)
-            .setIssuedAt(now)
-            .setExpiration(accessTokenExpirationTime)
-            .signWith(SignatureAlgorithm.HS256, JWT_SECRET_KEY)
-            .compact();
-
-        String refreshToken = Jwts.builder()
-            .claim("memberId", memberId)
-            .setIssuedAt(now)
-            .setExpiration(new Date(now.getTime() + REFRESH_TOKEN_EXPIRATION_TIME))
-            .signWith(SignatureAlgorithm.HS256, JWT_SECRET_KEY)
-            .compact();
+        String accessToken = generateToken(memberId, now, ACCESS_TOKEN_EXPIRATION_TIME);
+        String refreshToken = generateToken(memberId, now, REFRESH_TOKEN_EXPIRATION_TIME);
 
         return TokenDTO.builder()
             .accessToken(accessToken)
@@ -59,32 +48,44 @@ public class JwtTokenProvider {
             .build();
     }
 
+    private String generateToken(Long memberId, Date now, long expirationTime) {
+        return Jwts.builder()
+            .claim("memberId", memberId)
+            .setIssuedAt(now)
+            .setExpiration(new Date(now.getTime() + expirationTime))
+            .signWith(Keys.hmacShaKeyFor(JWT_SECRET_KEY.getBytes()), SignatureAlgorithm.HS256)
+            .compact();
+    }
+
     public boolean isTokenExpired(String token) {
-        try {
-            Jwts.parserBuilder().setSigningKey(JWT_SECRET_KEY).build().parseClaimsJws(token);
-            return false;
-        } catch (ExpiredJwtException e) {
-            return true;
-        }
+        return validateToken(token, true) == ErrorStatus._EXPIRED_JWT;
     }
 
     public boolean validateToken(String token) {
+        return validateToken(token, false) == null;
+    }
+
+    private ErrorStatus validateToken(String token, boolean checkExpirationOnly) {
         try {
-            Jwts.parserBuilder().setSigningKey(JWT_SECRET_KEY).build().parseClaimsJws(token);
-            return true;
-        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-            log.info("Invalid JWT Token : {}", e.getMessage());
-            throw new GeneralException(ErrorStatus._INVALID_JWT);
+            Jwts.parserBuilder().setSigningKey(Keys.hmacShaKeyFor(JWT_SECRET_KEY.getBytes())).build().parseClaimsJws(token);
+            return null;
         } catch (ExpiredJwtException e) {
-            log.info("Expired JWT Token : {}", e.getMessage());
+            if (checkExpirationOnly) return ErrorStatus._EXPIRED_JWT;
             throw new GeneralException(ErrorStatus._EXPIRED_JWT);
+        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+            logInvalidToken(e);
+            throw new GeneralException(ErrorStatus._INVALID_JWT);
         } catch (UnsupportedJwtException e) {
-            log.info("Unsupported JWT Token : {}", e.getMessage());
+            logInvalidToken(e);
             throw new GeneralException(ErrorStatus._UNSUPPORTED_JWT);
         } catch (IllegalArgumentException e) {
-            log.info("JWT claims string is empty. : {}", e.getMessage());
+            logInvalidToken(e);
             throw new GeneralException(ErrorStatus._EMPTY_JWT);
         }
+    }
+
+    private void logInvalidToken(Exception e) {
+        log.info("Invalid JWT Token : {}", e.getMessage());
     }
 
     public Authentication getAuthentication(String token, UserDetails userDetails) {
@@ -92,25 +93,32 @@ public class JwtTokenProvider {
     }
 
     public String resolveToken(HttpServletRequest request) {
-        String authorization = request.getHeader("Authorization");
-        // Authorization 헤더가 null이거나 "Bearer "로 시작하지 않는 경우 null 반환
-        if (authorization == null || !authorization.startsWith("Bearer ")) {
+        return resolveHeaderToken(request, "Authorization", "Bearer ");
+    }
+
+    public String resolveRefreshToken(HttpServletRequest request) {
+        return resolveHeaderToken(request, "refreshToken", "");
+    }
+
+    private String resolveHeaderToken(HttpServletRequest request, String headerName, String prefix) {
+        String headerValue = request.getHeader(headerName);
+        if (headerValue == null || !headerValue.startsWith(prefix)) {
             return null;
         }
-        // "Bearer " 접두사 제거 후 토큰 반환
-        return authorization.substring("Bearer ".length()).trim();
-    }
-    public String resolveRefreshToken(HttpServletRequest request) {
-        return request.getHeader("refreshToken");
+        return headerValue.substring(prefix.length()).trim();
     }
 
     public TokenDTO reissueToken(String refreshToken) {
-        Claims claims = Jwts.parserBuilder().setSigningKey(JWT_SECRET_KEY).build().parseClaimsJws(refreshToken).getBody();
-        Long memberId = claims.get("memberId", Long.class);
+        Long memberId = getMemberIdByToken(refreshToken);
         return createToken(memberId);
     }
 
     public Long getMemberIdByToken(String token) {
-        return Jwts.parserBuilder().setSigningKey(JWT_SECRET_KEY).build().parseClaimsJws(token).getBody().get("memberId", Long.class);
+        Claims claims = Jwts.parserBuilder()
+            .setSigningKey(Keys.hmacShaKeyFor(JWT_SECRET_KEY.getBytes()))
+            .build()
+            .parseClaimsJws(token)
+            .getBody();
+        return claims.get("memberId", Long.class);
     }
 }
