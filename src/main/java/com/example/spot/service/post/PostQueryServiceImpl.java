@@ -79,7 +79,16 @@ public class PostQueryServiceImpl implements PostQueryService {
         }
 
         if (sortType.equals("RECOMMEND")) {
-            // 추천수 조회 후 리턴
+            // 추천수(좋아요수) 조회 후 리턴
+            List<Post> posts = postRepository.findTopByOrderByLikeNumDesc();
+            List<PostBest5DetailResponse> responses = posts.stream()
+                    .map(post -> PostBest5DetailResponse.from(post, posts.indexOf(post) + 1))
+                    .toList();
+
+            return PostBest5Response.builder()
+                    .sortType("RECOMMEND")
+                    .postBest5Responses(responses)
+                    .build();
         }
 
         if (sortType.equals("COMMENT")) {
