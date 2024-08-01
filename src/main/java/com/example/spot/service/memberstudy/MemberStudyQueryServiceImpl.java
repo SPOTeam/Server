@@ -4,24 +4,24 @@ import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.handler.StudyHandler;
 import com.example.spot.domain.Quiz;
 import com.example.spot.domain.enums.Period;
+import com.example.spot.domain.enums.Theme;
 import com.example.spot.domain.mapping.MemberAttendance;
 import com.example.spot.domain.study.Schedule;
 import com.example.spot.domain.study.Study;
 import com.example.spot.repository.*;
 import com.example.spot.web.dto.memberstudy.response.StudyQuizResponseDTO;
-import com.example.spot.web.dto.study.response.ScheduleResponseDTO;
+import com.example.spot.web.dto.study.response.*;
 import lombok.RequiredArgsConstructor;
 import com.example.spot.api.exception.GeneralException;
 import com.example.spot.domain.enums.ApplicationStatus;
 import com.example.spot.domain.mapping.MemberStudy;
 import com.example.spot.domain.study.StudyPost;
-import com.example.spot.web.dto.study.response.StudyMemberResponseDTO;
 import com.example.spot.web.dto.study.response.StudyMemberResponseDTO.StudyApplyMemberDTO;
 import com.example.spot.web.dto.study.response.StudyMemberResponseDTO.StudyMemberDTO;
-import com.example.spot.web.dto.study.response.StudyPostResponseDTO;
-import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO;
 import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO.StudyScheduleDTO;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +32,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -39,6 +40,9 @@ import java.util.List;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
+
+    @Value("${cloud.aws.default-image}")
+    private String defaultImage;
 
     private final StudyRepository studyRepository;
     private final StudyPostRepository studyPostRepository;
@@ -116,6 +120,8 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
             .build();
     }
 
+/* ----------------------------- 스터디 출석 관련 API ------------------------------------- */
+
     @Override
     public StudyQuizResponseDTO.AttendanceListDTO getAllAttendances(Long studyId, Long quizId) {
 
@@ -144,6 +150,62 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
         return StudyQuizResponseDTO.AttendanceListDTO.toDTO(quiz, studyMembers);
 
     }
+
+/* ----------------------------- 스터디 게시글 관련 API ------------------------------------- */
+
+    @Override
+    public StudyPostResDTO.PostListDTO getAllPosts(PageRequest pageRequest, Long studyId, Theme theme) {
+
+        //=== Exception ===//
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+
+        //=== Feature ===//
+        List<StudyPostResDTO.PostDTO> studyPosts =
+                (theme == null ? studyPostRepository.findAllByStudyId(studyId, pageRequest)
+                        : studyPostRepository.findAllByStudyIdAndTheme(studyId, theme, pageRequest))
+                .stream()
+                .map(StudyPostResDTO.PostDTO::toDTO)
+                .toList();
+
+        return StudyPostResDTO.PostListDTO.toDTO(study, studyPosts);
+
+    }
+
+    @Override
+    public StudyPostResDTO.PostDetailDTO getPost(Long studyId, Long postId) {
+
+        //=== Exception ===//
+        studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        StudyPost studyPost = studyPostRepository.findById(postId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
+        studyPostRepository.findByIdAndStudyId(postId, studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
+
+        //=== Feature ===//
+        studyPost.plusHitNum();
+
+        return StudyPostResDTO.PostDetailDTO.toDTO(studyPost);
+    }
+
+    @Override
+    public StudyPostCommentResponseDTO.CommentReplyListDTO getAllComments(Long studyId, Long postId) {
+
+        //=== Exception ===//
+        studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        StudyPost studyPost = studyPostRepository.findById(postId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
+        studyPostRepository.findByIdAndStudyId(postId, studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
+
+        //=== Feature ===//
+
+        return StudyPostCommentResponseDTO.CommentReplyListDTO.toDTO(studyPost.getId(), studyPost.getComments(), defaultImage);
+    }
+
+    /* ----------------------------- 스터디 일정 관련 API ------------------------------------- */
 
     @Override
     public ScheduleResponseDTO.MonthlyScheduleListDTO getMonthlySchedules(Long studyId, int year, int month) {

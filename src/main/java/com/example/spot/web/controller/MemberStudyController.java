@@ -2,6 +2,7 @@ package com.example.spot.web.controller;
 
 import com.example.spot.api.ApiResponse;
 import com.example.spot.api.code.status.SuccessStatus;
+import com.example.spot.domain.enums.Theme;
 import com.example.spot.service.memberstudy.MemberStudyCommandService;
 import com.example.spot.service.memberstudy.MemberStudyQueryService;
 import com.example.spot.validation.annotation.ExistMember;
@@ -11,14 +12,14 @@ import com.example.spot.web.dto.memberstudy.response.StudyQuizResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyTerminationResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyWithdrawalResponseDTO;
 import com.example.spot.web.dto.study.request.ScheduleRequestDTO;
-import com.example.spot.web.dto.study.response.ScheduleResponseDTO;
-import com.example.spot.web.dto.study.response.StudyApplyResponseDTO;
-import com.example.spot.web.dto.study.response.StudyMemberResponseDTO;
-import com.example.spot.web.dto.study.response.StudyPostResponseDTO;
-import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO;
+import com.example.spot.web.dto.study.request.StudyPostCommentRequestDTO;
+import com.example.spot.web.dto.study.request.StudyPostRequestDTO;
+import com.example.spot.web.dto.study.response.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.validation.annotation.Validated;
@@ -121,8 +122,6 @@ public class MemberStudyController {
     public ApiResponse<StudyPostResponseDTO> getRecentAnnouncement(@PathVariable @ExistStudy Long studyId) {
         StudyPostResponseDTO studyPostResponseDTO = memberStudyQueryService.findStudyAnnouncementPost(studyId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_FOUND, studyPostResponseDTO);
-
-
     }
 
     @Operation(summary = "[스터디 상세 정보] 다가오는 모임 목록 불러오기", description = """ 
@@ -195,61 +194,171 @@ public class MemberStudyController {
 
 /* ----------------------------- 스터디 게시글 관련 API ------------------------------------- */
 
+    @Operation(summary = "[스터디 게시글] 게시글 작성하기", description = """
+        ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 작성 버튼 클릭, 로그인한 회원이 참여하는 특정 스터디에서 새로운 게시글을 등록합니다.
+        스터디에 참여하는 회원이 작성한 게시글을 `study_post`에 저장합니다.
+        """)
+    @PostMapping(value = "/studies/{studyId}/posts", consumes = "multipart/form-data")
+    public ApiResponse<StudyPostResDTO.PostPreviewDTO> createPost(
+            @PathVariable Long studyId,
+            @ModelAttribute(value = "post") @Parameter(content = @Content(mediaType = "multipart/form-data")) StudyPostRequestDTO.PostDTO postRequestDTO) {
+
+        StudyPostResDTO.PostPreviewDTO postPreviewDTO = memberStudyCommandService.createPost(studyId, postRequestDTO);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_CREATED, postPreviewDTO);
+    }
+
+    @Operation(summary = "[스터디 게시글] 게시글 삭제하기", description = """ 
+        ## [스터디 게시글] 로그인한 회원이 참여하는 특정 스터디에서 작성한 게시글을 삭제합니다.
+        스터디에 참여하는 회원이 작성한 게시글을 study_post에서 삭제합니다.
+        게시글에 작성된 댓글도 함께 삭제됩니다.
+        """)
+    @DeleteMapping("/studies/{studyId}/posts/{postId}")
+    public ApiResponse<StudyPostResDTO.PostPreviewDTO> deletePost(@PathVariable Long studyId, @PathVariable Long postId) {
+        StudyPostResDTO.PostPreviewDTO postPreviewDTO = memberStudyCommandService.deletePost(studyId, postId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_DELETED, postPreviewDTO);
+    }
+
     @Operation(summary = "[스터디 게시글] 글 목록 불러오기", description = """ 
         ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 클릭, 로그인한 회원이 참여하는 특정 스터디의 게시글 목록을 불러옵니다.
         로그인한 회원이 참여하는 특정 스터디의 study_post 목록이 최신순으로 반환됩니다.
+        query를 추가하는 경우 해당 카테고리에 속한 스터디 게시글 목록을 반환합니다.
+        (* 페이징 필요)
         """)
     @GetMapping("/studies/{studyId}/posts")
-    public void getAllPosts(@PathVariable Long studyId) {
+    public ApiResponse<StudyPostResDTO.PostListDTO> getAllPosts(@PathVariable Long studyId, @RequestParam(required = false) Theme theme,
+                                                                @RequestParam @Min(0) Integer offset, @RequestParam @Min(1) Integer limit) {
+        StudyPostResDTO.PostListDTO postListDTO = memberStudyQueryService.getAllPosts(PageRequest.of(offset, limit), studyId, theme);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_LIST_FOUND, postListDTO);
     }
 
     @Operation(summary = "[스터디 게시글] 게시글 불러오기", description = """ 
         ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 게시글 클릭, 로그인한 회원이 참여하는 특정 스터디의 게시글을 불러옵니다.
         로그인한 회원이 참여하는 특정 스터디의 study_post 정보가 반환됩니다.
         """)
-    @GetMapping("/studies/{studyId}/posts/{studyPostId}")
-    public void getPost(@PathVariable Long studyId, @PathVariable Long studyPostId) {
+    @GetMapping("/studies/{studyId}/posts/{postId}")
+    public ApiResponse<StudyPostResDTO.PostDetailDTO> getPost(@PathVariable Long studyId, @PathVariable Long postId) {
+
+        StudyPostResDTO.PostDetailDTO postDetailDTO = memberStudyQueryService.getPost(studyId, postId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_FOUND, postDetailDTO);
     }
 
-    @Operation(summary = "[스터디 게시글] 좋아요 개수 불러오기", description = """ 
-        ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 게시글 클릭, 로그인한 회원이 참여하는 특정 스터디의 게시글에 눌린 좋아요 개수를 불러옵니다.
-        로그인한 회원이 참여하는 특정 스터디의 study_post의 like_num이 반환됩니다.
+    @Operation(summary = "[스터디 게시글] 좋아요 누르기", description = """ 
+        ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 게시글 클릭, 로그인한 회원이 참여하는 특정 스터디의 게시글에 좋아요를 누릅니다.
+        study_liked_post에 좋아요를 누른 회원의 정보를 저장하고 게시글의 like_num을 업데이트합니다.
+        ** 인증 구현 이후 /members/{memberId} 삭제 **
         """)
-    @GetMapping("/studies/{studyId}/posts/{studyPostId}/like-num")
-    public void getLikeNum(@PathVariable Long studyId, @PathVariable Long studyPostId) {
+    @PostMapping("/studies/{studyId}/posts/{postId}/likes/members/{memberId}")
+    public ApiResponse<StudyPostResDTO.PostLikeNumDTO> likePost(@PathVariable Long studyId, @PathVariable Long postId, @PathVariable Long memberId) {
+        StudyPostResDTO.PostLikeNumDTO postLikeNumDTO = memberStudyCommandService.likePost(studyId, postId, memberId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_LIKED, postLikeNumDTO);
     }
 
-    @Operation(summary = "[스터디 게시글] 댓글 개수 불러오기", description = """ 
-        ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 게시글 클릭, 로그인한 회원이 참여하는 특정 스터디의 게시글에 달린 댓/답글 개수를 불러옵니다.
-        로그인한 회원이 참여하는 특정 스터디의 study_post의 comment_num이 반환됩니다.
+    @Operation(summary = "[스터디 게시글] 좋아요 취소하기", description = """ 
+        ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 게시글 클릭, 로그인한 회원이 참여하는 특정 스터디의 게시글에 좋아요를 취소합니다.
+        study_liked_post에 좋아요를 누른 회원의 정보를 저장하고 게시글의 like_num을 업데이트합니다.
+        ** 인증 구현 이후 /members/{memberId} 삭제 **
         """)
-    @GetMapping("/studies/{studyId}/posts/{studyPostId}/comment-num")
-    public void getCommentNum(@PathVariable Long studyId, @PathVariable Long studyPostId) {
+    @DeleteMapping("/studies/{studyId}/posts/{postId}/likes/members/{memberId}")
+    public ApiResponse<StudyPostResDTO.PostLikeNumDTO> cancelPostLike(@PathVariable Long studyId, @PathVariable Long postId, @PathVariable Long memberId) {
+        StudyPostResDTO.PostLikeNumDTO postLikeNumDTO = memberStudyCommandService.cancelPostLike(studyId, postId, memberId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_DISLIKED, postLikeNumDTO);
     }
 
-    @Operation(summary = "[스터디 게시글] 조회수 불러오기", description = """ 
-        ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 게시글 클릭, 로그인한 회원이 참여하는 특정 스터디의 게시글에 대한 조회수를 불러옵니다.
-        로그인한 회원이 참여하는 특정 스터디의 study_post의 hit_num이 반환됩니다.
+    @Operation(summary = "[스터디 게시글 - 댓글] 댓글 작성하기", description = """ 
+        ## [스터디 게시글] 로그인한 회원이 참여하는 특정 스터디의 게시글에 댓글을 작성합니다.
+        RequestBody로 내용과 회원 정보를 입력 받아 댓글 정보를 반환합니다.
         """)
-    @GetMapping("/studies/{studyId}/posts/{studyPostId}/hit-num")
-    public void getHitNum(@PathVariable Long studyId, @PathVariable Long studyPostId) {
+    @PostMapping("/studies/{studyId}/posts/{postId}/comments")
+    public ApiResponse<StudyPostCommentResponseDTO.CommentDTO> createComment(@PathVariable Long studyId, @PathVariable Long postId,
+                    @RequestBody StudyPostCommentRequestDTO.CommentDTO commentRequestDTO) {
+        StudyPostCommentResponseDTO.CommentDTO commentResponseDTO = memberStudyCommandService.createComment(studyId, postId, commentRequestDTO);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_COMMENT_CREATED, commentResponseDTO);
     }
 
-    @Operation(summary = "[스터디 게시글] 전체 댓글 불러오기", description = """ 
+    @Operation(summary = "[스터디 게시글 - 댓글] 답글 작성하기", description = """ 
+        ## [스터디 게시글] 로그인한 회원이 참여하는 특정 스터디 게시글의 댓글에 대하여 답글을 작성합니다.
+        RequestBody로 내용과 회원 정보를 입력 받아 답글 정보를 반환합니다.
+        """)
+    @PostMapping("/studies/{studyId}/posts/{postId}/comments/{commentId}/replies")
+    public ApiResponse<StudyPostCommentResponseDTO.CommentDTO> createReply(@PathVariable Long studyId, @PathVariable Long postId, @PathVariable Long commentId,
+                                                                           @RequestBody StudyPostCommentRequestDTO.CommentDTO commentRequestDTO) {
+        StudyPostCommentResponseDTO.CommentDTO commentResponseDTO = memberStudyCommandService.createReply(studyId, postId, commentId, commentRequestDTO);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_COMMENT_CREATED, commentResponseDTO);
+    }
+
+    @Operation(summary = "[스터디 게시글 - 댓글] 댓글 삭제하기", description = """ 
+        ## [스터디 게시글] 로그인한 회원이 참여하는 특정 스터디 게시글의 댓글을 삭제합니다.
+        댓글의 id를 PathVariable로 받아 content와 isDeleted를 수정합니다.
+        """)
+    @PatchMapping("/studies/{studyId}/posts/{postId}/comments/{commentId}")
+    public ApiResponse<StudyPostCommentResponseDTO.CommentIdDTO> deleteComment(@PathVariable Long studyId, @PathVariable Long postId, @PathVariable Long commentId) {
+        StudyPostCommentResponseDTO.CommentIdDTO commentPreviewDTO = memberStudyCommandService.deleteComment(studyId, postId, commentId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_COMMENT_DELETED, commentPreviewDTO);
+    }
+
+    @Operation(summary = "[스터디 게시글 - 댓글] 댓글 좋아요 누르기", description = """ 
+        ## [스터디 게시글] 로그인한 회원이 참여하는 특정 스터디 게시글의 댓글에 좋아요를 누릅니다.
+        study_liked_comment에 좋아요 내역이 추가되고 study_post_comment의 like_count가 증가합니다.
+        ** 인증 구현 이후 RequestParam 삭제 **
+        """)
+    @PostMapping("/studies/{studyId}/posts/{postId}/comments/{commentId}/likes")
+    public ApiResponse<StudyPostCommentResponseDTO.CommentPreviewDTO> likeComment(
+            @PathVariable Long studyId, @PathVariable Long postId,
+            @PathVariable Long commentId, @RequestParam Long memberId) {
+        StudyPostCommentResponseDTO.CommentPreviewDTO commentPreviewDTO = memberStudyCommandService.likeComment(studyId, postId, commentId, memberId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_COMMENT_LIKED, commentPreviewDTO);
+    }
+
+    @Operation(summary = "[스터디 게시글 - 댓글] 댓글 싫어요 누르기", description = """ 
+        ## [스터디 게시글] 로그인한 회원이 참여하는 특정 스터디 게시글의 댓글에 싫어요를 누릅니다.
+        study_liked_comment에 싫어요 내역이 추가되고 study_post_comment의 dislike_count가 증가합니다.
+        ** 인증 구현 이후 RequestParam 삭제 **
+        """)
+    @PostMapping("/studies/{studyId}/posts/{postId}/comments/{commentId}/dislikes")
+    public ApiResponse<StudyPostCommentResponseDTO.CommentPreviewDTO> dislikeComment(
+            @PathVariable Long studyId, @PathVariable Long postId,
+            @PathVariable Long commentId, @RequestParam Long memberId) {
+        StudyPostCommentResponseDTO.CommentPreviewDTO commentPreviewDTO = memberStudyCommandService.dislikeComment(studyId, postId, commentId, memberId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_COMMENT_DISLIKED, commentPreviewDTO);
+    }
+
+    @Operation(summary = "[스터디 게시글 - 댓글] 댓글 좋아요 취소하기", description = """ 
+        ## [스터디 게시글] 로그인한 회원이 참여하는 특정 스터디 게시글 댓글에 달린 좋아요를 취소합니다.
+        study_liked_comment에서 좋아요 내역이 삭제되고 study_post_comment의 like_count가 감소합니다.
+        ** 인증 구현 이후 RequestParam 삭제 **
+        """)
+    @DeleteMapping("/studies/{studyId}/posts/{postId}/comments/{commentId}/likes/{likeId}")
+    public ApiResponse<StudyPostCommentResponseDTO.CommentPreviewDTO> cancelCommentLike(
+            @PathVariable Long studyId, @PathVariable Long postId,
+            @PathVariable Long commentId, @PathVariable Long likeId, @RequestParam Long memberId) {
+        StudyPostCommentResponseDTO.CommentPreviewDTO commentPreviewDTO = memberStudyCommandService.cancelCommentLike(studyId, postId, commentId, likeId, memberId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_COMMENT_LIKE_CANCELED, commentPreviewDTO);
+    }
+
+    @Operation(summary = "[스터디 게시글 - 댓글] 댓글 싫어요 취소하기", description = """ 
+        ## [스터디 게시글] 로그인한 회원이 참여하는 특정 스터디 게시글 댓글에 달린 싫어요를 취소합니다.
+        study_liked_comment에서 싫어요 내역이 삭제되고 study_post_comment의 dislike_count가 감소합니다.
+        ** 인증 구현 이후 RequestParam 삭제 **
+        """)
+    @DeleteMapping("/studies/{studyId}/posts/{postId}/comments/{commentId}/dislikes/{dislikeId}")
+    public ApiResponse<StudyPostCommentResponseDTO.CommentPreviewDTO> cancelCommentDislike(
+            @PathVariable Long studyId, @PathVariable Long postId,
+            @PathVariable Long commentId, @PathVariable Long dislikeId, @RequestParam Long memberId) {
+        StudyPostCommentResponseDTO.CommentPreviewDTO commentPreviewDTO = memberStudyCommandService.cancelCommentDislike(studyId, postId, commentId, dislikeId, memberId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_COMMENT_DISLIKE_CANCELED, commentPreviewDTO);
+    }
+
+    @Operation(summary = "[스터디 게시글 - 댓글] 전체 댓글 불러오기", description = """ 
         ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 게시글 클릭, 로그인한 회원이 참여하는 특정 스터디의 게시글에 달린 모든 댓글을 불러옵니다.
         특정 study_post에 대한 comment(댓/답글) 목록이 반환됩니다.
+        ** 인증 구현 이후 Request Body 삭제 **
         """)
-    @GetMapping("/studies/{studyId}/posts/{studyPostId}/comments")
-    public void getAllComments(@PathVariable Long studyId, @PathVariable Long studyPostId) {
+    @GetMapping("/studies/{studyId}/posts/{postId}/comments")
+    public ApiResponse<StudyPostCommentResponseDTO.CommentReplyListDTO> getAllComments(@PathVariable Long studyId, @PathVariable Long postId) {
+        StudyPostCommentResponseDTO.CommentReplyListDTO commentReplyListDTO = memberStudyQueryService.getAllComments(studyId, postId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_COMMENT_FOUND, commentReplyListDTO);
     }
 
-    @Operation(summary = "[스터디 게시글] 게시글 작성하기", description = """ 
-        ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 작성 버튼 클릭, 로그인한 회원이 참여하는 특정 스터디에서 새로운 게시글을 등록합니다.
-        스터디에 참여하는 회원이 작성한 게시글을 study_post에 저장합니다.
-        """)
-    @PostMapping("/members/{memberId}/studies/{studyId}/posts")
-    public void createPost(@PathVariable Long memberId, @PathVariable Long studyId) {
-    }
 
 /* ----------------------------- 스터디 투표 관련 API ------------------------------------- */
 
@@ -291,7 +400,7 @@ public class MemberStudyController {
         ## [스터디 갤러리] 내 스터디 > 스터디 > 갤러리 클릭, 로그인한 회원이 참여하는 스터디의 이미지 목록을 불러옵니다.
         study_post에 존재하는 모든 게시글의 이미지를 최신순으로 반환합니다.
         """)
-    @GetMapping("/studies/{studyId}/posts/images")
+    @GetMapping("/studies/{studyId}/images")
     public void getAllStudyImages(@PathVariable Long studyId) {
     }
 
@@ -299,7 +408,7 @@ public class MemberStudyController {
         ## [스터디 갤러리] 내 스터디 > 스터디 > 갤러리 > 이미지 클릭, 로그인한 회원이 참여하는 스터디의 특정 이미지를 불러옵니다.
         특정 study_post의 image 하나를 반환합니다.
         """)
-    @GetMapping("/studies/{studyId}/posts/{studyPostId}/images/{studyPostImageId}")
+    @GetMapping("/studies/{studyId}/images/{studyPostImageId}")
     public void getStudyImage(@PathVariable Long studyId, @PathVariable Long studyPostId, @PathVariable Long studyPostImageId) {
     }
 

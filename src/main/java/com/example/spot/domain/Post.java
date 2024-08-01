@@ -43,18 +43,23 @@ public class Post extends BaseEntity {
     private Board board;
 
     @OneToMany(mappedBy = "post")
+    @Builder.Default
     private List<PostImage> postImageList = new ArrayList<>();
 
     @OneToMany(mappedBy = "post")
+    @Builder.Default
     private List<LikedPost> likedPostList = new ArrayList<>();
 
     @OneToMany(mappedBy = "post")
+    @Builder.Default
     private List<PostReport> postReportList = new ArrayList<>();
 
     @OneToMany(mappedBy = "post")
+    @Builder.Default
     private List<PostComment> postCommentList = new ArrayList<>();
 
     @OneToMany(mappedBy = "post")
+    @Builder.Default
     private List<MemberScrap> memberScrapList = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)

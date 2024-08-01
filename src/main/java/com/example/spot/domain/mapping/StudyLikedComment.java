@@ -4,32 +4,40 @@ import com.example.spot.domain.Member;
 import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.study.StudyPostComment;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
 @Getter
-@Builder
 @DynamicUpdate
 @DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 public class StudyLikedComment extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
+    @Column(nullable = false, columnDefinition = "BIT DEFAULT 1")
+    private Boolean isLiked;
+
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_post_comment_id", nullable = false)
     private StudyPostComment studyPostComment;
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
+
+/* ----------------------------- 생성자 ------------------------------------- */
+
+    @Builder
+    public StudyLikedComment(StudyPostComment studyPostComment, Member member, Boolean isLiked) {
+        this.studyPostComment = studyPostComment;
+        this.member = member;
+        this.isLiked = isLiked;
+    }
 
 }

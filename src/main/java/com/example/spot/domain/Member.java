@@ -5,7 +5,6 @@ import com.example.spot.domain.enums.Carrier;
 import com.example.spot.domain.enums.LoginType;
 import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.mapping.*;
-import com.example.spot.domain.study.Study;
 import com.example.spot.domain.study.StudyPost;
 import com.example.spot.domain.study.StudyPostComment;
 import com.example.spot.domain.study.Vote;
@@ -85,104 +84,103 @@ public class Member extends BaseEntity {
     private List<StudyReason> studyReasonList = new ArrayList<>();
 
     //== 알림 ==//
-    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<Notification> notificationList = new ArrayList<>();
 
     //== 해당 회원에 대한 신고 내역 ==//
-    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<MemberReport> memberReportList = new ArrayList<>();
 
     //== 회원이 선호하는 테마 ==//
-    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<MemberTheme> memberThemeList = new ArrayList<>();
 
     //== 회원의 출석 목록 ==//
-    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<MemberAttendance> memberAttendanceList = new ArrayList<>();
 
     //== 회원이 참여하는 스터디 목록 ==//
-    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<MemberStudy> memberStudyList = new ArrayList<>();
 
     //== 회원이 찜한 스터디 목록 ==//
-    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<PreferredStudy> preferredStudyList = new ArrayList<>();
 
     //== 회원이 선호하는 지역 목록 ==//
-    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<PreferredRegion> preferredRegionList = new ArrayList<>();
 
    ////== 회원이 작성한 게시글 목록 ==//
-   @Builder.Default
    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+   @Builder.Default
    private List<Post> postList = new ArrayList<>();
 
    ////== 회원이 좋아요한 게시글 목록 ==//
-   @Builder.Default
    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+   @Builder.Default
    private List<LikedPost> likedPostList = new ArrayList<>();
 
    ////== 회원이 선호하는 지역 목록 ==//
-   @Builder.Default
    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+   @Builder.Default
    private List<PostReport> postReportList = new ArrayList<>();
 
    ////== 회원이 스크랩한 게시글 목록 ==//
-   @Builder.Default
    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+   @Builder.Default
    private List<MemberScrap> memberScrapList = new ArrayList<>();
 
    ////== 회원이 작성한 게시글 댓글 목록 ==//
-   @Builder.Default
    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+   @Builder.Default
    private List<PostComment> postCommentList = new ArrayList<>();
 
    ////== 회원이 좋아요한 게시글 댓글 목록 ==//
-   @Builder.Default
    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+   @Builder.Default
    private List<LikedPostComment> likedCommentList = new ArrayList<>();
 
     //== 회원이 작성한 스터디 게시글 목록 ==//
-    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<StudyPost> studyPostList = new ArrayList<>();
 
     //== 회원이 좋아요한 스터디 게시글 목록 ==//
-    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<StudyLikedPost> studyLikedPostList = new ArrayList<>();
 
     //== 회원이 작성한 스터디 게시글 댓글 목록 ==//
-    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<StudyPostComment> studyPostCommentList = new ArrayList<>();
 
     //== 회원이 좋아요한 게시글 댓글 목록 ==//
-    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<StudyLikedComment> studyLikedCommentList = new ArrayList<>();
 
     //== 회원이 생성한 투표 목록 ==//
-    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<Vote> voteList = new ArrayList<>();
 
     //== 회원이 투표한 항목 목록 ==//
-    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<MemberVote> memberVoteList = new ArrayList<>();
 
-    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<PreferredRegion> regions = new ArrayList<>();
-
 
 
 /* ----------------------------- 연관관계 메소드 ------------------------------------- */
@@ -232,6 +230,52 @@ public class Member extends BaseEntity {
         this.carrier = req.getCarrier();
         this.idInfo = req.isIdInfo();
         this.personalInfo = req.isPersonalInfo();
+    public void addStudyPost(StudyPost studyPost) {
+        if (this.studyPostList == null) {
+            this.studyPostList = new ArrayList<>();
+        }
+        this.studyPostList.add(studyPost);
+        studyPost.setMember(this);
+    }
+
+    public void addStudyLikedComment(StudyLikedComment studyLikedComment) {
+        if (this.likedCommentList == null) {
+            this.likedCommentList = new ArrayList<>();
+        }
+        this.studyLikedCommentList.add(studyLikedComment);
+        studyLikedComment.setMember(this);
+    }
+
+    public void deleteStudyPost(StudyPost studyPost) {
+        this.studyPostList.remove(studyPost);
+    }
+
+    public void updateStudyPost(StudyPost studyPost) {
+        studyPostList.set(studyPostList.indexOf(studyPost), studyPost);
+    }
+
+    public void updateComment(StudyPostComment studyPostComment) {
+        studyPostCommentList.set(studyPostCommentList.indexOf(studyPostComment), studyPostComment);
+    }
+
+    public void addStudyLikedPost(StudyLikedPost studyLikedPost) {
+        if (this.studyLikedPostList == null) {
+            this.studyLikedPostList = new ArrayList<>();
+        }
+        this.studyLikedPostList.add(studyLikedPost);
+        studyLikedPost.setMember(this);
+    }
+
+    public void deleteStudyLikedPost(StudyLikedPost studyLikedPost) {
+        this.studyLikedPostList.remove(studyLikedPost);
+    }
+
+    public void deleteStudyLikedComment(StudyLikedComment studyLikedComment) {
+        this.studyLikedCommentList.remove(studyLikedComment);
+    }
+
+    public void addComment(StudyPostComment studyPostComment) {
+        this.studyPostCommentList.add(studyPostComment);
     }
 
 

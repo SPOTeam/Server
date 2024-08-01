@@ -25,17 +25,22 @@ public enum SuccessStatus implements BaseCode {
     _MEMBER_REGION_UPDATE(HttpStatus.OK, "MEMBER2007", "회원 지역 수정 완료"),
     _MEMBER_INFO_UPDATE(HttpStatus.OK, "MEMBER2008", "회원 정보 수정 완료"),
 
-    //스터디 게시물 관련 응답
+    //스터디 게시글 관련 응답
     _STUDY_POST_CREATED(HttpStatus.CREATED, "STUDYPOST3001", "스터디 게시글 작성 완료"),
     _STUDY_POST_UPDATED(HttpStatus.OK, "STUDYPOST3002", "스터디 게시글 수정 완료"),
     _STUDY_POST_DELETED(HttpStatus.OK, "STUDYPOST3003", "스터디 게시글 삭제 완료"),
     _STUDY_POST_FOUND(HttpStatus.OK, "STUDYPOST3004", "스터디 게시글 조회 완료"),
     _STUDY_POST_LIST_FOUND(HttpStatus.OK, "STUDYPOST3005", "스터디 게시글 목록 조회 완료"),
-    _STUDY_POST_LIKED(HttpStatus.OK, "STUDYPOST3006", "스터디 게시글 좋아요 완료"),
-    _STUDY_POST_UNLIKED(HttpStatus.OK, "STUDYPOST3007", "스터디 게시글 좋아요 취소 완료"),
+    _STUDY_POST_LIKED(HttpStatus.CREATED, "STUDYPOST3006", "스터디 게시글 좋아요 완료"),
+    _STUDY_POST_DISLIKED(HttpStatus.OK, "STUDYPOST3007", "스터디 게시글 좋아요 취소 완료"),
     _STUDY_POST_COMMENT_CREATED(HttpStatus.CREATED, "STUDYPOST3008", "스터디 게시글 댓글 작성 완료"),
     _STUDY_POST_COMMENT_UPDATED(HttpStatus.OK, "STUDYPOST3009", "스터디 게시글 댓글 수정 완료"),
     _STUDY_POST_COMMENT_DELETED(HttpStatus.OK, "STUDYPOST3010", "스터디 게시글 댓글 삭제 완료"),
+    _STUDY_POST_COMMENT_FOUND(HttpStatus.OK, "STUDYPOST3011", "스터디 게시글 댓글 조회 완료"),
+    _STUDY_POST_COMMENT_LIKED(HttpStatus.CREATED, "STUDYPOST3012", "스터디 게시글 댓글 좋아요 완료"),
+    _STUDY_POST_COMMENT_DISLIKED(HttpStatus.CREATED, "STUDYPOST3013", "스터디 게시글 댓글 싫어요 완료"),
+    _STUDY_POST_COMMENT_LIKE_CANCELED(HttpStatus.OK, "STUDYPOST3014", "스터디 게시글 댓글 좋아요 취소 완료"),
+    _STUDY_POST_COMMENT_DISLIKE_CANCELED(HttpStatus.OK, "STUDYPOST3015", "스터디 게시글 댓글 싫어요 취소 완료"),
 
     //알림 관련 응답
     _NOTIFICATION_FOUND(HttpStatus.OK, "NOTIFICATION4001", "전체 알림 조회 완료"),

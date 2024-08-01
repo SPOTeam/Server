@@ -108,6 +108,10 @@ public class Study extends BaseEntity {
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
     private List<Quiz> quizzes;
 
+    @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
+    private List<StudyPost> studyPosts = new ArrayList<>();
+
+
 /* ----------------------------- 생성자 ------------------------------------- */
 
     @Builder
@@ -138,6 +142,8 @@ public class Study extends BaseEntity {
         this.memberStudies = new ArrayList<>();
         this.regionStudies = new ArrayList<>();
         this.quizzes = new ArrayList<>();
+        this.studyPosts = new ArrayList<>();
+
     }
 
 /* ----------------------------- 연관관계 메소드 ------------------------------------- */
@@ -177,6 +183,22 @@ public class Study extends BaseEntity {
         quiz.setStudy(this);
     }
 
+    public void addStudyPost(StudyPost studyPost) {
+        if (this.studyPosts == null) {
+            this.studyPosts = new ArrayList<>();
+        }
+        this.studyPosts.add(studyPost);
+        studyPost.setStudy(this);
+    }
+
+    public void updateStudyPost(StudyPost studyPost) {
+        studyPosts.set(studyPosts.indexOf(studyPost), studyPost);
+    }
+
+    public void deleteStudyPost(StudyPost studyPost) {
+        studyPosts.remove(studyPost);
+    }
+
     // preferredStudy 삭제
     public void deletePreferredStudy(PreferredStudy preferredStudy) {
         this.heartCount--;
@@ -186,4 +208,5 @@ public class Study extends BaseEntity {
     public void increaseHit() {
         this.hitNum++;
     }
+
 }

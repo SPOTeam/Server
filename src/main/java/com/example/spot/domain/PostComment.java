@@ -28,6 +28,7 @@ public class PostComment extends BaseEntity {
     private int disLikeNum;
 
     @OneToMany(mappedBy = "postComment")
+    @Builder.Default
     private List<LikedPostComment> likedPostCommentsList = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -45,5 +46,6 @@ public class PostComment extends BaseEntity {
     private PostComment parentComment; //부모 댓글
 
     @OneToMany(mappedBy = "parentComment", orphanRemoval = true)
+    @Builder.Default
     private List<PostComment> childrenComment = new ArrayList<>(); //자식 댓글들(대댓글)
 }
