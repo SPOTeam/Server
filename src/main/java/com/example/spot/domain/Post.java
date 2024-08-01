@@ -33,8 +33,6 @@ public class Post extends BaseEntity {
 
     private int scrapNum;
 
-    private int likeNum;
-
     private int commentNum;
 
     private int hitNum;
@@ -83,12 +81,5 @@ public class Post extends BaseEntity {
         this.hitNum++;
     }
 
-    public void incrementLikeNum() {
-        this.likeNum++;
-    }
-
-    public void decrementLikeNum() {
-        this.likeNum--;
-    }
 
 }
