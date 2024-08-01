@@ -104,14 +104,9 @@ public class JwtTokenProvider {
         return request.getHeader("refreshToken");
     }
 
-    public String getUserPk(String token) {
-        return Jwts.parser().setSigningKey(JWT_SECRET_KEY).parseClaimsJws(token).getBody().getSubject();
-    }
-
     public TokenDTO reissueToken(String refreshToken) {
         Claims claims = Jwts.parserBuilder().setSigningKey(JWT_SECRET_KEY).build().parseClaimsJws(refreshToken).getBody();
         Long memberId = claims.get("memberId", Long.class);
-
         return createToken(memberId);
     }
 

@@ -30,27 +30,41 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
         FilterChain filterChain) throws ServletException, IOException {
         try {
-            String token = jwtTokenProvider.resolveToken(request);
-            if (Objects.equals(request.getRequestURI(), "/spot/reissue")){
+            if (isReissueRequest(request)) {
                 filterChain.doFilter(request, response);
                 return;
             }
-
-            if (token != null && jwtTokenProvider.validateToken(token)) {
-                Long memberId = jwtTokenProvider.getMemberIdByToken(token);
-                UserDetails userDetails = memberService.loadUserByUsername(memberId.toString()); // UserDetails 조회
-                Authentication authentication = jwtTokenProvider.getAuthentication(token, userDetails);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            }
+            String token = jwtTokenProvider.resolveToken(request);
+            if (isValidToken(token))
+                authenticateUser(token);
             filterChain.doFilter(request, response);
-        }catch (GeneralException e){
-            response.setContentType("text/plain; charset=UTF-8");
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        } catch (GeneralException e) {
+            handleException(response, e);
+        }
+    }
 
-            try (PrintWriter writer = response.getWriter()) {
-                writer.write("Invalid JWT token: " + e.getStatus().getMessage());
-                writer.flush();
-            }
+    private boolean isReissueRequest(HttpServletRequest request) {
+        return Objects.equals(request.getRequestURI(), "/spot/reissue");
+    }
+
+    private boolean isValidToken(String token) {
+        return token != null && jwtTokenProvider.validateToken(token);
+    }
+
+    private void authenticateUser(String token) {
+        Long memberId = jwtTokenProvider.getMemberIdByToken(token);
+        UserDetails userDetails = memberService.loadUserByUsername(memberId.toString());
+        Authentication authentication = jwtTokenProvider.getAuthentication(token, userDetails);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    private void handleException(HttpServletResponse response, GeneralException e) throws IOException {
+        response.setContentType("text/plain; charset=UTF-8");
+        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+
+        try (PrintWriter writer = response.getWriter()) {
+            writer.write("Invalid JWT token: " + e.getStatus().getMessage());
+            writer.flush();
         }
     }
 }
