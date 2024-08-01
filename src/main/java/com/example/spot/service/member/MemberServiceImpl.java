@@ -76,7 +76,7 @@ public class MemberServiceImpl implements MemberService {
                 .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
 
             // JWT 토큰 생성
-            String token = jwtTokenProvider.createToken(member.getEmail());
+            String token = jwtTokenProvider.createAccessToken(member.getEmail());
 
             // 로그인 DTO 반환
             return MemberResponseDTO.MemberSignInDTO.builder()
@@ -89,7 +89,7 @@ public class MemberServiceImpl implements MemberService {
         Member member = memberRepository.save(kaKaoUser.toMember());
 
         // JWT 토큰 생성
-        String token = jwtTokenProvider.createToken(member.getEmail());
+        String token = jwtTokenProvider.createAccessToken(member.getEmail());
 
         // 회원 가입 DTO 반환
         return MemberSignInDTO.builder()
@@ -180,7 +180,7 @@ public class MemberServiceImpl implements MemberService {
                 .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
 
             // JWT 토큰 생성
-            String token = jwtTokenProvider.createToken(member.getEmail());
+            String token = jwtTokenProvider.createAccessToken(member.getEmail());
 
             // 로그인 DTO 반환
             return MemberResponseDTO.MemberSignInDTO.builder()
@@ -193,7 +193,7 @@ public class MemberServiceImpl implements MemberService {
         Member member = memberRepository.save(kaKaoUser.toMember());
 
         // JWT 토큰 생성
-        String token = jwtTokenProvider.createToken(member.getEmail());
+        String token = jwtTokenProvider.createAccessToken(member.getEmail());
 
         // 회원 가입 DTO 반환
         return MemberResponseDTO.MemberSignInDTO.builder()

@@ -1,8 +1,8 @@
 package com.example.spot.security.utils;
 
-import com.example.spot.api.ApiResponse;
 import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.GeneralException;
+import com.example.spot.web.dto.token.TokenResponseDTO.TokenDTO;
 import io.jsonwebtoken.*;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,39 +23,56 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class JwtTokenProvider {
 
-    private static final Long EXPIRATION_TIME = 1000L * 60 * 60 * 24;
-
     @Value("${jwt.secret}")
     private String JWT_SECRET_KEY;
+    @Value("${token.access_token_expiration_time}")
+    private Long ACCESS_TOKEN_EXPIRATION_TIME;
+    @Value("${token.refresh_token_expiration_time}")
+    private Long REFRESH_TOKEN_EXPIRATION_TIME;
 
     @PostConstruct
     protected void init() {
         JWT_SECRET_KEY = Base64.getEncoder().encodeToString(JWT_SECRET_KEY.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String createToken(String email) {
-        Claims claims = Jwts.claims().setSubject(email);
+    public TokenDTO createToken(Long memberId) {
         Date now = new Date();
-
-        return Jwts.builder()
-            .setClaims(claims)
+        Date accessTokenExpirationTime = new Date(now.getTime() + ACCESS_TOKEN_EXPIRATION_TIME);
+        String accessToken = Jwts.builder()
+            .claim("memberId", memberId)
             .setIssuedAt(now)
-            .setExpiration(new Date(now.getTime() + EXPIRATION_TIME))
+            .setExpiration(accessTokenExpirationTime)
             .signWith(SignatureAlgorithm.HS256, JWT_SECRET_KEY)
             .compact();
+
+        String refreshToken = Jwts.builder()
+            .claim("memberId", memberId)
+            .setIssuedAt(now)
+            .setExpiration(new Date(now.getTime() + REFRESH_TOKEN_EXPIRATION_TIME))
+            .signWith(SignatureAlgorithm.HS256, JWT_SECRET_KEY)
+            .compact();
+
+        return TokenDTO.builder()
+            .accessToken(accessToken)
+            .refreshToken(refreshToken)
+            .accessTokenExpiresIn(ACCESS_TOKEN_EXPIRATION_TIME)
+            .build();
     }
 
     public boolean validateToken(String token) {
         try {
-            Claims body = Jwts.parser().setSigningKey(JWT_SECRET_KEY).parseClaimsJws(token).getBody();
-            boolean isTokenExpired = body.getExpiration().before(new Date());
-            if (isTokenExpired) {
-                throw new GeneralException(ErrorStatus._EXPIRED_JWT);
-            }
+            Jwts.parserBuilder().setSigningKey(JWT_SECRET_KEY).build().parseClaimsJws(token);
             return true;
-        } catch (Exception e) {
-            throw new GeneralException(ErrorStatus._INVALID_JWT);
+        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+            log.info("Invalid JWT Token", e);
+        } catch (ExpiredJwtException e) {
+            log.info("Expired JWT Token", e);
+        } catch (UnsupportedJwtException e) {
+            log.info("Unsupported JWT Token", e);
+        } catch (IllegalArgumentException e) {
+            log.info("JWT claims string is empty.", e);
         }
+        return false;
     }
 
     public Authentication getAuthentication(String token, UserDetails userDetails) {
@@ -64,12 +81,10 @@ public class JwtTokenProvider {
 
     public String resolveToken(HttpServletRequest request) {
         String authorization = request.getHeader("Authorization");
-
         // Authorization 헤더가 null이거나 "Bearer "로 시작하지 않는 경우 null 반환
         if (authorization == null || !authorization.startsWith("Bearer ")) {
             return null;
         }
-
         // "Bearer " 접두사 제거 후 토큰 반환
         return authorization.substring("Bearer ".length()).trim();
     }
