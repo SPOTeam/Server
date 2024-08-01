@@ -154,4 +154,26 @@ public class PostController {
 
     }
 
+    //게시글 좋아요
+    @Operation(summary = "게시글 좋아요 API", description = "게시글 Id를 받아 게시글에 좋아요를 추가합니다.")
+    @PostMapping("/{postId}/like")
+    public ApiResponse<PostLikeResponse> likePost(
+            @PathVariable Long postId,
+            @RequestBody PostLikeRequest request) {
+        request.setPostId(postId);
+        PostLikeResponse response = postCommandService.likePost(request);
+        return ApiResponse.onSuccess(SuccessStatus._OK, response);
+    }
+
+    @Operation(summary = "게시글 좋아요 취소 API", description = "게시글 Id를 받아 게시글에 좋아요를 취소합니다.")
+    @DeleteMapping("/{postId}/like")
+    public ApiResponse<PostLikeResponse> cancelPostLike(
+            @PathVariable Long postId,
+            @RequestBody PostLikeRequest request) {
+        request.setPostId(postId);
+        PostLikeResponse response = postCommandService.cancelPostLike(request);
+        return ApiResponse.onSuccess(SuccessStatus._NO_CONTENT, response);
+    }
+
+
 }
