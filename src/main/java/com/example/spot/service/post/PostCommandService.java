@@ -12,8 +12,8 @@ public interface PostCommandService {
 
     PostCreateResponse updatePost(Long memberId, Long postId, PostUpdateRequest postUpdateRequest);
 
-    PostLikeResponse likePost(PostLikeRequest request);
+    PostLikeResponse likePost(Long postId, Long memberId);
 
-    PostLikeResponse cancelPostLike(PostLikeRequest request);
+    PostLikeResponse cancelPostLike(Long postId, Long memberId);
 
 }

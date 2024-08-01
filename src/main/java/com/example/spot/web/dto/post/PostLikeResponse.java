@@ -13,5 +13,5 @@ public class PostLikeResponse {
     private Long postId;
 
     @Schema(description = "좋아요 수", example = "10")
-    private int likeCount;
+    private Long likeCount;
 }

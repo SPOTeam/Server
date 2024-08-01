@@ -23,6 +23,8 @@ public class PostCommandServiceImpl implements PostCommandService {
     private final MemberRepository memberRepository;
     private final LikedPostRepository likedPostRepository;
 
+    private final LikedPostQueryService likedPostQueryService;
+
     @Transactional
     @Override
     public PostCreateResponse createPost(Long memberId, PostCreateRequest postCreateRequest) {
@@ -49,7 +51,6 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .title(postCreateRequest.getTitle())
                 .content(postCreateRequest.getContent())
                 .scrapNum(0)
-                .likeNum(0)
                 .commentNum(0)
                 .hitNum(0)
                 .board(postCreateRequest.getType())
@@ -110,49 +111,51 @@ public class PostCommandServiceImpl implements PostCommandService {
 
     @Transactional
     @Override
-    public PostLikeResponse likePost(PostLikeRequest request) {
+    public PostLikeResponse likePost(Long postId, Long memberId) {
         // 회원 정보 가져오기
-        Member member = memberRepository.findById(request.getMemberId())
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
         // 게시글 조회
-        Post post = postRepository.findById(request.getPostId())
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostHandler(ErrorStatus._POST_NOT_FOUND));
         //좋아요 여부 확인
-        if (likedPostRepository.findByMemberIdAndPostId(request.getMemberId(), request.getPostId()).isPresent()) {
+        if (likedPostRepository.findByMemberIdAndPostId(memberId, postId).isPresent()) {
             throw new PostHandler(ErrorStatus._POST_ALREADY_LIKED);
         }
 
         LikedPost likedPost = new LikedPost(post, member);
-        likedPostRepository.save(likedPost);
-        post.incrementLikeNum();
-        postRepository.save(post);
+        likedPostRepository.saveAndFlush(likedPost);
+
+        long likeCount = likedPostQueryService.countByPostId(postId);
 
         return PostLikeResponse.builder()
                 .postId(post.getId())
-                .likeCount(post.getLikeNum())
+                .likeCount(likeCount)
                 .build();
     }
 
     @Transactional
     @Override
-    public PostLikeResponse cancelPostLike(PostLikeRequest request) {
+    public PostLikeResponse cancelPostLike(Long postId, Long memberId) {
         // 회원 정보 가져오기
-        Member member = memberRepository.findById(request.getMemberId())
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
         // 게시글 조회
-        Post post = postRepository.findById(request.getPostId())
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostHandler(ErrorStatus._POST_NOT_FOUND));
         //좋아요 여부 확인
-        LikedPost likedPost = likedPostRepository.findByMemberIdAndPostId(request.getMemberId(), request.getPostId())
-                .orElseThrow(() -> new PostHandler(ErrorStatus._POST_NOT_LIKED));
+        LikedPost likedPost = likedPostRepository.findByMemberIdAndPostId(member.getId(), post.getId())
+                .orElseThrow(() -> new PostHandler(ErrorStatus._MEMBER_NOT_FOUND));
 
         likedPostRepository.delete(likedPost);
-        post.decrementLikeNum();
-        postRepository.save(post);
+
+        likedPostRepository.flush();
+
+        long likeCount = likedPostQueryService.countByPostId(postId);
 
         return PostLikeResponse.builder()
                 .postId(post.getId())
-                .likeCount(post.getLikeNum())
+                .likeCount(likeCount)
                 .build();
     }
 

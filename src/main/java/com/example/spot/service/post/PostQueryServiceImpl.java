@@ -20,6 +20,8 @@ import java.util.List;
 public class PostQueryServiceImpl implements PostQueryService {
 
     private final PostRepository postRepository;
+    private final LikedPostQueryService likedPostQueryService;
+
     @Transactional
     @Override
     public PostSingleResponse getPostById(Long postId) {
@@ -35,8 +37,11 @@ public class PostQueryServiceImpl implements PostQueryService {
         // 조회수 증가
         post.viewHit();
 
+        // 좋아요 수 조회
+        long likeCount = likedPostQueryService.countByPostId(postId);
+
         // 조회된 게시글을 PostSingleResponse로 변환하여 반환
-        return PostSingleResponse.toDTO(post);
+        return PostSingleResponse.toDTO(post, likeCount);
     }
 
     @Transactional(readOnly = true)
@@ -51,12 +56,16 @@ public class PostQueryServiceImpl implements PostQueryService {
         // 신고되지 않은 게시글만 조회 -수정 예정
         Page<Post> postPage = postRepository.findByBoardAndPostReportListIsEmpty(boardType, pageable);
 
+        List<PostPagingDetailResponse> postResponses = postPage.getContent().stream()
+                .map(post -> {
+                    long likeCount = likedPostQueryService.countByPostId(post.getId());
+                    return PostPagingDetailResponse.toDTO(post, likeCount);
+                })
+                .toList();
+
         return PostPagingResponse.builder()
                 .postType(type)
-                .postResponses(postPage.getContent().stream()
-                        .map(PostPagingDetailResponse::toDTO)
-                        .toList()
-                )
+                .postResponses(postResponses)
                 .totalPage(postPage.getTotalPages())
                 .totalElements(postPage.getTotalElements())
                 .isFirst(postPage.isFirst())
