@@ -1,6 +1,7 @@
 package com.example.spot.repository.querydsl.impl;
 
 import com.example.spot.domain.Post;
+import com.example.spot.domain.QLikedPost;
 import com.example.spot.domain.QPost;
 import com.example.spot.domain.QPostComment;
 import com.example.spot.repository.querydsl.PostRepositoryCustom;
@@ -17,6 +18,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     private final QPost post = QPost.post;
 
     private final QPostComment comment = QPostComment.postComment;
+    private final QLikedPost like = QLikedPost.likedPost;
 
     @Override
     public List<Post> findTopByOrderByCommentCountDesc() {
@@ -25,6 +27,17 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .leftJoin(comment)
                 .groupBy(post)
                 .orderBy(comment.count().desc(), post.id.desc())//댓글 수가 같을 경우 게시글 최신순(게시글 아이디 큰 순)
+                .limit(5)
+                .fetch();
+    }
+
+    @Override
+    public List<Post> findTopByOrderByLikeNumDesc() {
+        return jpaQueryFactory
+                .selectFrom(post)
+                .leftJoin(like)
+                .groupBy(post)
+                .orderBy(post.likeNum.desc(), post.id.desc()) // 좋아요 수가 같을 경우 게시글 최신순(게시글 아이디 큰 순)
                 .limit(5)
                 .fetch();
     }
