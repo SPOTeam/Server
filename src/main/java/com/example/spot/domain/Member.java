@@ -223,13 +223,15 @@ public class Member extends BaseEntity {
         this.preferredRegionList.addAll(preferredRegions);
     }
 
-    public void updateInfo(MemberInfoListDTO req){
+    public void updateInfo(MemberInfoListDTO req) {
         this.name = req.getName();
         this.phone = req.getPhone();
         this.birth = req.getBirth();
         this.carrier = req.getCarrier();
         this.idInfo = req.isIdInfo();
         this.personalInfo = req.isPersonalInfo();
+    }
+
     public void addStudyPost(StudyPost studyPost) {
         if (this.studyPostList == null) {
             this.studyPostList = new ArrayList<>();
