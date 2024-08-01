@@ -219,7 +219,8 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Member member = memberRepository.findByEmail(username)
+        Long memberId = parseUsernameToMemberId(username);
+        Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
         List<GrantedAuthority> authorities = List.of(
@@ -292,6 +293,15 @@ public class MemberServiceImpl implements MemberService {
             .memberId(member.getId())
             .email(member.getEmail())
             .build();
+    }
+
+
+    private Long parseUsernameToMemberId(String username) {
+        try {
+            return Long.parseLong(username);
+        } catch (NumberFormatException e) {
+            throw new UsernameNotFoundException("Invalid user ID format");
+        }
     }
 
 }

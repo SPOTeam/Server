@@ -108,4 +108,8 @@ public class JwtTokenProvider {
 
         return createToken(memberId);
     }
+
+    public Long getMemberIdByToken(String token) {
+        return Jwts.parserBuilder().setSigningKey(JWT_SECRET_KEY).build().parseClaimsJws(token).getBody().get("memberId", Long.class);
+    }
 }

@@ -31,8 +31,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             //log.info(request.getRequestURI());
             String token = jwtTokenProvider.resolveToken(request);
             if (token != null && jwtTokenProvider.validateToken(token)) {
-                String email = jwtTokenProvider.getUserPk(token);
-                UserDetails userDetails = memberService.loadUserByUsername(email); // UserDetails 조회
+                Long memberId = jwtTokenProvider.getMemberIdByToken(token);
+                UserDetails userDetails = memberService.loadUserByUsername(memberId.toString()); // UserDetails 조회
                 Authentication authentication = jwtTokenProvider.getAuthentication(token, userDetails);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
