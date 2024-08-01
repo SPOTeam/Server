@@ -1,11 +1,10 @@
 package com.example.spot.service.memberstudy;
 
+import com.example.spot.domain.enums.Theme;
 import com.example.spot.web.dto.memberstudy.response.StudyQuizResponseDTO;
-import com.example.spot.web.dto.study.response.ScheduleResponseDTO;
+import com.example.spot.web.dto.study.response.*;
 
-import com.example.spot.web.dto.study.response.StudyMemberResponseDTO;
-import com.example.spot.web.dto.study.response.StudyPostResponseDTO;
-import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 public interface MemberStudyQueryService {
@@ -31,4 +30,13 @@ public interface MemberStudyQueryService {
 
     // 금일 회원 출석 여부 불러오기
     StudyQuizResponseDTO.AttendanceListDTO getAllAttendances(Long studyId, Long quizId);
+
+    // 스터디 게시글 목록 불러오기
+    StudyPostResDTO.PostListDTO getAllPosts(PageRequest pageRequest, Long studyId, Theme theme);
+
+    // 스터디 게시글 불러오기
+    StudyPostResDTO.PostDetailDTO getPost(Long studyId, Long postId);
+
+    // 스터디 게시글 댓글 목록 불러오기
+    StudyPostCommentResponseDTO.CommentReplyListDTO getAllComments(Long studyId, Long postId);
 }
