@@ -78,4 +78,8 @@ public class Post extends BaseEntity {
             this.board = type;
         }
     }
+
+    public void viewHit() {
+        this.hitNum++;
+    }
 }

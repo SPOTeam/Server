@@ -13,7 +13,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Post", description = "Post API")
@@ -21,10 +20,10 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/spot/posts")
 public class PostController {
-    
+
     private final PostCommandService postCommandService;
     private final PostQueryService postQueryService;
-    
+
 
     private final static int PAGE_SIZE = 10; //페이지당 개수
 
@@ -77,14 +76,15 @@ public class PostController {
     }
 
     @Operation(
-            summary = "게시판 인기글 조회",
-            description = "인기글을 조회합니다.(인기글 조회시 종류 명시가 필요합니다.)")
+            summary = "Best 인기글 조회",
+            description = "Best 인기글을 조회합니다.(인기글 조회시 종류 명시가 필요합니다.)")
     @GetMapping("/best")
     public ApiResponse<PostBest5Response> getPostBest(
-            @Parameter(description = "인기글 종류. REAL_TIME, RECOMMEND, COMMENT 중 하나입니다.", required = true, example = "REAL_TIME")
-            @RequestParam String sortType
+            @Parameter(description = "인기글 종류. REAL_TIME, RECOMMEND, COMMENT 중 하나입니다. 요청하지 않으면 기본 값인 REAL_TIME로 조회됩니다.", example = "REAL_TIME")
+            @RequestParam(required = false, defaultValue = "REAL_TIME") String sortType
     ) {
-        return null;
+        PostBest5Response response = postQueryService.getPostBest(sortType);
+        return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
     @Operation(

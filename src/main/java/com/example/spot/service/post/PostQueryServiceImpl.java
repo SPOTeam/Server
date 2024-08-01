@@ -4,9 +4,7 @@ import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.handler.PostHandler;
 import com.example.spot.domain.Post;
 import com.example.spot.domain.enums.Board;
-import com.example.spot.web.dto.post.PostPagingDetailResponse;
-import com.example.spot.web.dto.post.PostPagingResponse;
-import com.example.spot.web.dto.post.PostSingleResponse;
+import com.example.spot.web.dto.post.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,7 +12,7 @@ import org.springframework.stereotype.Service;
 import com.example.spot.repository.PostRepository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.stream.Collectors;
+import java.util.List;
 
 
 @Service
@@ -22,7 +20,7 @@ import java.util.stream.Collectors;
 public class PostQueryServiceImpl implements PostQueryService {
 
     private final PostRepository postRepository;
-    @Transactional(readOnly = true)
+    @Transactional
     @Override
     public PostSingleResponse getPostById(Long postId) {
         // 게시글 단건 조회
@@ -33,6 +31,9 @@ public class PostQueryServiceImpl implements PostQueryService {
 //        if (isPostReported(post)) {
 //            throw new PostHandler(ErrorStatus._POST_REPORTED);
 //        }
+
+        // 조회수 증가
+        post.viewHit();
 
         // 조회된 게시글을 PostSingleResponse로 변환하여 반환
         return PostSingleResponse.toDTO(post);
@@ -66,5 +67,37 @@ public class PostQueryServiceImpl implements PostQueryService {
     // 게시글이 신고되었는지 확인하는 메서드
     private boolean isPostReported(Post post) {
         return !post.getPostReportList().isEmpty();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public PostBest5Response getPostBest(String sortType) {
+
+        if (sortType.equals("REAL_TIME")) {
+            // 실시간 조회 후 리턴
+
+        }
+
+        if (sortType.equals("RECOMMEND")) {
+            // 추천수 조회 후 리턴
+        }
+
+        if (sortType.equals("COMMENT")) {
+            // 댓글 수 조회 후 리턴
+            // 검색 후 DTO 리턴
+            List<Post> posts = postRepository.findTopByOrderByCommentCountDesc();
+            List<PostBest5DetailResponse> responses = posts.stream()
+                    .map(post -> PostBest5DetailResponse.from(post, posts.indexOf(post) + 1))
+                    .toList();
+
+            return PostBest5Response.builder()
+                    .sortType("COMMENT")
+                    .postBest5Responses(responses)
+                    .build();
+
+        }
+
+        // 무조건 에러
+        throw new PostHandler(ErrorStatus._INVALID_SORT_TYPE);
     }
 }

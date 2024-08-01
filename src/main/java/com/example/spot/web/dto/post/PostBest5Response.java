@@ -3,10 +3,12 @@ package com.example.spot.web.dto.post;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
 
+@Builder
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class PostBest5Response {
@@ -21,6 +23,6 @@ public class PostBest5Response {
             description = "인기글 목록입니다.",
             type = "array"
     )
-    private List<PostBest5Response> postBest5Responses;
+    private List<PostBest5DetailResponse> postBest5Responses;
 
 }
