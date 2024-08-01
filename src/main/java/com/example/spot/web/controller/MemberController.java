@@ -62,7 +62,7 @@ public class MemberController {
             ## localhost:8080/spot/login  
             
            생성된 회원의 액세스 토큰과 Email이 반환 됩니다. """)
-    @GetMapping("/login")
+    @GetMapping("/login/kakao")
     public void login() throws IOException {
         memberService.redirectURL();
     }
