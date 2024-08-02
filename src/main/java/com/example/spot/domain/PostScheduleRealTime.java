@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PostScheduleLikes extends BaseEntity {
+public class PostScheduleRealTime extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,18 +20,20 @@ public class PostScheduleLikes extends BaseEntity {
     private String title;
     private Integer commentCount;
     private Integer likeCount;
+    private Integer hitCount;
 
-
-    private PostScheduleLikes(Integer rank, String title, Integer commentCount, Integer likeCount) {
+    private PostScheduleRealTime(Integer rank, String title, Integer commentCount, Integer likeCount, Integer hitCount) {
         this.rank = rank;
         this.title = title;
         this.commentCount = commentCount;
         this.likeCount = likeCount;
+        this.hitCount = hitCount;
     }
 
-    public static PostScheduleLikes of(Post post, Integer rank) {
+    public static PostScheduleRealTime of(Post post, Integer rank) {
         int commentSize = post.getPostCommentList().size();
         int likeSize = post.getLikedPostList().size();
-        return new PostScheduleLikes(rank, post.getTitle(), commentSize, likeSize);
+        int hitSize = post.getHitNum();
+        return new PostScheduleRealTime(rank, post.getTitle(), commentSize, likeSize, hitSize);
     }
 }

@@ -13,6 +13,7 @@ import com.example.spot.repository.PostRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -84,14 +85,32 @@ public class PostQueryServiceImpl implements PostQueryService {
 
         if (sortType.equals("REAL_TIME")) {
             // 실시간 조회 후 리턴
+            List<Post> posts = postRepository.findTopByRealTimeScore();
 
+            if (posts.isEmpty()) {
+                throw new PostHandler(ErrorStatus._POST_NOT_FOUND); // 혹은 적절한 오류 타입으로 변경
+            }
+
+
+            AtomicInteger rankCounter = new AtomicInteger(1);
+
+            List<PostBest5DetailResponse> responses = posts.stream()
+                    .map(post -> PostBest5DetailResponse.from(post, rankCounter.getAndIncrement()))
+                    .toList();
+
+            return PostBest5Response.builder()
+                    .sortType("REAL_TIME")
+                    .postBest5Responses(responses)
+                    .build();
         }
 
         if (sortType.equals("RECOMMEND")) {
             // 추천수(좋아요수) 조회 후 리턴
             List<Post> posts = postRepository.findTopByOrderByLikeNumDesc();
+            AtomicInteger rankCounter = new AtomicInteger(1);
+
             List<PostBest5DetailResponse> responses = posts.stream()
-                    .map(post -> PostBest5DetailResponse.from(post, posts.indexOf(post) + 1))
+                    .map(post -> PostBest5DetailResponse.from(post, rankCounter.getAndIncrement()))
                     .toList();
 
             return PostBest5Response.builder()
@@ -102,10 +121,11 @@ public class PostQueryServiceImpl implements PostQueryService {
 
         if (sortType.equals("COMMENT")) {
             // 댓글 수 조회 후 리턴
-            // 검색 후 DTO 리턴
             List<Post> posts = postRepository.findTopByOrderByCommentCountDesc();
+            AtomicInteger rankCounter = new AtomicInteger(1);
+
             List<PostBest5DetailResponse> responses = posts.stream()
-                    .map(post -> PostBest5DetailResponse.from(post, posts.indexOf(post) + 1))
+                    .map(post -> PostBest5DetailResponse.from(post, rankCounter.getAndIncrement()))
                     .toList();
 
             return PostBest5Response.builder()
