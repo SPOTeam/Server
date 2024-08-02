@@ -835,7 +835,43 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
 
     @Override
     public StudyVoteResponseDTO.VotePreviewDTO deleteVote(Long studyId, Long voteId) {
-        return null;
+
+        //=== Exception ===//
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        Vote vote = voteRepository.findById(voteId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_VOTE_NOT_FOUND));
+        voteRepository.findByIdAndStudyId(voteId, studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_VOTE_NOT_FOUND));
+
+        // 로그인한 회원이 스터디 회원인지 확인
+        Member loginMember = getLoginMember();
+        if (memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED).stream()
+                .noneMatch(memberStudy -> loginMember.equals(memberStudy.getMember()))) {
+            throw new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND);
+        }
+
+        // 로그인한 회원이 투표 생성자인지 확인
+        if (!loginMember.equals(vote.getMember())) {
+            throw new StudyHandler(ErrorStatus._STUDY_VOTE_CREATOR_NOT_AUTHORIZED);
+        }
+
+        //=== Feature ===//
+        deleteOptions(voteId);
+        loginMember.deleteVote(vote);
+        study.deleteVote(vote);
+        voteRepository.delete(vote);
+
+        return StudyVoteResponseDTO.VotePreviewDTO.toDTO(vote);
+    }
+
+    private void deleteOptions(Long voteId) {
+        List<Option> options = optionRepository.findAllByVoteId(voteId);
+        options.forEach(option -> {
+            option.deleteAllMemberVotes();
+            memberVoteRepository.deleteAll(memberVoteRepository.findAllByOptionId(option.getId()));
+            optionRepository.delete(option);
+        });
     }
 
 
