@@ -736,7 +736,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
     public StudyVoteResponseDTO.VotedOptionDTO vote(Long studyId, Long voteId, StudyVoteRequestDTO.VotedOptionDTO votedOptionDTO) {
 
         //=== Exception ===//
-        Study study = studyRepository.findById(studyId)
+        studyRepository.findById(studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
         Vote vote = voteRepository.findById(voteId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_VOTE_NOT_FOUND));
@@ -788,8 +788,49 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
     }
 
     @Override
-    public StudyVoteResponseDTO.VotePreviewDTO updateVote(Long studyId, Long voteId, StudyVoteRequestDTO.VoteDTO voteDTO) {
-        return null;
+    public StudyVoteResponseDTO.VotePreviewDTO updateVote(Long studyId, Long voteId, StudyVoteRequestDTO.VoteUpdateDTO voteDTO) {
+
+        //=== Exception ===//
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        Vote vote = voteRepository.findById(voteId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_VOTE_NOT_FOUND));
+
+        // 로그인한 회원이 스터디 회원인지 확인
+        Member loginMember = getLoginMember();
+        if (memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED).stream()
+                .noneMatch(memberStudy -> loginMember.equals(memberStudy.getMember()))) {
+            throw new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND);
+        }
+
+        // 로그인한 회원이 투표 생성자인지 확인
+        if (!loginMember.equals(vote.getMember())) {
+            throw new StudyHandler(ErrorStatus._STUDY_VOTE_CREATOR_NOT_AUTHORIZED);
+        }
+
+        // 한 명이라도 투표에 참여했으면 투표 편집 불가
+        optionRepository.findAllByVoteId(voteId)
+                .forEach(option -> {
+                    if (memberVoteRepository.existsByOptionId(option.getId())) {
+                        throw new StudyHandler(ErrorStatus._STUDY_VOTE_IS_IN_PROGRESS);
+                    }
+                });
+
+        //=== Feature ===//
+        for (StudyVoteRequestDTO.OptionDTO optionDTO : voteDTO.getOptions()) {
+            Option option = optionRepository.findById(optionDTO.getOptionId())
+                    .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_VOTE_OPTION_NOT_FOUND));
+            option.setContent(optionDTO.getContent());
+            option = optionRepository.save(option);
+            vote.updateOption(option);
+        }
+
+        vote.updateVote(voteDTO.getTitle(), voteDTO.getIsMultipleChoice(), voteDTO.getFinishedAt());
+        vote = voteRepository.save(vote);
+        loginMember.updateVote(vote);
+        study.updateVote(vote);
+
+        return StudyVoteResponseDTO.VotePreviewDTO.toDTO(vote);
     }
 
     @Override

@@ -383,7 +383,7 @@ public class MemberStudyController {
         """)
     @PatchMapping("/studies/{studyId}/votes/{voteId}")
     public ApiResponse<StudyVoteResponseDTO.VotePreviewDTO> updateVote(
-            @PathVariable Long studyId, @PathVariable Long voteId, @RequestBody StudyVoteRequestDTO.VoteDTO voteDTO) {
+            @PathVariable Long studyId, @PathVariable Long voteId, @RequestBody StudyVoteRequestDTO.VoteUpdateDTO voteDTO) {
         StudyVoteResponseDTO.VotePreviewDTO votePreviewDTO = memberStudyCommandService.updateVote(studyId, voteId, voteDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_VOTE_UPDATED, votePreviewDTO);
     }

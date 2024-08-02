@@ -68,7 +68,7 @@ public interface MemberStudyCommandService {
     StudyVoteResponseDTO.VotedOptionDTO vote(Long studyId, Long voteId, StudyVoteRequestDTO.VotedOptionDTO votedOptionDTO);
 
     // 스터디 투표 수정
-    StudyVoteResponseDTO.VotePreviewDTO updateVote(Long studyId, Long voteId, StudyVoteRequestDTO.VoteDTO voteDTO);
+    StudyVoteResponseDTO.VotePreviewDTO updateVote(Long studyId, Long voteId, StudyVoteRequestDTO.VoteUpdateDTO voteDTO);
 
     // 스터디 투표 삭제
     StudyVoteResponseDTO.VotePreviewDTO deleteVote(Long studyId, Long voteId);

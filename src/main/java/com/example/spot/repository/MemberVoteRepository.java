@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository;
 public interface MemberVoteRepository extends JpaRepository<MemberVote, Long> {
 
     boolean existsByMemberIdAndOptionId(Long memberId, Long optionId);
+
+    boolean existsByOptionId(Long optionId);
 }
