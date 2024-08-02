@@ -9,10 +9,12 @@ import com.example.spot.domain.Member;
 import com.example.spot.repository.MemberRepository;
 import com.example.spot.web.dto.member.MemberRequestDTO.TestMemberDTO;
 import com.example.spot.domain.auth.CustomUserDetails;
+import com.example.spot.domain.auth.RefreshToken;
+import com.example.spot.repository.RefreshTokenRepository;
 import com.example.spot.security.utils.JwtTokenProvider;
 import com.example.spot.domain.Member;
 import com.example.spot.repository.MemberRepository;
-import com.example.spot.service.oauth.KaKaoOAuthService;
+import com.example.spot.service.auth.KaKaoOAuthService;
 import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.MemberSignInDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.MemberTestDTO;
@@ -29,7 +31,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
@@ -56,15 +57,23 @@ import java.util.UUID;
 @Transactional
 @RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService {
+
+    // OAuth
     private final KaKaoOAuthService kaKaoOAuthService;
+
+    // JWT
     private final JwtTokenProvider jwtTokenProvider;
+
+    // Response
     private final HttpServletResponse response;
+
+    // Repository
     private final MemberRepository memberRepository;
     private final ThemeRepository themeRepository;
     private final RegionRepository regionRepository;
     private final MemberThemeRepository memberThemeRepository;
     private final PreferredRegionRepository preferredRegionRepository;
-
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Override
     public MemberResponseDTO.MemberSignInDTO signUpByKAKAO(String accessToken) throws JsonProcessingException {
@@ -83,7 +92,14 @@ public class MemberServiceImpl implements MemberService {
             // JWT 토큰 생성
             TokenDTO token = jwtTokenProvider.createToken(member.getId());
 
-            member.updateRefreshToken(token.getRefreshToken());
+            RefreshToken refreshToken = RefreshToken.builder()
+                .memberId(member.getId())
+                .token(token.getRefreshToken())
+                .build();
+
+            // 리프레시 토큰 저장
+            refreshTokenRepository.save(refreshToken);
+
             // 로그인 DTO 반환
             return MemberResponseDTO.MemberSignInDTO.builder()
                 .tokens(token)
@@ -99,8 +115,15 @@ public class MemberServiceImpl implements MemberService {
         // JWT 토큰 생성
         TokenDTO token = jwtTokenProvider.createToken(member.getId());
 
-        member.updateRefreshToken(token.getRefreshToken());
-        memberRepository.save(member);
+        RefreshToken refreshToken = RefreshToken.builder()
+            .memberId(member.getId())
+            .token(token.getRefreshToken())
+            .build();
+
+        // 리프레시 토큰 저장
+        refreshTokenRepository.save(refreshToken);
+
+
         // 회원 가입 DTO 반환
         return MemberResponseDTO.MemberSignInDTO.builder()
             .tokens(token)
@@ -194,7 +217,12 @@ public class MemberServiceImpl implements MemberService {
             // JWT 토큰 생성
             TokenDTO token = jwtTokenProvider.createToken(member.getId());
 
-            member.updateRefreshToken(token.getRefreshToken());
+            RefreshToken refreshToken = RefreshToken.builder()
+                .memberId(member.getId())
+                .token(token.getRefreshToken())
+                .build();
+
+            refreshTokenRepository.save(refreshToken);
 
             // 로그인 DTO 반환
             return MemberResponseDTO.MemberSignInDTO.builder()
@@ -209,7 +237,14 @@ public class MemberServiceImpl implements MemberService {
 
         // JWT 토큰 생성
         TokenDTO token = jwtTokenProvider.createToken(member.getId());
-        member.updateRefreshToken(token.getRefreshToken());
+
+        RefreshToken refreshToken = RefreshToken.builder()
+            .memberId(member.getId())
+            .token(token.getRefreshToken())
+            .build();
+
+        refreshTokenRepository.save(refreshToken);
+
         // 회원 가입 DTO 반환
         return MemberResponseDTO.MemberSignInDTO.builder()
             .tokens(token)

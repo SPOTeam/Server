@@ -78,9 +78,6 @@ public class Member extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    @Column(nullable = false)
-    private String refreshToken;
-
     //== 스터디 희망사유 ==//
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     @Builder.Default
@@ -282,10 +279,5 @@ public class Member extends BaseEntity {
     public void addComment(StudyPostComment studyPostComment) {
         this.studyPostCommentList.add(studyPostComment);
     }
-
-    public void updateRefreshToken(String refreshToken) {
-        this.refreshToken = refreshToken;
-    }
-
 
 }

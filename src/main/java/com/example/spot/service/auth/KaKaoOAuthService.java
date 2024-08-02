@@ -1,4 +1,4 @@
-package com.example.spot.service.oauth;
+package com.example.spot.service.auth;
 
 import com.example.spot.web.dto.member.kakao.KaKaoOAuthToken;
 import com.example.spot.web.dto.member.kakao.KaKaoOAuthToken.KaKaoOAuthTokenDTO;

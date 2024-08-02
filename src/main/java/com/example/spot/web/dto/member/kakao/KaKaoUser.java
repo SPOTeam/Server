@@ -56,7 +56,6 @@ public class KaKaoUser {
             .password("default")
             .phone("NONE")
             .birth(LocalDate.now())
-            .refreshToken("default")
             .personalInfo(false)
             .idInfo(false)
             .isAdmin(false)
