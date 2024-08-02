@@ -7,8 +7,12 @@ import com.example.spot.domain.enums.Status;
 import com.example.spot.security.utils.JwtTokenProvider;
 import com.example.spot.domain.Member;
 import com.example.spot.repository.MemberRepository;
-import com.example.spot.service.member.oauth.KaKaoOAuthService;
 import com.example.spot.web.dto.member.MemberRequestDTO.TestMemberDTO;
+import com.example.spot.domain.auth.CustomUserDetails;
+import com.example.spot.security.utils.JwtTokenProvider;
+import com.example.spot.domain.Member;
+import com.example.spot.repository.MemberRepository;
+import com.example.spot.service.oauth.KaKaoOAuthService;
 import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.MemberSignInDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.MemberTestDTO;
@@ -222,9 +226,13 @@ public class MemberServiceImpl implements MemberService {
             new SimpleGrantedAuthority("ROLE_" + (member.getIsAdmin() ? "ADMIN" : "USER"))
         );
 
-        return new User(member.getEmail(), member.getPassword(),
-            true, true,
-            true, true, authorities);
+        return CustomUserDetails.builder()
+            .memberId(member.getId())
+            .username(member.getEmail())
+            .password(member.getPassword())
+            .enabled(true)
+            .authorities(authorities)
+            .build();
     }
 
     @Override
