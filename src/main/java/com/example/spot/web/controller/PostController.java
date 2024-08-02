@@ -100,9 +100,9 @@ public class PostController {
             summary = "게시판 공지 조회",
             description = "공지를 조회합니다.")
     @GetMapping("/announcement")
-    public void getPostAnnouncement(
-
-    ) {
+    public ApiResponse<PostAnnouncementResponse> getPostAnnouncement() {
+        PostAnnouncementResponse response = postQueryService.getPostAnnouncements();
+        return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
     @Operation(summary = "댓글 조회 API", description = "댓글 ID를 받아 댓글을 조회합니다.")

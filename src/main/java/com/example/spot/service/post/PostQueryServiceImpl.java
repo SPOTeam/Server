@@ -82,7 +82,7 @@ public class PostQueryServiceImpl implements PostQueryService {
     @Transactional(readOnly = true)
     @Override
     public PostBest5Response getPostBest(String sortType) {
-
+        //인기글 조회
         if (sortType.equals("REAL_TIME")) {
             // 실시간 조회 후 리턴
             List<Post> posts = postRepository.findTopByRealTimeScore();
@@ -143,6 +143,7 @@ public class PostQueryServiceImpl implements PostQueryService {
     @Transactional(readOnly = true)
     @Override
     public PostRepresentativeResponse getRepresentativePosts() {
+        //대표게시글 조회
         List<Post> posts = postRepository.findRepresentativePosts();
 
         List<PostRepresentativeDetailResponse> responses = posts.stream()
@@ -150,6 +151,22 @@ public class PostQueryServiceImpl implements PostQueryService {
                 .toList();
 
         return PostRepresentativeResponse.builder()
+                .responses(responses)
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public PostAnnouncementResponse getPostAnnouncements() {
+        //공지
+        List<Post> posts = postRepository.findAnnouncementPosts();
+        AtomicInteger rankCounter = new AtomicInteger(1);
+
+        List<PostBest5DetailResponse> responses = posts.stream()
+                .map(post -> PostBest5DetailResponse.from(post, rankCounter.getAndIncrement()))
+                .toList();
+
+        return PostAnnouncementResponse.builder()
                 .responses(responses)
                 .build();
     }
