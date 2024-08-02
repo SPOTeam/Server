@@ -92,13 +92,7 @@ public class MemberServiceImpl implements MemberService {
             // JWT 토큰 생성
             TokenDTO token = jwtTokenProvider.createToken(member.getId());
 
-            RefreshToken refreshToken = RefreshToken.builder()
-                .memberId(member.getId())
-                .token(token.getRefreshToken())
-                .build();
-
-            // 리프레시 토큰 저장
-            refreshTokenRepository.save(refreshToken);
+            saveRefreshToken(member, token);
 
             // 로그인 DTO 반환
             return MemberResponseDTO.MemberSignInDTO.builder()
@@ -115,14 +109,7 @@ public class MemberServiceImpl implements MemberService {
         // JWT 토큰 생성
         TokenDTO token = jwtTokenProvider.createToken(member.getId());
 
-        RefreshToken refreshToken = RefreshToken.builder()
-            .memberId(member.getId())
-            .token(token.getRefreshToken())
-            .build();
-
-        // 리프레시 토큰 저장
-        refreshTokenRepository.save(refreshToken);
-
+        saveRefreshToken(member, token);
 
         // 회원 가입 DTO 반환
         return MemberResponseDTO.MemberSignInDTO.builder()
@@ -130,6 +117,16 @@ public class MemberServiceImpl implements MemberService {
             .memberId(member.getId())
             .email(member.getEmail())
             .build();
+    }
+
+    private void saveRefreshToken(Member member, TokenDTO token) {
+        RefreshToken refreshToken = RefreshToken.builder()
+            .memberId(member.getId())
+            .token(token.getRefreshToken())
+            .build();
+
+        // 리프레시 토큰 저장
+        refreshTokenRepository.save(refreshToken);
     }
 
 
@@ -217,12 +214,7 @@ public class MemberServiceImpl implements MemberService {
             // JWT 토큰 생성
             TokenDTO token = jwtTokenProvider.createToken(member.getId());
 
-            RefreshToken refreshToken = RefreshToken.builder()
-                .memberId(member.getId())
-                .token(token.getRefreshToken())
-                .build();
-
-            refreshTokenRepository.save(refreshToken);
+            saveRefreshToken(member, token);
 
             // 로그인 DTO 반환
             return MemberResponseDTO.MemberSignInDTO.builder()
@@ -238,12 +230,7 @@ public class MemberServiceImpl implements MemberService {
         // JWT 토큰 생성
         TokenDTO token = jwtTokenProvider.createToken(member.getId());
 
-        RefreshToken refreshToken = RefreshToken.builder()
-            .memberId(member.getId())
-            .token(token.getRefreshToken())
-            .build();
-
-        refreshTokenRepository.save(refreshToken);
+        saveRefreshToken(member, token);
 
         // 회원 가입 DTO 반환
         return MemberResponseDTO.MemberSignInDTO.builder()
@@ -326,13 +313,20 @@ public class MemberServiceImpl implements MemberService {
             .isAdmin(false)
             .status(Status.ON)
             .build();
+
         memberRepository.save(member);
+
         updateTheme(member.getId(), requestDTO.getThemes());
         updateRegion(member.getId(), requestDTO.getRegions());
+
+        TokenDTO token = jwtTokenProvider.createToken(member.getId());
+
+        saveRefreshToken(member, token);
 
         return MemberTestDTO.builder()
             .memberId(member.getId())
             .email(member.getEmail())
+            .tokens(token)
             .build();
     }
 

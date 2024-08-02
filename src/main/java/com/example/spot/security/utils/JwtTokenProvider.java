@@ -24,7 +24,7 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class JwtTokenProvider {
 
-    @Value("${jwt.secret}")
+    @Value("${token.access_secret}")
     private String JWT_SECRET_KEY;
     @Value("${token.access_token_expiration_time}")
     private Long ACCESS_TOKEN_EXPIRATION_TIME;
@@ -39,8 +39,8 @@ public class JwtTokenProvider {
     // 액세스 및 리프레시 토큰 생성
     public TokenDTO createToken(Long memberId) {
         Date now = new Date();
-        String accessToken = generateToken(memberId, now, ACCESS_TOKEN_EXPIRATION_TIME);
-        String refreshToken = generateToken(memberId, now, REFRESH_TOKEN_EXPIRATION_TIME);
+        String accessToken = generateToken(memberId, now, ACCESS_TOKEN_EXPIRATION_TIME, "access");
+        String refreshToken = generateToken(memberId, now, REFRESH_TOKEN_EXPIRATION_TIME, "refresh");
 
         return TokenDTO.builder()
             .accessToken(accessToken)
@@ -50,9 +50,10 @@ public class JwtTokenProvider {
     }
 
     // JWT 토큰 생성 -> 위 createToken 메서드에서 호출
-    private String generateToken(Long memberId, Date now, long expirationTime) {
+    private String generateToken(Long memberId, Date now, long expirationTime, String tokenType) {
         return Jwts.builder()
             .claim("memberId", memberId)
+            .claim("tokenType", tokenType)
             .setIssuedAt(now)
             .setExpiration(new Date(now.getTime() + expirationTime))
             .signWith(Keys.hmacShaKeyFor(JWT_SECRET_KEY.getBytes()), SignatureAlgorithm.HS256)

@@ -26,6 +26,7 @@ public class MemberResponseDTO {
     public static class MemberTestDTO{
         private Long memberId;
         private String email;
+        private TokenDTO tokens;
 
     }
 
