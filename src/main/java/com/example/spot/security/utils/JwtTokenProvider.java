@@ -36,6 +36,7 @@ public class JwtTokenProvider {
         JWT_SECRET_KEY = Base64.getEncoder().encodeToString(JWT_SECRET_KEY.getBytes(StandardCharsets.UTF_8));
     }
 
+    // 액세스 및 리프레시 토큰 생성
     public TokenDTO createToken(Long memberId) {
         Date now = new Date();
         String accessToken = generateToken(memberId, now, ACCESS_TOKEN_EXPIRATION_TIME);
@@ -48,6 +49,7 @@ public class JwtTokenProvider {
             .build();
     }
 
+    // JWT 토큰 생성 -> 위 createToken 메서드에서 호출
     private String generateToken(Long memberId, Date now, long expirationTime) {
         return Jwts.builder()
             .claim("memberId", memberId)
@@ -57,14 +59,17 @@ public class JwtTokenProvider {
             .compact();
     }
 
+    // 토큰 유효성 검사 -> 유효기간 만료 여부 확인
     public boolean isTokenExpired(String token) {
         return validateToken(token, true) == ErrorStatus._EXPIRED_JWT;
     }
 
+    // 토큰 유효성 검사 -> 외부 호출 용
     public boolean validateToken(String token) {
         return validateToken(token, false) == null;
     }
 
+    // 토큰 유효성 검사
     private ErrorStatus validateToken(String token, boolean checkExpirationOnly) {
         try {
             Jwts.parserBuilder().setSigningKey(Keys.hmacShaKeyFor(JWT_SECRET_KEY.getBytes())).build().parseClaimsJws(token);
