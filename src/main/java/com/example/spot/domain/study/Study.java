@@ -106,7 +106,7 @@ public class Study extends BaseEntity {
     private List<PreferredStudy> preferredStudies = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
-    private List<Quiz> quizzes;
+    private List<Quiz> quizzes = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
     private List<StudyPost> studyPosts = new ArrayList<>();
@@ -172,6 +172,11 @@ public class Study extends BaseEntity {
     public void addSchedule(Schedule schedule) {
         schedules.add(schedule);
         schedule.setStudy(this);
+    }
+
+    public void addVote(Vote vote) {
+        votes.add(vote);
+        vote.setStudy(this);
     }
 
     public void updateSchedule(Schedule schedule) {

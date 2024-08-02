@@ -214,6 +214,14 @@ public class Member extends BaseEntity {
         memberAttendance.setMember(this);
     }
 
+    public void addVote(Vote vote) {
+        if (this.voteList == null) {
+            this.voteList = new ArrayList<>();
+        }
+        this.voteList.add(vote);
+        vote.setMember(this);
+    }
+
     public void updateThemes(List<MemberTheme> memberThemes) {
         this.memberThemeList.clear();
         this.memberThemeList.addAll(memberThemes);
@@ -246,6 +254,14 @@ public class Member extends BaseEntity {
         }
         this.studyLikedCommentList.add(studyLikedComment);
         studyLikedComment.setMember(this);
+    }
+
+    public void addMemberVote(MemberVote memberVote) {
+        if (this.memberVoteList == null) {
+            this.memberVoteList = new ArrayList<>();
+        }
+        this.memberVoteList.add(memberVote);
+        memberVote.setMember(this);
     }
 
     public void deleteStudyPost(StudyPost studyPost) {
