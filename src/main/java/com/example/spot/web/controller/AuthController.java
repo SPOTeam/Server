@@ -1,4 +1,4 @@
-package com.example.spot.web;
+package com.example.spot.web.controller;
 
 import com.example.spot.api.ApiResponse;
 import com.example.spot.api.code.status.SuccessStatus;
@@ -9,16 +9,20 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Auth", description = "Auth API")
+@Slf4j
 @RestController
 @RequestMapping("/spot")
 @RequiredArgsConstructor
 public class AuthController {
+
     private final AuthService authService;
 
     @Operation(summary = "[세션 유지] 액세스 토큰 재발급 API",
@@ -28,9 +32,8 @@ public class AuthController {
             리프레스 토큰의 만료 기간 이전인 경우에만 재발급이 가능합니다. 
             액세스 토큰을 재발급 하는 경우, 리프레시 토큰도 재발급 됩니다. 
             """)
-    @Parameter(name = "accessToken", description = "카카오 액세스 토큰을 입력 해 주세요. ", required = true)
     @PostMapping("/reissue")
-    public ApiResponse<TokenDTO> reissueToken(@RequestHeader String refreshToken) {
+    public ApiResponse<TokenDTO> reissueToken(@RequestParam String refreshToken) {
         return ApiResponse.onSuccess(SuccessStatus._CREATED, authService.reissueToken(refreshToken));
     }
 

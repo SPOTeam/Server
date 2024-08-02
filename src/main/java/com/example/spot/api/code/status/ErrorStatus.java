@@ -17,9 +17,10 @@ public enum ErrorStatus implements BaseErrorCode {
     _FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON4002", "접근이 거부되었습니다."),
     _BAD_ENUM_REQUEST(HttpStatus.BAD_REQUEST, "COMMON4003", "잘못된 열거형 요청입니다."),
     _INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "COMMON4004", "입력값이 유효하지 않습니다."),
-    _EMPTY_JWT(HttpStatus.BAD_REQUEST, "COMMON4005", "JWT is empty."),
-    _INVALID_JWT(HttpStatus.BAD_REQUEST, "COMMON4006", "Invalid JWT token."),
-    _EXPIRED_JWT(HttpStatus.BAD_REQUEST, "COMMON4007", "Expired JWT token."),
+    _EMPTY_JWT(HttpStatus.BAD_REQUEST, "COMMON4005", "JWT 토큰이 비어있습니다."),
+    _INVALID_JWT(HttpStatus.BAD_REQUEST, "COMMON4006", "유효하지 않은 JWT token입니다."),
+    _EXPIRED_JWT(HttpStatus.BAD_REQUEST, "COMMON4007", "만료된 JWT token입니다."),
+    _UNSUPPORTED_JWT(HttpStatus.BAD_REQUEST, "COMMON4008", "지원되지 않는 JWT token입니다."),
 
     //멤버 관련 에러
     _MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER4001", "회원을 찾을 수 없습니다."),

@@ -28,8 +28,8 @@ public class WebSecurity {
         http.csrf( (csrf) -> csrf.disable());
 
         http.authorizeHttpRequests((authz) -> authz
-                .requestMatchers(new AntPathRequestMatcher("/login")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/spot/login", "GET")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/spot/reissue")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/spot/login/kakao", "GET")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/spot/members/sign-in/kakao", "GET")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/spot/members/sign-in/kakao/redirect", "GET")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/api-docs")).permitAll()

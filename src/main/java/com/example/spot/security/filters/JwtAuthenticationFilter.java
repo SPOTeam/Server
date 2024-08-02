@@ -30,6 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             //log.info(request.getRequestURI());
             String token = jwtTokenProvider.resolveToken(request);
+            log.info("token : " + token);
             if (token != null && jwtTokenProvider.validateToken(token)) {
                 Long memberId = jwtTokenProvider.getMemberIdByToken(token);
                 UserDetails userDetails = memberService.loadUserByUsername(memberId.toString()); // UserDetails 조회
@@ -38,7 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
             filterChain.doFilter(request, response);
         }catch (GeneralException e){
-            response.setContentType("text/plain");
+            response.setContentType("text/plain; charset=UTF-8");
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 
             try (PrintWriter writer = response.getWriter()) {
