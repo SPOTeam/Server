@@ -24,9 +24,8 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final MemberRepository memberRepository;
 
-    public TokenDTO reissueToken(HttpServletRequest request) {
+    public TokenDTO reissueToken(String refreshToken) {
         // 리프레시 토큰 추출
-        String refreshToken = jwtTokenProvider.resolveRefreshToken(request);
         log.info("refreshToken: {}", refreshToken);
 
         // 리프레시 토큰 만료 여부 확인

@@ -34,8 +34,9 @@ public class AuthController {
             액세스 토큰을 재발급 하는 경우, 리프레시 토큰도 재발급 됩니다. 
             """)
     @PostMapping("/reissue")
-    public ApiResponse<TokenDTO> reissueToken(HttpServletRequest request) {
-        return ApiResponse.onSuccess(SuccessStatus._CREATED, authService.reissueToken(request));
+    public ApiResponse<TokenDTO> reissueToken(HttpServletRequest request,
+        @RequestHeader("refreshToken") String refreshToken){
+        return ApiResponse.onSuccess(SuccessStatus._CREATED, authService.reissueToken(refreshToken));
     }
 
     @Operation(summary = "[회원 가입] 일반 회원 가입 API",

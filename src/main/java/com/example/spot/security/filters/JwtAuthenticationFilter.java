@@ -2,6 +2,7 @@ package com.example.spot.security.filters;
 
 import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.GeneralException;
+import com.example.spot.domain.auth.CustomUserDetails;
 import com.example.spot.service.member.MemberService;
 import com.example.spot.security.utils.JwtTokenProvider;
 import jakarta.servlet.FilterChain;
@@ -53,8 +54,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private void authenticateUser(String token) {
         Long memberId = jwtTokenProvider.getMemberIdByToken(token);
-        UserDetails userDetails = memberService.loadUserByUsername(memberId.toString());
+        CustomUserDetails userDetails = (CustomUserDetails) memberService.loadUserByUsername(memberId.toString());
         Authentication authentication = jwtTokenProvider.getAuthentication(token, userDetails);
+        log.info("Authenticated user: {}", userDetails.getUsername());
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 

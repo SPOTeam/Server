@@ -1,11 +1,15 @@
 package com.example.spot.web.controller;
 
 import com.example.spot.api.ApiResponse;
+import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.code.status.SuccessStatus;
+import com.example.spot.api.exception.GeneralException;
 import com.example.spot.domain.enums.StudySortBy;
 import com.example.spot.domain.enums.ThemeType;
+import com.example.spot.security.utils.SecurityUtils;
 import com.example.spot.service.study.StudyQueryService;
 import com.example.spot.validation.annotation.ExistMember;
+import com.example.spot.validation.validator.MemberValidator;
 import com.example.spot.web.dto.search.SearchRequestDTO.SearchRequestStudyDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.MyPageDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.StudyPreviewDTO;
@@ -15,9 +19,12 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -350,6 +357,7 @@ public class SearchController {
         @PathVariable @ExistMember Long memberId,
         @RequestParam @Min(0) Integer page,
         @RequestParam @Min(1) Integer size) {
+        SecurityUtils.verifyUserId(memberId);
         StudyPreviewDTO studies = studyQueryService.findAppliedStudies(
             PageRequest.of(page, size), memberId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);

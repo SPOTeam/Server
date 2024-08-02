@@ -26,19 +26,18 @@ public class SwaggerConfig {
 
         // Define SecurityRequirement with both schemes
         SecurityRequirement securityRequirement = new SecurityRequirement()
-            .addList(jwtSchemeName)
-            .addList(refreshToken);
+            .addList(jwtSchemeName);
 
         Components components = new Components()
             .addSecuritySchemes(jwtSchemeName, new SecurityScheme()
                 .type(SecurityScheme.Type.HTTP)
                 .scheme("bearer")
-                .bearerFormat("JWT"))
-            .addSecuritySchemes(refreshToken, new SecurityScheme()
-                .type(SecurityScheme.Type.APIKEY) // APIKEY 타입 사용
-                .in(SecurityScheme.In.HEADER)
-                .name("refreshToken")
-                .description("Refresh token"));
+                .bearerFormat("JWT"));
+//            .addSecuritySchemes(refreshToken, new SecurityScheme()
+//                .type(SecurityScheme.Type.APIKEY) // APIKEY 타입 사용
+//                .in(SecurityScheme.In.HEADER)
+//                .name("refreshToken")
+//                .description("Refresh token"));
 
         return new OpenAPI()
                 .addServersItem(new Server().url("/"))

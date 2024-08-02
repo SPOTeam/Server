@@ -15,8 +15,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CustomUserDetails implements UserDetails {
 
-    private Long memberId; // 사용자 고유 ID
-    private String username; // 사용자 이름
+    private String email; // 사용자 email
+    private Long memberId; // 사용자 이름
     private String password; // 비밀번호
     private boolean enabled; // 계정 활성화 여부
     private Collection<? extends GrantedAuthority> authorities; // 사용자 권한
@@ -33,7 +33,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return username;
+        return memberId.toString();
     }
 
     @Override

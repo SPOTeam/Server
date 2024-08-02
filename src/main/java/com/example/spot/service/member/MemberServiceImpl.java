@@ -234,8 +234,8 @@ public class MemberServiceImpl implements MemberService {
         );
 
         return CustomUserDetails.builder()
+            .email(member.getEmail())
             .memberId(member.getId())
-            .username(member.getEmail())
             .password(member.getPassword())
             .enabled(true)
             .authorities(authorities)
