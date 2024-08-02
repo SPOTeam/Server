@@ -19,4 +19,7 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
 
     // 마감된 투표 목록
     List<Vote> findAllByStudyIdAndFinishedAtBefore(Long studyId, LocalDateTime now);
+
+    // 투표 마감 여부
+    Boolean existsByIdAndFinishedAtBefore(Long voteId, LocalDateTime now);
 }

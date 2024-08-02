@@ -47,10 +47,10 @@ public interface MemberStudyQueryService {
     Boolean getIsCompleted(Long voteId);
 
     // 스터디 투표(진행중) 조회
-    StudyVoteResponseDTO.CompletedVoteDTO getVoteInProgress(Long studyId, Long voteId);
+    StudyVoteResponseDTO.VoteDTO getVoteInProgress(Long studyId, Long voteId);
 
     // 스터디 투표(마감) 조회
-    StudyVoteResponseDTO.VoteDTO getVoteInCompletion(Long studyId, Long voteId);
+    StudyVoteResponseDTO.CompletedVoteDTO getVoteInCompletion(Long studyId, Long voteId);
 
     // 스터디 투표 현황 조회
     StudyVoteResponseDTO.CompletedVoteDetailDTO getCompletedVoteDetail(Long studyId, Long voteId);

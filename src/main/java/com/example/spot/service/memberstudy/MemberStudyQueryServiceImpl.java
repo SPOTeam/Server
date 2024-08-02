@@ -336,17 +336,52 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 
     @Override
     public Boolean getIsCompleted(Long voteId) {
-        return null;
+        return voteRepository.existsByIdAndFinishedAtBefore(voteId, LocalDateTime.now());
     }
 
     @Override
-    public StudyVoteResponseDTO.CompletedVoteDTO getVoteInProgress(Long studyId, Long voteId) {
-        return null;
+    public StudyVoteResponseDTO.CompletedVoteDTO getVoteInCompletion(Long studyId, Long voteId) {
+
+        //=== Exception ===//
+        studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        Vote vote = voteRepository.findById(voteId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_VOTE_NOT_FOUND));
+        voteRepository.findByIdAndStudyId(voteId, studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_VOTE_NOT_FOUND));
+
+        // 로그인한 회원이 스터디 회원인지 확인
+        Member loginMember = getLoginMember();
+        if (memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED).stream()
+                .noneMatch(memberStudy -> loginMember.equals(memberStudy.getMember()))) {
+            throw new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND);
+        }
+
+        //=== Feature ===//
+        return StudyVoteResponseDTO.CompletedVoteDTO.toDTO(vote);
+
     }
 
     @Override
-    public StudyVoteResponseDTO.VoteDTO getVoteInCompletion(Long studyId, Long voteId) {
-        return null;
+    public StudyVoteResponseDTO.VoteDTO getVoteInProgress(Long studyId, Long voteId) {
+
+        //=== Exception ===//
+        studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        Vote vote = voteRepository.findById(voteId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_VOTE_NOT_FOUND));
+        voteRepository.findByIdAndStudyId(voteId, studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_VOTE_NOT_FOUND));
+
+        // 로그인한 회원이 스터디 회원인지 확인
+        Member loginMember = getLoginMember();
+        if (memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED).stream()
+                .noneMatch(memberStudy -> loginMember.equals(memberStudy.getMember()))) {
+            throw new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND);
+        }
+
+        //=== Feature ===//
+        return StudyVoteResponseDTO.VoteDTO.toDTO(vote, loginMember);
     }
 
     @Override

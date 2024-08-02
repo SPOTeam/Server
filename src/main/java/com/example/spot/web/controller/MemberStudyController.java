@@ -419,10 +419,10 @@ public class MemberStudyController {
         // 마감된 투표 : return CompletedVoteDTO
         Boolean isCompleted = memberStudyQueryService.getIsCompleted(voteId);
         if (isCompleted) {
-            StudyVoteResponseDTO.CompletedVoteDTO completedVoteDTO = memberStudyQueryService.getVoteInProgress(studyId, voteId);
+            StudyVoteResponseDTO.CompletedVoteDTO completedVoteDTO = memberStudyQueryService.getVoteInCompletion(studyId, voteId);
             return ApiResponse.onSuccess(SuccessStatus._STUDY_VOTE_FOUND, completedVoteDTO);
         } else {
-            StudyVoteResponseDTO.VoteDTO voteDTO = memberStudyQueryService.getVoteInCompletion(studyId, voteId);
+            StudyVoteResponseDTO.VoteDTO voteDTO = memberStudyQueryService.getVoteInProgress(studyId, voteId);
             return ApiResponse.onSuccess(SuccessStatus._STUDY_VOTE_FOUND, voteDTO);
         }
     }
