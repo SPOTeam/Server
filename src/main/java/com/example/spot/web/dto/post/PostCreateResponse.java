@@ -43,7 +43,7 @@ public class PostCreateResponse {
     private boolean isAnonymous;
 
     @Schema(description = "좋아요 수", example = "0")
-    private int likeNum;
+    private Long likeNum;
 
     @Schema(description = "댓글 수", example = "0")
     private int commentNum;
@@ -61,7 +61,7 @@ public class PostCreateResponse {
         return Board.findByValue(type);
     }
 
-    public static PostCreateResponse toDTO(Post post, Boolean isAdmin) {
+    public static PostCreateResponse toDTO(Post post, Boolean isAdmin, long likeCount) {
 
         return PostCreateResponse.builder()
                 .id(post.getId())
@@ -69,7 +69,7 @@ public class PostCreateResponse {
                 .content(post.getContent())
                 .isAdmin(isAdmin)
                 .isAnonymous(post.isAnonymous())
-                .likeNum(post.getLikeNum())
+                .likeNum(likeCount)
                 .commentNum(post.getCommentNum())
                 .hitNum(post.getHitNum())
                 .type(post.getBoard().name())

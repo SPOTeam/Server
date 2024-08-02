@@ -25,7 +25,9 @@ public class PostSortLikesScheduler {
         List<Post> topByOrderByLikePosts = postRepository.findTopByOrderByLikeNumDesc();
         List<PostScheduleLikes> postScheduleLikesList = new ArrayList<>();
 
-        for (int i = 0; i < 5; i++) {
+        int size = Math.min(topByOrderByLikePosts.size(), 5); // 리스트 크기와 5 중 작은 값을 선택
+
+        for (int i = 0; i < size; i++) {
             Post post = topByOrderByLikePosts.get(i);
             PostScheduleLikes postScheduleLikes = PostScheduleLikes.of(post, i + 1);
             postScheduleLikesList.add(postScheduleLikes);

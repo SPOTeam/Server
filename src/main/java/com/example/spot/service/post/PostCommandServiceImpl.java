@@ -42,7 +42,9 @@ public class PostCommandServiceImpl implements PostCommandService {
         Post post = createPostEntity(postCreateRequest, member);
         post = postRepository.save(post);
 
-        return PostCreateResponse.toDTO(post, member.getIsAdmin());
+        int likeCount = 0;
+
+        return PostCreateResponse.toDTO(post, member.getIsAdmin(), likeCount);
     }
     private Post createPostEntity(PostCreateRequest postCreateRequest, Member currentMember) {
 
@@ -83,7 +85,10 @@ public class PostCommandServiceImpl implements PostCommandService {
 
         post.edit(postUpdateRequest);
 
-        return PostCreateResponse.toDTO(post, member.getIsAdmin());
+        // 좋아요 수 가져오기
+        long likeCount = likedPostQueryService.countByPostId(post.getId());
+
+        return PostCreateResponse.toDTO(post, member.getIsAdmin(), likeCount);
     }
 
 

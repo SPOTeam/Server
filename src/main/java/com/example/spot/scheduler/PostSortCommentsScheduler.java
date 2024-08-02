@@ -25,7 +25,9 @@ public class PostSortCommentsScheduler {
         List<Post> topByOrderByCommentPosts = postRepository.findTopByOrderByCommentCountDesc();
         List<PostScheduleComments> postScheduleCommentList = new ArrayList<>();
 
-        for (int i = 0; i < 5; i++) {
+        int size = Math.min(topByOrderByCommentPosts.size(), 5); // 리스트 크기와 5 중 작은 값을 선택
+
+        for (int i = 0; i < size; i++) {
             Post post = topByOrderByCommentPosts.get(i);
             PostScheduleComments postScheduleComments = PostScheduleComments.of(post, i + 1);
             postScheduleCommentList.add(postScheduleComments);
