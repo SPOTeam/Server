@@ -1,4 +1,4 @@
-package com.example.spot.web.dto.study.request;
+package com.example.spot.web.dto.memberstudy.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -8,12 +8,10 @@ import com.example.spot.service.memberstudy.MemberStudyQueryService;
 import com.example.spot.validation.annotation.ExistMember;
 import com.example.spot.validation.annotation.ExistStudy;
 import com.example.spot.web.dto.memberstudy.request.StudyQuizRequestDTO;
-import com.example.spot.web.dto.memberstudy.response.StudyQuizResponseDTO;
-import com.example.spot.web.dto.memberstudy.response.StudyTerminationResponseDTO;
-import com.example.spot.web.dto.memberstudy.response.StudyWithdrawalResponseDTO;
-import com.example.spot.web.dto.study.request.ScheduleRequestDTO;
-import com.example.spot.web.dto.study.request.StudyPostCommentRequestDTO;
-import com.example.spot.web.dto.study.request.StudyPostRequestDTO;
+import com.example.spot.web.dto.memberstudy.response.*;
+import com.example.spot.web.dto.memberstudy.request.ScheduleRequestDTO;
+import com.example.spot.web.dto.memberstudy.request.StudyPostCommentRequestDTO;
+import com.example.spot.web.dto.memberstudy.request.StudyPostRequestDTO;
 import com.example.spot.web.dto.study.response.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -270,7 +268,7 @@ public class MemberStudyController {
         """)
     @PostMapping("/studies/{studyId}/posts/{postId}/comments")
     public ApiResponse<StudyPostCommentResponseDTO.CommentDTO> createComment(@PathVariable Long studyId, @PathVariable Long postId,
-                    @RequestBody StudyPostCommentRequestDTO.CommentDTO commentRequestDTO) {
+                                                                             @RequestBody StudyPostCommentRequestDTO.CommentDTO commentRequestDTO) {
         StudyPostCommentResponseDTO.CommentDTO commentResponseDTO = memberStudyCommandService.createComment(studyId, postId, commentRequestDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_COMMENT_CREATED, commentResponseDTO);
     }
@@ -408,8 +406,8 @@ public class MemberStudyController {
         ## [스터디 갤러리] 내 스터디 > 스터디 > 갤러리 > 이미지 클릭, 로그인한 회원이 참여하는 스터디의 특정 이미지를 불러옵니다.
         특정 study_post의 image 하나를 반환합니다.
         """)
-    @GetMapping("/studies/{studyId}/images/{studyPostImageId}")
-    public void getStudyImage(@PathVariable Long studyId, @PathVariable Long studyPostId, @PathVariable Long studyPostImageId) {
+    @GetMapping("/studies/{studyId}/images/{imageId}")
+    public void getStudyImage(@PathVariable Long studyId, @PathVariable Long imageId) {
     }
 
 /* ----------------------------- 스터디 출석체크 관련 API ------------------------------------- */

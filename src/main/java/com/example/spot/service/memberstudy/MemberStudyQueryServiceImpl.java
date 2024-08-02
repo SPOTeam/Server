@@ -9,6 +9,9 @@ import com.example.spot.domain.mapping.MemberAttendance;
 import com.example.spot.domain.study.Schedule;
 import com.example.spot.domain.study.Study;
 import com.example.spot.repository.*;
+import com.example.spot.web.dto.memberstudy.response.ScheduleResponseDTO;
+import com.example.spot.web.dto.memberstudy.response.StudyPostCommentResponseDTO;
+import com.example.spot.web.dto.memberstudy.response.StudyPostResDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyQuizResponseDTO;
 import com.example.spot.web.dto.study.response.*;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +35,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 

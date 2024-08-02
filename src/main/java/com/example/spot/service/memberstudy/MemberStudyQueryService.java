@@ -1,6 +1,9 @@
 package com.example.spot.service.memberstudy;
 
 import com.example.spot.domain.enums.Theme;
+import com.example.spot.web.dto.memberstudy.response.ScheduleResponseDTO;
+import com.example.spot.web.dto.memberstudy.response.StudyPostCommentResponseDTO;
+import com.example.spot.web.dto.memberstudy.response.StudyPostResDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyQuizResponseDTO;
 import com.example.spot.web.dto.study.response.*;
 
