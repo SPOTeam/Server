@@ -1,10 +1,7 @@
 package com.example.spot.service.memberstudy;
 
 import com.example.spot.domain.enums.Theme;
-import com.example.spot.web.dto.memberstudy.response.ScheduleResponseDTO;
-import com.example.spot.web.dto.memberstudy.response.StudyPostCommentResponseDTO;
-import com.example.spot.web.dto.memberstudy.response.StudyPostResDTO;
-import com.example.spot.web.dto.memberstudy.response.StudyQuizResponseDTO;
+import com.example.spot.web.dto.memberstudy.response.*;
 import com.example.spot.web.dto.study.response.*;
 
 import org.springframework.data.domain.PageRequest;
@@ -42,4 +39,20 @@ public interface MemberStudyQueryService {
 
     // 스터디 게시글 댓글 목록 불러오기
     StudyPostCommentResponseDTO.CommentReplyListDTO getAllComments(Long studyId, Long postId);
+
+    // 스터디 투표 목록 조회
+    StudyVoteResponseDTO.VoteListDTO getAllVotes(Long studyId);
+
+    // 스터디 투표 마감 여부 조회
+    Boolean getIsCompleted(Long voteId);
+
+    // 스터디 투표(진행중) 조회
+    StudyVoteResponseDTO.CompletedVoteDTO getVoteInProgress(Long studyId, Long voteId);
+
+    // 스터디 투표(마감) 조회
+    StudyVoteResponseDTO.VoteDTO getVoteInCompletion(Long studyId, Long voteId);
+
+    // 스터디 투표 현황 조회
+    StudyVoteResponseDTO.CompletedVoteDetailDTO getCompletedVoteDetail(Long studyId, Long voteId);
+
 }

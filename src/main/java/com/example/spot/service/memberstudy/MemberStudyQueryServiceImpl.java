@@ -9,10 +9,7 @@ import com.example.spot.domain.mapping.MemberAttendance;
 import com.example.spot.domain.study.Schedule;
 import com.example.spot.domain.study.Study;
 import com.example.spot.repository.*;
-import com.example.spot.web.dto.memberstudy.response.ScheduleResponseDTO;
-import com.example.spot.web.dto.memberstudy.response.StudyPostCommentResponseDTO;
-import com.example.spot.web.dto.memberstudy.response.StudyPostResDTO;
-import com.example.spot.web.dto.memberstudy.response.StudyQuizResponseDTO;
+import com.example.spot.web.dto.memberstudy.response.*;
 import com.example.spot.web.dto.study.response.*;
 import lombok.RequiredArgsConstructor;
 import com.example.spot.api.exception.GeneralException;
@@ -280,7 +277,33 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
                 }
             }
         }
+    }
 
+/* ----------------------------- 스터디 투표 관련 API ------------------------------------- */
+
+    @Override
+    public StudyVoteResponseDTO.VoteListDTO getAllVotes(Long studyId) {
+        return null;
+    }
+
+    @Override
+    public Boolean getIsCompleted(Long voteId) {
+        return null;
+    }
+
+    @Override
+    public StudyVoteResponseDTO.CompletedVoteDTO getVoteInProgress(Long studyId, Long voteId) {
+        return null;
+    }
+
+    @Override
+    public StudyVoteResponseDTO.VoteDTO getVoteInCompletion(Long studyId, Long voteId) {
+        return null;
+    }
+
+    @Override
+    public StudyVoteResponseDTO.CompletedVoteDetailDTO getCompletedVoteDetail(Long studyId, Long voteId) {
+        return null;
     }
 
 }
