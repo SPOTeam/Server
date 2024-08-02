@@ -300,5 +300,7 @@ public class Member extends BaseEntity {
         this.studyPostCommentList.add(studyPostComment);
     }
 
-
+    public void deleteVote(Vote vote) {
+        this.voteList.remove(vote);
+    }
 }

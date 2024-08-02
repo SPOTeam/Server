@@ -217,4 +217,8 @@ public class Study extends BaseEntity {
     public void updateVote(Vote vote) {
         votes.set(votes.indexOf(vote), vote);
     }
+
+    public void deleteVote(Vote vote) {
+        votes.remove(vote);
+    }
 }

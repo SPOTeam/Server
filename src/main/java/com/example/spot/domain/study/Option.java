@@ -61,4 +61,8 @@ public class Option extends BaseEntity {
         memberVote.setOption(this);
     }
 
+    public void deleteAllMemberVotes() {
+        memberVotes.clear();
+    }
+
 }
