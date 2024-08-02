@@ -386,7 +386,29 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 
     @Override
     public StudyVoteResponseDTO.CompletedVoteDetailDTO getCompletedVoteDetail(Long studyId, Long voteId) {
-        return null;
+
+        //=== Exception ===//
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        Vote vote = voteRepository.findById(voteId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_VOTE_NOT_FOUND));
+        voteRepository.findByIdAndStudyId(voteId, studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_VOTE_NOT_FOUND));
+
+        // 로그인한 회원이 스터디 회원인지 확인
+        Member loginMember = getLoginMember();
+        if (memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED).stream()
+                .noneMatch(memberStudy -> loginMember.equals(memberStudy.getMember()))) {
+            throw new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND);
+        }
+
+        // 마감된 투표인지 확인
+        if (!voteRepository.existsByIdAndFinishedAtBefore(voteId, LocalDateTime.now())) {
+            throw new StudyHandler(ErrorStatus._STUDY_VOTE_NOT_COMPLETED);
+        }
+
+        //=== Feature ===//
+        return StudyVoteResponseDTO.CompletedVoteDetailDTO.toDTO(vote);
     }
 
 /* ----------------------------- 인증 관련 로직 ------------------------------------- */
