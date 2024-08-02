@@ -105,6 +105,8 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_VOTE_OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "VOTE4002", "스터디 투표 항목을 찾을 수 없습니다."),
     _STUDY_VOTE_MULTIPLE_CHOICE_NOT_VALID(HttpStatus.BAD_REQUEST, "VOTE4003", "중복 선택이 불가능한 투표입니다."),
     _STUDY_VOTE_RE_PARTICIPATION_INVALID(HttpStatus.BAD_REQUEST, "VOTE4004", "이미 참여한 투표입니다."),
+    _STUDY_VOTE_CREATOR_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "VOTE4005", "투표를 생성한 회원만 투표를 편집할 수 있습니다."),
+    _STUDY_VOTE_IS_IN_PROGRESS(HttpStatus.BAD_REQUEST, "VOTE4006", "진행중인 투표는 편집할 수 없습니다."),
     ;
 
     private final HttpStatus httpStatus;
