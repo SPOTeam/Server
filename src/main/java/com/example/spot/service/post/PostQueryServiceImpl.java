@@ -138,4 +138,19 @@ public class PostQueryServiceImpl implements PostQueryService {
         // 무조건 에러
         throw new PostHandler(ErrorStatus._INVALID_SORT_TYPE);
     }
+
+
+    @Transactional(readOnly = true)
+    @Override
+    public PostRepresentativeResponse getRepresentativePosts() {
+        List<Post> posts = postRepository.findRepresentativePosts();
+
+        List<PostRepresentativeDetailResponse> responses = posts.stream()
+                .map(PostRepresentativeDetailResponse::toDTO)
+                .toList();
+
+        return PostRepresentativeResponse.builder()
+                .responses(responses)
+                .build();
+    }
 }

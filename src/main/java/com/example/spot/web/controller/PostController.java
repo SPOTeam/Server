@@ -91,9 +91,9 @@ public class PostController {
             summary = "게시판 홈 게시글 조회",
             description = "게시판 홈에 게시글 종류별로 대표1개씩 게시글을 조회합니다.")
     @GetMapping("/representative")
-    public void getPost(
-
-    ) {
+    public ApiResponse<PostRepresentativeResponse> getPostRepresentative() {
+        PostRepresentativeResponse response = postQueryService.getRepresentativePosts();
+        return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
     @Operation(

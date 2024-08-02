@@ -4,6 +4,7 @@ import com.example.spot.domain.Post;
 import com.example.spot.domain.QLikedPost;
 import com.example.spot.domain.QPost;
 import com.example.spot.domain.QPostComment;
+import com.example.spot.domain.enums.Board;
 import com.example.spot.repository.querydsl.PostRepositoryCustom;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -66,7 +67,16 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 )
                 .limit(5)
                 .fetch();
+    }
 
-
+    //게시글 타입별 최신 게시글
+    @Override
+    public List<Post> findRepresentativePosts() {
+        return jpaQueryFactory
+                .selectFrom(post)
+                .where(post.board.ne(Board.ALL).and(post.board.ne(Board.SPOT_ANNOUNCEMENT)))
+                .orderBy(post.createdAt.desc())
+                .groupBy(post.board)
+                .fetch();
     }
 }
