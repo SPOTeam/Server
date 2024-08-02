@@ -1,8 +1,8 @@
 package com.example.spot.config;
 
 
-import com.example.spot.utils.jwt.JwtAuthenticationFilter;
-import com.example.spot.utils.jwt.JwtTokenProvider;
+import com.example.spot.security.filters.JwtAuthenticationFilter;
+import com.example.spot.security.utils.JwtTokenProvider;
 import com.example.spot.service.member.MemberService;
 import lombok.RequiredArgsConstructor;
 

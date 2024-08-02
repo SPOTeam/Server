@@ -4,7 +4,7 @@ import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.GeneralException;
 import com.example.spot.domain.enums.Carrier;
 import com.example.spot.domain.enums.Status;
-import com.example.spot.utils.jwt.JwtTokenProvider;
+import com.example.spot.security.utils.JwtTokenProvider;
 import com.example.spot.domain.Member;
 import com.example.spot.repository.MemberRepository;
 import com.example.spot.service.member.oauth.KaKaoOAuthService;
