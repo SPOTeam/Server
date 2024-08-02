@@ -143,6 +143,7 @@ public class StudyVoteResponseDTO {
                             .map(VotedOptionCountDTO::toDTO)
                             .mapToInt(VotedOptionCountDTO::getCount)
                             .sum())
+                    .finishedAt(vote.getFinishedAt())
                     .build();
         }
     }
