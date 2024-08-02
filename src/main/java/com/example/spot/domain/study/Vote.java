@@ -63,4 +63,14 @@ public class Vote extends BaseEntity {
         this.options.add(option);
         option.setVote(this);
     }
+
+    public void updateOption(Option option) {
+        options.set(options.indexOf(option), option);
+    }
+
+    public void updateVote(String title, Boolean isMultipleChoice, LocalDateTime finishedAt) {
+        this.title = title;
+        this.isMultipleChoice = isMultipleChoice;
+        this.finishedAt = finishedAt;
+    }
 }

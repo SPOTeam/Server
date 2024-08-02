@@ -264,6 +264,10 @@ public class Member extends BaseEntity {
         memberVote.setMember(this);
     }
 
+    public void updateVote(Vote vote) {
+        voteList.set(voteList.indexOf(vote), vote);
+    }
+
     public void deleteStudyPost(StudyPost studyPost) {
         this.studyPostList.remove(studyPost);
     }

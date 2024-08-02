@@ -36,6 +36,7 @@ public class Option extends BaseEntity {
     @JoinColumn(name = "vote_id", nullable = false)
     private Vote vote;
 
+    @Setter
     private String content;
 
     @OneToMany(mappedBy = "option", cascade = CascadeType.ALL)
@@ -59,4 +60,5 @@ public class Option extends BaseEntity {
         memberVotes.add(memberVote);
         memberVote.setOption(this);
     }
+
 }

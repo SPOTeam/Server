@@ -214,4 +214,7 @@ public class Study extends BaseEntity {
         this.hitNum++;
     }
 
+    public void updateVote(Vote vote) {
+        votes.set(votes.indexOf(vote), vote);
+    }
 }
