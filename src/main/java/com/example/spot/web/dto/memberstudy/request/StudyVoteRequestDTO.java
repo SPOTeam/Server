@@ -28,4 +28,24 @@ public class StudyVoteRequestDTO {
         private List<Long> optionIdList;
     }
 
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class VoteUpdateDTO {
+
+        private String title;
+        private List<OptionDTO> options;
+        private Boolean isMultipleChoice;
+        private LocalDateTime finishedAt;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class OptionDTO {
+
+        private Long optionId;
+        private String content;
+    }
+
 }
