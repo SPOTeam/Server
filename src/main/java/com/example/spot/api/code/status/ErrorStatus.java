@@ -98,8 +98,13 @@ public enum ErrorStatus implements BaseErrorCode {
     _POST_CONTENT_INVALID(HttpStatus.BAD_REQUEST, "POST5003", "게시글 내용이 유효하지 않습니다."),
     _POST_NOT_AUTHOR(HttpStatus.BAD_REQUEST, "POST5004", "게시글 작성자가 아닙니다."),
     _POST_REPORTED(HttpStatus.FORBIDDEN, "POST5005", "신고된 게시글입니다."),
-    _INVALID_BOARD_TYPE(HttpStatus.BAD_REQUEST, "POST5006", "유효하지 않은 게시판 타입입니다.")
+    _INVALID_BOARD_TYPE(HttpStatus.BAD_REQUEST, "POST5006", "유효하지 않은 게시판 타입입니다."),
 
+    // 스터디 투표 관련 에러
+    _STUDY_VOTE_NOT_FOUND(HttpStatus.NOT_FOUND, "VOTE4001", "스터디 투표를 찾을 수 없습니다."),
+    _STUDY_VOTE_OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "VOTE4002", "스터디 투표 항목을 찾을 수 없습니다."),
+    _STUDY_VOTE_MULTIPLE_CHOICE_NOT_VALID(HttpStatus.BAD_REQUEST, "VOTE4003", "중복 선택이 불가능한 투표입니다."),
+    _STUDY_VOTE_RE_PARTICIPATION_INVALID(HttpStatus.BAD_REQUEST, "VOTE4004", "이미 참여한 투표입니다."),
     ;
 
     private final HttpStatus httpStatus;
