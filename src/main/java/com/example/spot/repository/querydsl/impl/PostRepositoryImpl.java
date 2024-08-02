@@ -79,4 +79,16 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .groupBy(post.board)
                 .fetch();
     }
+
+    //공지 게시글 최신 5개
+    @Override
+    public List<Post> findAnnouncementPosts() {
+        return jpaQueryFactory
+                .selectFrom(post)
+                .where(post.board.eq(Board.SPOT_ANNOUNCEMENT))
+                .orderBy(post.createdAt.desc())
+                .limit(5)
+                .fetch();
+    }
+
 }
