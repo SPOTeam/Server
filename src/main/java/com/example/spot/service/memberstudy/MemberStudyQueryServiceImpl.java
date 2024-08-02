@@ -1,13 +1,14 @@
 package com.example.spot.service.memberstudy;
 
 import com.example.spot.api.code.status.ErrorStatus;
+import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.api.exception.handler.StudyHandler;
+import com.example.spot.domain.Member;
 import com.example.spot.domain.Quiz;
 import com.example.spot.domain.enums.Period;
 import com.example.spot.domain.enums.Theme;
 import com.example.spot.domain.mapping.MemberAttendance;
-import com.example.spot.domain.study.Schedule;
-import com.example.spot.domain.study.Study;
+import com.example.spot.domain.study.*;
 import com.example.spot.repository.*;
 import com.example.spot.web.dto.memberstudy.response.*;
 import com.example.spot.web.dto.study.response.*;
@@ -15,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import com.example.spot.api.exception.GeneralException;
 import com.example.spot.domain.enums.ApplicationStatus;
 import com.example.spot.domain.mapping.MemberStudy;
-import com.example.spot.domain.study.StudyPost;
 import com.example.spot.web.dto.study.response.StudyMemberResponseDTO.StudyApplyMemberDTO;
 import com.example.spot.web.dto.study.response.StudyMemberResponseDTO.StudyMemberDTO;
 import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO.StudyScheduleDTO;
@@ -23,6 +23,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,12 +46,16 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
     @Value("${cloud.aws.default-image}")
     private String defaultImage;
 
+    private final MemberRepository memberRepository;
     private final StudyRepository studyRepository;
     private final StudyPostRepository studyPostRepository;
     private final ScheduleRepository scheduleRepository;
     private final MemberStudyRepository memberStudyRepository;
     private final MemberAttendanceRepository memberAttendanceRepository;
     private final QuizRepository quizRepository;
+    private final VoteRepository voteRepository;
+    private final OptionRepository optionRepository;
+    private final MemberVoteRepository memberVoteRepository;
 
 
     @Override
@@ -283,7 +290,48 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 
     @Override
     public StudyVoteResponseDTO.VoteListDTO getAllVotes(Long studyId) {
-        return null;
+
+        //=== Exception ===//
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+
+        // 로그인한 회원이 스터디 회원인지 확인
+        Member loginMember = getLoginMember();
+        if (memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED).stream()
+                .noneMatch(memberStudy -> loginMember.equals(memberStudy.getMember()))) {
+            throw new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND);
+        }
+
+        //=== Feature ===//
+
+        // 진행중인 투표 목록
+        List<StudyVoteResponseDTO.VoteInfoDTO> votesInProgress = voteRepository.findAllByStudyIdAndFinishedAtAfter(studyId, LocalDateTime.now()).stream()
+                .map(vote -> {
+                    boolean isParticipated = isParticipated(vote, loginMember);
+                    return StudyVoteResponseDTO.VoteInfoDTO.toDTO(vote, isParticipated);
+                })
+                .toList();
+
+        // 마감된 투표 목록
+        List<StudyVoteResponseDTO.VoteInfoDTO> votesInCompletion = voteRepository.findAllByStudyIdAndFinishedAtBefore(studyId, LocalDateTime.now()).stream()
+                .map(vote -> {
+                    boolean isParticipated = isParticipated(vote, loginMember);
+                    return StudyVoteResponseDTO.VoteInfoDTO.toDTO(vote, isParticipated);
+                })
+                .toList();
+
+        return StudyVoteResponseDTO.VoteListDTO.toDTO(studyId, votesInProgress, votesInCompletion);
+    }
+
+    private boolean isParticipated(Vote vote, Member loginMember) {
+        // 투표 참여 여부 확인
+        boolean isParticipated = false;
+        for (Option option : vote.getOptions()) {
+            if (memberVoteRepository.existsByMemberIdAndOptionId(loginMember.getId(), option.getId())) {
+                isParticipated = true;
+            }
+        }
+        return isParticipated;
     }
 
     @Override
@@ -304,6 +352,22 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
     @Override
     public StudyVoteResponseDTO.CompletedVoteDetailDTO getCompletedVoteDetail(Long studyId, Long voteId) {
         return null;
+    }
+
+/* ----------------------------- 인증 관련 로직 ------------------------------------- */
+    // 로그인한 회원 정보 불러오기
+    private Member getLoginMember() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            // 인증 정보가 존재하면 email 확인
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String email = userDetails.getUsername();
+            return memberRepository.findByEmail(email)
+                    .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+        } else {
+            // 인증 정보가 존재하지 않으면 JWT 오류
+            throw new MemberHandler(ErrorStatus._INVALID_JWT);
+        }
     }
 
 }

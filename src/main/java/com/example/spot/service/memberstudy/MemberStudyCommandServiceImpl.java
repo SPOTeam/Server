@@ -892,24 +892,4 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         }
     }
 
-    // 로그인한 회원에 대한 권한 확인
-    private int isAuthorized(Member member) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            // 인증 정보가 존재하면 userName 확인
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            String name = userDetails.getUsername();
-            if (name.equals(member.getName())) {
-                // 로그인한 회원이 주어진 회원 정보와 일치하면 인가
-                return 0;
-            } else {
-                // 로그인한 회원이 주어진 회원 정보와 일치하지 않으면 오류
-                return 1;
-            }
-        } else {
-            // 인증 정보가 존재하지 않으면 JWT 오류
-            return 2;
-        }
-    }
-
 }
