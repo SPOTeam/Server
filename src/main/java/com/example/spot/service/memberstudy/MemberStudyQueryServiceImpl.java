@@ -1,7 +1,9 @@
 package com.example.spot.service.memberstudy;
 
 import com.example.spot.api.code.status.ErrorStatus;
+import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.api.exception.handler.StudyHandler;
+import com.example.spot.domain.Member;
 import com.example.spot.domain.Quiz;
 import com.example.spot.domain.enums.Period;
 import com.example.spot.domain.enums.Theme;
@@ -9,6 +11,7 @@ import com.example.spot.domain.mapping.MemberAttendance;
 import com.example.spot.domain.study.Schedule;
 import com.example.spot.domain.study.Study;
 import com.example.spot.repository.*;
+import com.example.spot.web.dto.memberstudy.response.StudyImageResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyQuizResponseDTO;
 import com.example.spot.web.dto.study.response.*;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +26,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +47,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 
+    private final MemberRepository memberRepository;
     @Value("${cloud.aws.default-image}")
     private String defaultImage;
 
@@ -205,6 +212,24 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
         return StudyPostCommentResponseDTO.CommentReplyListDTO.toDTO(studyPost.getId(), studyPost.getComments(), defaultImage);
     }
 
+    @Override
+    public StudyImageResponseDTO.ImageListDTO getAllStudyImages(Long studyId) {
+
+        //=== Exception ===//
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+
+        // 로그인한 회원이 스터디 회원인지 확인
+        Member loginMember = getLoginMember();
+        if (memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED).stream()
+                .noneMatch(memberStudy -> loginMember.equals(memberStudy.getMember()))) {
+            throw new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND);
+        }
+
+        //=== Feature ===//
+        return StudyImageResponseDTO.ImageListDTO.toDTO(study);
+    }
+
     /* ----------------------------- 스터디 일정 관련 API ------------------------------------- */
 
     @Override
@@ -279,6 +304,22 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
             }
         }
 
+    }
+
+    /* ----------------------------- 인증 관련 로직 ------------------------------------- */
+    // 로그인한 회원 정보 불러오기
+    private Member getLoginMember() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            // 인증 정보가 존재하면 email 확인
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String email = userDetails.getUsername();
+            return memberRepository.findByEmail(email)
+                    .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+        } else {
+            // 인증 정보가 존재하지 않으면 JWT 오류
+            throw new MemberHandler(ErrorStatus._INVALID_JWT);
+        }
     }
 
 }

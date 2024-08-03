@@ -8,6 +8,7 @@ import com.example.spot.service.memberstudy.MemberStudyQueryService;
 import com.example.spot.validation.annotation.ExistMember;
 import com.example.spot.validation.annotation.ExistStudy;
 import com.example.spot.web.dto.memberstudy.request.StudyQuizRequestDTO;
+import com.example.spot.web.dto.memberstudy.response.StudyImageResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyQuizResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyTerminationResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyWithdrawalResponseDTO;
@@ -401,15 +402,9 @@ public class MemberStudyController {
         study_post에 존재하는 모든 게시글의 이미지를 최신순으로 반환합니다.
         """)
     @GetMapping("/studies/{studyId}/images")
-    public void getAllStudyImages(@PathVariable Long studyId) {
-    }
-
-    @Operation(summary = "[스터디 갤러리] 스터디 이미지 불러오기", description = """ 
-        ## [스터디 갤러리] 내 스터디 > 스터디 > 갤러리 > 이미지 클릭, 로그인한 회원이 참여하는 스터디의 특정 이미지를 불러옵니다.
-        특정 study_post의 image 하나를 반환합니다.
-        """)
-    @GetMapping("/studies/{studyId}/images/{studyPostImageId}")
-    public void getStudyImage(@PathVariable Long studyId, @PathVariable Long studyPostId, @PathVariable Long studyPostImageId) {
+    public ApiResponse<StudyImageResponseDTO.ImageListDTO> getAllStudyImages(@PathVariable Long studyId) {
+        StudyImageResponseDTO.ImageListDTO imageListDTO = memberStudyQueryService.getAllStudyImages(studyId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_IMAGES_FOUND, imageListDTO);
     }
 
 /* ----------------------------- 스터디 출석체크 관련 API ------------------------------------- */

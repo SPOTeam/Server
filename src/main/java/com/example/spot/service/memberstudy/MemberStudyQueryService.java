@@ -1,6 +1,7 @@
 package com.example.spot.service.memberstudy;
 
 import com.example.spot.domain.enums.Theme;
+import com.example.spot.web.dto.memberstudy.response.StudyImageResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyQuizResponseDTO;
 import com.example.spot.web.dto.study.response.*;
 
@@ -39,4 +40,7 @@ public interface MemberStudyQueryService {
 
     // 스터디 게시글 댓글 목록 불러오기
     StudyPostCommentResponseDTO.CommentReplyListDTO getAllComments(Long studyId, Long postId);
+
+    // 스터디 이미지 목록 조회
+    StudyImageResponseDTO.ImageListDTO getAllStudyImages(Long studyId);
 }
