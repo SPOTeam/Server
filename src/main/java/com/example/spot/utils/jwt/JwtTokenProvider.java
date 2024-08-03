@@ -25,7 +25,7 @@ public class JwtTokenProvider {
 
     private static final Long EXPIRATION_TIME = 1000L * 60 * 60 * 24;
 
-    @Value("${jwt.secret}")
+    @Value("${token.access_secret}")
     private String JWT_SECRET_KEY;
 
     @PostConstruct
