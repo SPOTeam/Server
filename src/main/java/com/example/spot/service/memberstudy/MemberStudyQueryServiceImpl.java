@@ -10,6 +10,7 @@ import com.example.spot.domain.enums.Theme;
 import com.example.spot.domain.mapping.MemberAttendance;
 import com.example.spot.domain.study.*;
 import com.example.spot.repository.*;
+import com.example.spot.security.utils.SecurityUtils;
 import com.example.spot.web.dto.memberstudy.response.*;
 import com.example.spot.web.dto.study.response.*;
 import lombok.RequiredArgsConstructor;
@@ -132,10 +133,21 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
     public StudyQuizResponseDTO.AttendanceListDTO getAllAttendances(Long studyId, Long quizId) {
 
         //=== Exception ===//
+        Long memberId = SecurityUtils.getCurrentUserId();
+        SecurityUtils.verifyUserId(memberId);
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._MEMBER_NOT_FOUND));
         studyRepository.findById(studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
         Quiz quiz = quizRepository.findById(quizId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_QUIZ_NOT_FOUND));
+
+        // 로그인한 회원이 스터디 회원인지 확인
+        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
+
+        // 해당 스터디의 퀴즈인지 확인
         quizRepository.findByIdAndStudyId(quizId, studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_QUIZ_NOT_FOUND));
 
@@ -216,8 +228,17 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
     @Override
     public ScheduleResponseDTO.MonthlyScheduleListDTO getMonthlySchedules(Long studyId, int year, int month) {
 
+        Long memberId = SecurityUtils.getCurrentUserId();
+        SecurityUtils.verifyUserId(memberId);
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._MEMBER_NOT_FOUND));
         Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+
+        // 로그인한 회원이 스터디 회원인지 확인
+        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
 
         List<ScheduleResponseDTO.MonthlyScheduleDTO> monthlyScheduleDTOS = new ArrayList<>();
 
@@ -236,18 +257,24 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
     public ScheduleResponseDTO.MonthlyScheduleDTO getSchedule(Long studyId, Long scheduleId) {
 
         // Exception
+        Long memberId = SecurityUtils.getCurrentUserId();
+        SecurityUtils.verifyUserId(memberId);
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._MEMBER_NOT_FOUND));
         Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
-
         Schedule schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_SCHEDULE_NOT_FOUND));
 
-        List<Schedule> scheduleList = scheduleRepository.findByStudyId(studyId).stream()
-                .filter(studySchedule -> studySchedule.getStudy().equals(study))
-                .toList();
-        if (scheduleList.isEmpty()) {
-            throw new StudyHandler(ErrorStatus._STUDY_SCHEDULE_NOT_FOUND);
-        }
+        // 로그인한 회원이 스터디 회원인지 확인
+        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
+
+        // 해당 스터디의 일정인지 확인
+        scheduleRepository.findByIdAndStudyId(scheduleId, studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_SCHEDULE_NOT_FOUND));
+
 
         return ScheduleResponseDTO.MonthlyScheduleDTO.toDTO(schedule);
     }

@@ -5,8 +5,7 @@ import com.example.spot.api.code.status.SuccessStatus;
 import com.example.spot.domain.enums.Theme;
 import com.example.spot.service.memberstudy.MemberStudyCommandService;
 import com.example.spot.service.memberstudy.MemberStudyQueryService;
-import com.example.spot.validation.annotation.ExistMember;
-import com.example.spot.validation.annotation.ExistStudy;
+import com.example.spot.validation.annotation.*;
 import com.example.spot.web.dto.memberstudy.request.*;
 import com.example.spot.web.dto.memberstudy.response.*;
 import com.example.spot.web.dto.study.response.*;
@@ -14,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -152,7 +152,8 @@ public class MemberStudyController {
         캘린더를 넘기면 해당 연/월에 해당하는 일정 목록이 schedule에서 반환됩니다.
         """)
     @GetMapping("/studies/{studyId}/schedules")
-    public ApiResponse<ScheduleResponseDTO.MonthlyScheduleListDTO> getMonthlySchedules(@PathVariable Long studyId, @RequestParam Integer year, @RequestParam Integer month) {
+    public ApiResponse<ScheduleResponseDTO.MonthlyScheduleListDTO> getMonthlySchedules(
+            @PathVariable @ExistStudy Long studyId, @RequestParam @IntSize(min = 1) Integer year, @RequestParam @IntSize(min = 1, max= 12) Integer month) {
         ScheduleResponseDTO.MonthlyScheduleListDTO monthlyScheduleDTO = memberStudyQueryService.getMonthlySchedules(studyId, year, month);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_SCHEDULE_FOUND, monthlyScheduleDTO);
     }
@@ -162,7 +163,8 @@ public class MemberStudyController {
         스터디의 일정 정보를 상세하게 불러옵니다.
         """)
     @GetMapping("/studies/{studyId}/schedules/{scheduleId}")
-    public ApiResponse<ScheduleResponseDTO.MonthlyScheduleDTO> getSchedule(@PathVariable Long studyId, @PathVariable Long scheduleId) {
+    public ApiResponse<ScheduleResponseDTO.MonthlyScheduleDTO> getSchedule(
+            @PathVariable @ExistStudy Long studyId, @PathVariable @ExistSchedule Long scheduleId) {
         ScheduleResponseDTO.MonthlyScheduleDTO scheduleDTO = memberStudyQueryService.getSchedule(studyId, scheduleId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_SCHEDULE_FOUND, scheduleDTO);
     }
@@ -172,7 +174,8 @@ public class MemberStudyController {
         로그인한 회원이 owner인 경우 schedule에 새로운 일정을 등록합니다.
         """)
     @PostMapping("/studies/{studyId}/schedules")
-    public ApiResponse<ScheduleResponseDTO.ScheduleDTO> addSchedule(@PathVariable Long studyId, @RequestBody ScheduleRequestDTO.ScheduleDTO scheduleRequestDTO) {
+    public ApiResponse<ScheduleResponseDTO.ScheduleDTO> addSchedule(
+            @PathVariable @ExistStudy Long studyId, @RequestBody @Valid ScheduleRequestDTO.ScheduleDTO scheduleRequestDTO) {
         ScheduleResponseDTO.ScheduleDTO scheduleResponseDTO = memberStudyCommandService.addSchedule(studyId, scheduleRequestDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_SCHEDULE_CREATED, scheduleResponseDTO);
     }
@@ -182,7 +185,8 @@ public class MemberStudyController {
         로그인한 회원이 owner인 경우 schedule에 등록한 일정을 수정할 수 있습니다.
         """)
     @PatchMapping("/studies/{studyId}/schedules/{scheduleId}")
-    public ApiResponse<ScheduleResponseDTO.ScheduleDTO> modSchedule(@PathVariable Long studyId, @PathVariable Long scheduleId, @RequestBody ScheduleRequestDTO.ScheduleDTO scheduleModDTO) {
+    public ApiResponse<ScheduleResponseDTO.ScheduleDTO> modSchedule(
+            @PathVariable @ExistStudy Long studyId, @PathVariable @ExistSchedule Long scheduleId, @RequestBody @Valid ScheduleRequestDTO.ScheduleDTO scheduleModDTO) {
         ScheduleResponseDTO.ScheduleDTO scheduleResponseDTO = memberStudyCommandService.modSchedule(studyId, scheduleId, scheduleModDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_SCHEDULE_UPDATED, scheduleResponseDTO);
     }
@@ -462,7 +466,8 @@ public class MemberStudyController {
         로그인한 회원이 스터디장인 경우 quiz에 새로운 퀴즈를 생성합니다.
         """)
     @PostMapping("/studies/{studyId}/quizzes")
-    public ApiResponse<StudyQuizResponseDTO.QuizDTO> createAttendanceQuiz(@PathVariable Long studyId, @RequestBody StudyQuizRequestDTO.QuizDTO quizRequestDTO) {
+    public ApiResponse<StudyQuizResponseDTO.QuizDTO> createAttendanceQuiz(
+            @PathVariable @ExistStudy Long studyId, @RequestBody @Valid StudyQuizRequestDTO.QuizDTO quizRequestDTO) {
         StudyQuizResponseDTO.QuizDTO quizResponseDTO = memberStudyCommandService.createAttendanceQuiz(studyId, quizRequestDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_QUIZ_CREATED, quizResponseDTO);
     }
@@ -472,8 +477,9 @@ public class MemberStudyController {
         특정 시점의 quiz에 대해 member_attendance 튜플을 추가합니다.
         """)
     @PostMapping("/studies/{studyId}/quizzes/{quizId}")
-    public ApiResponse<StudyQuizResponseDTO.AttendanceDTO> attendantStudy(@PathVariable Long studyId, @PathVariable Long quizId,
-                                        @RequestBody StudyQuizRequestDTO.AttendanceDTO attendanceRequestDTO) {
+    public ApiResponse<StudyQuizResponseDTO.AttendanceDTO> attendantStudy(
+            @PathVariable @ExistStudy Long studyId, @PathVariable @ExistQuiz Long quizId,
+            @RequestBody @Valid StudyQuizRequestDTO.AttendanceDTO attendanceRequestDTO) {
         StudyQuizResponseDTO.AttendanceDTO attendanceResponseDTO = memberStudyCommandService.attendantStudy(studyId, quizId, attendanceRequestDTO);
         if (attendanceResponseDTO.getIsCorrect()) {
             return ApiResponse.onSuccess(SuccessStatus._STUDY_ATTENDANCE_CREATED_CORRECT_ANSWER, attendanceResponseDTO);
@@ -488,7 +494,8 @@ public class MemberStudyController {
         출석 퀴즈 정보와 함께 퀴즈에 대한 MemberAttendance(회원 출석) 목록도 함께 삭제됩니다.
         """)
     @DeleteMapping("/studies/{studyId}/quizzes/{quizId}")
-    public ApiResponse<StudyQuizResponseDTO.QuizDTO> deleteAttendanceQuiz(@PathVariable Long studyId, @PathVariable Long quizId) {
+    public ApiResponse<StudyQuizResponseDTO.QuizDTO> deleteAttendanceQuiz(
+            @PathVariable @ExistStudy Long studyId, @PathVariable @ExistQuiz Long quizId) {
         StudyQuizResponseDTO.QuizDTO quizDTO = memberStudyCommandService.deleteAttendanceQuiz(studyId, quizId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_QUIZ_DELETED, quizDTO);
     }
@@ -498,7 +505,8 @@ public class MemberStudyController {
         출석체크 화면에 표시되는 스터디 회원 정보(프로필 사진, 이름, 출석 여부, 스터디장 여부) 목록를 반환합니다.
         """)
     @GetMapping("/studies/{studyId}/quizzes/{quizId}/members")
-    public ApiResponse<StudyQuizResponseDTO.AttendanceListDTO> getAllAttendances(@PathVariable Long studyId, @PathVariable Long quizId) {
+    public ApiResponse<StudyQuizResponseDTO.AttendanceListDTO> getAllAttendances(
+            @PathVariable @ExistStudy Long studyId, @PathVariable @ExistQuiz Long quizId) {
         StudyQuizResponseDTO.AttendanceListDTO attendanceListDTO = memberStudyQueryService.getAllAttendances(studyId, quizId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_MEMBER_ATTENDANCES_FOUND, attendanceListDTO);
     }

@@ -22,6 +22,7 @@ public class ScheduleResponseDTO {
         private final Long studyId;
         private final Long scheduleId;
         private final String title;
+
         private final LocalDateTime startedAt;
         private final LocalDateTime finishedAt;
 

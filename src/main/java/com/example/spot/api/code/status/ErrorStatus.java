@@ -23,6 +23,8 @@ public enum ErrorStatus implements BaseErrorCode {
     _UNSUPPORTED_JWT(HttpStatus.BAD_REQUEST, "COMMON4008", "지원되지 않는 JWT token입니다."),
     _INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "COMMON4009", "유효하지 않은 리프레시 토큰입니다."),
     _EXPIRED_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "COMMON4010", "만료된 리프레시 토큰입니다."),
+    _NULL_VALUE(HttpStatus.BAD_REQUEST, "COMMON4011", "값이 입력되지 않았습니다."),
+    _VALUE_RANGE_EXCEEDED(HttpStatus.BAD_REQUEST, "COMMON4012", "값이 지정된 범위를 초과합니다."),
 
     //멤버 관련 에러
     _MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER4001", "회원을 찾을 수 없습니다."),
@@ -62,6 +64,8 @@ public enum ErrorStatus implements BaseErrorCode {
 
     //스터디 일정 관련 에러
     _STUDY_SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "SCHEDULE4001", "스터디 일정을 찾을 수 없습니다."),
+    _STUDY_SCHEDULE_ID_NULL(HttpStatus.BAD_REQUEST, "SCHEDULE4002", "일정 아이디가 입력되지 않았습니다."),
+    _SCHEDULE_MOD_INVALID(HttpStatus.FORBIDDEN, "SCHEDULE4003", "일정을 생성한 회원만 일정을 수정할 수 있습니다."),
 
     //알림 관련 에러
     _NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTIFICATION4001", "알림을 찾을 수 없습니다."),
@@ -87,6 +91,8 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_QUIZ_NOT_FOUND(HttpStatus.NOT_FOUND, "QUIZ4001", "출석 퀴즈를 찾을 수 없습니다."),
     _STUDY_QUIZ_NOT_VALID(HttpStatus.BAD_REQUEST, "QUIZ4002", "출석 퀴즈의 제한 시간이 초과되었습니다."),
     _STUDY_QUIZ_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "QUIZ4003", "금일 출석 퀴즈가 이미 존재합니다."),
+    _STUDY_QUIZ_ID_NULL(HttpStatus.BAD_REQUEST, "QUIZ4004", "출석 퀴즈 아이디가 입력되지 않았습니다."),
+    _STUDY_QUIZ_CREATION_INVALID(HttpStatus.FORBIDDEN, "QUIZ4005", "출석 퀴즈는 스터디장만 생성할 수 있습니다."),
     _STUDY_ATTENDANCE_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "QUIZ4004", "이미 출석 체크되었습니다."),
     _STUDY_ATTENDANCE_ATTEMPT_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "QUIZ4005", "출석 퀴즈 시도 횟수가 초과되었습니다."),
 
