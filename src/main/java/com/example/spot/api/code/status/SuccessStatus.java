@@ -74,6 +74,8 @@ public enum SuccessStatus implements BaseCode {
     _STUDY_SCHEDULE_FOUND(HttpStatus.OK, "SCHEDULE2002", "스터디 일정 조회 완료"),
     _STUDY_SCHEDULE_UPDATED(HttpStatus.OK, "SCHEDULE2003", "스터디 일정 수정 완료"),
 
+    // 스터디 갤러리 관련
+    _STUDY_POST_IMAGES_FOUND(HttpStatus.OK, "GALLERY2001", "스터디 이미지 목록 조회 완료"),
 
     ;
 
