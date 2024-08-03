@@ -3,6 +3,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.3.1'
     id 'io.spring.dependency-management' version '1.1.5'
+    id "io.sentry.jvm.gradle" version "4.10.0"
 }
 
 group = 'com.example'
@@ -63,7 +64,14 @@ dependencies {
 
     // S3
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+}
 
+sentry {
+    includeSourceContext = true
+
+    org = "spot-3s"
+    projectName = "java-spring-boot"
+    authToken = System.getenv("")
 }
 
 tasks.named('test') {
