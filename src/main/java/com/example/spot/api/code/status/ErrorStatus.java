@@ -61,11 +61,16 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_POST_COMMENT_ALREADY_DISLIKED(HttpStatus.BAD_REQUEST, "POST4011", "이미 싫어요 한 댓글입니다."),
     _STUDY_LIKED_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "POST4012", "좋아요를 누르지 않은 게시글의 좋아요를 취소할 수 없습니다."),
     _STUDY_DISLIKED_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "POST4013", "싫어요를 누르지 않은 게시글의 싫어요를 취소할 수 없습니다."),
+    _STUDY_POST_DELETION_INVALID(HttpStatus.FORBIDDEN, "POST4014", "게시글 작성자만 삭제 가능합니다."),
+    _STUDY_POST_NULL(HttpStatus.BAD_REQUEST, "POST4015", "게시글 아이디가 입력되지 않았습니다."),
+    _STUDY_POST_COMMENT_NULL(HttpStatus.BAD_REQUEST, "POST4016", "댓글 아이디가 입력되지 않았습니다."),
+    _STUDY_POST_COMMENT_REACTIOM_ID_NULL(HttpStatus.BAD_REQUEST, "POST4017", "댓글 반응 아이디가 입력되지 않았습니다."),
+    _STUDY_POST_COMMENT_REACTION_NOT_FOUND(HttpStatus.BAD_REQUEST, "POST4018", "댓글 반응이 존재하지 않습니다."),
 
     //스터디 일정 관련 에러
     _STUDY_SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "SCHEDULE4001", "스터디 일정을 찾을 수 없습니다."),
     _STUDY_SCHEDULE_ID_NULL(HttpStatus.BAD_REQUEST, "SCHEDULE4002", "일정 아이디가 입력되지 않았습니다."),
-    _SCHEDULE_MOD_INVALID(HttpStatus.FORBIDDEN, "SCHEDULE4003", "일정을 생성한 회원만 일정을 수정할 수 있습니다."),
+    _SCHEDULE_MOD_INVALID(HttpStatus.FORBIDDEN, "SCHEDULE4003", "일정을 생성한 회원만 수정 가능합니다."),
 
     //알림 관련 에러
     _NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTIFICATION4001", "알림을 찾을 수 없습니다."),

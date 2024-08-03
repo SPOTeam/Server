@@ -15,4 +15,6 @@ public interface StudyPostRepository extends JpaRepository<StudyPost, Long>, Stu
     Optional<StudyPost> findByStudyIdAndIsAnnouncement(Long studyId, boolean isAnnouncement);
 
     Optional<StudyPost> findByIdAndStudyId(Long postId, Long studyId);
+
+    Optional<StudyPost> findByIdAndMemberId(Long postId, Long memberId);
 }
