@@ -22,16 +22,14 @@ public class PostCreateRequest {
             format = "string")
     private String content;
 
-    @Schema(description = "익명 여부", example = "false")
-    private boolean isAnonymous;
-
     @Schema(
             description = "게시글 타입입니다. " +
                     "PASS_EXPERIENCE, INFORMATION_SHARING, COUNSELING, JOB_TALK, FREE_TALK, SPOT_ANNOUNCEMENT 중에 작성해주세요."
     )
-    private String type;
+    private Board type;
 
-    public Board getType() {
-        return Board.findByValue(type);
-    }
+    @Schema(description = "익명 여부", example = "false")
+    private boolean isAnonymous;
+
+
 }

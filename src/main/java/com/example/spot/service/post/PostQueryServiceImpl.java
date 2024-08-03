@@ -4,9 +4,7 @@ import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.handler.PostHandler;
 import com.example.spot.domain.Post;
 import com.example.spot.domain.enums.Board;
-import com.example.spot.web.dto.post.PostPagingDetailResponse;
-import com.example.spot.web.dto.post.PostPagingResponse;
-import com.example.spot.web.dto.post.PostSingleResponse;
+import com.example.spot.web.dto.post.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,7 +12,8 @@ import org.springframework.stereotype.Service;
 import com.example.spot.repository.PostRepository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -22,7 +21,9 @@ import java.util.stream.Collectors;
 public class PostQueryServiceImpl implements PostQueryService {
 
     private final PostRepository postRepository;
-    @Transactional(readOnly = true)
+    private final LikedPostQueryService likedPostQueryService;
+
+    @Transactional
     @Override
     public PostSingleResponse getPostById(Long postId) {
         // 게시글 단건 조회
@@ -34,8 +35,14 @@ public class PostQueryServiceImpl implements PostQueryService {
 //            throw new PostHandler(ErrorStatus._POST_REPORTED);
 //        }
 
+        // 조회수 증가
+        post.viewHit();
+
+        // 좋아요 수 조회
+        long likeCount = likedPostQueryService.countByPostId(postId);
+
         // 조회된 게시글을 PostSingleResponse로 변환하여 반환
-        return PostSingleResponse.toDTO(post);
+        return PostSingleResponse.toDTO(post, likeCount);
     }
 
     @Transactional(readOnly = true)
@@ -43,19 +50,30 @@ public class PostQueryServiceImpl implements PostQueryService {
     public PostPagingResponse getPagingPosts(String type, Pageable pageable) {
         //게시글 페이징 조회
         Board boardType = Board.findByValue(type);
-        if (boardType == null) {
-            throw new PostHandler(ErrorStatus._INVALID_BOARD_TYPE);
+//        if (boardType == null) {
+//            throw new PostHandler(ErrorStatus._INVALID_BOARD_TYPE);
+//        }
+        // 신고되지 않은 게시글만 조회 -구현 예정
+        Page<Post> postPage;
+
+        if (boardType == Board.ALL) {
+            // ALL 타입일 경우 모든 게시글 조회
+            postPage = postRepository.findByPostReportListIsEmpty(pageable);
+        } else {
+            // 특정 게시판 타입의 게시글 조회
+            postPage = postRepository.findByBoardAndPostReportListIsEmpty(boardType, pageable);
         }
 
-        // 신고되지 않은 게시글만 조회 -수정 예정
-        Page<Post> postPage = postRepository.findByBoardAndPostReportListIsEmpty(boardType, pageable);
+        List<PostPagingDetailResponse> postResponses = postPage.getContent().stream()
+                .map(post -> {
+                    long likeCount = likedPostQueryService.countByPostId(post.getId());
+                    return PostPagingDetailResponse.toDTO(post, likeCount);
+                })
+                .toList();
 
         return PostPagingResponse.builder()
                 .postType(type)
-                .postResponses(postPage.getContent().stream()
-                        .map(PostPagingDetailResponse::toDTO)
-                        .toList()
-                )
+                .postResponses(postResponses)
                 .totalPage(postPage.getTotalPages())
                 .totalElements(postPage.getTotalElements())
                 .isFirst(postPage.isFirst())
@@ -66,5 +84,97 @@ public class PostQueryServiceImpl implements PostQueryService {
     // 게시글이 신고되었는지 확인하는 메서드
     private boolean isPostReported(Post post) {
         return !post.getPostReportList().isEmpty();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public PostBest5Response getPostBest(String sortType) {
+        //인기글 조회
+        if (sortType.equals("REAL_TIME")) {
+            // 실시간 조회 후 리턴
+            List<Post> posts = postRepository.findTopByRealTimeScore();
+
+//            if (posts.isEmpty()) {
+//                throw new PostHandler(ErrorStatus._POST_NOT_FOUND); // 혹은 적절한 오류 타입으로 변경
+//            }
+
+
+            AtomicInteger rankCounter = new AtomicInteger(1);
+
+            List<PostBest5DetailResponse> responses = posts.stream()
+                    .map(post -> PostBest5DetailResponse.from(post, rankCounter.getAndIncrement()))
+                    .toList();
+
+            return PostBest5Response.builder()
+                    .sortType("REAL_TIME")
+                    .postBest5Responses(responses)
+                    .build();
+        }
+
+        if (sortType.equals("RECOMMEND")) {
+            // 추천수(좋아요수) 조회 후 리턴
+            List<Post> posts = postRepository.findTopByOrderByLikeNumDesc();
+            AtomicInteger rankCounter = new AtomicInteger(1);
+
+            List<PostBest5DetailResponse> responses = posts.stream()
+                    .map(post -> PostBest5DetailResponse.from(post, rankCounter.getAndIncrement()))
+                    .toList();
+
+            return PostBest5Response.builder()
+                    .sortType("RECOMMEND")
+                    .postBest5Responses(responses)
+                    .build();
+        }
+
+        if (sortType.equals("COMMENT")) {
+            // 댓글 수 조회 후 리턴
+            List<Post> posts = postRepository.findTopByOrderByCommentCountDesc();
+            AtomicInteger rankCounter = new AtomicInteger(1);
+
+            List<PostBest5DetailResponse> responses = posts.stream()
+                    .map(post -> PostBest5DetailResponse.from(post, rankCounter.getAndIncrement()))
+                    .toList();
+
+            return PostBest5Response.builder()
+                    .sortType("COMMENT")
+                    .postBest5Responses(responses)
+                    .build();
+
+        }
+
+        // 무조건 에러
+        throw new PostHandler(ErrorStatus._INVALID_SORT_TYPE);
+    }
+
+
+    @Transactional(readOnly = true)
+    @Override
+    public PostRepresentativeResponse getRepresentativePosts() {
+        //대표게시글 조회
+        List<Post> posts = postRepository.findRepresentativePosts();
+
+        List<PostRepresentativeDetailResponse> responses = posts.stream()
+                .map(PostRepresentativeDetailResponse::toDTO)
+                .toList();
+
+        return PostRepresentativeResponse.builder()
+                .responses(responses)
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public PostAnnouncementResponse getPostAnnouncements() {
+        //공지
+        List<Post> posts = postRepository.findAnnouncementPosts();
+        AtomicInteger rankCounter = new AtomicInteger(1);
+
+        List<PostBest5DetailResponse> responses = posts.stream()
+                .map(post -> PostBest5DetailResponse.from(post, rankCounter.getAndIncrement()))
+                .toList();
+
+        return PostAnnouncementResponse.builder()
+                .responses(responses)
+                .build();
     }
 }
