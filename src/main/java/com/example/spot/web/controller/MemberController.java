@@ -58,11 +58,11 @@ public class MemberController {
             가입 테스트를 위해 구현한 테스트 용 카카오 로그인입니다. 
             서버 파트 및 테스트를 원하는 분들은 본 API로 회원 가입 및 로그인을 진행하시면 됩니다. 
             Swagger에서 요청하는 것이 아닌, 브라우저에서 직접 요청해주세요. 
-            ## www.teamspot.site/spot/login 
-            ## localhost:8080/spot/login  
+            ## www.teamspot.site/spot/login/kakao 
+            ## localhost:8080/spot/login/kakao  
             
            생성된 회원의 액세스 토큰과 Email이 반환 됩니다. """)
-    @GetMapping("/login")
+    @GetMapping("/login/kakao")
     public void login() throws IOException {
         memberService.redirectURL();
     }
@@ -73,8 +73,8 @@ public class MemberController {
             가입 테스트를 위해 구현한 테스트 용 리다이렉트 URL입니다. 
             서버 파트 및 테스트를 원하는 분들은 본 API로 회원 가입 및 로그인을 진행하시면 됩니다. 
             Swagger에서 요청하는 것이 아닌, 브라우저에서 직접 요청해주세요. 
-            ## www.teamspot.site/spot/login 
-            ## localhost:8080/spot/login  
+            ## www.teamspot.site/spot/login/kakao
+            ## localhost:8080/spot/login/kakao  
             
            생성된 회원의 액세스 토큰과 Email이 반환 됩니다. """)
     @GetMapping("/members/sign-in/kakao/redirect")

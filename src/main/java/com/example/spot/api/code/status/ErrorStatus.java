@@ -17,9 +17,12 @@ public enum ErrorStatus implements BaseErrorCode {
     _FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON4002", "접근이 거부되었습니다."),
     _BAD_ENUM_REQUEST(HttpStatus.BAD_REQUEST, "COMMON4003", "잘못된 열거형 요청입니다."),
     _INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "COMMON4004", "입력값이 유효하지 않습니다."),
-    _EMPTY_JWT(HttpStatus.BAD_REQUEST, "COMMON4005", "JWT is empty."),
-    _INVALID_JWT(HttpStatus.BAD_REQUEST, "COMMON4006", "Invalid JWT token."),
-    _EXPIRED_JWT(HttpStatus.BAD_REQUEST, "COMMON4007", "Expired JWT token."),
+    _EMPTY_JWT(HttpStatus.BAD_REQUEST, "COMMON4005", "JWT 토큰이 비어있습니다."),
+    _INVALID_JWT(HttpStatus.BAD_REQUEST, "COMMON4006", "유효하지 않은 JWT token입니다."),
+    _EXPIRED_JWT(HttpStatus.BAD_REQUEST, "COMMON4007", "만료된 JWT token입니다."),
+    _UNSUPPORTED_JWT(HttpStatus.BAD_REQUEST, "COMMON4008", "지원되지 않는 JWT token입니다."),
+    _INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "COMMON4009", "유효하지 않은 리프레시 토큰입니다."),
+    _EXPIRED_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "COMMON4010", "만료된 리프레시 토큰입니다."),
 
     //멤버 관련 에러
     _MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER4001", "회원을 찾을 수 없습니다."),
@@ -27,6 +30,7 @@ public enum ErrorStatus implements BaseErrorCode {
     _MEMBER_ID_NULL(HttpStatus.BAD_REQUEST, "MEMBER4003", "회원 아이디가 입력되지 않았습니다. "),
     _MEMBER_BIRTH_INVALID(HttpStatus.BAD_REQUEST, "MEMBER4005", "생년월일이 유효하지 않습니다."),
     _MEMBER_EMAIL_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "MEMBER4006", "이미 존재하는 이메일입니다."),
+    _MEMBER_NO_ACCESS(HttpStatus.FORBIDDEN, "MEMBER4007", "해당 API에 대한 접근 권한이 없습니다."),
 
     //스터디 관련 에러
     _STUDY_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY4001", "스터디를 찾을 수 없습니다."),
@@ -98,7 +102,16 @@ public enum ErrorStatus implements BaseErrorCode {
     _POST_CONTENT_INVALID(HttpStatus.BAD_REQUEST, "POST5003", "게시글 내용이 유효하지 않습니다."),
     _POST_NOT_AUTHOR(HttpStatus.BAD_REQUEST, "POST5004", "게시글 작성자가 아닙니다."),
     _POST_REPORTED(HttpStatus.FORBIDDEN, "POST5005", "신고된 게시글입니다."),
-    _INVALID_BOARD_TYPE(HttpStatus.BAD_REQUEST, "POST5006", "유효하지 않은 게시판 타입입니다.")
+    _INVALID_BOARD_TYPE(HttpStatus.BAD_REQUEST, "POST5006", "유효하지 않은 게시판 타입입니다."),
+
+    // 스터디 투표 관련 에러
+    _STUDY_VOTE_NOT_FOUND(HttpStatus.NOT_FOUND, "VOTE4001", "스터디 투표를 찾을 수 없습니다."),
+    _STUDY_VOTE_OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "VOTE4002", "스터디 투표 항목을 찾을 수 없습니다."),
+    _STUDY_VOTE_MULTIPLE_CHOICE_NOT_VALID(HttpStatus.BAD_REQUEST, "VOTE4003", "중복 선택이 불가능한 투표입니다."),
+    _STUDY_VOTE_RE_PARTICIPATION_INVALID(HttpStatus.BAD_REQUEST, "VOTE4004", "이미 참여한 투표입니다."),
+    _STUDY_VOTE_CREATOR_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "VOTE4005", "투표를 생성한 회원만 투표를 편집할 수 있습니다."),
+    _STUDY_VOTE_IS_IN_PROGRESS(HttpStatus.BAD_REQUEST, "VOTE4006", "진행중인 투표는 편집할 수 없습니다."),
+    _STUDY_VOTE_NOT_COMPLETED(HttpStatus.BAD_REQUEST, "VOTE4007", "마감되지 않은 스터디 투표입니다."),
 
     ;
 

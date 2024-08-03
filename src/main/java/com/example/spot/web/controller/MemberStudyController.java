@@ -7,14 +7,8 @@ import com.example.spot.service.memberstudy.MemberStudyCommandService;
 import com.example.spot.service.memberstudy.MemberStudyQueryService;
 import com.example.spot.validation.annotation.ExistMember;
 import com.example.spot.validation.annotation.ExistStudy;
-import com.example.spot.web.dto.memberstudy.request.StudyQuizRequestDTO;
-import com.example.spot.web.dto.memberstudy.response.StudyImageResponseDTO;
-import com.example.spot.web.dto.memberstudy.response.StudyQuizResponseDTO;
-import com.example.spot.web.dto.memberstudy.response.StudyTerminationResponseDTO;
-import com.example.spot.web.dto.memberstudy.response.StudyWithdrawalResponseDTO;
-import com.example.spot.web.dto.study.request.ScheduleRequestDTO;
-import com.example.spot.web.dto.study.request.StudyPostCommentRequestDTO;
-import com.example.spot.web.dto.study.request.StudyPostRequestDTO;
+import com.example.spot.web.dto.memberstudy.request.*;
+import com.example.spot.web.dto.memberstudy.response.*;
 import com.example.spot.web.dto.study.response.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -271,7 +265,7 @@ public class MemberStudyController {
         """)
     @PostMapping("/studies/{studyId}/posts/{postId}/comments")
     public ApiResponse<StudyPostCommentResponseDTO.CommentDTO> createComment(@PathVariable Long studyId, @PathVariable Long postId,
-                    @RequestBody StudyPostCommentRequestDTO.CommentDTO commentRequestDTO) {
+                                                                             @RequestBody StudyPostCommentRequestDTO.CommentDTO commentRequestDTO) {
         StudyPostCommentResponseDTO.CommentDTO commentResponseDTO = memberStudyCommandService.createComment(studyId, postId, commentRequestDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_COMMENT_CREATED, commentResponseDTO);
     }
@@ -363,36 +357,84 @@ public class MemberStudyController {
 
 /* ----------------------------- 스터디 투표 관련 API ------------------------------------- */
 
-    @Operation(summary = "[스터디 투표] 투표 목록 불러오기", description = """ 
-        ## [스터디 투표] 내 스터디 > 스터디 > 투표 클릭, 로그인한 회원이 참여하는 특정 스터디의 투표 목록을 불러옵니다.
-        진행 중(finished_at 이전)인 투표 목록과 마감(finished_at 이후)된 투표 목록을 구분하여 반환합니다.
-        """)
-    @GetMapping("/studies/{studyId}/votes")
-    public void getAllVotes(@PathVariable Long studyId) {
-    }
-
-    @Operation(summary = "[스터디 투표] 투표 불러오기", description = """ 
-        ## [스터디 투표] 내 스터디 > 스터디 > 투표 > 특정 투표 클릭, 로그인한 회원이 참여하는 특정 스터디의 투표를 불러옵니다.
-        특정 vote에 대한 항목 및 기본 정보가 반환됩니다.
-        """)
-    @GetMapping("/studies/{studyId}/votes{voteId}")
-    public void getVote(@PathVariable Long studyId, @PathVariable Long voteId) {
-    }
-
     @Operation(summary = "[스터디 투표] 투표 생성하기", description = """ 
         ## [스터디 투표] 내 스터디 > 스터디 > 투표 > 작성 버튼 클릭, 로그인한 회원이 참여하는 특정 스터디에서 새로운 투표를 등록합니다.
         스터디에 참여하는 회원이 생성한 투표를 vote에 저장합니다.
         """)
-    @PostMapping("/members/{memberId}/studies/{studyId}/votes")
-    public void createVote(@PathVariable Long memberId, @PathVariable Long studyId) {
+    @PostMapping("/studies/{studyId}/votes")
+    public ApiResponse<StudyVoteResponseDTO.VotePreviewDTO> createVote(@PathVariable Long studyId, @RequestBody StudyVoteRequestDTO.VoteDTO voteDTO) {
+        StudyVoteResponseDTO.VotePreviewDTO votePreviewDTO = memberStudyCommandService.createVote(studyId, voteDTO);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_VOTE_CREATED, votePreviewDTO);
     }
 
     @Operation(summary = "[스터디 투표] 투표하기", description = """ 
         ## [스터디 투표] 내 스터디 > 스터디 > 투표 > 특정 투표 클릭, 로그인한 회원이 참여하는 스터디에서 특정 항목에 투표합니다.
         member_vote에 투표 정보를 저장합니다.
         """)
-    @PostMapping("/members/{memberId}/studies/{studyId}/votes/{voteId}/options/{optionId}")
-    public void vote(@PathVariable Long memberId, @PathVariable Long studyId, @PathVariable Long voteId, @PathVariable Long optionId) {
+    @PostMapping("/studies/{studyId}/votes/{voteId}/options")
+    public ApiResponse<StudyVoteResponseDTO.VotedOptionDTO> vote(@PathVariable Long studyId, @PathVariable Long voteId, @RequestBody StudyVoteRequestDTO.VotedOptionDTO votedOptionDTO) {
+        StudyVoteResponseDTO.VotedOptionDTO votedOptionResDTO = memberStudyCommandService.vote(studyId, voteId, votedOptionDTO);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_VOTE_PARTICIPATED, votedOptionResDTO);
+    }
+
+    @Operation(summary = "[스터디 투표] 투표 편집하기", description = """ 
+        ## [스터디 투표] 내 스터디 > 스터디 > 투표 > 편집하기 버튼 클릭, 로그인한 회원이 참여하는 특정 스터디에서 투표 정보를 수정합니다.
+        스터디에 참여하는 회원이 생성한 투표를 vote에 저장합니다.
+        """)
+    @PatchMapping("/studies/{studyId}/votes/{voteId}")
+    public ApiResponse<StudyVoteResponseDTO.VotePreviewDTO> updateVote(
+            @PathVariable Long studyId, @PathVariable Long voteId, @RequestBody StudyVoteRequestDTO.VoteUpdateDTO voteDTO) {
+        StudyVoteResponseDTO.VotePreviewDTO votePreviewDTO = memberStudyCommandService.updateVote(studyId, voteId, voteDTO);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_VOTE_UPDATED, votePreviewDTO);
+    }
+
+    @Operation(summary = "[스터디 투표] 투표 삭제하기", description = """ 
+        ## [스터디 투표] 내 스터디 > 스터디 > 투표 > 삭제하기 버튼 클릭, 로그인한 회원이 참여하는 특정 스터디에서 투표를 삭제합니다.
+        스터디에 참여하는 회원이 생성한 투표를 vote에 저장합니다.
+        """)
+    @DeleteMapping("/studies/{studyId}/votes/{voteId}")
+    public ApiResponse<StudyVoteResponseDTO.VotePreviewDTO> deleteVote(@PathVariable Long studyId, @PathVariable Long voteId) {
+        StudyVoteResponseDTO.VotePreviewDTO votePreviewDTO = memberStudyCommandService.deleteVote(studyId, voteId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_VOTE_DELETED, votePreviewDTO);
+    }
+
+    @Operation(summary = "[스터디 투표] 투표 목록 불러오기", description = """
+        ## [스터디 투표] 내 스터디 > 스터디 > 투표 클릭, 로그인한 회원이 참여하는 특정 스터디의 투표 목록을 불러옵니다.
+        진행 중(finished_at 이전)인 투표 목록과 마감(finished_at 이후)된 투표 목록을 구분하여 반환합니다.
+        """)
+    @GetMapping("/studies/{studyId}/votes")
+    public ApiResponse<StudyVoteResponseDTO.VoteListDTO> getAllVotes(@PathVariable Long studyId) {
+        StudyVoteResponseDTO.VoteListDTO voteListDTO = memberStudyQueryService.getAllVotes(studyId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_VOTE_FOUND, voteListDTO);
+    }
+
+    @Operation(summary = "[스터디 투표] 투표 불러오기", description = """ 
+        ## [스터디 투표] 내 스터디 > 스터디 > 투표 > 특정 투표 클릭, 로그인한 회원이 참여하는 특정 스터디의 투표를 불러옵니다.
+        진행중인 투표 : 진행중인 투표에 대한 항목 및 기본 정보가 반환됩니다.
+        마감된 투표 : 마감된 투표에 대한 항목과 투표 인원수가 반환됩니다.
+        """)
+    @GetMapping("/studies/{studyId}/votes/{voteId}")
+    public ApiResponse<?> getVote(@PathVariable Long studyId, @PathVariable Long voteId) {
+        // 진행중인 투표 : return VoteDTO
+        // 마감된 투표 : return CompletedVoteDTO
+        Boolean isCompleted = memberStudyQueryService.getIsCompleted(voteId);
+        if (isCompleted) {
+            StudyVoteResponseDTO.CompletedVoteDTO completedVoteDTO = memberStudyQueryService.getVoteInCompletion(studyId, voteId);
+            return ApiResponse.onSuccess(SuccessStatus._STUDY_VOTE_FOUND, completedVoteDTO);
+        } else {
+            StudyVoteResponseDTO.VoteDTO voteDTO = memberStudyQueryService.getVoteInProgress(studyId, voteId);
+            return ApiResponse.onSuccess(SuccessStatus._STUDY_VOTE_FOUND, voteDTO);
+        }
+    }
+
+    @Operation(summary = "[스터디 투표] 마감된 투표 현황 불러오기", description = """ 
+        ## [스터디 투표] 내 스터디 > 스터디 > 투표 > 마감된 투표 > n명 참여 클릭, 로그인한 회원이 참여하는 특정 스터디의 투표를 불러옵니다.
+        마감된 투표에 대하여 항목별 투표 회원 목록을 반환합니다.
+        """)
+    @GetMapping("/studies/{studyId}/votes/{voteId}/details")
+    public ApiResponse<StudyVoteResponseDTO.CompletedVoteDetailDTO> getCompletedVoteDetail(@PathVariable Long studyId, @PathVariable Long voteId) {
+        StudyVoteResponseDTO.CompletedVoteDetailDTO completedVoteDetailDTO = memberStudyQueryService.getCompletedVoteDetail(studyId, voteId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_VOTE_DETAIL_STATUS_FOUND, completedVoteDetailDTO);
     }
 
 /* ----------------------------- 스터디 갤러리 관련 API ------------------------------------- */
@@ -405,6 +447,15 @@ public class MemberStudyController {
     public ApiResponse<StudyImageResponseDTO.ImageListDTO> getAllStudyImages(@PathVariable Long studyId) {
         StudyImageResponseDTO.ImageListDTO imageListDTO = memberStudyQueryService.getAllStudyImages(studyId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_IMAGES_FOUND, imageListDTO);
+
+
+    @Operation(summary = "[스터디 갤러리] 스터디 이미지 불러오기", description = """ 
+        ## [스터디 갤러리] 내 스터디 > 스터디 > 갤러리 > 이미지 클릭, 로그인한 회원이 참여하는 스터디의 특정 이미지를 불러옵니다.
+        특정 study_post의 image 하나를 반환합니다.
+        """)
+    @GetMapping("/studies/{studyId}/images/{imageId}")
+    public void getStudyImage(@PathVariable Long studyId, @PathVariable Long imageId) {
+
     }
 
 /* ----------------------------- 스터디 출석체크 관련 API ------------------------------------- */

@@ -1,12 +1,10 @@
 package com.example.spot.domain.study;
 import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.enums.Period;
-import com.example.spot.web.dto.study.request.ScheduleRequestDTO;
+import com.example.spot.web.dto.memberstudy.request.ScheduleRequestDTO;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Objects;
 
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;

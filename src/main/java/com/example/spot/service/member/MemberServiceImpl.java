@@ -4,16 +4,23 @@ import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.GeneralException;
 import com.example.spot.domain.enums.Carrier;
 import com.example.spot.domain.enums.Status;
-import com.example.spot.utils.jwt.JwtTokenProvider;
+import com.example.spot.security.utils.JwtTokenProvider;
 import com.example.spot.domain.Member;
 import com.example.spot.repository.MemberRepository;
-import com.example.spot.service.member.oauth.KaKaoOAuthService;
 import com.example.spot.web.dto.member.MemberRequestDTO.TestMemberDTO;
+import com.example.spot.domain.auth.CustomUserDetails;
+import com.example.spot.domain.auth.RefreshToken;
+import com.example.spot.repository.RefreshTokenRepository;
+import com.example.spot.security.utils.JwtTokenProvider;
+import com.example.spot.domain.Member;
+import com.example.spot.repository.MemberRepository;
+import com.example.spot.service.auth.KaKaoOAuthService;
 import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.MemberSignInDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.MemberTestDTO;
 import com.example.spot.web.dto.member.kakao.KaKaoOAuthToken.KaKaoOAuthTokenDTO;
 import com.example.spot.web.dto.member.kakao.KaKaoUser;
+import com.example.spot.web.dto.token.TokenResponseDTO.TokenDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -24,7 +31,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
@@ -51,15 +57,23 @@ import java.util.UUID;
 @Transactional
 @RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService {
+
+    // OAuth
     private final KaKaoOAuthService kaKaoOAuthService;
+
+    // JWT
     private final JwtTokenProvider jwtTokenProvider;
+
+    // Response
     private final HttpServletResponse response;
+
+    // Repository
     private final MemberRepository memberRepository;
     private final ThemeRepository themeRepository;
     private final RegionRepository regionRepository;
     private final MemberThemeRepository memberThemeRepository;
     private final PreferredRegionRepository preferredRegionRepository;
-
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Override
     public MemberResponseDTO.MemberSignInDTO signUpByKAKAO(String accessToken) throws JsonProcessingException {
@@ -76,25 +90,43 @@ public class MemberServiceImpl implements MemberService {
                 .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
 
             // JWT 토큰 생성
-            String token = jwtTokenProvider.createToken(member.getEmail());
+            TokenDTO token = jwtTokenProvider.createToken(member.getId());
+
+            saveRefreshToken(member, token);
 
             // 로그인 DTO 반환
             return MemberResponseDTO.MemberSignInDTO.builder()
-                .accessToken(token)
+                .tokens(token)
+                .memberId(member.getId())
                 .email(member.getEmail())
                 .build();
         }
+
 
         // 존재하지 않는 경우, 새로운 회원 정보 저장
         Member member = memberRepository.save(kaKaoUser.toMember());
 
         // JWT 토큰 생성
-        String token = jwtTokenProvider.createToken(member.getEmail());
+        TokenDTO token = jwtTokenProvider.createToken(member.getId());
+
+        saveRefreshToken(member, token);
 
         // 회원 가입 DTO 반환
-        return MemberSignInDTO.builder()
-            .accessToken(token)
-            .email(member.getEmail()).build();
+        return MemberResponseDTO.MemberSignInDTO.builder()
+            .tokens(token)
+            .memberId(member.getId())
+            .email(member.getEmail())
+            .build();
+    }
+
+    private void saveRefreshToken(Member member, TokenDTO token) {
+        RefreshToken refreshToken = RefreshToken.builder()
+            .memberId(member.getId())
+            .token(token.getRefreshToken())
+            .build();
+
+        // 리프레시 토큰 저장
+        refreshTokenRepository.save(refreshToken);
     }
 
 
@@ -180,11 +212,14 @@ public class MemberServiceImpl implements MemberService {
                 .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
 
             // JWT 토큰 생성
-            String token = jwtTokenProvider.createToken(member.getEmail());
+            TokenDTO token = jwtTokenProvider.createToken(member.getId());
+
+            saveRefreshToken(member, token);
 
             // 로그인 DTO 반환
             return MemberResponseDTO.MemberSignInDTO.builder()
-                .accessToken(token)
+                .tokens(token)
+                .memberId(member.getId())
                 .email(member.getEmail())
                 .build();
         }
@@ -193,11 +228,14 @@ public class MemberServiceImpl implements MemberService {
         Member member = memberRepository.save(kaKaoUser.toMember());
 
         // JWT 토큰 생성
-        String token = jwtTokenProvider.createToken(member.getEmail());
+        TokenDTO token = jwtTokenProvider.createToken(member.getId());
+
+        saveRefreshToken(member, token);
 
         // 회원 가입 DTO 반환
         return MemberResponseDTO.MemberSignInDTO.builder()
-            .accessToken(token)
+            .tokens(token)
+            .memberId(member.getId())
             .email(member.getEmail())
             .build();
     }
@@ -209,16 +247,21 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Member member = memberRepository.findByEmail(username)
+        Long memberId = parseUsernameToMemberId(username);
+        Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
         List<GrantedAuthority> authorities = List.of(
             new SimpleGrantedAuthority("ROLE_" + (member.getIsAdmin() ? "ADMIN" : "USER"))
         );
 
-        return new User(member.getEmail(), member.getPassword(),
-            true, true,
-            true, true, authorities);
+        return CustomUserDetails.builder()
+            .email(member.getEmail())
+            .memberId(member.getId())
+            .password(member.getPassword())
+            .enabled(true)
+            .authorities(authorities)
+            .build();
     }
 
     @Override
@@ -270,14 +313,30 @@ public class MemberServiceImpl implements MemberService {
             .isAdmin(false)
             .status(Status.ON)
             .build();
+
         memberRepository.save(member);
+
         updateTheme(member.getId(), requestDTO.getThemes());
         updateRegion(member.getId(), requestDTO.getRegions());
+
+        TokenDTO token = jwtTokenProvider.createToken(member.getId());
+
+        saveRefreshToken(member, token);
 
         return MemberTestDTO.builder()
             .memberId(member.getId())
             .email(member.getEmail())
+            .tokens(token)
             .build();
+    }
+
+
+    private Long parseUsernameToMemberId(String username) {
+        try {
+            return Long.parseLong(username);
+        } catch (NumberFormatException e) {
+            throw new UsernameNotFoundException("Invalid user ID format");
+        }
     }
 
 }
