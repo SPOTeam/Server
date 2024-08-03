@@ -1,8 +1,8 @@
 package com.example.spot.config;
 
 
-import com.example.spot.utils.jwt.JwtAuthenticationFilter;
-import com.example.spot.utils.jwt.JwtTokenProvider;
+import com.example.spot.security.filters.JwtAuthenticationFilter;
+import com.example.spot.security.utils.JwtTokenProvider;
 import com.example.spot.service.member.MemberService;
 import lombok.RequiredArgsConstructor;
 
@@ -28,10 +28,11 @@ public class WebSecurity {
         http.csrf( (csrf) -> csrf.disable());
 
         http.authorizeHttpRequests((authz) -> authz
-                .requestMatchers(new AntPathRequestMatcher("/login")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/spot/login", "GET")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/spot/reissue")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/spot/login/kakao", "GET")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/spot/members/sign-in/kakao", "GET")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/spot/members/sign-in/kakao/redirect", "GET")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/spot/member/test", "POST")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/api-docs")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/v3/**", "GET")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**", "GET")).permitAll()
