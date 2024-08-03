@@ -125,13 +125,19 @@ public class StudyPost extends BaseEntity {
 
     public void plusHitNum() {
         hitNum++;
+        member.updateStudyPost(this);
+        study.updateStudyPost(this);
     }
 
     public void plusLikeNum() {
         likeNum++;
+        member.updateStudyPost(this);
+        study.updateStudyPost(this);
     }
 
     public void minusLikeNum() {
         likeNum--;
+        member.updateStudyPost(this);
+        study.updateStudyPost(this);
     }
 }

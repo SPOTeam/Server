@@ -95,7 +95,7 @@ public class StudyPostResDTO {
         private final Integer likeNum;
         private final Integer hitNum;
         private final Integer commentNum;
-        private final List<StudyPostImage> studyPostImages;
+        private final List<ImageDTO> studyPostImages;
 
         public static PostDetailDTO toDTO(StudyPost studyPost) {
             return PostDetailDTO.builder()
@@ -109,7 +109,25 @@ public class StudyPostResDTO {
                     .likeNum(studyPost.getLikeNum())
                     .hitNum(studyPost.getHitNum())
                     .commentNum(studyPost.getCommentNum())
-                    .studyPostImages(studyPost.getImages())
+                    .studyPostImages(studyPost.getImages().stream()
+                            .map(ImageDTO::toDTO)
+                            .toList())
+                    .build();
+        }
+    }
+
+    @Getter
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    @Builder(access = AccessLevel.PRIVATE)
+    public static class ImageDTO {
+
+        private final Long imageId;
+        private final String imageUrl;
+
+        public static ImageDTO toDTO(StudyPostImage studyPostImage) {
+            return ImageDTO.builder()
+                    .imageId(studyPostImage.getId())
+                    .imageUrl(studyPostImage.getUrl())
                     .build();
         }
     }

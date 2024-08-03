@@ -35,10 +35,10 @@ public interface MemberStudyCommandService {
     StudyPostResDTO.PostPreviewDTO deletePost(Long studyId, Long postId);
 
     // 스터디 게시글 좋아요
-    StudyPostResDTO.PostLikeNumDTO likePost(Long studyId, Long postId, Long memberId);
+    StudyPostResDTO.PostLikeNumDTO likePost(Long studyId, Long postId);
 
     // 스터디 게시글 좋아요 취소
-    StudyPostResDTO.PostLikeNumDTO cancelPostLike(Long studyId, Long postId, Long memberId);
+    StudyPostResDTO.PostLikeNumDTO cancelPostLike(Long studyId, Long postId);
 
     // 스터디 게시글 댓글 생성
     StudyPostCommentResponseDTO.CommentDTO createComment(Long studyId, Long postId, StudyPostCommentRequestDTO.CommentDTO commentRequestDTO);
@@ -50,16 +50,16 @@ public interface MemberStudyCommandService {
     StudyPostCommentResponseDTO.CommentIdDTO deleteComment(Long studyId, Long postId, Long commentId);
 
     // 스터디 게시글 댓글 좋아요
-    StudyPostCommentResponseDTO.CommentPreviewDTO likeComment(Long studyId, Long postId, Long commentId, Long memberId);
+    StudyPostCommentResponseDTO.CommentPreviewDTO likeComment(Long studyId, Long postId, Long commentId);
 
     // 스터디 게시글 댓글 싫어요
-    StudyPostCommentResponseDTO.CommentPreviewDTO dislikeComment(Long studyId, Long postId, Long commentId, Long memberId);
+    StudyPostCommentResponseDTO.CommentPreviewDTO dislikeComment(Long studyId, Long postId, Long commentId);
 
     // 스터디 게시글 댓글 좋아요 취소
-    StudyPostCommentResponseDTO.CommentPreviewDTO cancelCommentLike(Long studyId, Long postId, Long commentId, Long likeId, Long memberId);
+    StudyPostCommentResponseDTO.CommentPreviewDTO cancelCommentLike(Long studyId, Long postId, Long commentId, Long likeId);
 
     // 스터디 게시글 댓글 싫어요 취소
-    StudyPostCommentResponseDTO.CommentPreviewDTO cancelCommentDislike(Long studyId, Long postId, Long commentId, Long dislikeId, Long memberId);
+    StudyPostCommentResponseDTO.CommentPreviewDTO cancelCommentDislike(Long studyId, Long postId, Long commentId, Long dislikeId);
 
     // 스터디 투표 생성
     StudyVoteResponseDTO.VotePreviewDTO createVote(Long studyId, StudyVoteRequestDTO.VoteDTO voteDTO);

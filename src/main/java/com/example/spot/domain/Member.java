@@ -5,6 +5,7 @@ import com.example.spot.domain.enums.Carrier;
 import com.example.spot.domain.enums.LoginType;
 import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.mapping.*;
+import com.example.spot.domain.study.Schedule;
 import com.example.spot.domain.study.StudyPost;
 import com.example.spot.domain.study.StudyPostComment;
 import com.example.spot.domain.study.Vote;
@@ -178,10 +179,20 @@ public class Member extends BaseEntity {
     @Builder.Default
     private List<MemberVote> memberVoteList = new ArrayList<>();
 
+    //== 회원이 선호하는 지역 목록 ==//
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     @Builder.Default
     private List<PreferredRegion> regions = new ArrayList<>();
 
+    //== 회원이 생성한 스터디 퀴즈 목록 ==//
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<Quiz> quizList = new ArrayList<>();
+
+    //== 회원이 생성한 스터디 일정 목록 ==//
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<Schedule> scheduleList = new ArrayList<>();
 
 /* ----------------------------- 연관관계 메소드 ------------------------------------- */
 
@@ -302,5 +313,20 @@ public class Member extends BaseEntity {
 
     public void deleteVote(Vote vote) {
         this.voteList.remove(vote);
+    }
+
+    public void addQuiz(Quiz quiz) {
+        this.quizList.add(quiz);
+        quiz.setMember(this);
+    }
+
+    public void addSchedule(Schedule schedule) {
+        this.scheduleList.add(schedule);
+        schedule.setMember(this);
+
+    }
+
+    public void updateSchedule(Schedule schedule) {
+        scheduleList.set(scheduleList.indexOf(schedule), schedule);
     }
 }
