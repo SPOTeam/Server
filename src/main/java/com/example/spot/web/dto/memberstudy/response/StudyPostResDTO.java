@@ -1,12 +1,10 @@
-package com.example.spot.web.dto.study.response;
+package com.example.spot.web.dto.memberstudy.response;
 
-import com.example.spot.domain.Post;
 import com.example.spot.domain.enums.Theme;
 import com.example.spot.domain.mapping.StudyPostImage;
 import com.example.spot.domain.study.Study;
 import com.example.spot.domain.study.StudyPost;
 import lombok.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;

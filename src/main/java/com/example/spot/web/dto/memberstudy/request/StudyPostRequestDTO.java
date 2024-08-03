@@ -1,13 +1,11 @@
-package com.example.spot.web.dto.study.request;
+package com.example.spot.web.dto.memberstudy.request;
 
 import com.example.spot.domain.enums.Theme;
-import com.example.spot.domain.study.Study;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter

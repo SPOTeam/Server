@@ -30,7 +30,6 @@ import org.hibernate.annotations.DynamicUpdate;
 @DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Table(name = "members")
 public class Member extends BaseEntity {
 
     @Id
@@ -215,6 +214,14 @@ public class Member extends BaseEntity {
         memberAttendance.setMember(this);
     }
 
+    public void addVote(Vote vote) {
+        if (this.voteList == null) {
+            this.voteList = new ArrayList<>();
+        }
+        this.voteList.add(vote);
+        vote.setMember(this);
+    }
+
     public void updateThemes(List<MemberTheme> memberThemes) {
         this.memberThemeList.clear();
         this.memberThemeList.addAll(memberThemes);
@@ -249,6 +256,18 @@ public class Member extends BaseEntity {
         studyLikedComment.setMember(this);
     }
 
+    public void addMemberVote(MemberVote memberVote) {
+        if (this.memberVoteList == null) {
+            this.memberVoteList = new ArrayList<>();
+        }
+        this.memberVoteList.add(memberVote);
+        memberVote.setMember(this);
+    }
+
+    public void updateVote(Vote vote) {
+        voteList.set(voteList.indexOf(vote), vote);
+    }
+
     public void deleteStudyPost(StudyPost studyPost) {
         this.studyPostList.remove(studyPost);
     }
@@ -281,4 +300,7 @@ public class Member extends BaseEntity {
         this.studyPostCommentList.add(studyPostComment);
     }
 
+    public void deleteVote(Vote vote) {
+        this.voteList.remove(vote);
+    }
 }

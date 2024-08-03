@@ -9,25 +9,20 @@ import com.example.spot.domain.Quiz;
 import com.example.spot.domain.enums.ApplicationStatus;
 import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.mapping.*;
-import com.example.spot.domain.study.Schedule;
-import com.example.spot.domain.study.Study;
-import com.example.spot.domain.study.StudyPost;
-import com.example.spot.domain.study.StudyPostComment;
+import com.example.spot.domain.study.*;
 import com.example.spot.repository.*;
 import com.example.spot.service.s3.S3ImageService;
-import com.example.spot.web.dto.memberstudy.request.StudyQuizRequestDTO;
-import com.example.spot.web.dto.memberstudy.response.StudyQuizResponseDTO;
-import com.example.spot.web.dto.memberstudy.response.StudyTerminationResponseDTO;
-import com.example.spot.web.dto.memberstudy.response.StudyWithdrawalResponseDTO;
-import com.example.spot.web.dto.study.request.StudyPostCommentRequestDTO;
-import com.example.spot.web.dto.study.request.StudyPostRequestDTO;
+import com.example.spot.web.dto.memberstudy.request.*;
+import com.example.spot.web.dto.memberstudy.response.*;
 import com.example.spot.web.dto.study.response.StudyApplyResponseDTO;
-import com.example.spot.web.dto.study.request.ScheduleRequestDTO;
-import com.example.spot.web.dto.study.response.ScheduleResponseDTO;
-import com.example.spot.web.dto.study.response.StudyPostCommentResponseDTO;
-import com.example.spot.web.dto.study.response.StudyPostResDTO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -42,7 +37,10 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class MemberStudyCommandServiceImpl implements MemberStudyCommandService {
+
+    private static final Logger logger = LoggerFactory.getLogger(MemberStudyCommandService.class);
 
     @Value("${cloud.aws.default-image}")
     private String defaultImage;
@@ -51,6 +49,8 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
     private final StudyRepository studyRepository;
     private final ScheduleRepository scheduleRepository;
     private final QuizRepository quizRepository;
+    private final VoteRepository voteRepository;
+    private final OptionRepository optionRepository;
 
     private final MemberStudyRepository memberStudyRepository;
     private final MemberAttendanceRepository memberAttendanceRepository;
@@ -59,6 +59,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
     private final StudyPostCommentRepository studyPostCommentRepository;
     private final StudyLikedPostRepository studyLikedPostRepository;
     private final StudyLikedCommentRepository studyLikedCommentRepository;
+    private final MemberVoteRepository memberVoteRepository;
 
     // S3 Service
     private final S3ImageService s3ImageService;
@@ -681,4 +682,214 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         studyPostCommentRepository.save(studyPostComment);
         return studyPostComment;
     }
+
+/* ----------------------------- 스터디 투표 관련 API ------------------------------------- */
+
+    @Override
+    public StudyVoteResponseDTO.VotePreviewDTO createVote(Long studyId, StudyVoteRequestDTO.VoteDTO voteDTO) {
+
+        //=== Exception ===//
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+
+        // 로그인한 회원이 스터디 회원인지 확인
+        Member loginMember = getLoginMember();
+        if (memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED).stream()
+                .noneMatch(memberStudy -> loginMember.equals(memberStudy.getMember()))) {
+            throw new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND);
+        }
+
+        //=== Feature ===//
+        Vote vote = Vote.builder()
+                .study(study)
+                .member(loginMember)
+                .title(voteDTO.getTitle())
+                .isMultipleChoice(voteDTO.getIsMultipleChoice())
+                .finishedAt(voteDTO.getFinishedAt())
+                .build();
+
+        // Vote 저장
+        vote = voteRepository.save(vote);
+        // Option 저장
+        vote = createOption(vote, voteDTO);
+        // 연관관계 매핑
+        loginMember.addVote(vote);
+        study.addVote(vote);
+
+        return StudyVoteResponseDTO.VotePreviewDTO.toDTO(vote);
+    }
+
+    private Vote createOption(Vote vote, StudyVoteRequestDTO.VoteDTO voteDTO) {
+        voteDTO.getOptions()
+                .forEach(stringOption -> {
+                    Option option = Option.builder()
+                            .vote(vote)
+                            .content(stringOption)
+                            .build();
+                    option = optionRepository.save(option);
+                    vote.addOption(option);
+                });
+        return voteRepository.save(vote);
+    }
+
+    @Override
+    public StudyVoteResponseDTO.VotedOptionDTO vote(Long studyId, Long voteId, StudyVoteRequestDTO.VotedOptionDTO votedOptionDTO) {
+
+        //=== Exception ===//
+        studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        Vote vote = voteRepository.findById(voteId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_VOTE_NOT_FOUND));
+        voteRepository.findByIdAndStudyId(voteId, studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_VOTE_NOT_FOUND));
+
+        // 로그인한 회원이 스터디 회원인지 확인
+        Member loginMember = getLoginMember();
+        if (memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED).stream()
+                .noneMatch(memberStudy -> loginMember.equals(memberStudy.getMember()))) {
+            throw new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND);
+        }
+
+        // 중복 선택이 허용되지 않는 투표는 여러 개의 option을 선택할 수 없음
+        if (!vote.getIsMultipleChoice() && votedOptionDTO.getOptionIdList().size() > 1) {
+            throw new StudyHandler(ErrorStatus._STUDY_VOTE_MULTIPLE_CHOICE_NOT_VALID);
+        }
+
+        // 한 번 참여한 투표는 다시 참여할 수 없음
+        optionRepository.findAllByVoteId(voteId)
+                .forEach(option -> {
+                    if (memberVoteRepository.existsByMemberIdAndOptionId(loginMember.getId(), option.getId())) {
+                            throw new StudyHandler(ErrorStatus._STUDY_VOTE_RE_PARTICIPATION_INVALID);
+                    }
+                });
+
+        //=== Feature ===//
+        List<MemberVote> memberVotes = votedOptionDTO.getOptionIdList().stream()
+                .map(optionId -> {
+                    Option votedOption = optionRepository.findById(optionId)
+                            .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_VOTE_OPTION_NOT_FOUND));
+                    optionRepository.findByIdAndVoteId(optionId, voteId)
+                            .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_VOTE_OPTION_NOT_FOUND));
+
+                    MemberVote memberVote = MemberVote.builder()
+                            .member(loginMember)
+                            .option(votedOption)
+                            .build();
+
+                    memberVote = memberVoteRepository.save(memberVote);
+                    loginMember.addMemberVote(memberVote);
+                    votedOption.addMemberVote(memberVote);
+
+                    return memberVote;
+                })
+                .toList();
+
+        return StudyVoteResponseDTO.VotedOptionDTO.toDTO(vote, loginMember, memberVotes);
+    }
+
+    @Override
+    public StudyVoteResponseDTO.VotePreviewDTO updateVote(Long studyId, Long voteId, StudyVoteRequestDTO.VoteUpdateDTO voteDTO) {
+
+        //=== Exception ===//
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        Vote vote = voteRepository.findById(voteId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_VOTE_NOT_FOUND));
+
+        // 로그인한 회원이 스터디 회원인지 확인
+        Member loginMember = getLoginMember();
+        if (memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED).stream()
+                .noneMatch(memberStudy -> loginMember.equals(memberStudy.getMember()))) {
+            throw new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND);
+        }
+
+        // 로그인한 회원이 투표 생성자인지 확인
+        if (!loginMember.equals(vote.getMember())) {
+            throw new StudyHandler(ErrorStatus._STUDY_VOTE_CREATOR_NOT_AUTHORIZED);
+        }
+
+        // 한 명이라도 투표에 참여했으면 투표 편집 불가
+        optionRepository.findAllByVoteId(voteId)
+                .forEach(option -> {
+                    if (memberVoteRepository.existsByOptionId(option.getId())) {
+                        throw new StudyHandler(ErrorStatus._STUDY_VOTE_IS_IN_PROGRESS);
+                    }
+                });
+
+        //=== Feature ===//
+        for (StudyVoteRequestDTO.OptionDTO optionDTO : voteDTO.getOptions()) {
+            Option option = optionRepository.findById(optionDTO.getOptionId())
+                    .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_VOTE_OPTION_NOT_FOUND));
+            option.setContent(optionDTO.getContent());
+            option = optionRepository.save(option);
+            vote.updateOption(option);
+        }
+
+        vote.updateVote(voteDTO.getTitle(), voteDTO.getIsMultipleChoice(), voteDTO.getFinishedAt());
+        vote = voteRepository.save(vote);
+        loginMember.updateVote(vote);
+        study.updateVote(vote);
+
+        return StudyVoteResponseDTO.VotePreviewDTO.toDTO(vote);
+    }
+
+    @Override
+    public StudyVoteResponseDTO.VotePreviewDTO deleteVote(Long studyId, Long voteId) {
+
+        //=== Exception ===//
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        Vote vote = voteRepository.findById(voteId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_VOTE_NOT_FOUND));
+        voteRepository.findByIdAndStudyId(voteId, studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_VOTE_NOT_FOUND));
+
+        // 로그인한 회원이 스터디 회원인지 확인
+        Member loginMember = getLoginMember();
+        if (memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED).stream()
+                .noneMatch(memberStudy -> loginMember.equals(memberStudy.getMember()))) {
+            throw new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND);
+        }
+
+        // 로그인한 회원이 투표 생성자인지 확인
+        if (!loginMember.equals(vote.getMember())) {
+            throw new StudyHandler(ErrorStatus._STUDY_VOTE_CREATOR_NOT_AUTHORIZED);
+        }
+
+        //=== Feature ===//
+        deleteOptions(voteId);
+        loginMember.deleteVote(vote);
+        study.deleteVote(vote);
+        voteRepository.delete(vote);
+
+        return StudyVoteResponseDTO.VotePreviewDTO.toDTO(vote);
+    }
+
+    private void deleteOptions(Long voteId) {
+        List<Option> options = optionRepository.findAllByVoteId(voteId);
+        options.forEach(option -> {
+            option.deleteAllMemberVotes();
+            memberVoteRepository.deleteAll(memberVoteRepository.findAllByOptionId(option.getId()));
+            optionRepository.delete(option);
+        });
+    }
+
+
+    /* ----------------------------- 인증 관련 로직 ------------------------------------- */
+
+    // 로그인한 회원 정보 불러오기
+    private Member getLoginMember() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            // 인증 정보가 존재하면 email 확인
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String email = userDetails.getUsername();
+            return memberRepository.findByEmail(email)
+                    .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+        } else {
+            // 인증 정보가 존재하지 않으면 JWT 오류
+            throw new MemberHandler(ErrorStatus._INVALID_JWT);
+        }
+    }
+
 }

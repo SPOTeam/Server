@@ -1,4 +1,4 @@
-package com.example.spot.web.dto.study.response;
+package com.example.spot.web.dto.memberstudy.response;
 
 import com.example.spot.domain.enums.Period;
 import com.example.spot.domain.study.Schedule;

@@ -1,4 +1,4 @@
-package com.example.spot.web.dto.study.response;
+package com.example.spot.web.dto.memberstudy.response;
 
 import com.example.spot.domain.Member;
 import com.example.spot.domain.study.StudyPostComment;

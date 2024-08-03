@@ -1,16 +1,8 @@
 package com.example.spot.service.memberstudy;
 
-import com.example.spot.web.dto.memberstudy.request.StudyQuizRequestDTO;
-import com.example.spot.web.dto.memberstudy.response.StudyQuizResponseDTO;
-import com.example.spot.web.dto.memberstudy.response.StudyTerminationResponseDTO;
-import com.example.spot.web.dto.memberstudy.response.StudyWithdrawalResponseDTO;
-import com.example.spot.web.dto.study.request.ScheduleRequestDTO;
-import com.example.spot.web.dto.study.request.StudyPostCommentRequestDTO;
-import com.example.spot.web.dto.study.request.StudyPostRequestDTO;
-import com.example.spot.web.dto.study.response.ScheduleResponseDTO;
+import com.example.spot.web.dto.memberstudy.request.*;
+import com.example.spot.web.dto.memberstudy.response.*;
 import com.example.spot.web.dto.study.response.StudyApplyResponseDTO;
-import com.example.spot.web.dto.study.response.StudyPostCommentResponseDTO;
-import com.example.spot.web.dto.study.response.StudyPostResDTO;
 
 public interface MemberStudyCommandService {
 
@@ -68,4 +60,18 @@ public interface MemberStudyCommandService {
 
     // 스터디 게시글 댓글 싫어요 취소
     StudyPostCommentResponseDTO.CommentPreviewDTO cancelCommentDislike(Long studyId, Long postId, Long commentId, Long dislikeId, Long memberId);
+
+    // 스터디 투표 생성
+    StudyVoteResponseDTO.VotePreviewDTO createVote(Long studyId, StudyVoteRequestDTO.VoteDTO voteDTO);
+
+    // 스터디 투표 참여
+    StudyVoteResponseDTO.VotedOptionDTO vote(Long studyId, Long voteId, StudyVoteRequestDTO.VotedOptionDTO votedOptionDTO);
+
+    // 스터디 투표 수정
+    StudyVoteResponseDTO.VotePreviewDTO updateVote(Long studyId, Long voteId, StudyVoteRequestDTO.VoteUpdateDTO voteDTO);
+
+    // 스터디 투표 삭제
+    StudyVoteResponseDTO.VotePreviewDTO deleteVote(Long studyId, Long voteId);
+
+
 }
