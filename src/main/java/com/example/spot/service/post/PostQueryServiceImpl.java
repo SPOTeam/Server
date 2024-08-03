@@ -87,9 +87,9 @@ public class PostQueryServiceImpl implements PostQueryService {
             // 실시간 조회 후 리턴
             List<Post> posts = postRepository.findTopByRealTimeScore();
 
-            if (posts.isEmpty()) {
-                throw new PostHandler(ErrorStatus._POST_NOT_FOUND); // 혹은 적절한 오류 타입으로 변경
-            }
+//            if (posts.isEmpty()) {
+//                throw new PostHandler(ErrorStatus._POST_NOT_FOUND); // 혹은 적절한 오류 타입으로 변경
+//            }
 
 
             AtomicInteger rankCounter = new AtomicInteger(1);
