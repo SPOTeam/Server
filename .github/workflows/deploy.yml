@@ -1,6 +1,9 @@
 name: CD with Gradle
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
     branches:
       - main
@@ -12,7 +15,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest # ubuntu 최신 버전에서 script를 실행
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
@@ -20,11 +23,10 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: '17'
-          distribution: "adopt"
+          distribution: 'adopt'
 
       - name: Set Sentry auth token
-        run: |
-          echo "export SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}" >> $GITHUB_ENV
+        run: echo "SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}" >> $GITHUB_ENV
 
       - name: Make application.yml
         run: |
@@ -35,10 +37,12 @@ jobs:
         run: |
           chmod +x ./gradlew
           ./gradlew clean build -x test
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
       - name: Docker build & push to docker repo
         run: |
-          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
           docker build -f Dockerfile -t ${{ secrets.DOCKER_REPO }} .
           docker push ${{ secrets.DOCKER_REPO }}
 
