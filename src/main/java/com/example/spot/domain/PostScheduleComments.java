@@ -17,12 +17,12 @@ public class PostScheduleComments extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Integer rank;
+    private Integer ranking;
     private String title;
     private Integer commentCount;
 
     private PostScheduleComments(Integer rank, String title, Integer commentCount) {
-        this.rank = rank;
+        this.ranking = rank;
         this.title = title;
         this.commentCount = commentCount;
     }

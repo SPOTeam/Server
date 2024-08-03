@@ -16,14 +16,14 @@ public class PostScheduleRealTime extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Integer rank;
+    private Integer ranking;
     private String title;
     private Integer commentCount;
     private Integer likeCount;
     private Integer hitCount;
 
     private PostScheduleRealTime(Integer rank, String title, Integer commentCount, Integer likeCount, Integer hitCount) {
-        this.rank = rank;
+        this.ranking = rank;
         this.title = title;
         this.commentCount = commentCount;
         this.likeCount = likeCount;
