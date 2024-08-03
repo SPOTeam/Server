@@ -24,6 +24,7 @@ jobs:
 
       - name: Make application.yml
         run: |
+          export SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}
           mkdir -p src/main/resources
           echo "${{ secrets.PROPERTIES }}" > src/main/resources/application.yml
 

@@ -53,8 +53,9 @@ public class StudyCommandServiceImpl implements StudyCommandService {
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
 
         // 모집중이지 않은 스터디에 신청할 수 없음
-        if (study.getStudyState() != StudyState.RECRUITING)
+        if (study.getStudyState() != StudyState.RECRUITING) {
             throw new StudyHandler(ErrorStatus._STUDY_NOT_RECRUITING);
+        }
 
         if (study.getMaxPeople() <= memberStudyRepository.countByStatusAndStudyId(ApplicationStatus.APPROVED, studyId))
             throw new StudyHandler(ErrorStatus._STUDY_IS_FULL);
@@ -74,7 +75,6 @@ public class StudyCommandServiceImpl implements StudyCommandService {
             throw new StudyHandler(ErrorStatus._STUDY_ALREADY_APPLIED);
         }
 
-
         MemberStudy memberStudy = MemberStudy.builder()
                 .isOwned(false)
                 .introduction(studyJoinRequestDTO.getIntroduction())
@@ -90,7 +90,7 @@ public class StudyCommandServiceImpl implements StudyCommandService {
         return StudyJoinResponseDTO.JoinDTO.toDTO(member, study);
     }
 
-    // [스터디 생성/참여] 참여 신청하기
+    // [스터디 생성/참여] 스터디 생성하기
     @Transactional
     public StudyRegisterResponseDTO.RegisterDTO registerStudy(Long memberId, StudyRegisterRequestDTO.RegisterDTO studyRegisterRequestDTO) {
 
@@ -102,12 +102,10 @@ public class StudyCommandServiceImpl implements StudyCommandService {
                 .minAge(studyRegisterRequestDTO.getMinAge())
                 .maxAge(studyRegisterRequestDTO.getMaxAge())
                 .fee(studyRegisterRequestDTO.getFee())
-                .isOnline(studyRegisterRequestDTO.getIsOnline())
                 .profileImage(studyRegisterRequestDTO.getProfileImage())
+                .isOnline(studyRegisterRequestDTO.getIsOnline())
+                .hasFee(studyRegisterRequestDTO.isHasFee())
                 .goal(studyRegisterRequestDTO.getGoal())
-                .hitNum(0L)
-                .heartCount(0)
-                .studyState(StudyState.RECRUITING)
                 .introduction(studyRegisterRequestDTO.getIntroduction())
                 .title(studyRegisterRequestDTO.getTitle())
                 .maxPeople(studyRegisterRequestDTO.getMaxPeople())

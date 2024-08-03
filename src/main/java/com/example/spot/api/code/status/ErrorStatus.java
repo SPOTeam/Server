@@ -17,12 +17,20 @@ public enum ErrorStatus implements BaseErrorCode {
     _FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON4002", "접근이 거부되었습니다."),
     _BAD_ENUM_REQUEST(HttpStatus.BAD_REQUEST, "COMMON4003", "잘못된 열거형 요청입니다."),
     _INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "COMMON4004", "입력값이 유효하지 않습니다."),
+    _EMPTY_JWT(HttpStatus.BAD_REQUEST, "COMMON4005", "JWT 토큰이 비어있습니다."),
+    _INVALID_JWT(HttpStatus.BAD_REQUEST, "COMMON4006", "유효하지 않은 JWT token입니다."),
+    _EXPIRED_JWT(HttpStatus.BAD_REQUEST, "COMMON4007", "만료된 JWT token입니다."),
+    _UNSUPPORTED_JWT(HttpStatus.BAD_REQUEST, "COMMON4008", "지원되지 않는 JWT token입니다."),
+    _INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "COMMON4009", "유효하지 않은 리프레시 토큰입니다."),
+    _EXPIRED_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "COMMON4010", "만료된 리프레시 토큰입니다."),
 
     //멤버 관련 에러
     _MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER4001", "회원을 찾을 수 없습니다."),
     _MEMBER_NAME_INVALID(HttpStatus.BAD_REQUEST, "MEMBER4002", "회원 이름이 유효하지 않습니다."),
     _MEMBER_ID_NULL(HttpStatus.BAD_REQUEST, "MEMBER4003", "회원 아이디가 입력되지 않았습니다. "),
     _MEMBER_BIRTH_INVALID(HttpStatus.BAD_REQUEST, "MEMBER4005", "생년월일이 유효하지 않습니다."),
+    _MEMBER_EMAIL_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "MEMBER4006", "이미 존재하는 이메일입니다."),
+    _MEMBER_NO_ACCESS(HttpStatus.FORBIDDEN, "MEMBER4007", "해당 API에 대한 접근 권한이 없습니다."),
 
     //스터디 관련 에러
     _STUDY_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY4001", "스터디를 찾을 수 없습니다."),
@@ -32,17 +40,28 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_NOT_APPROVED(HttpStatus.FORBIDDEN, "STUDY4005", "승인되지 않은 스터디입니다."),
     _STUDY_OWNER_CANNOT_WITHDRAW(HttpStatus.FORBIDDEN, "STUDY4006", "스터디장은 스터디를 탈퇴할 수 없습니다."),
     _STUDY_NOT_RECRUITING(HttpStatus.BAD_REQUEST, "STUDY4007", "스터디 모집기한이 아닙니다."),
-    _STUDY_SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY4008", "스터디 일정을 찾을 수 없습니다."),
     _STUDY_APPLICANT_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY4009", "처리를 기다리는 스터디 신청을 찾을 수 없습니다."),
     _STUDY_APPLY_ALREADY_PROCESSED(HttpStatus.BAD_REQUEST, "STUDY4010","스터디 신청이 이미 처리된 회원입니다."),
     _STUDY_OWNER_CANNOT_APPLY(HttpStatus.BAD_REQUEST, "STUDY4011", "스터디장은 스터디에 신청할 수 없습니다."),
     _STUDY_IS_FULL(HttpStatus.BAD_REQUEST, "STUDY4012", "스터디 인원이 가득 찼습니다."),
 
-    //스터디 게시물 관련 에러
+    //스터디 게시글 관련 에러
     _STUDY_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST4001", "스터디 게시글을 찾을 수 없습니다."),
     _STUDY_POST_TITLE_INVALID(HttpStatus.BAD_REQUEST, "POST4002", "스터디 게시글 제목이 유효하지 않습니다."),
     _STUDY_POST_CONTENT_INVALID(HttpStatus.BAD_REQUEST, "POST4003", "스터디 게시글 내용이 유효하지 않습니다."),
+    _STUDY_POST_ALREADY_LIKED(HttpStatus.BAD_REQUEST, "POST4004", "이미 좋아요 한 게시글입니다."),
+    _STUDY_LIKED_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST4005", "좋아요를 누르지 않은 게시글의 좋아요를 취소할 수 없습니다."),
+    _STUDY_POST_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "POST4006", "스터디 게시글의 댓글을 찾을 수 없습니다."),
+    _STUDY_POST_ANNOUNCEMENT_INVALID(HttpStatus.BAD_REQUEST, "POST4007", "일반 스터디원에게는 공지 권한이 없습니다."),
+    _STUDY_POST_COMMENT_DELETE_INVALID(HttpStatus.FORBIDDEN, "POST4008", "댓글은 작성자만 삭제할 수 있습니다."),
+    _STUDY_POST_COMMENT_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "POST4009", "이미 삭제된 댓글입니다."),
+    _STUDY_POST_COMMENT_ALREADY_LIKED(HttpStatus.BAD_REQUEST, "POST4010", "이미 좋아요 한 댓글입니다."),
+    _STUDY_POST_COMMENT_ALREADY_DISLIKED(HttpStatus.BAD_REQUEST, "POST4011", "이미 싫어요 한 댓글입니다."),
+    _STUDY_LIKED_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "POST4012", "좋아요를 누르지 않은 게시글의 좋아요를 취소할 수 없습니다."),
+    _STUDY_DISLIKED_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "POST4013", "싫어요를 누르지 않은 게시글의 싫어요를 취소할 수 없습니다."),
 
+    //스터디 일정 관련 에러
+    _STUDY_SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "SCHEDULE4001", "스터디 일정을 찾을 수 없습니다."),
 
     //알림 관련 에러
     _NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTIFICATION4001", "알림을 찾을 수 없습니다."),
@@ -62,9 +81,39 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_SORT_BY_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY6007", "스터디 정렬 기준을 찾을 수 없습니다."),
     _STUDY_ID_NULL(HttpStatus.BAD_REQUEST, "STUDY6008", "스터디 아이디가 입력되지 않았습니다."),
     _STUDY_REGION_IS_NOT_MATCH(HttpStatus.BAD_REQUEST, "STUDY6009", "입력한 회원의 관심 스터디 지역을 입력하세요."),
-    _STUDY_IS_NOT_MATCH(HttpStatus.BAD_REQUEST, "STUDY6010", "입력한 조건에 맞는 스터디가 존재하지 않습니다.");
+    _STUDY_IS_NOT_MATCH(HttpStatus.BAD_REQUEST, "STUDY6010", "입력한 조건에 맞는 스터디가 존재하지 않습니다."),
 
+    // 스터디 출석 관련 에러
+    _STUDY_QUIZ_NOT_FOUND(HttpStatus.NOT_FOUND, "QUIZ4001", "출석 퀴즈를 찾을 수 없습니다."),
+    _STUDY_QUIZ_NOT_VALID(HttpStatus.BAD_REQUEST, "QUIZ4002", "출석 퀴즈의 제한 시간이 초과되었습니다."),
+    _STUDY_QUIZ_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "QUIZ4003", "금일 출석 퀴즈가 이미 존재합니다."),
+    _STUDY_ATTENDANCE_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "QUIZ4004", "이미 출석 체크되었습니다."),
+    _STUDY_ATTENDANCE_ATTEMPT_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "QUIZ4005", "출석 퀴즈 시도 횟수가 초과되었습니다."),
 
+    // S3 관련 에러
+    _FILE_IS_NULL(HttpStatus.BAD_REQUEST, "S34001", "파일이 입력되지 않았습니다."),
+    _IO_EXCEPTION(HttpStatus.BAD_REQUEST, "S34002", "IO 오류가 발생했습니다."),
+    _BAD_FILE_EXTENSION(HttpStatus.BAD_REQUEST, "S34003", "잘못된 확장자입니다."),
+    _PUT_OBJECT_EXCEPTION(HttpStatus.BAD_REQUEST, "S34004", "이미지 업로드하는 과정에서 오류가 발생했습니다."),
+
+    //게시글 관련 에러
+    _POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST5001", "게시글을 찾을 수 없습니다."),
+    _POST_TITLE_INVALID(HttpStatus.BAD_REQUEST, "POST5002", "게시글 제목이 유효하지 않습니다."),
+    _POST_CONTENT_INVALID(HttpStatus.BAD_REQUEST, "POST5003", "게시글 내용이 유효하지 않습니다."),
+    _POST_NOT_AUTHOR(HttpStatus.BAD_REQUEST, "POST5004", "게시글 작성자가 아닙니다."),
+    _POST_REPORTED(HttpStatus.FORBIDDEN, "POST5005", "신고된 게시글입니다."),
+    _INVALID_BOARD_TYPE(HttpStatus.BAD_REQUEST, "POST5006", "유효하지 않은 게시판 타입입니다."),
+
+    // 스터디 투표 관련 에러
+    _STUDY_VOTE_NOT_FOUND(HttpStatus.NOT_FOUND, "VOTE4001", "스터디 투표를 찾을 수 없습니다."),
+    _STUDY_VOTE_OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "VOTE4002", "스터디 투표 항목을 찾을 수 없습니다."),
+    _STUDY_VOTE_MULTIPLE_CHOICE_NOT_VALID(HttpStatus.BAD_REQUEST, "VOTE4003", "중복 선택이 불가능한 투표입니다."),
+    _STUDY_VOTE_RE_PARTICIPATION_INVALID(HttpStatus.BAD_REQUEST, "VOTE4004", "이미 참여한 투표입니다."),
+    _STUDY_VOTE_CREATOR_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "VOTE4005", "투표를 생성한 회원만 투표를 편집할 수 있습니다."),
+    _STUDY_VOTE_IS_IN_PROGRESS(HttpStatus.BAD_REQUEST, "VOTE4006", "진행중인 투표는 편집할 수 없습니다."),
+    _STUDY_VOTE_NOT_COMPLETED(HttpStatus.BAD_REQUEST, "VOTE4007", "마감되지 않은 스터디 투표입니다."),
+
+    ;
 
     private final HttpStatus httpStatus;
     private final String code;

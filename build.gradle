@@ -3,6 +3,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.3.1'
     id 'io.spring.dependency-management' version '1.1.5'
+    id "io.sentry.jvm.gradle" version "4.10.0"
 }
 
 group = 'com.example'
@@ -40,6 +41,13 @@ dependencies {
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.4'
 	// apache common csv
 	implementation 'org.apache.commons:commons-csv:1.8'
+
+    // Oauth2
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+    // Spring Security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
     // JWT
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
@@ -54,7 +62,24 @@ dependencies {
     // ModelMapper
     implementation 'org.modelmapper:modelmapper:2.4.4'
 
+    // S3
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
+    // actuator
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // prometheus
+    implementation 'io.micrometer:micrometer-registry-prometheus'
 }
+
+sentry {
+    includeSourceContext = true
+
+    org = "spot-3s"
+    projectName = "java-spring-boot"
+    authToken = System.getenv("SENTRY_AUTH_TOKEN")
+}
+
 
 tasks.named('test') {
     useJUnitPlatform()

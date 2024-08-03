@@ -2,13 +2,13 @@ package com.example.spot.domain;
 
 import com.example.spot.domain.common.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Builder
+@AllArgsConstructor
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -18,13 +18,17 @@ public class PostComment extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column
+    private boolean isAnonymous;
+
     private String content;
 
-    private int like_num;
+    private int likeNum;
 
-    private int dislike_num;
+    private int disLikeNum;
 
     @OneToMany(mappedBy = "postComment")
+    @Builder.Default
     private List<LikedPostComment> likedPostCommentsList = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -42,5 +46,6 @@ public class PostComment extends BaseEntity {
     private PostComment parentComment; //부모 댓글
 
     @OneToMany(mappedBy = "parentComment", orphanRemoval = true)
+    @Builder.Default
     private List<PostComment> childrenComment = new ArrayList<>(); //자식 댓글들(대댓글)
 }

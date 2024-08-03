@@ -49,7 +49,4 @@ public class StudyTheme extends BaseEntity {
         this.study = study;
     }
 
-    public void setStudy(Study study) {
-        this.study = study;
-    }
 }

@@ -39,7 +39,4 @@ public class MemberTheme extends BaseEntity {
     @JoinColumn(name = "theme_id", nullable = false)
     private Theme theme;
 
-    public void setMember(Member member) {
-        this.member = member;
-    }
 }
