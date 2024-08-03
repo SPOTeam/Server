@@ -3,14 +3,14 @@ package com.example.spot.service.post;
 import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.api.exception.handler.PostHandler;
+import com.example.spot.domain.LikedPost;
 import com.example.spot.domain.Member;
 import com.example.spot.domain.Post;
 import com.example.spot.domain.enums.Board;
+import com.example.spot.repository.LikedPostRepository;
 import com.example.spot.repository.MemberRepository;
 import com.example.spot.repository.PostRepository;
-import com.example.spot.web.dto.post.PostCreateRequest;
-import com.example.spot.web.dto.post.PostCreateResponse;
-import com.example.spot.web.dto.post.PostUpdateRequest;
+import com.example.spot.web.dto.post.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +21,9 @@ public class PostCommandServiceImpl implements PostCommandService {
 
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
+    private final LikedPostRepository likedPostRepository;
+
+    private final LikedPostQueryService likedPostQueryService;
 
     @Transactional
     @Override
@@ -39,7 +42,9 @@ public class PostCommandServiceImpl implements PostCommandService {
         Post post = createPostEntity(postCreateRequest, member);
         post = postRepository.save(post);
 
-        return PostCreateResponse.toDTO(post, member.getIsAdmin());
+        int likeCount = 0;
+
+        return PostCreateResponse.toDTO(post, member.getIsAdmin(), likeCount);
     }
     private Post createPostEntity(PostCreateRequest postCreateRequest, Member currentMember) {
 
@@ -48,7 +53,6 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .title(postCreateRequest.getTitle())
                 .content(postCreateRequest.getContent())
                 .scrapNum(0)
-                .likeNum(0)
                 .commentNum(0)
                 .hitNum(0)
                 .board(postCreateRequest.getType())
@@ -81,7 +85,10 @@ public class PostCommandServiceImpl implements PostCommandService {
 
         post.edit(postUpdateRequest);
 
-        return PostCreateResponse.toDTO(post, member.getIsAdmin());
+        // 좋아요 수 가져오기
+        long likeCount = likedPostQueryService.countByPostId(post.getId());
+
+        return PostCreateResponse.toDTO(post, member.getIsAdmin(), likeCount);
     }
 
 
@@ -106,5 +113,56 @@ public class PostCommandServiceImpl implements PostCommandService {
         // 게시글 삭제
         postRepository.delete(post);
     }
+
+    @Transactional
+    @Override
+    public PostLikeResponse likePost(Long postId, Long memberId) {
+        // 회원 정보 가져오기
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+        // 게시글 조회
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostHandler(ErrorStatus._POST_NOT_FOUND));
+        //좋아요 여부 확인
+        if (likedPostRepository.findByMemberIdAndPostId(memberId, postId).isPresent()) {
+            throw new PostHandler(ErrorStatus._POST_ALREADY_LIKED);
+        }
+
+        LikedPost likedPost = new LikedPost(post, member);
+        likedPostRepository.saveAndFlush(likedPost);
+
+        long likeCount = likedPostQueryService.countByPostId(postId);
+
+        return PostLikeResponse.builder()
+                .postId(post.getId())
+                .likeCount(likeCount)
+                .build();
+    }
+
+    @Transactional
+    @Override
+    public PostLikeResponse cancelPostLike(Long postId, Long memberId) {
+        // 회원 정보 가져오기
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+        // 게시글 조회
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostHandler(ErrorStatus._POST_NOT_FOUND));
+        //좋아요 여부 확인
+        LikedPost likedPost = likedPostRepository.findByMemberIdAndPostId(member.getId(), post.getId())
+                .orElseThrow(() -> new PostHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        likedPostRepository.delete(likedPost);
+
+        likedPostRepository.flush();
+
+        long likeCount = likedPostQueryService.countByPostId(postId);
+
+        return PostLikeResponse.builder()
+                .postId(post.getId())
+                .likeCount(likeCount)
+                .build();
+    }
+
 
 }

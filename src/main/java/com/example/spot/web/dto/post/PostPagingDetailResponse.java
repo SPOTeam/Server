@@ -45,7 +45,7 @@ public class PostPagingDetailResponse {
             description = "좋아요 수입니다.",
             format = "int"
     )
-    private int likeCount;
+    private Long likeCount;
 
     @Schema(
             description = "댓글 수입니다.",
@@ -66,7 +66,7 @@ public class PostPagingDetailResponse {
         }
         return writer;
     }
-    public static PostPagingDetailResponse toDTO(Post post) {
+    public static PostPagingDetailResponse toDTO(Post post, long likeCount) {
         // 작성자가 익명인지 확인하여 작성자 이름 설정
         String writerName = judgeAnonymous(post.isAnonymous(), post.getMember().getName());
 
@@ -76,7 +76,7 @@ public class PostPagingDetailResponse {
                 .scrapCount(post.getScrapNum())
                 .title(post.getTitle())
                 .content(post.getContent())
-                .likeCount(post.getLikeNum())
+                .likeCount(likeCount)
                 .commentCount(post.getCommentNum())
                 .viewCount(post.getHitNum())
                 .build();

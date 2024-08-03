@@ -24,10 +24,10 @@ public class Quiz extends BaseEntity {
     @Column(nullable = false, unique = true)
     private Long id;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 20)
     private String question;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 10)
     private String answer;
 
     //== 출석 회원 목록 ==//
@@ -40,10 +40,18 @@ public class Quiz extends BaseEntity {
     @JoinColumn(name = "study_id", nullable = false)
     private Study study;
 
+    //== 퀴즈 생성자 ==//
+    @Setter
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
+
 /* ----------------------------- 생성자 ------------------------------------- */
 
     @Builder
-    public Quiz(String question, String answer) {
+    public Quiz(Study study, Member member, String question, String answer) {
+        this.study = study;
+        this.member = member;
         this.question = question;
         this.answer = answer;
         this.memberAttendanceList = new ArrayList<>();

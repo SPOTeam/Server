@@ -15,6 +15,7 @@ import com.example.spot.web.dto.study.response.StudyRegisterResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -36,7 +37,8 @@ public class StudyController {
         스터디의 정보(이름, 참여인원, 찜 개수, 테마, 온라인 여부, 비용 여부, 연령 제한, 목표, 소개, 스터디장 등)가 반환됩니다.
         """)
     @GetMapping("/studies/{studyId}")
-    public ApiResponse<StudyInfoResponseDTO.StudyInfoDTO> getStudyInfo(@PathVariable Long studyId) {
+    public ApiResponse<StudyInfoResponseDTO.StudyInfoDTO> getStudyInfo(
+            @PathVariable @ExistStudy Long studyId) {
         StudyInfoResponseDTO.StudyInfoDTO studyInfoDTO = studyQueryService.getStudyInfo(studyId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studyInfoDTO);
     }
@@ -46,8 +48,9 @@ public class StudyController {
         로그인한 회원이 member_study에 application_status = APPLIED 상태로 추가됩니다.
         """)
     @PostMapping("/members/{memberId}/studies/{studyId}")
-    public ApiResponse<StudyJoinResponseDTO.JoinDTO> applyToStudy(@PathVariable Long memberId, @PathVariable Long studyId,
-                                                                  @RequestBody StudyJoinRequestDTO.StudyJoinDTO studyJoinRequestDTO) {
+    public ApiResponse<StudyJoinResponseDTO.JoinDTO> applyToStudy(
+            @PathVariable @ExistMember Long memberId, @PathVariable @ExistStudy Long studyId,
+            @RequestBody @Valid StudyJoinRequestDTO.StudyJoinDTO studyJoinRequestDTO) {
         StudyJoinResponseDTO.JoinDTO studyJoinResponseDTO = studyCommandService.applyToStudy(memberId, studyId, studyJoinRequestDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_APPLY_COMPLETED, studyJoinResponseDTO);
     }
@@ -57,7 +60,9 @@ public class StudyController {
         로그인한 회원이 owner인 새로운 스터디가 study에 생성됩니다.
         """)
     @PostMapping("/members/{memberId}/studies")
-    public ApiResponse<StudyRegisterResponseDTO.RegisterDTO> registerStudy(@PathVariable Long memberId, @RequestBody StudyRegisterRequestDTO.RegisterDTO studyRegisterRequestDTO) {
+    public ApiResponse<StudyRegisterResponseDTO.RegisterDTO> registerStudy(
+            @PathVariable @ExistMember Long memberId,
+            @RequestBody @Valid StudyRegisterRequestDTO.RegisterDTO studyRegisterRequestDTO) {
         StudyRegisterResponseDTO.RegisterDTO studyRegisterResponseDTO = studyCommandService.registerStudy(memberId, studyRegisterRequestDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_CREATED, studyRegisterResponseDTO);
     }

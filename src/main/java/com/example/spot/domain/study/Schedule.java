@@ -1,4 +1,5 @@
 package com.example.spot.domain.study;
+import com.example.spot.domain.Member;
 import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.enums.Period;
 import com.example.spot.web.dto.memberstudy.request.ScheduleRequestDTO;
@@ -27,10 +28,15 @@ public class Schedule extends BaseEntity {
     @JoinColumn(name = "study_id", nullable = false)
     private Study study;
 
-    @Column(nullable = false)
+    @Setter
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
+
+    @Column(nullable = false, length = 20)
     private String title;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 20)
     private String location;
 
     @Column(nullable = false)
@@ -49,9 +55,11 @@ public class Schedule extends BaseEntity {
 /* ----------------------------- 생성자 ------------------------------------- */
 
     @Builder
-    public Schedule(String title, String location,
+    public Schedule(Study study, Member member, String title, String location,
                     LocalDateTime staredAt, LocalDateTime finishedAt,
                     Boolean isAllDay, Period period) {
+        this.study = study;
+        this.member = member;
         this.title = title;
         this.location = location;
         this.startedAt = staredAt;
