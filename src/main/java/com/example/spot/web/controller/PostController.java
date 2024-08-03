@@ -35,7 +35,7 @@ public class PostController {
     @PostMapping(value = "/{memberId}")
     public ApiResponse<PostCreateResponse> create(
             @PathVariable Long memberId,
-            @ModelAttribute PostCreateRequest postCreateRequest
+            @RequestBody PostCreateRequest postCreateRequest
     ) {
         PostCreateResponse response = postCommandService.createPost(memberId, postCreateRequest);
         return ApiResponse.onSuccess(SuccessStatus._CREATED, response);
@@ -133,7 +133,7 @@ public class PostController {
             @Parameter(
                     description = "수정할 게시글 데이터입니다."
             )
-            @ModelAttribute PostUpdateRequest postUpdateRequest
+            @RequestBody PostUpdateRequest postUpdateRequest
     ) {
         PostCreateResponse response = postCommandService.updatePost(memberId, postId, postUpdateRequest);
         return ApiResponse.onSuccess(SuccessStatus._OK, response);

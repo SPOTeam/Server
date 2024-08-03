@@ -50,12 +50,19 @@ public class PostQueryServiceImpl implements PostQueryService {
     public PostPagingResponse getPagingPosts(String type, Pageable pageable) {
         //게시글 페이징 조회
         Board boardType = Board.findByValue(type);
-        if (boardType == null) {
-            throw new PostHandler(ErrorStatus._INVALID_BOARD_TYPE);
-        }
+//        if (boardType == null) {
+//            throw new PostHandler(ErrorStatus._INVALID_BOARD_TYPE);
+//        }
+        // 신고되지 않은 게시글만 조회 -구현 예정
+        Page<Post> postPage;
 
-        // 신고되지 않은 게시글만 조회 -수정 예정
-        Page<Post> postPage = postRepository.findByBoardAndPostReportListIsEmpty(boardType, pageable);
+        if (boardType == Board.ALL) {
+            // ALL 타입일 경우 모든 게시글 조회
+            postPage = postRepository.findByPostReportListIsEmpty(pageable);
+        } else {
+            // 특정 게시판 타입의 게시글 조회
+            postPage = postRepository.findByBoardAndPostReportListIsEmpty(boardType, pageable);
+        }
 
         List<PostPagingDetailResponse> postResponses = postPage.getContent().stream()
                 .map(post -> {
