@@ -1,10 +1,13 @@
 package com.example.spot.web.dto.post;
 
+import com.example.spot.domain.Post;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
+@Builder
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class PostBest5DetailResponse {
@@ -26,4 +29,12 @@ public class PostBest5DetailResponse {
             format = "int"
     )
     private int commentCount;
+
+    public static PostBest5DetailResponse from(Post post, int rank) {
+        return PostBest5DetailResponse.builder()
+                .rank(rank)
+                .postTitle(post.getTitle())
+                .commentCount(post.getPostCommentList().size())
+                .build();
+    }
 }

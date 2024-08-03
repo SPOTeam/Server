@@ -1,5 +1,7 @@
 package com.example.spot.domain.enums;
 
+import com.example.spot.api.code.status.ErrorStatus;
+import com.example.spot.api.exception.handler.PostHandler;
 import lombok.Getter;
 
 @Getter
@@ -18,7 +20,6 @@ public enum Board {
                     return board;
                }
           }
-          // ToDo 추후에 통합에러로 수정
-          throw new IllegalArgumentException("잘못된 게시글 타입요청");
+          throw new PostHandler(ErrorStatus._INVALID_BOARD_TYPE);
      }
 }
