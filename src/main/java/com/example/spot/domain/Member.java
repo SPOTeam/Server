@@ -30,6 +30,7 @@ import org.hibernate.annotations.DynamicUpdate;
 @DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@Table(name = "members")
 public class Member extends BaseEntity {
 
     @Id
@@ -279,6 +280,5 @@ public class Member extends BaseEntity {
     public void addComment(StudyPostComment studyPostComment) {
         this.studyPostCommentList.add(studyPostComment);
     }
-
 
 }
