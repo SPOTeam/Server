@@ -10,7 +10,10 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 public class PostRepositoryImpl implements PostRepositoryCustom {
@@ -28,8 +31,9 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         return jpaQueryFactory
                 .selectFrom(post)
                 .leftJoin(post.postCommentList, comment)
-                .groupBy(post)
-                .orderBy(comment.count().desc(), post.id.desc())//댓글 수가 같을 경우 게시글 최신순(게시글 아이디 큰 순)
+                //.groupBy(post)
+                .orderBy(post.postCommentList.size().desc())
+                //.orderBy(comment.count().desc(), post.id.desc())//댓글 수가 같을 경우 게시글 최신순(게시글 아이디 큰 순)
                 .limit(5)
                 .fetch();
     }
@@ -40,8 +44,9 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         return jpaQueryFactory
                 .selectFrom(post)
                 .leftJoin(post.likedPostList, like).fetchJoin()
-                .groupBy(post)
-                .orderBy(like.count().desc(), post.id.desc()) // 좋아요 수가 같을 경우 게시글 최신순(게시글 아이디 큰 순)
+                //.groupBy(post)
+                .orderBy(post.likedPostList.size().desc())
+                //.orderBy(like.count().desc()) // 좋아요 수가 같을 경우 게시글 최신순(게시글 아이디 큰 순)
                 .limit(5)
                 .fetch();
     }
@@ -56,12 +61,12 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .leftJoin(post.postCommentList, comment)
                 .leftJoin(post.likedPostList, like).fetchJoin()
                 .where(post.createdAt.after(twoHoursAgo))
-                .groupBy(post)
+                //.groupBy(post)
                 .orderBy(
-                        post.hitNum.add(like.count()).add(comment.count()).desc(),
-                        post.hitNum.desc(),
-                        post.likedPostList.size().desc(),
-                        post.postCommentList.size().desc()
+                        post.hitNum.add(post.likedPostList.size()).add(post.postCommentList.size()).desc()
+//                        post.hitNum.desc(),
+//                        post.likedPostList.size().desc(),
+//                        post.postCommentList.size().desc()
 //                        like.count().desc(),
 //                        comment.count().desc()
                 )
@@ -72,12 +77,19 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     //게시글 타입별 최신 게시글
     @Override
     public List<Post> findRepresentativePosts() {
-        return jpaQueryFactory
+        // 모든 게시판의 최신 게시글을 불러옵니다.
+        List<Post> posts = jpaQueryFactory
                 .selectFrom(post)
                 .where(post.board.ne(Board.ALL).and(post.board.ne(Board.SPOT_ANNOUNCEMENT)))
-                .orderBy(post.createdAt.desc())
-                .groupBy(post.board)
+                .orderBy(post.board.asc(), post.createdAt.desc())
                 .fetch();
+        // 게시판 타입별로 최신 게시글 하나씩만 남기고 필터링합니다.
+        Map<Board, Post> latestPostsByBoard = new LinkedHashMap<>();
+        for (Post post : posts) {
+            latestPostsByBoard.putIfAbsent(post.getBoard(), post);
+        }
+        // 필터링된 게시글 리스트를 반환합니다.
+        return new ArrayList<>(latestPostsByBoard.values());
     }
 
     //공지 게시글 최신 5개
