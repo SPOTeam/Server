@@ -123,6 +123,7 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_VOTE_CREATOR_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "VOTE4005", "투표를 생성한 회원만 투표를 편집할 수 있습니다."),
     _STUDY_VOTE_IS_IN_PROGRESS(HttpStatus.BAD_REQUEST, "VOTE4006", "진행중인 투표는 편집할 수 없습니다."),
     _STUDY_VOTE_NOT_COMPLETED(HttpStatus.BAD_REQUEST, "VOTE4007", "마감되지 않은 스터디 투표입니다."),
+    _STUDY_VOTE_NULL(HttpStatus.BAD_REQUEST, "VOTE4008", "스터디 투표 아이디가 입력되지 않았습니다."),
 
     ;
 

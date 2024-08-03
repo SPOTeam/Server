@@ -153,7 +153,9 @@ public class MemberStudyController {
         """)
     @GetMapping("/studies/{studyId}/schedules")
     public ApiResponse<ScheduleResponseDTO.MonthlyScheduleListDTO> getMonthlySchedules(
-            @PathVariable @ExistStudy Long studyId, @RequestParam @IntSize(min = 1) Integer year, @RequestParam @IntSize(min = 1, max= 12) Integer month) {
+            @PathVariable @ExistStudy Long studyId,
+            @RequestParam @IntSize(min = 1) Integer year,
+            @RequestParam @IntSize(min = 1, max= 12) Integer month) {
         ScheduleResponseDTO.MonthlyScheduleListDTO monthlyScheduleDTO = memberStudyQueryService.getMonthlySchedules(studyId, year, month);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_SCHEDULE_FOUND, monthlyScheduleDTO);
     }
@@ -164,7 +166,8 @@ public class MemberStudyController {
         """)
     @GetMapping("/studies/{studyId}/schedules/{scheduleId}")
     public ApiResponse<ScheduleResponseDTO.MonthlyScheduleDTO> getSchedule(
-            @PathVariable @ExistStudy Long studyId, @PathVariable @ExistSchedule Long scheduleId) {
+            @PathVariable @ExistStudy Long studyId,
+            @PathVariable @ExistSchedule Long scheduleId) {
         ScheduleResponseDTO.MonthlyScheduleDTO scheduleDTO = memberStudyQueryService.getSchedule(studyId, scheduleId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_SCHEDULE_FOUND, scheduleDTO);
     }
@@ -175,7 +178,8 @@ public class MemberStudyController {
         """)
     @PostMapping("/studies/{studyId}/schedules")
     public ApiResponse<ScheduleResponseDTO.ScheduleDTO> addSchedule(
-            @PathVariable @ExistStudy Long studyId, @RequestBody @Valid ScheduleRequestDTO.ScheduleDTO scheduleRequestDTO) {
+            @PathVariable @ExistStudy Long studyId,
+            @RequestBody @Valid ScheduleRequestDTO.ScheduleDTO scheduleRequestDTO) {
         ScheduleResponseDTO.ScheduleDTO scheduleResponseDTO = memberStudyCommandService.addSchedule(studyId, scheduleRequestDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_SCHEDULE_CREATED, scheduleResponseDTO);
     }
@@ -186,7 +190,9 @@ public class MemberStudyController {
         """)
     @PatchMapping("/studies/{studyId}/schedules/{scheduleId}")
     public ApiResponse<ScheduleResponseDTO.ScheduleDTO> modSchedule(
-            @PathVariable @ExistStudy Long studyId, @PathVariable @ExistSchedule Long scheduleId, @RequestBody @Valid ScheduleRequestDTO.ScheduleDTO scheduleModDTO) {
+            @PathVariable @ExistStudy Long studyId,
+            @PathVariable @ExistSchedule Long scheduleId,
+            @RequestBody @Valid ScheduleRequestDTO.ScheduleDTO scheduleModDTO) {
         ScheduleResponseDTO.ScheduleDTO scheduleResponseDTO = memberStudyCommandService.modSchedule(studyId, scheduleId, scheduleModDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_SCHEDULE_UPDATED, scheduleResponseDTO);
     }
@@ -384,7 +390,9 @@ public class MemberStudyController {
         스터디에 참여하는 회원이 생성한 투표를 vote에 저장합니다.
         """)
     @PostMapping("/studies/{studyId}/votes")
-    public ApiResponse<StudyVoteResponseDTO.VotePreviewDTO> createVote(@PathVariable Long studyId, @RequestBody StudyVoteRequestDTO.VoteDTO voteDTO) {
+    public ApiResponse<StudyVoteResponseDTO.VotePreviewDTO> createVote(
+            @PathVariable @ExistStudy Long studyId,
+            @RequestBody @Valid StudyVoteRequestDTO.VoteDTO voteDTO) {
         StudyVoteResponseDTO.VotePreviewDTO votePreviewDTO = memberStudyCommandService.createVote(studyId, voteDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_VOTE_CREATED, votePreviewDTO);
     }
@@ -394,7 +402,10 @@ public class MemberStudyController {
         member_vote에 투표 정보를 저장합니다.
         """)
     @PostMapping("/studies/{studyId}/votes/{voteId}/options")
-    public ApiResponse<StudyVoteResponseDTO.VotedOptionDTO> vote(@PathVariable Long studyId, @PathVariable Long voteId, @RequestBody StudyVoteRequestDTO.VotedOptionDTO votedOptionDTO) {
+    public ApiResponse<StudyVoteResponseDTO.VotedOptionDTO> vote(
+            @PathVariable @ExistStudy Long studyId,
+            @PathVariable @ExistVote Long voteId,
+            @RequestBody @Valid StudyVoteRequestDTO.VotedOptionDTO votedOptionDTO) {
         StudyVoteResponseDTO.VotedOptionDTO votedOptionResDTO = memberStudyCommandService.vote(studyId, voteId, votedOptionDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_VOTE_PARTICIPATED, votedOptionResDTO);
     }
@@ -405,7 +416,9 @@ public class MemberStudyController {
         """)
     @PatchMapping("/studies/{studyId}/votes/{voteId}")
     public ApiResponse<StudyVoteResponseDTO.VotePreviewDTO> updateVote(
-            @PathVariable Long studyId, @PathVariable Long voteId, @RequestBody StudyVoteRequestDTO.VoteUpdateDTO voteDTO) {
+            @PathVariable @ExistStudy Long studyId,
+            @PathVariable @ExistVote Long voteId,
+            @RequestBody @Valid StudyVoteRequestDTO.VoteUpdateDTO voteDTO) {
         StudyVoteResponseDTO.VotePreviewDTO votePreviewDTO = memberStudyCommandService.updateVote(studyId, voteId, voteDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_VOTE_UPDATED, votePreviewDTO);
     }
@@ -415,7 +428,9 @@ public class MemberStudyController {
         스터디에 참여하는 회원이 생성한 투표를 vote에 저장합니다.
         """)
     @DeleteMapping("/studies/{studyId}/votes/{voteId}")
-    public ApiResponse<StudyVoteResponseDTO.VotePreviewDTO> deleteVote(@PathVariable Long studyId, @PathVariable Long voteId) {
+    public ApiResponse<StudyVoteResponseDTO.VotePreviewDTO> deleteVote(
+            @PathVariable @ExistStudy Long studyId,
+            @PathVariable @ExistVote Long voteId) {
         StudyVoteResponseDTO.VotePreviewDTO votePreviewDTO = memberStudyCommandService.deleteVote(studyId, voteId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_VOTE_DELETED, votePreviewDTO);
     }
@@ -425,7 +440,8 @@ public class MemberStudyController {
         진행 중(finished_at 이전)인 투표 목록과 마감(finished_at 이후)된 투표 목록을 구분하여 반환합니다.
         """)
     @GetMapping("/studies/{studyId}/votes")
-    public ApiResponse<StudyVoteResponseDTO.VoteListDTO> getAllVotes(@PathVariable Long studyId) {
+    public ApiResponse<StudyVoteResponseDTO.VoteListDTO> getAllVotes(
+            @PathVariable @ExistStudy Long studyId) {
         StudyVoteResponseDTO.VoteListDTO voteListDTO = memberStudyQueryService.getAllVotes(studyId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_VOTE_FOUND, voteListDTO);
     }
@@ -436,9 +452,9 @@ public class MemberStudyController {
         마감된 투표 : 마감된 투표에 대한 항목과 투표 인원수가 반환됩니다.
         """)
     @GetMapping("/studies/{studyId}/votes/{voteId}")
-    public ApiResponse<?> getVote(@PathVariable Long studyId, @PathVariable Long voteId) {
-        // 진행중인 투표 : return VoteDTO
-        // 마감된 투표 : return CompletedVoteDTO
+    public ApiResponse<?> getVote(
+            @PathVariable @ExistStudy Long studyId,
+            @PathVariable @ExistVote Long voteId) {
         Boolean isCompleted = memberStudyQueryService.getIsCompleted(voteId);
         if (isCompleted) {
             StudyVoteResponseDTO.CompletedVoteDTO completedVoteDTO = memberStudyQueryService.getVoteInCompletion(studyId, voteId);
@@ -454,7 +470,9 @@ public class MemberStudyController {
         마감된 투표에 대하여 항목별 투표 회원 목록을 반환합니다.
         """)
     @GetMapping("/studies/{studyId}/votes/{voteId}/details")
-    public ApiResponse<StudyVoteResponseDTO.CompletedVoteDetailDTO> getCompletedVoteDetail(@PathVariable Long studyId, @PathVariable Long voteId) {
+    public ApiResponse<StudyVoteResponseDTO.CompletedVoteDetailDTO> getCompletedVoteDetail(
+            @PathVariable @ExistStudy Long studyId,
+            @PathVariable @ExistVote Long voteId) {
         StudyVoteResponseDTO.CompletedVoteDetailDTO completedVoteDetailDTO = memberStudyQueryService.getCompletedVoteDetail(studyId, voteId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_VOTE_DETAIL_STATUS_FOUND, completedVoteDetailDTO);
     }
@@ -466,15 +484,7 @@ public class MemberStudyController {
         study_post에 존재하는 모든 게시글의 이미지를 최신순으로 반환합니다.
         """)
     @GetMapping("/studies/{studyId}/images")
-    public void getAllStudyImages(@PathVariable Long studyId) {
-    }
-
-    @Operation(summary = "[스터디 갤러리] 스터디 이미지 불러오기", description = """ 
-        ## [스터디 갤러리] 내 스터디 > 스터디 > 갤러리 > 이미지 클릭, 로그인한 회원이 참여하는 스터디의 특정 이미지를 불러옵니다.
-        특정 study_post의 image 하나를 반환합니다.
-        """)
-    @GetMapping("/studies/{studyId}/images/{imageId}")
-    public void getStudyImage(@PathVariable Long studyId, @PathVariable Long imageId) {
+    public void getAllStudyImages(@PathVariable @ExistStudy Long studyId) {
     }
 
 /* ----------------------------- 스터디 출석체크 관련 API ------------------------------------- */
@@ -485,7 +495,8 @@ public class MemberStudyController {
         """)
     @PostMapping("/studies/{studyId}/quizzes")
     public ApiResponse<StudyQuizResponseDTO.QuizDTO> createAttendanceQuiz(
-            @PathVariable @ExistStudy Long studyId, @RequestBody @Valid StudyQuizRequestDTO.QuizDTO quizRequestDTO) {
+            @PathVariable @ExistStudy Long studyId,
+            @RequestBody @Valid StudyQuizRequestDTO.QuizDTO quizRequestDTO) {
         StudyQuizResponseDTO.QuizDTO quizResponseDTO = memberStudyCommandService.createAttendanceQuiz(studyId, quizRequestDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_QUIZ_CREATED, quizResponseDTO);
     }
@@ -496,7 +507,8 @@ public class MemberStudyController {
         """)
     @PostMapping("/studies/{studyId}/quizzes/{quizId}")
     public ApiResponse<StudyQuizResponseDTO.AttendanceDTO> attendantStudy(
-            @PathVariable @ExistStudy Long studyId, @PathVariable @ExistQuiz Long quizId,
+            @PathVariable @ExistStudy Long studyId,
+            @PathVariable @ExistQuiz Long quizId,
             @RequestBody @Valid StudyQuizRequestDTO.AttendanceDTO attendanceRequestDTO) {
         StudyQuizResponseDTO.AttendanceDTO attendanceResponseDTO = memberStudyCommandService.attendantStudy(studyId, quizId, attendanceRequestDTO);
         if (attendanceResponseDTO.getIsCorrect()) {
@@ -513,7 +525,8 @@ public class MemberStudyController {
         """)
     @DeleteMapping("/studies/{studyId}/quizzes/{quizId}")
     public ApiResponse<StudyQuizResponseDTO.QuizDTO> deleteAttendanceQuiz(
-            @PathVariable @ExistStudy Long studyId, @PathVariable @ExistQuiz Long quizId) {
+            @PathVariable @ExistStudy Long studyId,
+            @PathVariable @ExistQuiz Long quizId) {
         StudyQuizResponseDTO.QuizDTO quizDTO = memberStudyCommandService.deleteAttendanceQuiz(studyId, quizId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_QUIZ_DELETED, quizDTO);
     }
@@ -524,7 +537,8 @@ public class MemberStudyController {
         """)
     @GetMapping("/studies/{studyId}/quizzes/{quizId}/members")
     public ApiResponse<StudyQuizResponseDTO.AttendanceListDTO> getAllAttendances(
-            @PathVariable @ExistStudy Long studyId, @PathVariable @ExistQuiz Long quizId) {
+            @PathVariable @ExistStudy Long studyId,
+            @PathVariable @ExistQuiz Long quizId) {
         StudyQuizResponseDTO.AttendanceListDTO attendanceListDTO = memberStudyQueryService.getAllAttendances(studyId, quizId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_MEMBER_ATTENDANCES_FOUND, attendanceListDTO);
     }

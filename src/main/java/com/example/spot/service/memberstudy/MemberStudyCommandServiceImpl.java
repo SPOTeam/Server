@@ -666,7 +666,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_COMMENT_NOT_FOUND));
 
         // 댓글 작성자인지 확인
-        if(studyPostComment.getMember().equals(member)) {
+        if(!studyPostComment.getMember().equals(member)) {
            throw new StudyHandler(ErrorStatus._STUDY_POST_COMMENT_DELETE_INVALID);
        }
 

@@ -175,8 +175,17 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
     public StudyPostResDTO.PostListDTO getAllPosts(PageRequest pageRequest, Long studyId, Theme theme) {
 
         //=== Exception ===//
+        Long memberId = SecurityUtils.getCurrentUserId();
+        SecurityUtils.verifyUserId(memberId);
+
+        memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
         Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+
+        // 로그인한 회원이 스터디 회원인지 확인
+        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
 
         //=== Feature ===//
         List<StudyPostResDTO.PostDTO> studyPosts =
@@ -191,18 +200,33 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
     }
 
     @Override
+    @Transactional(readOnly = false)
     public StudyPostResDTO.PostDetailDTO getPost(Long studyId, Long postId) {
 
         //=== Exception ===//
-        studyRepository.findById(studyId)
+        Long memberId = SecurityUtils.getCurrentUserId();
+        SecurityUtils.verifyUserId(memberId);
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+        Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
         StudyPost studyPost = studyPostRepository.findById(postId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
+
+        // 로그인한 회원이 스터디 회원인지 확인
+        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
+
+        // 해당 스터디의 게시글인지 확인
         studyPostRepository.findByIdAndStudyId(postId, studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
 
         //=== Feature ===//
         studyPost.plusHitNum();
+        studyPost = studyPostRepository.save(studyPost);
+        memberRepository.save(member);
+        studyRepository.save(study);
 
         return StudyPostResDTO.PostDetailDTO.toDTO(studyPost);
     }
@@ -211,10 +235,21 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
     public StudyPostCommentResponseDTO.CommentReplyListDTO getAllComments(Long studyId, Long postId) {
 
         //=== Exception ===//
+        Long memberId = SecurityUtils.getCurrentUserId();
+        SecurityUtils.verifyUserId(memberId);
+
+        memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
         studyRepository.findById(studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
         StudyPost studyPost = studyPostRepository.findById(postId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
+
+        // 로그인한 회원이 스터디 회원인지 확인
+        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
+
+        // 해당 스터디의 게시글인지 확인
         studyPostRepository.findByIdAndStudyId(postId, studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
 
@@ -275,7 +310,6 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
         scheduleRepository.findByIdAndStudyId(scheduleId, studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_SCHEDULE_NOT_FOUND));
 
-
         return ScheduleResponseDTO.MonthlyScheduleDTO.toDTO(schedule);
     }
 
@@ -319,22 +353,24 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
     public StudyVoteResponseDTO.VoteListDTO getAllVotes(Long studyId) {
 
         //=== Exception ===//
+        Long memberId = SecurityUtils.getCurrentUserId();
+        SecurityUtils.verifyUserId(memberId);
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._MEMBER_NOT_FOUND));
         Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
 
         // 로그인한 회원이 스터디 회원인지 확인
-        Member loginMember = getLoginMember();
-        if (memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED).stream()
-                .noneMatch(memberStudy -> loginMember.equals(memberStudy.getMember()))) {
-            throw new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND);
-        }
+        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
 
         //=== Feature ===//
 
         // 진행중인 투표 목록
         List<StudyVoteResponseDTO.VoteInfoDTO> votesInProgress = voteRepository.findAllByStudyIdAndFinishedAtAfter(studyId, LocalDateTime.now()).stream()
                 .map(vote -> {
-                    boolean isParticipated = isParticipated(vote, loginMember);
+                    boolean isParticipated = isParticipated(vote, member);
                     return StudyVoteResponseDTO.VoteInfoDTO.toDTO(vote, isParticipated);
                 })
                 .toList();
@@ -342,7 +378,7 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
         // 마감된 투표 목록
         List<StudyVoteResponseDTO.VoteInfoDTO> votesInCompletion = voteRepository.findAllByStudyIdAndFinishedAtBefore(studyId, LocalDateTime.now()).stream()
                 .map(vote -> {
-                    boolean isParticipated = isParticipated(vote, loginMember);
+                    boolean isParticipated = isParticipated(vote, member);
                     return StudyVoteResponseDTO.VoteInfoDTO.toDTO(vote, isParticipated);
                 })
                 .toList();
@@ -370,19 +406,23 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
     public StudyVoteResponseDTO.CompletedVoteDTO getVoteInCompletion(Long studyId, Long voteId) {
 
         //=== Exception ===//
+        Long memberId = SecurityUtils.getCurrentUserId();
+        SecurityUtils.verifyUserId(memberId);
+
+        memberRepository.findById(memberId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._MEMBER_NOT_FOUND));
         studyRepository.findById(studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
         Vote vote = voteRepository.findById(voteId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_VOTE_NOT_FOUND));
-        voteRepository.findByIdAndStudyId(voteId, studyId)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_VOTE_NOT_FOUND));
 
         // 로그인한 회원이 스터디 회원인지 확인
-        Member loginMember = getLoginMember();
-        if (memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED).stream()
-                .noneMatch(memberStudy -> loginMember.equals(memberStudy.getMember()))) {
-            throw new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND);
-        }
+        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
+
+        // 해당 스터디의 투표인지 확인
+        voteRepository.findByIdAndStudyId(voteId, studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_VOTE_NOT_FOUND));
 
         //=== Feature ===//
         return StudyVoteResponseDTO.CompletedVoteDTO.toDTO(vote);
@@ -393,41 +433,49 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
     public StudyVoteResponseDTO.VoteDTO getVoteInProgress(Long studyId, Long voteId) {
 
         //=== Exception ===//
+        Long memberId = SecurityUtils.getCurrentUserId();
+        SecurityUtils.verifyUserId(memberId);
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._MEMBER_NOT_FOUND));
         studyRepository.findById(studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
         Vote vote = voteRepository.findById(voteId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_VOTE_NOT_FOUND));
+
+        // 해당 스터디의 투표인지 확인
         voteRepository.findByIdAndStudyId(voteId, studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_VOTE_NOT_FOUND));
 
         // 로그인한 회원이 스터디 회원인지 확인
-        Member loginMember = getLoginMember();
-        if (memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED).stream()
-                .noneMatch(memberStudy -> loginMember.equals(memberStudy.getMember()))) {
-            throw new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND);
-        }
+        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
 
         //=== Feature ===//
-        return StudyVoteResponseDTO.VoteDTO.toDTO(vote, loginMember);
+        return StudyVoteResponseDTO.VoteDTO.toDTO(vote, member);
     }
 
     @Override
     public StudyVoteResponseDTO.CompletedVoteDetailDTO getCompletedVoteDetail(Long studyId, Long voteId) {
 
         //=== Exception ===//
+        Long memberId = SecurityUtils.getCurrentUserId();
+        SecurityUtils.verifyUserId(memberId);
+
+        memberRepository.findById(memberId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._MEMBER_NOT_FOUND));
         Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
         Vote vote = voteRepository.findById(voteId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_VOTE_NOT_FOUND));
+
+        // 해당 스터디의 투표인지 확인
         voteRepository.findByIdAndStudyId(voteId, studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_VOTE_NOT_FOUND));
 
         // 로그인한 회원이 스터디 회원인지 확인
-        Member loginMember = getLoginMember();
-        if (memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED).stream()
-                .noneMatch(memberStudy -> loginMember.equals(memberStudy.getMember()))) {
-            throw new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND);
-        }
+        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
 
         // 마감된 투표인지 확인
         if (!voteRepository.existsByIdAndFinishedAtBefore(voteId, LocalDateTime.now())) {
@@ -436,22 +484,6 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 
         //=== Feature ===//
         return StudyVoteResponseDTO.CompletedVoteDetailDTO.toDTO(vote);
-    }
-
-/* ----------------------------- 인증 관련 로직 ------------------------------------- */
-    // 로그인한 회원 정보 불러오기
-    private Member getLoginMember() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            // 인증 정보가 존재하면 email 확인
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            String email = userDetails.getUsername();
-            return memberRepository.findByEmail(email)
-                    .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
-        } else {
-            // 인증 정보가 존재하지 않으면 JWT 오류
-            throw new MemberHandler(ErrorStatus._INVALID_JWT);
-        }
     }
 
 }
