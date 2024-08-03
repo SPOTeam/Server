@@ -105,18 +105,6 @@ public class PostController {
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
-    @Operation(summary = "댓글 조회 API", description = "댓글 ID를 받아 댓글을 조회합니다.")
-    @GetMapping("/comments/{commentId}")
-    public void getComment(
-            @Parameter(
-                    description = "조회할 댓글의 ID입니다.",
-                    schema = @Schema(type = "integer", format = "int64")
-            )
-            @PathVariable Long commentId
-    ) {
-        //메서드
-    }
-
     @Operation(
             summary = "게시글 수정 API",
             description = "게시글 Id를 받아 게시글을 수정합니다.",
@@ -173,5 +161,27 @@ public class PostController {
         return ApiResponse.onSuccess(SuccessStatus._NO_CONTENT, response);
     }
 
+
+    @Operation(summary = "댓글 생성 API", description = "게시글 Id와 회원 Id를 받아 댓글을 생성합니다.")
+    @PostMapping("/{postId}/{memberId}/comments")
+    public ApiResponse<CommentCreateResponse> createComment(
+            @PathVariable Long postId,
+            @PathVariable Long memberId,
+            @RequestBody CommentCreateRequest request) {
+        CommentCreateResponse response = postCommandService.createComment(postId, memberId, request);
+        return ApiResponse.onSuccess(SuccessStatus._CREATED, response);
+    }
+
+    @Operation(summary = "댓글 조회 API", description = "댓글 ID를 받아 댓글을 조회합니다.")
+    @GetMapping("/comments/{commentId}")
+    public void getComment(
+            @Parameter(
+                    description = "조회할 댓글의 ID입니다.",
+                    schema = @Schema(type = "integer", format = "int64")
+            )
+            @PathVariable Long commentId
+    ) {
+        //메서드
+    }
 
 }

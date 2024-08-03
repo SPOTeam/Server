@@ -6,9 +6,11 @@ import com.example.spot.api.exception.handler.PostHandler;
 import com.example.spot.domain.LikedPost;
 import com.example.spot.domain.Member;
 import com.example.spot.domain.Post;
+import com.example.spot.domain.PostComment;
 import com.example.spot.domain.enums.Board;
 import com.example.spot.repository.LikedPostRepository;
 import com.example.spot.repository.MemberRepository;
+import com.example.spot.repository.PostCommentRepository;
 import com.example.spot.repository.PostRepository;
 import com.example.spot.web.dto.post.*;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ public class PostCommandServiceImpl implements PostCommandService {
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
     private final LikedPostRepository likedPostRepository;
+    private final PostCommentRepository postCommentRepository;
 
     private final LikedPostQueryService likedPostQueryService;
 
@@ -162,6 +165,30 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .postId(post.getId())
                 .likeCount(likeCount)
                 .build();
+    }
+
+    @Transactional
+    @Override
+    public CommentCreateResponse createComment(Long postId, Long memberId, CommentCreateRequest request) {
+        // 게시글 조회
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostHandler(ErrorStatus._POST_NOT_FOUND));
+
+        // 회원 정보 가져오기
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        // 댓글 생성
+        PostComment comment = PostComment.builder()
+                .content(request.getContent())
+                .isAnonymous(request.isAnonymous())
+                .post(post)
+                .member(member)
+                .build();
+
+        comment = postCommentRepository.save(comment);
+
+        return CommentCreateResponse.toDTO(comment);
     }
 
 
