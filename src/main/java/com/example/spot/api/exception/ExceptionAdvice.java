@@ -2,6 +2,7 @@ package com.example.spot.api.exception;
 
 import com.example.spot.api.ApiResponse;
 import com.example.spot.api.code.status.ErrorStatus;
+import io.sentry.Sentry;
 import jakarta.validation.ConstraintViolationException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,13 +22,21 @@ public class ExceptionAdvice {
     @ExceptionHandler(GeneralException.class)
     public ApiResponse<ErrorStatus> BaseExceptionHandle(GeneralException exception) {
         log.warn("BaseException. error message: {}", exception.getMessage());
-        return new ApiResponse<>(exception.getStatus());
+        // 500번대 에러인 경우 Sentry에 에러 로그 기록
+        if (exception.getStatus().getCode().equals(ErrorStatus._INTERNAL_SERVER_ERROR.getCode())) {
+            captureException(exception);
+        }
 
+        return new ApiResponse<>(exception.getStatus());
     }
 
     @ExceptionHandler(Exception.class)
     public ApiResponse<ErrorStatus> ExceptionHandle(Exception exception) {
         log.error("Exception has occured. {}", exception);
+        // 500번대 에러인 경우 Sentry에 에러 로그 기록
+        if (exception instanceof RuntimeException) {
+            captureException(exception);
+        }
         return new ApiResponse<>(ErrorStatus._INTERNAL_SERVER_ERROR);
     }
 
@@ -80,6 +89,11 @@ public class ExceptionAdvice {
         );
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+    private void captureException(Exception exception) {
+        if (Sentry.isEnabled()) {
+            Sentry.captureException(exception);
+        }
     }
 
 }
