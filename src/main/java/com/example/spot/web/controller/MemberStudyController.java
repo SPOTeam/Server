@@ -484,7 +484,10 @@ public class MemberStudyController {
         study_post에 존재하는 모든 게시글의 이미지를 최신순으로 반환합니다.
         """)
     @GetMapping("/studies/{studyId}/images")
-    public void getAllStudyImages(@PathVariable @ExistStudy Long studyId) {
+    public ApiResponse<StudyImageResponseDTO.ImageListDTO> getAllStudyImages(
+            @PathVariable @ExistStudy Long studyId) {
+        StudyImageResponseDTO.ImageListDTO imageListDTO = memberStudyQueryService.getAllStudyImages(studyId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_IMAGES_FOUND, imageListDTO);
     }
 
 /* ----------------------------- 스터디 출석체크 관련 API ------------------------------------- */
