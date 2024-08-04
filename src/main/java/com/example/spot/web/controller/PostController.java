@@ -5,6 +5,7 @@ import com.example.spot.api.code.status.SuccessStatus;
 import com.example.spot.service.post.PostCommandService;
 import com.example.spot.service.post.PostQueryService;
 import com.example.spot.validation.annotation.ExistMember;
+import com.example.spot.validation.annotation.ExistPost;
 import com.example.spot.web.dto.post.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -65,7 +66,7 @@ public class PostController {
     @GetMapping("/{postId}")
     public ApiResponse<PostSingleResponse> singlePost(
             @Parameter(description = "조회할 게시글 ID입니다.", schema = @Schema(type = "integer", format = "int64"))
-            @PathVariable Long postId
+            @PathVariable @ExistPost Long postId
     ) {
         PostSingleResponse response = postQueryService.getPostById(postId);
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
@@ -143,12 +144,12 @@ public class PostController {
     )
     @PatchMapping("/{memberId}/{postId}")
     public ApiResponse<PostCreateResponse> update(
-            @PathVariable Long memberId,
+            @PathVariable @ExistMember Long memberId,
             @Parameter(
                     description = "수정할 게시글의 ID입니다.",
                     schema = @Schema(type = "integer", format = "int64")
             )
-            @PathVariable Long postId,
+            @PathVariable @ExistPost Long postId,
             @Parameter(
                     description = "수정할 게시글 데이터입니다."
             )
@@ -161,12 +162,12 @@ public class PostController {
     @Operation(summary = "[게시판] 게시글 삭제 API", description = "게시글 Id를 받아 게시글을 삭제합니다.")
     @DeleteMapping("/{memberId}/{postId}")
     public ApiResponse<Void> delete(
-            @PathVariable Long memberId,
+            @PathVariable @ExistMember Long memberId,
             @Parameter(
                     description = "삭제할 게시글의 ID입니다.",
                     schema = @Schema(type = "integer", format = "int64")
             )
-            @PathVariable Long postId
+            @PathVariable @ExistPost Long postId
     ) {
         postCommandService.deletePost(memberId, postId);
         return ApiResponse.onSuccess(SuccessStatus._NO_CONTENT);
@@ -177,8 +178,8 @@ public class PostController {
     @Operation(summary = "[게시판] 게시글 좋아요 API", description = "게시글 Id를 받아 게시글에 좋아요를 추가합니다.")
     @PostMapping("/{postId}/{memberId}/like")
     public ApiResponse<PostLikeResponse> likePost(
-            @PathVariable Long postId,
-            @PathVariable Long memberId) {
+            @PathVariable @ExistPost Long postId,
+            @PathVariable @ExistMember Long memberId) {
         PostLikeResponse response = postCommandService.likePost(postId, memberId);
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
@@ -186,8 +187,8 @@ public class PostController {
     @Operation(summary = "[게시판] 게시글 좋아요 취소 API", description = "게시글 Id를 받아 게시글에 좋아요를 취소합니다.")
     @DeleteMapping("/{postId}/{memberId}/like")
     public ApiResponse<PostLikeResponse> cancelPostLike(
-            @PathVariable Long postId,
-            @PathVariable Long memberId) {
+            @PathVariable @ExistPost Long postId,
+            @PathVariable @ExistMember Long memberId) {
         PostLikeResponse response = postCommandService.cancelPostLike(postId, memberId);
         return ApiResponse.onSuccess(SuccessStatus._NO_CONTENT, response);
     }
