@@ -23,6 +23,8 @@ public enum ErrorStatus implements BaseErrorCode {
     _UNSUPPORTED_JWT(HttpStatus.BAD_REQUEST, "COMMON4008", "지원되지 않는 JWT token입니다."),
     _INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "COMMON4009", "유효하지 않은 리프레시 토큰입니다."),
     _EXPIRED_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "COMMON4010", "만료된 리프레시 토큰입니다."),
+    _NULL_VALUE(HttpStatus.BAD_REQUEST, "COMMON4011", "값이 입력되지 않았습니다."),
+    _VALUE_RANGE_EXCEEDED(HttpStatus.BAD_REQUEST, "COMMON4012", "값이 지정된 범위를 초과합니다."),
 
     //멤버 관련 에러
     _MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER4001", "회원을 찾을 수 없습니다."),
@@ -59,9 +61,16 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_POST_COMMENT_ALREADY_DISLIKED(HttpStatus.BAD_REQUEST, "POST4011", "이미 싫어요 한 댓글입니다."),
     _STUDY_LIKED_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "POST4012", "좋아요를 누르지 않은 게시글의 좋아요를 취소할 수 없습니다."),
     _STUDY_DISLIKED_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "POST4013", "싫어요를 누르지 않은 게시글의 싫어요를 취소할 수 없습니다."),
+    _STUDY_POST_DELETION_INVALID(HttpStatus.FORBIDDEN, "POST4014", "게시글 작성자만 삭제 가능합니다."),
+    _STUDY_POST_NULL(HttpStatus.BAD_REQUEST, "POST4015", "게시글 아이디가 입력되지 않았습니다."),
+    _STUDY_POST_COMMENT_NULL(HttpStatus.BAD_REQUEST, "POST4016", "댓글 아이디가 입력되지 않았습니다."),
+    _STUDY_POST_COMMENT_REACTIOM_ID_NULL(HttpStatus.BAD_REQUEST, "POST4017", "댓글 반응 아이디가 입력되지 않았습니다."),
+    _STUDY_POST_COMMENT_REACTION_NOT_FOUND(HttpStatus.BAD_REQUEST, "POST4018", "댓글 반응이 존재하지 않습니다."),
 
     //스터디 일정 관련 에러
     _STUDY_SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "SCHEDULE4001", "스터디 일정을 찾을 수 없습니다."),
+    _STUDY_SCHEDULE_ID_NULL(HttpStatus.BAD_REQUEST, "SCHEDULE4002", "일정 아이디가 입력되지 않았습니다."),
+    _SCHEDULE_MOD_INVALID(HttpStatus.FORBIDDEN, "SCHEDULE4003", "일정을 생성한 회원만 수정 가능합니다."),
 
     //알림 관련 에러
     _NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTIFICATION4001", "알림을 찾을 수 없습니다."),
@@ -87,6 +96,8 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_QUIZ_NOT_FOUND(HttpStatus.NOT_FOUND, "QUIZ4001", "출석 퀴즈를 찾을 수 없습니다."),
     _STUDY_QUIZ_NOT_VALID(HttpStatus.BAD_REQUEST, "QUIZ4002", "출석 퀴즈의 제한 시간이 초과되었습니다."),
     _STUDY_QUIZ_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "QUIZ4003", "금일 출석 퀴즈가 이미 존재합니다."),
+    _STUDY_QUIZ_ID_NULL(HttpStatus.BAD_REQUEST, "QUIZ4004", "출석 퀴즈 아이디가 입력되지 않았습니다."),
+    _STUDY_QUIZ_CREATION_INVALID(HttpStatus.FORBIDDEN, "QUIZ4005", "출석 퀴즈는 스터디장만 생성할 수 있습니다."),
     _STUDY_ATTENDANCE_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "QUIZ4004", "이미 출석 체크되었습니다."),
     _STUDY_ATTENDANCE_ATTEMPT_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "QUIZ4005", "출석 퀴즈 시도 횟수가 초과되었습니다."),
 
@@ -103,6 +114,9 @@ public enum ErrorStatus implements BaseErrorCode {
     _POST_NOT_AUTHOR(HttpStatus.BAD_REQUEST, "POST5004", "게시글 작성자가 아닙니다."),
     _POST_REPORTED(HttpStatus.FORBIDDEN, "POST5005", "신고된 게시글입니다."),
     _INVALID_BOARD_TYPE(HttpStatus.BAD_REQUEST, "POST5006", "유효하지 않은 게시판 타입입니다."),
+    _INVALID_SORT_TYPE(HttpStatus.BAD_REQUEST, "POST5007", "유효하지 않은 인기글 타입입니다."),
+    _POST_ALREADY_LIKED(HttpStatus.BAD_REQUEST, "POST5008", "이미 좋아요한 게시글입니다."),
+    _POST_NOT_LIKED(HttpStatus.BAD_REQUEST, "POST5009", "좋아요하지 않은 게시글입니다."),
 
     // 스터디 투표 관련 에러
     _STUDY_VOTE_NOT_FOUND(HttpStatus.NOT_FOUND, "VOTE4001", "스터디 투표를 찾을 수 없습니다."),
@@ -112,8 +126,10 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_VOTE_CREATOR_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "VOTE4005", "투표를 생성한 회원만 투표를 편집할 수 있습니다."),
     _STUDY_VOTE_IS_IN_PROGRESS(HttpStatus.BAD_REQUEST, "VOTE4006", "진행중인 투표는 편집할 수 없습니다."),
     _STUDY_VOTE_NOT_COMPLETED(HttpStatus.BAD_REQUEST, "VOTE4007", "마감되지 않은 스터디 투표입니다."),
+    _STUDY_VOTE_NULL(HttpStatus.BAD_REQUEST, "VOTE4008", "스터디 투표 아이디가 입력되지 않았습니다."),
 
     ;
+
 
     private final HttpStatus httpStatus;
     private final String code;

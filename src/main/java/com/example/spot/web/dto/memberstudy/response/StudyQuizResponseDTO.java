@@ -39,14 +39,16 @@ public class StudyQuizResponseDTO {
         private final Long quizId;
         private final Long attendanceId;
         private final Boolean isCorrect;
+        private final Integer tryNum;
         private final LocalDateTime createdAt;
 
-        public static AttendanceDTO toDTO(MemberAttendance memberAttendance) {
+        public static AttendanceDTO toDTO(MemberAttendance memberAttendance, Integer tryNum) {
             return AttendanceDTO.builder()
                     .memberId(memberAttendance.getMember().getId())
                     .quizId(memberAttendance.getQuiz().getId())
                     .attendanceId(memberAttendance.getId())
                     .isCorrect(memberAttendance.getIsCorrect())
+                    .tryNum(tryNum)
                     .createdAt(memberAttendance.getCreatedAt())
                     .build();
         }
