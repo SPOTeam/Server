@@ -44,7 +44,7 @@ public class PostCommandServiceImpl implements PostCommandService {
 
         int likeCount = 0;
 
-        return PostCreateResponse.toDTO(post, member.getIsAdmin(), likeCount);
+        return PostCreateResponse.toDTO(post);
     }
     private Post createPostEntity(PostCreateRequest postCreateRequest, Member currentMember) {
 
