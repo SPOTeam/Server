@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Admin", description = "Admin API")
+@Tag(name = "관리자 - 개발 중", description = "관리자 관련 API")
 @RestController
 @RequestMapping("/spot/admin")
 public class AdminController {

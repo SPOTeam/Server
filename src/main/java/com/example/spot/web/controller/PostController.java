@@ -19,7 +19,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "Post", description = "Post API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/spot/posts")
@@ -32,6 +31,7 @@ public class PostController {
 
     private final static int PAGE_SIZE = 10; //페이지당 개수
 
+    @Tag(name = "게시판", description = "게시판 관련 API")
     @Operation(
             summary = "[게시판] 게시글 등록 API",
             description = """
@@ -54,6 +54,7 @@ public class PostController {
         return ApiResponse.onSuccess(SuccessStatus._CREATED, response);
     }
 
+    @Tag(name = "게시판", description = "게시판 관련 API")
     @Operation(
             summary = "[게시판] 게시글 단건 조회 API",
         description = """
@@ -72,6 +73,7 @@ public class PostController {
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
+    @Tag(name = "게시판", description = "게시판 관련 API")
     @Operation(
             summary = "[게시판] 게시글 페이지 조회 API",
         description = """
@@ -95,6 +97,7 @@ public class PostController {
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
+    @Tag(name = "게시판", description = "게시판 관련 API")
     @Operation(
             summary = "[게시판] Best 인기글 조회",
             description = "Best 인기글을 조회합니다.(인기글 조회시 종류 명시가 필요합니다.)")
@@ -107,6 +110,7 @@ public class PostController {
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
+    @Tag(name = "게시판", description = "게시판 관련 API")
     @Operation(
             summary = "[게시판] 게시판 홈 게시글 조회",
             description = "게시판 홈에 게시글 종류별로 대표1개씩 게시글을 조회합니다.")
@@ -116,6 +120,7 @@ public class PostController {
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
+    @Tag(name = "게시판", description = "게시판 관련 API")
     @Operation(
             summary = "[게시판] 게시판 공지 조회",
             description = "공지를 조회합니다.")
@@ -125,6 +130,7 @@ public class PostController {
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
+    @Tag(name = "게시판 - 댓글", description = "댓글 관련 API")
     @Operation(summary = "[게시판] 댓글 조회 API", description = "댓글 ID를 받아 댓글을 조회합니다.")
     @GetMapping("/comments/{commentId}")
     public void getComment(
@@ -137,6 +143,7 @@ public class PostController {
         //메서드
     }
 
+    @Tag(name = "게시판", description = "게시판 관련 API")
     @Operation(
             summary = "[게시판] 게시글 수정 API",
             description = "게시글 Id를 받아 게시글을 수정합니다.",
@@ -159,6 +166,7 @@ public class PostController {
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
+    @Tag(name = "게시판", description = "게시판 관련 API")
     @Operation(summary = "[게시판] 게시글 삭제 API", description = "게시글 Id를 받아 게시글을 삭제합니다.")
     @DeleteMapping("/{memberId}/{postId}")
     public ApiResponse<Void> delete(
@@ -174,6 +182,7 @@ public class PostController {
 
     }
 
+    @Tag(name = "게시글 좋아요", description = "게시글 좋아요 관련 API")
     //게시글 좋아요
     @Operation(summary = "[게시판] 게시글 좋아요 API", description = "게시글 Id를 받아 게시글에 좋아요를 추가합니다.")
     @PostMapping("/{postId}/{memberId}/like")
@@ -184,6 +193,7 @@ public class PostController {
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
+    @Tag(name = "게시글 좋아요", description = "게시글 좋아요 관련 API")
     @Operation(summary = "[게시판] 게시글 좋아요 취소 API", description = "게시글 Id를 받아 게시글에 좋아요를 취소합니다.")
     @DeleteMapping("/{postId}/{memberId}/like")
     public ApiResponse<PostLikeResponse> cancelPostLike(

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Auth", description = "Auth API")
+
 @Slf4j
 @RestController
 @RequestMapping("/spot")
@@ -23,6 +23,7 @@ public class AuthController {
 
     private final AuthService authService;
 
+    @Tag(name = "회원 관리 API", description = "회원 관리 API")
     @Operation(summary = "[세션 유지] 액세스 토큰 재발급 API",
         description = """
             ## [세션 유지] 액세스 토큰을 재발급 하는 API입니다.
@@ -36,6 +37,7 @@ public class AuthController {
         return ApiResponse.onSuccess(SuccessStatus._CREATED, authService.reissueToken(refreshToken));
     }
 
+    @Tag(name = "회원 관리 API - 개발 중", description = "회원 관리 API")
     @Operation(summary = "[회원 가입] 일반 회원 가입 API",
         description = """
             ## [회원 가입] 일반 회원 가입 API입니다.
@@ -49,6 +51,7 @@ public class AuthController {
         return null;
     }
 
+    @Tag(name = "회원 관리 API - 개발 중", description = "회원 관리 API")
     @Operation(summary = "[로그인] 일반 로그인 API",
         description = """
             ## [로그인] 아이디(이메일)과 비밀번호를 통해 로그인 하는 API입니다.
@@ -61,6 +64,7 @@ public class AuthController {
         return null;
     }
 
+    @Tag(name = "회원 관리 API - 개발 중", description = "회원 관리 API")
     @Operation(summary = "[로그아웃] 로그아웃 API",
         description = """
             ## [로그아웃] 로그아웃 API입니다.
