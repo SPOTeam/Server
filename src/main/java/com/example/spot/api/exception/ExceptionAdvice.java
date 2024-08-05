@@ -20,23 +20,14 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 public class ExceptionAdvice {
 
     @ExceptionHandler(GeneralException.class)
-    public ApiResponse<ErrorStatus> BaseExceptionHandle(GeneralException exception) {
+    public ApiResponse<ErrorStatus> baseExceptionHandle(GeneralException exception) {
         log.warn("BaseException. error message: {}", exception.getMessage());
-        // 500번대 에러인 경우 Sentry에 에러 로그 기록
-        if (exception.getStatus().getCode().equals(ErrorStatus._INTERNAL_SERVER_ERROR.getCode())) {
-            captureException(exception);
-        }
-
         return new ApiResponse<>(exception.getStatus());
     }
 
     @ExceptionHandler(Exception.class)
-    public ApiResponse<ErrorStatus> ExceptionHandle(Exception exception) {
-        log.error("Exception has occured. {}", exception);
-        // 500번대 에러인 경우 Sentry에 에러 로그 기록
-        if (exception instanceof RuntimeException) {
-            captureException(exception);
-        }
+    public ApiResponse<ErrorStatus> exceptionHandle(Exception exception) {
+        log.error("Exception has occurred. {}", exception);
         return new ApiResponse<>(ErrorStatus._INTERNAL_SERVER_ERROR);
     }
 

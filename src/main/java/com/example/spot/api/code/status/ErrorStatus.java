@@ -117,6 +117,7 @@ public enum ErrorStatus implements BaseErrorCode {
     _INVALID_SORT_TYPE(HttpStatus.BAD_REQUEST, "POST5007", "유효하지 않은 인기글 타입입니다."),
     _POST_ALREADY_LIKED(HttpStatus.BAD_REQUEST, "POST5008", "이미 좋아요한 게시글입니다."),
     _POST_NOT_LIKED(HttpStatus.BAD_REQUEST, "POST5009", "좋아요하지 않은 게시글입니다."),
+    _POST_ID_NULL(HttpStatus.BAD_REQUEST, "POST5010", "게시글 아이디가 입력되지 않았습니다."),
 
     // 스터디 투표 관련 에러
     _STUDY_VOTE_NOT_FOUND(HttpStatus.NOT_FOUND, "VOTE4001", "스터디 투표를 찾을 수 없습니다."),

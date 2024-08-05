@@ -20,7 +20,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "MemberStudy", description = "MemberStudy API(내 스터디 관련 API)")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/spot")
@@ -33,6 +32,7 @@ public class MemberStudyController {
 /* ----------------------------- 진행중인 스터디 관련 API ------------------------------------- */
 
 
+    @Tag(name = "진행중인 스터디")
     @Operation(summary = "[진행중인 스터디] 스터디 탈퇴하기", description = """ 
         ## [진행중인 스터디] 마이페이지 > 진행중 > 진행중인 스터디의 메뉴 클릭, 로그인한 회원이 현재 진행중인 스터디에서 탈퇴합니다.
         로그인한 회원이 참여하는 특정 스터디에 대해 member_study 튜플을 삭제합니다.
@@ -43,6 +43,7 @@ public class MemberStudyController {
         return ApiResponse.onSuccess(SuccessStatus._STUDY_MEMBER_DELETED, withdrawalDTO);
     }
 
+    @Tag(name = "진행중인 스터디")
     @Operation(summary = "[진행중인 스터디] 스터디 끝내기", description = """ 
         ## [진행중인 스터디] 마이페이지 > 진행중 > 진행중인 스터디의 메뉴 클릭, 로그인한 회원이 운영중인 스터디를 끝냅니다.
         로그인한 회원이 운영하는 특정 스터디에 대해 study status OFF로 전환합니다.
@@ -64,6 +65,7 @@ public class MemberStudyController {
 /* ----------------------------- 모집중인 스터디 관련 API ------------------------------------- */
 
 
+    @Tag(name = "모집중인 스터디")
     @Operation(summary = "[모집중인 스터디] 스터디별 신청 회원 목록 불러오기", description = """ 
         ## [모집중인 스터디] 마이페이지 > 모집중 > 스터디 클릭, 로그인한 회원이 모집중인 스터디에 신청한 회원 목록을 불러옵니다.
         로그인한 회원이 모집중인 특정 스터디에 대해 member_study의 application_status가 APPLIED인 회원 목록이 반환됩니다.
@@ -74,7 +76,7 @@ public class MemberStudyController {
         return ApiResponse.onSuccess(SuccessStatus._STUDY_APPLICANT_FOUND,
             memberStudyQueryService.findStudyApplicants(studyId));
     }
-
+    @Tag(name = "모집중인 스터디")
     @Operation(summary = "[모집중인 스터디] 스터디 신청 정보(이름, 자기소개) 불러오기", description = """ 
         ## [모집중인 스터디] 마이페이지 > 모집중 > 스터디 > 신청 회원 클릭, 로그인한 회원이 모집중인 스터디에 신청한 회원의 정보를 불러옵니다.
         로그인한 회원이 모집중인 특정 스터디에 신청한 회원의 정보(member.name & member_study.introduction)가 반환됩니다.
@@ -88,7 +90,7 @@ public class MemberStudyController {
         return ApiResponse.onSuccess(SuccessStatus._STUDY_APPLICANT_FOUND,
             memberStudyQueryService.findStudyApplication(studyId, applicantId));
     }
-
+    @Tag(name = "모집중인 스터디")
     @Operation(summary = "[모집중인 스터디] 스터디 신청 처리하기", description = """ 
         ## [모집중인 스터디] 마이페이지 > 모집중 > 스터디 > 신청 회원 > 거절 클릭, 로그인한 회원이 모집중인 스터디에 신청한 회원을 처리합니다.
         isAccept가 true인 경우 member_study에서 application_status를 APPROVE로 수정합니다.
@@ -108,7 +110,7 @@ public class MemberStudyController {
 
 
 /* ----------------------------- 스터디 상세 정보 관련 API ------------------------------------- */
-
+    @Tag(name = "스터디 상세 정보")
     @Operation(summary = "[스터디 상세 정보] 스터디 최근 공지 1개 불러오기", description = """ 
         ## [스터디 상세 정보] 내 스터디 > 스터디 클릭, 로그인한 회원이 참여하는 특정 스터디의 최근 공지 1개를 불러옵니다.
         study_post의 announced_at이 가장 최근인 공지 1개가 반환됩니다.
@@ -118,7 +120,7 @@ public class MemberStudyController {
         StudyPostResponseDTO studyPostResponseDTO = memberStudyQueryService.findStudyAnnouncementPost(studyId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_FOUND, studyPostResponseDTO);
     }
-
+    @Tag(name = "스터디 상세 정보")
     @Operation(summary = "[스터디 상세 정보] 다가오는 모임 목록 불러오기", description = """ 
         ## [스터디 상세 정보] 내 스터디 > 스터디 클릭, 로그인한 회원이 참여하는 특정 스터디의 다가오는 모임 목록을 페이징 조회 합니다.
         현재 시점 이후에 진행되는 모임 일정의 목록을 schedule에서 반환합니다.
@@ -131,7 +133,7 @@ public class MemberStudyController {
         StudyScheduleResponseDTO studyScheduleResponseDTO = memberStudyQueryService.findStudySchedule(studyId, PageRequest.of(page, size));
         return ApiResponse.onSuccess(SuccessStatus._STUDY_SCHEDULE_FOUND, studyScheduleResponseDTO);
     }
-
+    @Tag(name = "스터디 상세 정보")
     @Operation(summary = "[스터디 상세 정보] 스터디에 참여하는 회원 목록 불러오기", description = """ 
         ## [스터디 상세 정보] 로그인한 회원이 참여하는 특정 스터디의 회원 목록을 전체 합니다.
         member_study에서 application_status=APPROVED인 회원의 목록(이름, 프로필 사진 포함)이 반환됩니다.
@@ -146,6 +148,7 @@ public class MemberStudyController {
 
 /* ----------------------------- 스터디 일정 관련 API ------------------------------------- */
 
+    @Tag(name = "스터디 일정")
     @Operation(summary = "[스터디 일정] 월별 일정 불러오기", description = """ 
         ## [스터디 일정] 내 스터디 > 스터디 > 캘린더 클릭, 로그인한 회원이 참여하는 특정 스터디의 일정을 월 단위로 불러옵니다.
         처음 캘린더를 클릭하면 오늘 날짜가 포함된 연/월에 해당하는 일정 목록이 schedule에서 반환됩니다.
@@ -159,7 +162,7 @@ public class MemberStudyController {
         ScheduleResponseDTO.MonthlyScheduleListDTO monthlyScheduleDTO = memberStudyQueryService.getMonthlySchedules(studyId, year, month);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_SCHEDULE_FOUND, monthlyScheduleDTO);
     }
-
+    @Tag(name = "스터디 일정")
     @Operation(summary = "[스터디 일정] 상세 일정 불러오기", description = """ 
         ## [스터디 일정] 내 스터디 > 스터디 > 캘린더 > 일정 클릭, 로그인한 회원이 참여하는 특정 스터디의 상세 일정을 불러옵니다.
         스터디의 일정 정보를 상세하게 불러옵니다.
@@ -171,7 +174,7 @@ public class MemberStudyController {
         ScheduleResponseDTO.MonthlyScheduleDTO scheduleDTO = memberStudyQueryService.getSchedule(studyId, scheduleId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_SCHEDULE_FOUND, scheduleDTO);
     }
-
+    @Tag(name = "스터디 일정")
     @Operation(summary = "[스터디 일정] 일정 추가하기", description = """ 
         ## [스터디 일정] 내 스터디 > 스터디 > 캘린더 > 추가 버튼 클릭, 로그인한 회원이 운영하는 특정 스터디에 일정을 추가합니다.
         로그인한 회원이 owner인 경우 schedule에 새로운 일정을 등록합니다.
@@ -183,7 +186,7 @@ public class MemberStudyController {
         ScheduleResponseDTO.ScheduleDTO scheduleResponseDTO = memberStudyCommandService.addSchedule(studyId, scheduleRequestDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_SCHEDULE_CREATED, scheduleResponseDTO);
     }
-
+    @Tag(name = "스터디 일정")
     @Operation(summary = "[스터디 일정] 일정 변경하기", description = """ 
         ## [스터디 일정] 내 스터디 > 스터디 > 캘린더 > 일정 클릭, 로그인한 회원이 특정 스터디에 등록한 일정을 수정합니다.
         로그인한 회원이 owner인 경우 schedule에 등록한 일정을 수정할 수 있습니다.
@@ -198,7 +201,7 @@ public class MemberStudyController {
     }
 
 /* ----------------------------- 스터디 게시글 관련 API ------------------------------------- */
-
+    @Tag(name = "스터디 게시글")
     @Operation(summary = "[스터디 게시글] 게시글 작성하기", description = """
         ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 작성 버튼 클릭, 로그인한 회원이 참여하는 특정 스터디에서 새로운 게시글을 등록합니다.
         스터디에 참여하는 회원이 작성한 게시글을 `study_post`에 저장합니다.
@@ -210,7 +213,7 @@ public class MemberStudyController {
         StudyPostResDTO.PostPreviewDTO postPreviewDTO = memberStudyCommandService.createPost(studyId, postRequestDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_CREATED, postPreviewDTO);
     }
-
+    @Tag(name = "스터디 게시글")
     @Operation(summary = "[스터디 게시글] 게시글 삭제하기", description = """ 
         ## [스터디 게시글] 로그인한 회원이 참여하는 특정 스터디에서 작성한 게시글을 삭제합니다.
         스터디에 참여하는 회원이 작성한 게시글을 study_post에서 삭제합니다.
@@ -223,7 +226,7 @@ public class MemberStudyController {
         StudyPostResDTO.PostPreviewDTO postPreviewDTO = memberStudyCommandService.deletePost(studyId, postId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_DELETED, postPreviewDTO);
     }
-
+    @Tag(name = "스터디 게시글")
     @Operation(summary = "[스터디 게시글] 글 목록 불러오기", description = """ 
         ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 클릭, 로그인한 회원이 참여하는 특정 스터디의 게시글 목록을 불러옵니다.
         로그인한 회원이 참여하는 특정 스터디의 study_post 목록이 최신순으로 반환됩니다.
@@ -238,7 +241,7 @@ public class MemberStudyController {
         StudyPostResDTO.PostListDTO postListDTO = memberStudyQueryService.getAllPosts(PageRequest.of(offset, limit), studyId, theme);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_LIST_FOUND, postListDTO);
     }
-
+    @Tag(name = "스터디 게시글")
     @Operation(summary = "[스터디 게시글] 게시글 불러오기", description = """ 
         ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 게시글 클릭, 로그인한 회원이 참여하는 특정 스터디의 게시글을 불러옵니다.
         로그인한 회원이 참여하는 특정 스터디의 study_post 정보가 반환됩니다.
@@ -250,7 +253,7 @@ public class MemberStudyController {
         StudyPostResDTO.PostDetailDTO postDetailDTO = memberStudyQueryService.getPost(studyId, postId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_FOUND, postDetailDTO);
     }
-
+    @Tag(name = "스터디 게시글")
     @Operation(summary = "[스터디 게시글] 좋아요 누르기", description = """ 
         ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 게시글 클릭, 로그인한 회원이 참여하는 특정 스터디의 게시글에 좋아요를 누릅니다.
         study_liked_post에 좋아요를 누른 회원의 정보를 저장하고 게시글의 like_num을 업데이트합니다.
@@ -262,7 +265,7 @@ public class MemberStudyController {
         StudyPostResDTO.PostLikeNumDTO postLikeNumDTO = memberStudyCommandService.likePost(studyId, postId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_LIKED, postLikeNumDTO);
     }
-
+    @Tag(name = "스터디 게시글")
     @Operation(summary = "[스터디 게시글] 좋아요 취소하기", description = """ 
         ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 게시글 클릭, 로그인한 회원이 참여하는 특정 스터디의 게시글에 좋아요를 취소합니다.
         study_liked_post에 좋아요를 누른 회원의 정보를 저장하고 게시글의 like_num을 업데이트합니다.
@@ -275,7 +278,7 @@ public class MemberStudyController {
         StudyPostResDTO.PostLikeNumDTO postLikeNumDTO = memberStudyCommandService.cancelPostLike(studyId, postId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_DISLIKED, postLikeNumDTO);
     }
-
+    @Tag(name = "스터디 게시글 - 댓글")
     @Operation(summary = "[스터디 게시글 - 댓글] 댓글 작성하기", description = """ 
         ## [스터디 게시글] 로그인한 회원이 참여하는 특정 스터디의 게시글에 댓글을 작성합니다.
         RequestBody로 내용과 회원 정보를 입력 받아 댓글 정보를 반환합니다.
@@ -288,7 +291,7 @@ public class MemberStudyController {
         StudyPostCommentResponseDTO.CommentDTO commentResponseDTO = memberStudyCommandService.createComment(studyId, postId, commentRequestDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_COMMENT_CREATED, commentResponseDTO);
     }
-
+    @Tag(name = "스터디 게시글 - 댓글")
     @Operation(summary = "[스터디 게시글 - 댓글] 답글 작성하기", description = """ 
         ## [스터디 게시글] 로그인한 회원이 참여하는 특정 스터디 게시글의 댓글에 대하여 답글을 작성합니다.
         RequestBody로 내용과 회원 정보를 입력 받아 답글 정보를 반환합니다.
@@ -302,7 +305,7 @@ public class MemberStudyController {
         StudyPostCommentResponseDTO.CommentDTO commentResponseDTO = memberStudyCommandService.createReply(studyId, postId, commentId, commentRequestDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_COMMENT_CREATED, commentResponseDTO);
     }
-
+    @Tag(name = "스터디 게시글 - 댓글")
     @Operation(summary = "[스터디 게시글 - 댓글] 댓글 삭제하기", description = """ 
         ## [스터디 게시글] 로그인한 회원이 참여하는 특정 스터디 게시글의 댓글을 삭제합니다.
         댓글의 id를 PathVariable로 받아 content와 isDeleted를 수정합니다.
@@ -315,7 +318,7 @@ public class MemberStudyController {
         StudyPostCommentResponseDTO.CommentIdDTO commentPreviewDTO = memberStudyCommandService.deleteComment(studyId, postId, commentId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_COMMENT_DELETED, commentPreviewDTO);
     }
-
+    @Tag(name = "스터디 게시글 - 댓글")
     @Operation(summary = "[스터디 게시글 - 댓글] 댓글 좋아요 누르기", description = """ 
         ## [스터디 게시글] 로그인한 회원이 참여하는 특정 스터디 게시글의 댓글에 좋아요를 누릅니다.
         study_liked_comment에 좋아요 내역이 추가되고 study_post_comment의 like_count가 증가합니다.
@@ -328,7 +331,7 @@ public class MemberStudyController {
         StudyPostCommentResponseDTO.CommentPreviewDTO commentPreviewDTO = memberStudyCommandService.likeComment(studyId, postId, commentId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_COMMENT_LIKED, commentPreviewDTO);
     }
-
+    @Tag(name = "스터디 게시글 - 댓글")
     @Operation(summary = "[스터디 게시글 - 댓글] 댓글 싫어요 누르기", description = """ 
         ## [스터디 게시글] 로그인한 회원이 참여하는 특정 스터디 게시글의 댓글에 싫어요를 누릅니다.
         study_liked_comment에 싫어요 내역이 추가되고 study_post_comment의 dislike_count가 증가합니다.
@@ -341,7 +344,7 @@ public class MemberStudyController {
         StudyPostCommentResponseDTO.CommentPreviewDTO commentPreviewDTO = memberStudyCommandService.dislikeComment(studyId, postId, commentId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_COMMENT_DISLIKED, commentPreviewDTO);
     }
-
+    @Tag(name = "스터디 게시글 - 댓글")
     @Operation(summary = "[스터디 게시글 - 댓글] 댓글 좋아요 취소하기", description = """ 
         ## [스터디 게시글] 로그인한 회원이 참여하는 특정 스터디 게시글 댓글에 달린 좋아요를 취소합니다.
         study_liked_comment에서 좋아요 내역이 삭제되고 study_post_comment의 like_count가 감소합니다.
@@ -355,7 +358,7 @@ public class MemberStudyController {
         StudyPostCommentResponseDTO.CommentPreviewDTO commentPreviewDTO = memberStudyCommandService.cancelCommentLike(studyId, postId, commentId, likeId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_COMMENT_LIKE_CANCELED, commentPreviewDTO);
     }
-
+    @Tag(name = "스터디 게시글 - 댓글")
     @Operation(summary = "[스터디 게시글 - 댓글] 댓글 싫어요 취소하기", description = """ 
         ## [스터디 게시글] 로그인한 회원이 참여하는 특정 스터디 게시글 댓글에 달린 싫어요를 취소합니다.
         study_liked_comment에서 싫어요 내역이 삭제되고 study_post_comment의 dislike_count가 감소합니다.
@@ -369,7 +372,7 @@ public class MemberStudyController {
         StudyPostCommentResponseDTO.CommentPreviewDTO commentPreviewDTO = memberStudyCommandService.cancelCommentDislike(studyId, postId, commentId, dislikeId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_COMMENT_DISLIKE_CANCELED, commentPreviewDTO);
     }
-
+    @Tag(name = "스터디 게시글 - 댓글")
     @Operation(summary = "[스터디 게시글 - 댓글] 전체 댓글 불러오기", description = """ 
         ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 게시글 클릭, 로그인한 회원이 참여하는 특정 스터디의 게시글에 달린 모든 댓글을 불러옵니다.
         특정 study_post에 대한 comment(댓/답글) 목록이 반환됩니다.
@@ -384,7 +387,7 @@ public class MemberStudyController {
 
 
 /* ----------------------------- 스터디 투표 관련 API ------------------------------------- */
-
+    @Tag(name = "스터디 투표")
     @Operation(summary = "[스터디 투표] 투표 생성하기", description = """ 
         ## [스터디 투표] 내 스터디 > 스터디 > 투표 > 작성 버튼 클릭, 로그인한 회원이 참여하는 특정 스터디에서 새로운 투표를 등록합니다.
         스터디에 참여하는 회원이 생성한 투표를 vote에 저장합니다.
@@ -396,7 +399,7 @@ public class MemberStudyController {
         StudyVoteResponseDTO.VotePreviewDTO votePreviewDTO = memberStudyCommandService.createVote(studyId, voteDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_VOTE_CREATED, votePreviewDTO);
     }
-
+    @Tag(name = "스터디 투표")
     @Operation(summary = "[스터디 투표] 투표하기", description = """ 
         ## [스터디 투표] 내 스터디 > 스터디 > 투표 > 특정 투표 클릭, 로그인한 회원이 참여하는 스터디에서 특정 항목에 투표합니다.
         member_vote에 투표 정보를 저장합니다.
@@ -409,7 +412,7 @@ public class MemberStudyController {
         StudyVoteResponseDTO.VotedOptionDTO votedOptionResDTO = memberStudyCommandService.vote(studyId, voteId, votedOptionDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_VOTE_PARTICIPATED, votedOptionResDTO);
     }
-
+    @Tag(name = "스터디 투표")
     @Operation(summary = "[스터디 투표] 투표 편집하기", description = """ 
         ## [스터디 투표] 내 스터디 > 스터디 > 투표 > 편집하기 버튼 클릭, 로그인한 회원이 참여하는 특정 스터디에서 투표 정보를 수정합니다.
         스터디에 참여하는 회원이 생성한 투표를 vote에 저장합니다.
@@ -422,7 +425,7 @@ public class MemberStudyController {
         StudyVoteResponseDTO.VotePreviewDTO votePreviewDTO = memberStudyCommandService.updateVote(studyId, voteId, voteDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_VOTE_UPDATED, votePreviewDTO);
     }
-
+    @Tag(name = "스터디 투표")
     @Operation(summary = "[스터디 투표] 투표 삭제하기", description = """ 
         ## [스터디 투표] 내 스터디 > 스터디 > 투표 > 삭제하기 버튼 클릭, 로그인한 회원이 참여하는 특정 스터디에서 투표를 삭제합니다.
         스터디에 참여하는 회원이 생성한 투표를 vote에 저장합니다.
@@ -434,7 +437,7 @@ public class MemberStudyController {
         StudyVoteResponseDTO.VotePreviewDTO votePreviewDTO = memberStudyCommandService.deleteVote(studyId, voteId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_VOTE_DELETED, votePreviewDTO);
     }
-
+    @Tag(name = "스터디 투표")
     @Operation(summary = "[스터디 투표] 투표 목록 불러오기", description = """
         ## [스터디 투표] 내 스터디 > 스터디 > 투표 클릭, 로그인한 회원이 참여하는 특정 스터디의 투표 목록을 불러옵니다.
         진행 중(finished_at 이전)인 투표 목록과 마감(finished_at 이후)된 투표 목록을 구분하여 반환합니다.
@@ -445,7 +448,7 @@ public class MemberStudyController {
         StudyVoteResponseDTO.VoteListDTO voteListDTO = memberStudyQueryService.getAllVotes(studyId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_VOTE_FOUND, voteListDTO);
     }
-
+    @Tag(name = "스터디 투표")
     @Operation(summary = "[스터디 투표] 투표 불러오기", description = """ 
         ## [스터디 투표] 내 스터디 > 스터디 > 투표 > 특정 투표 클릭, 로그인한 회원이 참여하는 특정 스터디의 투표를 불러옵니다.
         진행중인 투표 : 진행중인 투표에 대한 항목 및 기본 정보가 반환됩니다.
@@ -464,7 +467,7 @@ public class MemberStudyController {
             return ApiResponse.onSuccess(SuccessStatus._STUDY_VOTE_FOUND, voteDTO);
         }
     }
-
+    @Tag(name = "스터디 투표")
     @Operation(summary = "[스터디 투표] 마감된 투표 현황 불러오기", description = """ 
         ## [스터디 투표] 내 스터디 > 스터디 > 투표 > 마감된 투표 > n명 참여 클릭, 로그인한 회원이 참여하는 특정 스터디의 투표를 불러옵니다.
         마감된 투표에 대하여 항목별 투표 회원 목록을 반환합니다.
@@ -478,17 +481,20 @@ public class MemberStudyController {
     }
 
 /* ----------------------------- 스터디 갤러리 관련 API ------------------------------------- */
-
+    @Tag(name = "스터디 이미지")
     @Operation(summary = "[스터디 갤러리] 스터디 이미지 목록 불러오기", description = """ 
         ## [스터디 갤러리] 내 스터디 > 스터디 > 갤러리 클릭, 로그인한 회원이 참여하는 스터디의 이미지 목록을 불러옵니다.
         study_post에 존재하는 모든 게시글의 이미지를 최신순으로 반환합니다.
         """)
     @GetMapping("/studies/{studyId}/images")
-    public void getAllStudyImages(@PathVariable @ExistStudy Long studyId) {
+    public ApiResponse<StudyImageResponseDTO.ImageListDTO> getAllStudyImages(
+            @PathVariable @ExistStudy Long studyId) {
+        StudyImageResponseDTO.ImageListDTO imageListDTO = memberStudyQueryService.getAllStudyImages(studyId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_IMAGES_FOUND, imageListDTO);
     }
 
 /* ----------------------------- 스터디 출석체크 관련 API ------------------------------------- */
-
+    @Tag(name = "스터디 출석체크")
     @Operation(summary = "[스터디 출석체크] 출석 퀴즈 생성하기", description = """ 
         ## [스터디 출석체크] 내 스터디 > 스터디 > 캘린더 > 출석체크 > 퀴즈 만들기 클릭, 로그인한 회원이 운영하는 스터디에 퀴즈를 생성합니다.
         로그인한 회원이 스터디장인 경우 quiz에 새로운 퀴즈를 생성합니다.
@@ -500,7 +506,7 @@ public class MemberStudyController {
         StudyQuizResponseDTO.QuizDTO quizResponseDTO = memberStudyCommandService.createAttendanceQuiz(studyId, quizRequestDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_QUIZ_CREATED, quizResponseDTO);
     }
-
+    @Tag(name = "스터디 출석체크")
     @Operation(summary = "[스터디 출석체크] 출석 체크하기", description = """ 
         ## [스터디 출석체크] 내 스터디 > 스터디 > 캘린더 > 이미지 클릭, 로그인한 회원이 참여하는 스터디에서 오늘의 퀴즈를 풀어 출석을 체크합니다.
         특정 시점의 quiz에 대해 member_attendance 튜플을 추가합니다.
@@ -517,7 +523,7 @@ public class MemberStudyController {
             return ApiResponse.onSuccess(SuccessStatus._STUDY_ATTENDANCE_CREATED_WRONG_ANSWER, attendanceResponseDTO);
         }
     }
-
+    @Tag(name = "스터디 출석체크")
     @Operation(summary = "[스터디 출석체크] 출석 퀴즈 삭제하기", description = """ 
         ## [스터디 출석체크] 기한이 지난 출석 퀴즈를 삭제합니다. (화면 X)
         PathVariable을 통해 전달받은 정보를 바탕으로 출석 퀴즈를 삭제합니다.
@@ -530,7 +536,7 @@ public class MemberStudyController {
         StudyQuizResponseDTO.QuizDTO quizDTO = memberStudyCommandService.deleteAttendanceQuiz(studyId, quizId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_QUIZ_DELETED, quizDTO);
     }
-
+    @Tag(name = "스터디 출석체크")
     @Operation(summary = "[스터디 출석체크] 금일 회원 출석부 불러오기", description = """ 
         ## [스터디 출석체크] 금일 모든 스터디 회원의 출석 여부를 불러옵니다.
         출석체크 화면에 표시되는 스터디 회원 정보(프로필 사진, 이름, 출석 여부, 스터디장 여부) 목록를 반환합니다.
@@ -546,7 +552,7 @@ public class MemberStudyController {
 
 
 /* ----------------------------- 스터디 회원 신고 관련 API ------------------------------------- */
-
+    @Tag(name = "스터디 회원 신고")
     @Operation(summary = "[스터디 회원 신고] 스터디원 신고하기", description = """ 
         ## [스터디 회원 신고] 로그인한 회원이 참여하는 스터디의 다른 회원을 신고합니다.
         member_report에 피신고자의 member_id를 포함하여 새로운 튜플을 추가합니다.

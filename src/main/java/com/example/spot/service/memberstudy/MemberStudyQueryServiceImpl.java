@@ -10,8 +10,10 @@ import com.example.spot.domain.enums.Theme;
 import com.example.spot.domain.mapping.MemberAttendance;
 import com.example.spot.domain.study.*;
 import com.example.spot.repository.*;
+
 import com.example.spot.security.utils.SecurityUtils;
 import com.example.spot.web.dto.memberstudy.response.*;
+
 import com.example.spot.web.dto.study.response.*;
 import lombok.RequiredArgsConstructor;
 import com.example.spot.api.exception.GeneralException;
@@ -24,9 +26,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -256,6 +255,25 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
         //=== Feature ===//
 
         return StudyPostCommentResponseDTO.CommentReplyListDTO.toDTO(studyPost.getId(), studyPost.getComments(), defaultImage);
+    }
+
+    @Override
+    public StudyImageResponseDTO.ImageListDTO getAllStudyImages(Long studyId) {
+
+        //=== Exception ===//
+        Long memberId = SecurityUtils.getCurrentUserId();
+        SecurityUtils.verifyUserId(memberId);
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        // 로그인한 회원이 스터디 회원인지 확인
+        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
+
+        //=== Feature ===//
+        return StudyImageResponseDTO.ImageListDTO.toDTO(study);
     }
 
     /* ----------------------------- 스터디 일정 관련 API ------------------------------------- */

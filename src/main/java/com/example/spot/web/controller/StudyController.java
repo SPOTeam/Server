@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "Study", description = "Study API")
+@Tag(name = "스터디", description = "스터디 관련 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/spot")

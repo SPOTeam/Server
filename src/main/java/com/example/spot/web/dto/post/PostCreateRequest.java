@@ -2,6 +2,7 @@ package com.example.spot.web.dto.post;
 
 import com.example.spot.domain.enums.Board;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,10 +17,12 @@ public class PostCreateRequest {
 
     @Schema(description = "게시글 제목입니다.",
             format = "string")
+    @NotNull
     private String title;
 
     @Schema(description = "게시글 내용입니다.",
             format = "string")
+    @NotNull
     private String content;
 
     @Schema(
