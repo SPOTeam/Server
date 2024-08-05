@@ -28,7 +28,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "Search", description = "Search API")
 @RestController
 @RequestMapping("/spot")
 @RequiredArgsConstructor
@@ -38,6 +37,7 @@ public class SearchController {
 
     private final StudyQueryService studyQueryService;
 
+    @Tag(name = "메인 화면", description = "메인 화면 API")
     @GetMapping("/search/studies/recommend/main/members/{memberId}")
     @Operation(summary = "[메인 화면] 회원 별 추천 스터디 3개 조회",
         description = """
@@ -49,7 +49,7 @@ public class SearchController {
        StudyPreviewDTO recommendStudies = studyQueryService.findRecommendStudies(memberId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, recommendStudies);
     }
-
+    @Tag(name = "마이 페이지", description = "마이 페이지 API")
     @GetMapping("/search/studies/my-page/members/{memberId}")
     @Operation(summary = "[마이 페이지] 마이 페이지 내 스터디 정보 조회",
         description = """
@@ -66,6 +66,7 @@ public class SearchController {
     /* ----------------------------- 내 관심 분야 별 스터디 조회  ------------------------------------- */
 
 
+    @Tag(name = "내 관심사 스터디 조회", description = "내 관심사 스터디 조회 API")
     @GetMapping("/search/studies/interest-themes/all/members/{memberId}")
     @Operation(
         summary = "[내 관심사 스터디 조회] 내 '전체' 관심사 스터디 조회",
@@ -99,6 +100,7 @@ public class SearchController {
             searchRequestStudyDTO, sortBy);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
     }
+    @Tag(name = "내 관심사 스터디 조회", description = "내 관심사 스터디 조회 API")
     @GetMapping("/search/studies/interest-themes/specific/members/{memberId}/")
     @Operation(
         summary = "[내 관심사 스터디 조회] 내 '특정' 관심사 스터디 조회",
@@ -139,6 +141,7 @@ public class SearchController {
     /* ----------------------------- 내 관심 지역 별 스터디 조회  ------------------------------------- */
 
 
+    @Tag(name = "내 관심 지역 스터디 조회", description = "내 관심 지역 스터디 조회 API")
     @GetMapping("/search/studies/preferred-region/all/members/{memberId}")
     @Operation(
         summary = "[내 관심 지역 스터디 조회] 내 '전체' 관심 지역 스터디 조회",
@@ -172,7 +175,7 @@ public class SearchController {
             PageRequest.of(page, size), memberId, searchRequestStudyDTO, sortBy);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
     }
-
+    @Tag(name = "내 관심 지역 스터디 조회", description = "내 관심 지역 스터디 조회 API")
     @GetMapping("/search/studies/preferred-region/specific/members/{memberId}")
     @Operation(
         summary = "[내 관심 지역 스터디 조회] 내 '특정' 관심 지역 스터디 조회",
@@ -211,6 +214,7 @@ public class SearchController {
     /* ----------------------------- 모집 중 스터디 조회  ------------------------------------- */
 
 
+    @Tag(name = "내 스터디 조회")
     @GetMapping("/search/studies/recruiting")
     @Operation(
         summary = "[모집 중 스터디 조회] 모집 중인 스터디 조회",
@@ -245,6 +249,7 @@ public class SearchController {
 
     /* ----------------------------- 찜한 스터디 검색  ------------------------------------- */
 
+    @Tag(name = "내 스터디 조회")
     @GetMapping("/search/studies/liked/members/{memberId}")
     @Operation(
         summary = "[찜한 스터디 조회] 찜한 스터디 조회",
@@ -262,6 +267,7 @@ public class SearchController {
     }
     /* ----------------------------- 스터디 검색  ------------------------------------- */
 
+    @Tag(name = "스터디 검색")
     @GetMapping("/search/studies")
     @Operation(
         summary = "[스터디 검색] 키워드를 통한 스터디 검색",
@@ -284,6 +290,7 @@ public class SearchController {
     }
 
     /* ----------------------------- 테마 별 스터디 검색  ------------------------------------- */
+    @Tag(name = "스터디 검색")
     @GetMapping("/search/studies/theme/")
     @Operation(
         summary = "[테마 별 스터디 검색] 테마 별 스터디 검색",
@@ -307,6 +314,7 @@ public class SearchController {
 
 
     /* ----------------------------- 진행중인 스터디 목록 조회  ------------------------------------- */
+    @Tag(name = "내 스터디 조회")
     @Operation(summary = "[참여하고 있는 스터디 조회] 내가 참여하고 있는 스터디 목록 불러오기", description = """ 
         ## [진행중인 스터디] 마이페이지 > 진행중 클릭, 로그인한 회원이 참여하고 있는 스터디 목록을 불러옵니다.
         로그인한 회원이 참여하는 스터디 중 status = ON인 스터디의 목록이 반환됩니다.
@@ -326,6 +334,7 @@ public class SearchController {
 
     /* ----------------------------- 모집중인 스터디 목록 조회  ------------------------------------- */
 
+    @Tag(name = "내 스터디 조회")
     @Operation(summary = "[내가 모집중인 스터디] 내가 모집중인 스터디 목록 불러오기", description = """ 
         ## [모집중인 스터디] 마이페이지 > 모집중 클릭, 로그인한 회원이 모집중인 스터디 목록을 불러옵니다.
         로그인한 회원이 운영하는 스터디 중 study_state = RECRUITING인 스터디의 목록이 반환됩니다.
@@ -345,6 +354,7 @@ public class SearchController {
 
 
     /* ----------------------------- 신청한 스터디 목록 조회  ------------------------------------- */
+    @Tag(name = "내 스터디 조회")
     @Operation(summary = "[신청한 스터디] 신청한 스터디 목록 불러오기", description = """ 
         ## [신청한 스터디] 마이페이지 > 신청한, 로그인한 회원이 신청한 스터디 목록을 불러옵니다.
         로그인한 회원이 신청한 스터디(ApplicationStatus = APPLIED)의 목록이 반환됩니다.

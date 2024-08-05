@@ -4,21 +4,25 @@ import com.example.spot.api.ApiResponse;
 import com.example.spot.api.code.status.SuccessStatus;
 import com.example.spot.service.post.PostCommandService;
 import com.example.spot.service.post.PostQueryService;
+import com.example.spot.validation.annotation.ExistMember;
+import com.example.spot.validation.annotation.ExistPost;
 import com.example.spot.web.dto.post.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "Post", description = "Post API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/spot/posts")
+@Validated
 public class PostController {
 
     private final PostCommandService postCommandService;
@@ -27,40 +31,58 @@ public class PostController {
 
     private final static int PAGE_SIZE = 10; //페이지당 개수
 
+    @Tag(name = "게시판", description = "게시판 관련 API")
     @Operation(
-            summary = "게시글 등록 API",
-            description = "form/data로 새로운 게시글을 생성합니다.",
+            summary = "[게시판] 게시글 등록 API",
+            description = """
+        입력 받은 값으로 게시글을 하나 등록 합니다. 
+        
+        게시글 종류는 PASS_EXPERIENCE, INFORMATION_SHARING, COUNSELING, JOB_TALK, FREE_TALK, SPOT_ANNOUNCEMENT 중 하나입니다.
+        
+        익명 여부를 선택할 수 있습니다.
+        
+        생성된 게시글의 고유 ID와 게시글 종류, 생성 시간을 반환합니다.
+        """,
             security = @SecurityRequirement(name = "accessToken")
     )
     @PostMapping(value = "/{memberId}")
     public ApiResponse<PostCreateResponse> create(
-            @PathVariable Long memberId,
-            @RequestBody PostCreateRequest postCreateRequest
+            @PathVariable @ExistMember Long memberId,
+            @RequestBody @Valid PostCreateRequest postCreateRequest
     ) {
         PostCreateResponse response = postCommandService.createPost(memberId, postCreateRequest);
         return ApiResponse.onSuccess(SuccessStatus._CREATED, response);
     }
 
+    @Tag(name = "게시판", description = "게시판 관련 API")
     @Operation(
-            summary = "게시글 단건 조회 API",
-            description = "게시글 Id를 받아 게시글을 조회합니다.",
+            summary = "[게시판] 게시글 단건 조회 API",
+        description = """
+        게시글 ID를 받아 게시글을 조회합니다. 
+        
+        해당 게시글에 대한 상세 정보를 반환합니다. 
+        """,
             security = @SecurityRequirement(name = "accessToken")
     )
     @GetMapping("/{postId}")
     public ApiResponse<PostSingleResponse> singlePost(
-            @Parameter(
-                    description = "조회할 게시글 ID입니다.",
-                    schema = @Schema(type = "integer", format = "int64")
-            )
-            @PathVariable Long postId
+            @Parameter(description = "조회할 게시글 ID입니다.", schema = @Schema(type = "integer", format = "int64"))
+            @PathVariable @ExistPost Long postId
     ) {
         PostSingleResponse response = postQueryService.getPostById(postId);
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
+    @Tag(name = "게시판", description = "게시판 관련 API")
     @Operation(
-            summary = "게시글 페이지 조회 API",
-            description = "게시글을 게시글 종류를 받아 조회합니다."
+            summary = "[게시판] 게시글 페이지 조회 API",
+        description = """
+        게시글 종류를 받아 페이지 번호에 해당하는 게시글을 조회합니다.
+        
+        게시글 종류는 PASS_EXPERIENCE, INFORMATION_SHARING, COUNSELING, JOB_TALK, FREE_TALK, SPOT_ANNOUNCEMENT 중 하나입니다.
+        
+        페이지 번호는 0부터 시작하며 기본값은 0입니다.
+        """
     )
     @GetMapping
     public ApiResponse<PostPagingResponse> getPagingPost(
@@ -75,8 +97,9 @@ public class PostController {
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
+    @Tag(name = "게시판", description = "게시판 관련 API")
     @Operation(
-            summary = "Best 인기글 조회",
+            summary = "[게시판] Best 인기글 조회",
             description = "Best 인기글을 조회합니다.(인기글 조회시 종류 명시가 필요합니다.)")
     @GetMapping("/best")
     public ApiResponse<PostBest5Response> getPostBest(
@@ -87,8 +110,9 @@ public class PostController {
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
+    @Tag(name = "게시판", description = "게시판 관련 API")
     @Operation(
-            summary = "게시판 홈 게시글 조회",
+            summary = "[게시판] 게시판 홈 게시글 조회",
             description = "게시판 홈에 게시글 종류별로 대표1개씩 게시글을 조회합니다.")
     @GetMapping("/representative")
     public ApiResponse<PostRepresentativeResponse> getPostRepresentative() {
@@ -96,8 +120,9 @@ public class PostController {
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
+    @Tag(name = "게시판", description = "게시판 관련 API")
     @Operation(
-            summary = "게시판 공지 조회",
+            summary = "[게시판] 게시판 공지 조회",
             description = "공지를 조회합니다.")
     @GetMapping("/announcement")
     public ApiResponse<PostAnnouncementResponse> getPostAnnouncement() {
@@ -105,7 +130,8 @@ public class PostController {
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
-    @Operation(summary = "댓글 조회 API", description = "댓글 ID를 받아 댓글을 조회합니다.")
+    @Tag(name = "게시판 - 댓글", description = "댓글 관련 API")
+    @Operation(summary = "[게시판] 댓글 조회 API", description = "댓글 ID를 받아 댓글을 조회합니다.")
     @GetMapping("/comments/{commentId}")
     public void getComment(
             @Parameter(
@@ -117,19 +143,20 @@ public class PostController {
         //메서드
     }
 
+    @Tag(name = "게시판", description = "게시판 관련 API")
     @Operation(
-            summary = "게시글 수정 API",
+            summary = "[게시판] 게시글 수정 API",
             description = "게시글 Id를 받아 게시글을 수정합니다.",
             security = @SecurityRequirement(name = "accessToken")
     )
     @PatchMapping("/{memberId}/{postId}")
     public ApiResponse<PostCreateResponse> update(
-            @PathVariable Long memberId,
+            @PathVariable @ExistMember Long memberId,
             @Parameter(
                     description = "수정할 게시글의 ID입니다.",
                     schema = @Schema(type = "integer", format = "int64")
             )
-            @PathVariable Long postId,
+            @PathVariable @ExistPost Long postId,
             @Parameter(
                     description = "수정할 게시글 데이터입니다."
             )
@@ -139,36 +166,39 @@ public class PostController {
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
-    @Operation(summary = "게시글 삭제 API", description = "게시글 Id를 받아 게시글을 삭제합니다.")
+    @Tag(name = "게시판", description = "게시판 관련 API")
+    @Operation(summary = "[게시판] 게시글 삭제 API", description = "게시글 Id를 받아 게시글을 삭제합니다.")
     @DeleteMapping("/{memberId}/{postId}")
     public ApiResponse<Void> delete(
-            @PathVariable Long memberId,
+            @PathVariable @ExistMember Long memberId,
             @Parameter(
                     description = "삭제할 게시글의 ID입니다.",
                     schema = @Schema(type = "integer", format = "int64")
             )
-            @PathVariable Long postId
+            @PathVariable @ExistPost Long postId
     ) {
         postCommandService.deletePost(memberId, postId);
         return ApiResponse.onSuccess(SuccessStatus._NO_CONTENT);
 
     }
 
+    @Tag(name = "게시글 좋아요", description = "게시글 좋아요 관련 API")
     //게시글 좋아요
-    @Operation(summary = "게시글 좋아요 API", description = "게시글 Id를 받아 게시글에 좋아요를 추가합니다.")
+    @Operation(summary = "[게시판] 게시글 좋아요 API", description = "게시글 Id를 받아 게시글에 좋아요를 추가합니다.")
     @PostMapping("/{postId}/{memberId}/like")
     public ApiResponse<PostLikeResponse> likePost(
-            @PathVariable Long postId,
-            @PathVariable Long memberId) {
+            @PathVariable @ExistPost Long postId,
+            @PathVariable @ExistMember Long memberId) {
         PostLikeResponse response = postCommandService.likePost(postId, memberId);
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
-    @Operation(summary = "게시글 좋아요 취소 API", description = "게시글 Id를 받아 게시글에 좋아요를 취소합니다.")
+    @Tag(name = "게시글 좋아요", description = "게시글 좋아요 관련 API")
+    @Operation(summary = "[게시판] 게시글 좋아요 취소 API", description = "게시글 Id를 받아 게시글에 좋아요를 취소합니다.")
     @DeleteMapping("/{postId}/{memberId}/like")
     public ApiResponse<PostLikeResponse> cancelPostLike(
-            @PathVariable Long postId,
-            @PathVariable Long memberId) {
+            @PathVariable @ExistPost Long postId,
+            @PathVariable @ExistMember Long memberId) {
         PostLikeResponse response = postCommandService.cancelPostLike(postId, memberId);
         return ApiResponse.onSuccess(SuccessStatus._NO_CONTENT, response);
     }

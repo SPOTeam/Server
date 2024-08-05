@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Member", description = "Member API")
 @RestController
 @RequestMapping("/spot")
 @RequiredArgsConstructor
@@ -38,6 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberController {
 
     private final MemberService memberService;
+    @Tag(name = "테스트 용 API", description = "테스트 용 API")
     @Operation(summary = "!테스트 용! [회원 생성] 테스트 용 회원 생성 API",
         description = """
             ## [테스트 용 회원 생성] 임의의 정보를 가진 회원 객체가 생성 됩니다. 
@@ -52,6 +52,7 @@ public class MemberController {
     }
 
 
+    @Tag(name = "테스트 용 API", description = "테스트 용 API")
     @Operation(summary = "!테스트 용! [회원 가입 및 로그인] 카카오 로그인 및 회원가입 ",
         description = """
             ## [회원 가입 및 로그인] 카카오 로그인의 모든 과정이 구현되어 있습니다. 
@@ -67,6 +68,7 @@ public class MemberController {
         memberService.redirectURL();
     }
 
+    @Tag(name = "테스트 용 API", description = "테스트 용 API")
     @Operation(summary = "!서버 용! [회원 가입 및 로그인] 카카오 로그인 및 회원가입 리다이렉트용 API ",
         description = """
             ## [회원 가입 및 로그인] 카카오 로그인의 모든 과정이 구현되어 있습니다. 
@@ -83,6 +85,7 @@ public class MemberController {
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_CREATED, dto);
     }
 
+    @Tag(name = "회원 관리 API", description = "회원 관리 API")
     @Operation(summary = "[회원 가입 및 로그인] 카카오 로그인 및 회원가입. ",
         description = """
             ## [회원 가입 및 로그인] 프론트에서 발급 밭은 액세스 토큰을 통해 회원 가입 및 로그인을 진행합니다. 
@@ -97,6 +100,7 @@ public class MemberController {
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_CREATED, dto);
     }
 
+    @Tag(name = "회원 관리 API", description = "회원 관리 API")
     @PostMapping("/member/{memberId}/theme")
     @Operation(summary = "[회원 정보 업데이트] 관심 분야 입력 및 수정",
         description = """
@@ -113,6 +117,7 @@ public class MemberController {
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_THEME_UPDATE, memberUpdateDTO);
     }
 
+    @Tag(name = "회원 관리 API", description = "회원 관리 API")
     @PostMapping("/member/{memberId}/region")
     @Operation(summary = "[회원 정보 업데이트] 관심 지역 입력 및 수정",
         description = """
@@ -128,6 +133,7 @@ public class MemberController {
         MemberUpdateDTO memberUpdateDTO = memberService.updateRegion(memberId, requestDTO);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_REGION_UPDATE, memberUpdateDTO);
     }
+    @Tag(name = "회원 관리 API", description = "회원 관리 API")
     @PostMapping("/member/{memberId}/user-info")
     @Operation(summary = "[회원 정보 업데이트] 개인 정보 입력 및 수정",
         description = """

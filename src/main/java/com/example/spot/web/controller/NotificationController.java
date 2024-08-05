@@ -15,7 +15,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "Notification", description = "Notification API")
+@Tag(name = "알림 - 개발 중", description = "알림 관련 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/spot")
@@ -25,7 +25,8 @@ public class NotificationController {
     private final NotificationCommandService notificationCommandService;
 
     //알림 전체 조회
-    @Operation(summary = "[알림 전체 조회 - 개발중]", description = """
+    @Tag(name = "알림", description = "알림 관련 API")
+    @Operation(summary = "[알림 전체 조회]", description = """
             ## [알림 전체 조회] 내게 할당된 알림 전체 조회
             내게 할당된 알림 전체를 조회합니다.
             """)
@@ -36,7 +37,8 @@ public class NotificationController {
     }
 
     //신청한 스터디 참여 확인 알림
-    @Operation(summary = "[참가 신청한 스터디 알림 조회 - 개발중]", description = "유저가 참가 신청한 스터디 조회")
+    @Tag(name = "알림", description = "알림 관련 API")
+    @Operation(summary = "[참가 신청한 스터디 알림 조회]", description = "유저가 참가 신청한 스터디 조회")
     @GetMapping("/members/{memberId}/notifications/applied-study")
     public ApiResponse<List<NotificationResponseDTO.NotificationDTO>> getAppliedStudyNotification(@PathVariable Long memberId) {
         List<NotificationResponseDTO.NotificationDTO> notificationDTO = notificationQueryService.getAllAppliedStudyNotification(memberId);
@@ -55,6 +57,7 @@ public class NotificationController {
         return ApiResponse.onSuccess(SuccessStatus._NOTIFICATION_READ, notificationDTO);
 
     }
+
 
     @Operation(summary = "[참가 신청한 스터디 참여 여부 - 개발중]", description = "유저가 참가 신청한 스터디 참여 여부")
     @GetMapping("/members/{memberId}/notifications/applied-study/{studyId}")
