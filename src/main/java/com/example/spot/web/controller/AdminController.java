@@ -1,5 +1,7 @@
 package com.example.spot.web.controller;
 
+import com.example.spot.api.code.status.ErrorStatus;
+import com.example.spot.api.exception.GeneralException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -35,6 +37,7 @@ public class AdminController {
         @RequestParam Integer page,
         @RequestParam Integer size
     ) {
+        throw new GeneralException(ErrorStatus._BAD_ENUM_REQUEST);
         // 메소드 구현
     }
 

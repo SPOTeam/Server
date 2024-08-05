@@ -29,7 +29,7 @@ jobs:
       - name: Make application.yml
         run: |
           mkdir -p src/main/resources
-          echo "${{ secrets.PROPERTIES }}" > src/main/resources/application.yml
+          echo "${{ secrets.PROPERTIES }}" > src/main/resources/application-prod.yml
 
       - name: Build with Gradle
         run: |
