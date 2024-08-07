@@ -1,5 +1,6 @@
 package com.example.spot.web.dto.member;
 
+import com.example.spot.domain.enums.Status;
 import java.time.LocalDateTime;
 import com.example.spot.web.dto.token.TokenResponseDTO.TokenDTO;
 import lombok.AllArgsConstructor;

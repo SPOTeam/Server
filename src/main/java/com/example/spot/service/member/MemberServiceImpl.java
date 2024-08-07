@@ -287,6 +287,18 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
+    public MemberUpdateDTO toAdmin(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
+        member.toAdmin();
+        memberRepository.save(member);
+        return MemberUpdateDTO.builder()
+            .memberId(member.getId())
+            .updatedAt(member.getUpdatedAt())
+            .build();
+    }
+
+    @Override
     public MemberTestDTO testMember(TestMemberDTO requestDTO) {
         Random random = new Random();
 

@@ -29,5 +29,6 @@ public interface MemberService extends UserDetailsService {
     MemberResponseDTO.MemberUpdateDTO updateTheme(Long memberId, MemberThemeDTO requestDTO);
     MemberResponseDTO.MemberUpdateDTO updateRegion(Long memberId, MemberRegionDTO requestDTO);
     MemberResponseDTO.MemberUpdateDTO updateProfile(Long memberId, MemberInfoListDTO requestDTO);
+    MemberResponseDTO.MemberUpdateDTO toAdmin(Long memberId);
 }
 

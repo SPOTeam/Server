@@ -329,4 +329,8 @@ public class Member extends BaseEntity {
     public void updateSchedule(Schedule schedule) {
         scheduleList.set(scheduleList.indexOf(schedule), schedule);
     }
+
+    public void toAdmin() {
+        this.isAdmin = true;
+    }
 }

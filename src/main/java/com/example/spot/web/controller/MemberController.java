@@ -51,6 +51,21 @@ public class MemberController {
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_CREATED, dto);
     }
 
+    @Tag(name = "테스트 용 API", description = "테스트 용 API")
+    @Operation(summary = "!테스트 용! [회원 권한 부여] 관리자 권한 부여 API",
+        description = """
+            ## [회원 권한 부여] 해당하는 회원에게 관리자 권한을 부여합니다.
+            테스트를 위해 구현한 테스트 용 API입니다.
+            회원의 ID를 입력 받아 관리자 권한을 부여합니다.
+            성공 여부와 회원 ID가 반환 됩니다. 
+             """)
+    @PostMapping("/member/{memberId}/test/admin")
+    public ApiResponse<MemberResponseDTO.MemberUpdateDTO> toAdmin(
+        @ExistMember @PathVariable Long memberId){
+        MemberUpdateDTO dto = memberService.toAdmin(memberId);
+        return ApiResponse.onSuccess(SuccessStatus._MEMBER_CREATED, dto);
+    }
+
 
     @Tag(name = "테스트 용 API", description = "테스트 용 API")
     @Operation(summary = "!테스트 용! [회원 가입 및 로그인] 카카오 로그인 및 회원가입 ",
