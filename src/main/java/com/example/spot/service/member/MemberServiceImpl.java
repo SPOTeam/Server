@@ -301,7 +301,7 @@ public class MemberServiceImpl implements MemberService {
             .toList();
 
         List<StudyReason> studyReasons = reasons.stream()
-            .map(reason -> StudyReason.builder().member(member).reason(reason).build())
+            .map(reason -> StudyReason.builder().member(member).reason(reason.getCode()).build())
             .toList();
 
         // 기존의 MemberTheme과 PreferredRegion 삭제

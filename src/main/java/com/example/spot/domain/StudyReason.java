@@ -25,9 +25,8 @@ public class StudyReason extends BaseEntity {
     @Column(nullable = false, unique = true)
     private Long id;
 
-    @Enumerated(EnumType.STRING)
-    @Column
-    private Reason reason;
+    @Column(nullable = false)
+    private Long reason;
 
     //== 회원 ==//
     @ManyToOne(fetch = FetchType.LAZY)

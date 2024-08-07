@@ -1,5 +1,8 @@
 package com.example.spot.domain.enums;
 
+import com.example.spot.api.code.status.ErrorStatus;
+import com.example.spot.api.exception.GeneralException;
+
 public enum Reason {
     동기부여를_받고_싶어요(1),
     스터디원이_필요해요(2),
@@ -13,7 +16,7 @@ public enum Reason {
         this.code = code;
     }
 
-    public int getCode() {
+    public long getCode() {
         return code;
     }
 
@@ -23,6 +26,6 @@ public enum Reason {
                 return reason;
             }
         }
-        throw new IllegalArgumentException("Invalid code: " + code);
+        throw new GeneralException(ErrorStatus._INVALID_STUDY_REASON);
     }
 }
