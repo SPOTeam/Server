@@ -36,14 +36,14 @@ public class Notification extends BaseEntity {
     private NotifyType type;
 
     @Column(nullable = false, columnDefinition = "BIT DEFAULT 0")
-    private Boolean isChecked;
+    private Boolean isChecked = false;
 
     //== 회원 ==//
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    public void markAsRead() {
-        this.isChecked = true;
+    public boolean markAsRead() {
+        return true;
     }
 }
