@@ -21,6 +21,7 @@ import com.example.spot.domain.Member;
 import com.example.spot.repository.MemberRepository;
 import com.example.spot.service.auth.KaKaoOAuthService;
 import com.example.spot.web.dto.member.MemberResponseDTO;
+import com.example.spot.web.dto.member.MemberResponseDTO.MemberRegionDTO.RegionDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.MemberSignInDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.MemberStudyReasonDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.MemberTestDTO;
@@ -358,8 +359,13 @@ public class MemberServiceImpl implements MemberService {
             .map(PreferredRegion::getRegion)
             .toList();
 
-        List<String> codes = regions.stream()
-            .map(Region::getCode)
+        List<RegionDTO> codes = regions.stream()
+            .map(region -> RegionDTO.builder()
+                .province(region.getProvince())
+                .district(region.getDistrict())
+                .neighborhood(region.getNeighborhood())
+                .code(region.getCode())
+                .build())
             .toList();
 
         return MemberResponseDTO.MemberRegionDTO.builder()

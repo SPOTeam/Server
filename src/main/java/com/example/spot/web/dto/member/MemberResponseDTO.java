@@ -58,8 +58,22 @@ public class MemberResponseDTO {
     @AllArgsConstructor
     public static class MemberRegionDTO {
         private Long memberId;
-        private List<String> regions;
+        private List<RegionDTO> regions;
+
+
+        @Builder
+        @Getter
+        @NoArgsConstructor
+        @AllArgsConstructor
+        public static class RegionDTO {
+            private String province;
+            private String district;
+            private String neighborhood;
+            private String code;
+        }
     }
+
+
 
     @Builder
     @Getter
