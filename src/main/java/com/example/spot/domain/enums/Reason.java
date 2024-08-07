@@ -10,9 +10,9 @@ public enum Reason {
     한_목표를_가진_사람들과_친해지고_싶어요(4),
     다양한_정보를_공유하고_받고_싶어요(5);
 
-    private final int code;
+    private final long code;
 
-    Reason(int code) {
+    Reason(long code) {
         this.code = code;
     }
 
@@ -20,7 +20,7 @@ public enum Reason {
         return code;
     }
 
-    public static Reason fromCode(int code) {
+    public static Reason fromCode(long code) {
         for (Reason reason : values()) {
             if (reason.getCode() == code) {
                 return reason;

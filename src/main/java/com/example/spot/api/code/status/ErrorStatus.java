@@ -34,6 +34,9 @@ public enum ErrorStatus implements BaseErrorCode {
     _MEMBER_EMAIL_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "MEMBER4006", "이미 존재하는 이메일입니다."),
     _MEMBER_NO_ACCESS(HttpStatus.FORBIDDEN, "MEMBER4007", "해당 API에 대한 접근 권한이 없습니다."),
     _INVALID_STUDY_REASON(HttpStatus.BAD_REQUEST, "MEMBER4008", "유효하지 않은 스터디 이유입니다."),
+    _MEMBER_THEME_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER4009", "테마를 찾을 수 없습니다."),
+    _MEMBER_REGION_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER4010", "지역을 찾을 수 없습니다."),
+    _MEMBER_STUDY_REASON_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER4011", "스터디 이유를 찾을 수 없습니다."),
 
     //스터디 관련 에러
     _STUDY_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY4001", "스터디를 찾을 수 없습니다."),

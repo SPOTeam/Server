@@ -5,7 +5,9 @@ import com.example.spot.api.code.status.SuccessStatus;
 
 import com.example.spot.service.member.MemberService;
 import com.example.spot.web.dto.member.MemberResponseDTO;
+import com.example.spot.web.dto.member.MemberResponseDTO.MemberRegionDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.MemberSignInDTO;
+import com.example.spot.web.dto.member.MemberResponseDTO.MemberStudyReasonDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.MemberTestDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.example.spot.validation.annotation.ExistMember;
@@ -166,11 +168,12 @@ public class MemberController {
     }
 
     @Tag(name = "회원 관리 API", description = "회원 관리 API")
-    @PostMapping("/member/{memberId}/study-reason")
+    @PostMapping("/member/{memberId}/study-reasons")
     @Operation(summary = "[회원 정보 업데이트] 스터디 이유 입력 및 수정",
         description = """
             ## [회원 정보 업데이트] 해당하는 회원의 스터디 이유를 입력 및 수정 합니다.
             업데이트 할 회원의 정보를 입력 받습니다.
+            
             1. 동기부여를_받고_싶어요
             2. 스터디원이_필요해요
             3. 혼자서_하기가_의지가_부족해요
@@ -188,6 +191,54 @@ public class MemberController {
         @RequestBody @Valid MemberRequestDTO.MemberReasonDTO requestDTO){
         MemberUpdateDTO memberUpdateDTO = memberService.updateStudyReason(memberId, requestDTO);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_INFO_UPDATE, memberUpdateDTO);
+    }
+
+    @Tag(name = "회원 조회 API", description = "회원 조회 API")
+    @GetMapping("/member/{memberId}/theme")
+    @Operation(summary = "[회원 정보 조회] 관심 분야 조회",
+        description = """
+            ## [회원 정보 조회] 해당하는 회원의 관심 분야를 조회 합니다.
+            
+            관심 분야를 리스트 형식으로 응답합니다.
+            """,
+        security = @SecurityRequirement(name = "accessToken"))
+    @Parameter(name = "memberId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
+    public ApiResponse<MemberResponseDTO.MemberThemeDTO> getThemes(
+        @PathVariable @ExistMember Long memberId){
+        MemberResponseDTO.MemberThemeDTO memberThemeDTO = memberService.getThemes(memberId);
+        return ApiResponse.onSuccess(SuccessStatus._MEMBER_THEME_UPDATE, memberThemeDTO);
+    }
+
+    @Tag(name = "회원 조회 API", description = "회원 조회 API")
+    @GetMapping("/member/{memberId}/region")
+    @Operation(summary = "[회원 정보 조회] 관심 지역 조회",
+        description = """
+            ## [회원 정보 조회] 해당하는 회원의 관심 지역을 조회 합니다.
+            
+            관심 지역을 리스트 형식으로 응답합니다.
+            """,
+        security = @SecurityRequirement(name = "accessToken"))
+    @Parameter(name = "memberId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
+    public ApiResponse<MemberResponseDTO.MemberRegionDTO> getRegions(
+        @PathVariable @ExistMember Long memberId){
+        MemberRegionDTO memberRegionDTO = memberService.getRegions(memberId);
+        return ApiResponse.onSuccess(SuccessStatus._MEMBER_REGION_UPDATE, memberRegionDTO);
+    }
+
+    @Tag(name = "회원 조회 API", description = "회원 조회 API")
+    @GetMapping("/member/{memberId}/study-reasons")
+    @Operation(summary = "[회원 정보 조회] 스터디 이유 조회",
+        description = """
+            ## [회원 정보 조회] 해당하는 회원의 스터디 이유를 조회 합니다.
+            
+            스터디 이유를 리스트 형식으로 응답합니다.
+            """,
+        security = @SecurityRequirement(name = "accessToken"))
+    @Parameter(name = "memberId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
+    public ApiResponse<MemberResponseDTO.MemberStudyReasonDTO> getStudyReasons(
+        @PathVariable @ExistMember Long memberId){
+        MemberStudyReasonDTO memberStudyReasonDTO = memberService.getStudyReasons(memberId);
+        return ApiResponse.onSuccess(SuccessStatus._MEMBER_REGION_UPDATE, memberStudyReasonDTO);
     }
 }
 

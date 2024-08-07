@@ -31,6 +31,10 @@ public interface MemberService extends UserDetailsService {
     MemberResponseDTO.MemberUpdateDTO updateRegion(Long memberId, MemberRegionDTO requestDTO);
     MemberResponseDTO.MemberUpdateDTO updateProfile(Long memberId, MemberInfoListDTO requestDTO);
     MemberResponseDTO.MemberUpdateDTO updateStudyReason(Long memberId, MemberReasonDTO requestDTO);
+
+    MemberResponseDTO.MemberThemeDTO getThemes(Long memberId);
+    MemberResponseDTO.MemberRegionDTO getRegions(Long memberId);
+    MemberResponseDTO.MemberStudyReasonDTO getStudyReasons(Long memberId);
     MemberResponseDTO.MemberUpdateDTO toAdmin(Long memberId);
 }
 
