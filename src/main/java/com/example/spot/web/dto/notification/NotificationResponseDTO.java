@@ -1,44 +1,57 @@
 package com.example.spot.web.dto.notification;
 
 import com.example.spot.domain.Notification;
-import com.example.spot.domain.enums.NotifyType;
 
-import lombok.AccessLevel;
+import com.example.spot.domain.enums.NotifyType;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import java.time.LocalDateTime;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Page;
 
 @Getter
 public class NotificationResponseDTO {
 
     @Getter
+    @Builder
+    @AllArgsConstructor
     public static class NotificationDTO {
+        private Long id;
+        private String title;
+        private String content;
+        private NotifyType type;
+        private boolean isChecked;
 
-        private final Long notificationId;
-        private final String title;
-        private final String content;
-        private final NotifyType type;
-        private final Boolean isChecked;
-        private final LocalDateTime createdAt;
-
-        @Builder(access = AccessLevel.PRIVATE)
-        private NotificationDTO(Long notificationId, String title, String content, NotifyType type, Boolean isChecked, LocalDateTime createdAt) {
-            this.notificationId = notificationId;
-            this.title = title;
-            this.content = content;
-            this.type = type;
-            this.isChecked = isChecked;
-            this.createdAt = createdAt;
-        }
-
-        public static NotificationDTO fromEntity(Notification notification) {
+        public static NotificationDTO from(Notification notification) {
             return NotificationDTO.builder()
-                    .notificationId(notification.getId())
-                    .title(notification.getTitle())
+                    .id(notification.getId())
                     .content(notification.getContent())
                     .type(notification.getType())
-                    .isChecked(notification.getIsChecked())
-                    .createdAt(notification.getCreatedAt())
+                    .isChecked(notification.markAsRead())
+                    .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public static class NotificationListDTO {
+        private List<NotificationDTO> notifications;
+        private int totalPages;
+        private long totalElements;
+
+        public static NotificationListDTO of(Page<Notification> notifications) {
+            List<NotificationDTO> notificationDTOs = notifications.stream()
+                    .map(NotificationDTO::from)
+                    .collect(Collectors.toList());
+                    
+            return NotificationListDTO.builder()
+                    .notifications(notificationDTOs)
+                    .totalPages(notifications.getTotalPages())
+                    .totalElements(notifications.getTotalElements())
                     .build();
         }
     }
