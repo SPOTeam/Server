@@ -2,8 +2,11 @@ package com.example.spot.service.member;
 
 import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.GeneralException;
+import com.example.spot.domain.StudyReason;
 import com.example.spot.domain.enums.Carrier;
+import com.example.spot.domain.enums.Reason;
 import com.example.spot.domain.enums.Status;
+import com.example.spot.repository.StudyReasonRepository;
 import com.example.spot.security.utils.JwtTokenProvider;
 import com.example.spot.domain.Member;
 import com.example.spot.repository.MemberRepository;
@@ -74,6 +77,7 @@ public class MemberServiceImpl implements MemberService {
     private final RegionRepository regionRepository;
     private final MemberThemeRepository memberThemeRepository;
     private final PreferredRegionRepository preferredRegionRepository;
+    private final StudyReasonRepository studyReasonRepository;
     private final RefreshTokenRepository refreshTokenRepository;
 
     @Override
@@ -292,7 +296,30 @@ public class MemberServiceImpl implements MemberService {
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
 
-        return null;
+        List<Reason> reasons = requestDTO.getReasons().stream()
+            .map(Reason::fromCode)
+            .toList();
+
+        List<StudyReason> studyReasons = reasons.stream()
+            .map(reason -> StudyReason.builder().member(member).reason(reason).build())
+            .toList();
+
+        // 기존의 MemberTheme과 PreferredRegion 삭제
+
+        if (studyReasonRepository.existsByMemberId(member.getId()))
+            studyReasonRepository.deleteByMemberId(member.getId());
+
+
+        studyReasonRepository.saveAll(studyReasons);
+
+        member.updateReasons(studyReasons);
+
+        memberRepository.save(member);
+
+        return MemberUpdateDTO.builder()
+            .memberId(member.getId())
+            .updatedAt(member.getUpdatedAt())
+            .build();
     }
 
     @Override
