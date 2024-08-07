@@ -3,6 +3,7 @@ package com.example.spot.service.member;
 
 import com.example.spot.domain.Member;
 import com.example.spot.web.dto.member.MemberRequestDTO.MemberInfoListDTO;
+import com.example.spot.web.dto.member.MemberRequestDTO.MemberReasonDTO;
 import com.example.spot.web.dto.member.MemberRequestDTO.MemberRegionDTO;
 import com.example.spot.web.dto.member.MemberRequestDTO.MemberThemeDTO;
 import com.example.spot.web.dto.member.MemberRequestDTO.TestMemberDTO;
@@ -29,6 +30,7 @@ public interface MemberService extends UserDetailsService {
     MemberResponseDTO.MemberUpdateDTO updateTheme(Long memberId, MemberThemeDTO requestDTO);
     MemberResponseDTO.MemberUpdateDTO updateRegion(Long memberId, MemberRegionDTO requestDTO);
     MemberResponseDTO.MemberUpdateDTO updateProfile(Long memberId, MemberInfoListDTO requestDTO);
+    MemberResponseDTO.MemberUpdateDTO updateStudyReason(Long memberId, MemberReasonDTO requestDTO);
     MemberResponseDTO.MemberUpdateDTO toAdmin(Long memberId);
 }
 

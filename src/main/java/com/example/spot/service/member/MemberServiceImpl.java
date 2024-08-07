@@ -7,6 +7,7 @@ import com.example.spot.domain.enums.Status;
 import com.example.spot.security.utils.JwtTokenProvider;
 import com.example.spot.domain.Member;
 import com.example.spot.repository.MemberRepository;
+import com.example.spot.web.dto.member.MemberRequestDTO.MemberReasonDTO;
 import com.example.spot.web.dto.member.MemberRequestDTO.TestMemberDTO;
 import com.example.spot.domain.auth.CustomUserDetails;
 import com.example.spot.domain.auth.RefreshToken;
@@ -284,6 +285,14 @@ public class MemberServiceImpl implements MemberService {
             .memberId(member.getId())
             .updatedAt(member.getUpdatedAt())
             .build();
+    }
+
+    @Override
+    public MemberUpdateDTO updateStudyReason(Long memberId, MemberReasonDTO requestDTO) {
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
+
+        return null;
     }
 
     @Override

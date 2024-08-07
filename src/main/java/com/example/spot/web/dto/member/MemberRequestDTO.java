@@ -39,6 +39,15 @@ public class MemberRequestDTO {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
+    public static class MemberReasonDTO{
+        private List<Integer> reasons;
+    }
+
+    @Getter
+    @Setter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class MemberInfoListDTO{
 
         private String name;

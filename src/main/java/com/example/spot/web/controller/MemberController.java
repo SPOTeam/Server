@@ -164,6 +164,23 @@ public class MemberController {
         MemberUpdateDTO memberUpdateDTO = memberService.updateProfile(memberId, requestDTO);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_INFO_UPDATE, memberUpdateDTO);
     }
+
+    @Tag(name = "회원 관리 API", description = "회원 관리 API")
+    @PostMapping("/member/{memberId}/study-reason")
+    @Operation(summary = "[회원 정보 업데이트] 스터디 이유 수정",
+        description = """
+            ## [회원 정보 업데이트] 해당하는 회원의 스터디 이유를 입력 및 수정 합니다.
+            업데이트 할 회원의 정보를 입력 받습니다.
+            대상 회원의 식별 아이디와 수정 시각이 반환 됩니다. 
+            """,
+        security = @SecurityRequirement(name = "accessToken"))
+    @Parameter(name = "memberId", description = "업데이트할 유저의 ID를 입력 받습니다.", required = true)
+    public ApiResponse<MemberUpdateDTO> updateMemberStudyReason(
+        @PathVariable @ExistMember Long memberId,
+        @RequestBody @Valid MemberRequestDTO.MemberReasonDTO requestDTO){
+        MemberUpdateDTO memberUpdateDTO = memberService.updateStudyReason(memberId, requestDTO);
+        return ApiResponse.onSuccess(SuccessStatus._MEMBER_INFO_UPDATE, memberUpdateDTO);
+    }
 }
 
 
