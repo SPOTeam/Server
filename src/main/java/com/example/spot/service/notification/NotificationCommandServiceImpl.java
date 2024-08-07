@@ -45,7 +45,7 @@ public class NotificationCommandServiceImpl implements NotificationCommandServic
     }
 
     @Override
-    public NotificationResponseDTO.NotificationDTO joinAppliedStudy(long studyId, Long memberId, NotificationRequestDTO.joinStudyDTO joinStudyDTO) {
+    public NotificationResponseDTO.NotificationDTO joinAppliedStudy(long studyId, Long memberId, NotificationRequestDTO.appliedStudyDTO appliedStudyDTO) {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
@@ -61,7 +61,7 @@ public class NotificationCommandServiceImpl implements NotificationCommandServic
         }
 
         memberStudy.setStatus(ApplicationStatus.APPROVED);
-        memberRepository.save(member);
+        memberRepository.save(memberStudy);
 
         Notification notification = Notification.builder()
                 .title("참여 완료")
@@ -76,7 +76,23 @@ public class NotificationCommandServiceImpl implements NotificationCommandServic
     }
 
     @Override
-    public NotificationResponseDTO.NotificationDTO rejectAppliedStudy(long studyId, Long memberId, NotificationRequestDTO.rejectStudyDTO rejectStudyDTO) {
+    public NotificationResponseDTO.NotificationDTO rejectAppliedStudy(long studyId, Long memberId, NotificationRequestDTO.appliedStudyDTO appliedStudyDTO) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        
+        MemberStudy memberStudy = memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPLIED)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._APPLIED_STUDY_NOT_FOUND));
+        
+        memberStudy.setStatus(ApplicationStatus.CANCELED);
+        memberStudyRepository.save(memberStudy);
+
+        Notification notification = Notification.builder()
+        .title()
+        .
+
         return null;
     }
 }

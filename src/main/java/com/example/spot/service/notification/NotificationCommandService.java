@@ -9,8 +9,8 @@ public interface NotificationCommandService {
     NotificationResponseDTO.NotificationDTO readNotification(Long memberId, Long notificationId);
 
     // 신청한 스터디 참가
-    NotificationResponseDTO.NotificationDTO joinAppliedStudy(long studyId, Long memberId, NotificationRequestDTO.joinStudyDTO joinStudyDTO);
+    NotificationResponseDTO.NotificationDTO joinAppliedStudy(long studyId, Long memberId, NotificationRequestDTO.appliedStudyDTO appliedStudyDTO);
 
     // 신청한 스터디 거절
-    NotificationResponseDTO.NotificationDTO rejectAppliedStudy(long studyId, Long memberId, NotificationRequestDTO.rejectStudyDTO rejectStudyDTO);
+    NotificationResponseDTO.NotificationDTO rejectAppliedStudy(long studyId, Long memberId, NotificationRequestDTO.appliedStudyDTO appliedStudyDTO);
 }

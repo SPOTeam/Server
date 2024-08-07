@@ -1,17 +1,14 @@
 package com.example.spot.service.notification;
 
-import java.util.List;
+import org.springframework.data.domain.Pageable;
 
 import com.example.spot.web.dto.notification.NotificationResponseDTO;
+import com.example.spot.web.dto.notification.NotificationResponseDTO.NotificationDTO;
 
 public interface NotificationQueryService {
-
-    // 모든 알림 조회
-    List<NotificationResponseDTO.NotificationDTO> getAllNotifications(Long memberId);
-
-    // 신청 스터디 알림 조회
-    List<NotificationResponseDTO.NotificationDTO> getAllAppliedStudyNotification(Long memberId);
-
-    // 알림 존재 여부 확인
-    Boolean exitsNotification(Long memberId);
+    NotificationResponseDTO.NotificationListDTO getAllNotifications(Long memberId, Pageable pageable);
+    NotificationResponseDTO.NotificationListDTO getAllAppliedStudyNotification(Long memberId, Pageable pageable);
+    NotificationDTO getAppliedStudyNotification(Long memberId, Long studyId);
+    NotificationResponseDTO.NotificationDTO getNotification(Long memberId, Long notificationId);
+    boolean existsUnreadNotification(Long memberId);
 }

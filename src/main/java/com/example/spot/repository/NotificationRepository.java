@@ -1,26 +1,23 @@
 package com.example.spot.repository;
 
-import com.example.spot.domain.enums.NotifyType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.example.spot.domain.Notification;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
-
-    List<Notification> findByMemberId(Long memberId);
-
-    List<Notification> findByType(NotifyType type);
-
-    List<Notification> findAllByMemberIdAndType(Long memberId, NotifyType type);
-
-    List<Notification> findAllByMemberIdAndIsChecked(Long memberId, Boolean isChecked);
-
-    List<Notification> findAllByMemberIdAndTypeAndIsChecked(Long memberId, NotifyType type, Boolean isChecked);
-
-    List<Notification> findAppliedStudyByMemberId(Long memberId);
+    
+    Page<Notification> findAllByMemberIdOrderByCreatedAtDesc(Long memberId, Pageable pageable);
+    Page<Notification> findAllByMemberIdAndStudyIdIn(Long memberId, List<Long> studyIds, Pageable pageable);
+    Optional<Notification> findByIdAndMemberId(Long id, Long memberId);
+    boolean existsByMemberIdAndIsCheckedFalse(Long memberId);
+    boolean existsByMemberIdAndIsReadFalse(Long memberId);
+    Optional<Notification> findByMemberIdAndStudyId(Long memberId, Long studyId);
 
 }
