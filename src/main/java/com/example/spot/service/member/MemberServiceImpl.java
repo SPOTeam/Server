@@ -2,11 +2,16 @@ package com.example.spot.service.member;
 
 import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.GeneralException;
+import com.example.spot.domain.StudyReason;
 import com.example.spot.domain.enums.Carrier;
+import com.example.spot.domain.enums.Reason;
 import com.example.spot.domain.enums.Status;
+import com.example.spot.domain.enums.ThemeType;
+import com.example.spot.repository.StudyReasonRepository;
 import com.example.spot.security.utils.JwtTokenProvider;
 import com.example.spot.domain.Member;
 import com.example.spot.repository.MemberRepository;
+import com.example.spot.web.dto.member.MemberRequestDTO.MemberReasonDTO;
 import com.example.spot.web.dto.member.MemberRequestDTO.TestMemberDTO;
 import com.example.spot.domain.auth.CustomUserDetails;
 import com.example.spot.domain.auth.RefreshToken;
@@ -16,7 +21,9 @@ import com.example.spot.domain.Member;
 import com.example.spot.repository.MemberRepository;
 import com.example.spot.service.auth.KaKaoOAuthService;
 import com.example.spot.web.dto.member.MemberResponseDTO;
+import com.example.spot.web.dto.member.MemberResponseDTO.MemberRegionDTO.RegionDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.MemberSignInDTO;
+import com.example.spot.web.dto.member.MemberResponseDTO.MemberStudyReasonDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.MemberTestDTO;
 import com.example.spot.web.dto.member.kakao.KaKaoOAuthToken.KaKaoOAuthTokenDTO;
 import com.example.spot.web.dto.member.kakao.KaKaoUser;
@@ -73,6 +80,7 @@ public class MemberServiceImpl implements MemberService {
     private final RegionRepository regionRepository;
     private final MemberThemeRepository memberThemeRepository;
     private final PreferredRegionRepository preferredRegionRepository;
+    private final StudyReasonRepository studyReasonRepository;
     private final RefreshTokenRepository refreshTokenRepository;
 
     @Override
@@ -279,6 +287,120 @@ public class MemberServiceImpl implements MemberService {
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
         member.updateInfo(requestDTO);
+        memberRepository.save(member);
+        return MemberUpdateDTO.builder()
+            .memberId(member.getId())
+            .updatedAt(member.getUpdatedAt())
+            .build();
+    }
+
+    @Override
+    public MemberUpdateDTO updateStudyReason(Long memberId, MemberReasonDTO requestDTO) {
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
+
+        List<Reason> reasons = requestDTO.getReasons().stream()
+            .map(Reason::fromCode)
+            .toList();
+
+        List<StudyReason> studyReasons = reasons.stream()
+            .map(reason -> StudyReason.builder().member(member).reason(reason.getCode()).build())
+            .toList();
+
+        // 기존의 MemberTheme과 PreferredRegion 삭제
+
+        if (studyReasonRepository.existsByMemberId(member.getId()))
+            studyReasonRepository.deleteByMemberId(member.getId());
+
+
+        studyReasonRepository.saveAll(studyReasons);
+
+        member.updateReasons(studyReasons);
+
+        memberRepository.save(member);
+
+        return MemberUpdateDTO.builder()
+            .memberId(member.getId())
+            .updatedAt(member.getUpdatedAt())
+            .build();
+    }
+
+    @Override
+    public MemberResponseDTO.MemberThemeDTO getThemes(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
+
+        if (member.getMemberThemeList().isEmpty())
+            throw new GeneralException(ErrorStatus._MEMBER_THEME_NOT_FOUND);
+
+        List<Theme> themes = member.getMemberThemeList().stream()
+            .map(MemberTheme::getTheme)
+            .toList();
+
+        List<ThemeType> themeTypes = themes.stream()
+            .map(Theme::getStudyTheme)
+            .toList();
+
+        return MemberResponseDTO.MemberThemeDTO.builder()
+            .memberId(member.getId())
+            .themes(themeTypes)
+            .build();
+    }
+
+    @Override
+    public MemberResponseDTO.MemberRegionDTO getRegions(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
+
+        if (member.getRegions().isEmpty())
+            throw new GeneralException(ErrorStatus._MEMBER_REGION_NOT_FOUND);
+
+        List<Region> regions = member.getPreferredRegionList().stream()
+            .map(PreferredRegion::getRegion)
+            .toList();
+
+        List<RegionDTO> codes = regions.stream()
+            .map(region -> RegionDTO.builder()
+                .province(region.getProvince())
+                .district(region.getDistrict())
+                .neighborhood(region.getNeighborhood())
+                .code(region.getCode())
+                .build())
+            .toList();
+
+        return MemberResponseDTO.MemberRegionDTO.builder()
+            .memberId(member.getId())
+            .regions(codes)
+            .build();
+    }
+
+    @Override
+    public MemberStudyReasonDTO getStudyReasons(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
+
+        if (member.getStudyReasonList().isEmpty())
+            throw new GeneralException(ErrorStatus._MEMBER_STUDY_REASON_NOT_FOUND);
+
+        List<Long> reasonNums = member.getStudyReasonList().stream()
+            .map(StudyReason::getReason)
+            .toList();
+
+        List<Reason> reasons = reasonNums.stream()
+            .map(Reason::fromCode)
+            .toList();
+
+        return MemberStudyReasonDTO.builder()
+            .memberId(member.getId())
+            .reasons(reasons)
+            .build();
+    }
+
+    @Override
+    public MemberUpdateDTO toAdmin(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
+        member.toAdmin();
         memberRepository.save(member);
         return MemberUpdateDTO.builder()
             .memberId(member.getId())
