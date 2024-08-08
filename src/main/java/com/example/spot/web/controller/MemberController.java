@@ -3,6 +3,7 @@ package com.example.spot.web.controller;
 import com.example.spot.api.ApiResponse;
 import com.example.spot.api.code.status.SuccessStatus;
 
+import com.example.spot.security.utils.SecurityUtils;
 import com.example.spot.service.member.MemberService;
 import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.MemberRegionDTO;
@@ -64,6 +65,7 @@ public class MemberController {
     @PostMapping("/member/{memberId}/test/admin")
     public ApiResponse<MemberResponseDTO.MemberUpdateDTO> toAdmin(
         @ExistMember @PathVariable Long memberId){
+        SecurityUtils.verifyUserId(memberId);
         MemberUpdateDTO dto = memberService.toAdmin(memberId);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_CREATED, dto);
     }
@@ -130,6 +132,7 @@ public class MemberController {
     public ApiResponse<MemberUpdateDTO> updateThemes(
         @PathVariable @ExistMember Long memberId,
         @RequestBody @Valid MemberRequestDTO.MemberThemeDTO requestDTO){
+        SecurityUtils.verifyUserId(memberId);
         MemberUpdateDTO memberUpdateDTO = memberService.updateTheme(memberId, requestDTO);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_THEME_UPDATE, memberUpdateDTO);
     }
@@ -147,6 +150,7 @@ public class MemberController {
     public ApiResponse<MemberUpdateDTO> updateRegions(
         @PathVariable @ExistMember Long memberId,
         @RequestBody @Valid MemberRequestDTO.MemberRegionDTO requestDTO){
+        SecurityUtils.verifyUserId(memberId);
         MemberUpdateDTO memberUpdateDTO = memberService.updateRegion(memberId, requestDTO);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_REGION_UPDATE, memberUpdateDTO);
     }
@@ -163,6 +167,7 @@ public class MemberController {
     public ApiResponse<MemberUpdateDTO> updateMemberInfo(
         @PathVariable @ExistMember Long memberId,
         @RequestBody @Valid MemberInfoListDTO requestDTO){
+        SecurityUtils.verifyUserId(memberId);
         MemberUpdateDTO memberUpdateDTO = memberService.updateProfile(memberId, requestDTO);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_INFO_UPDATE, memberUpdateDTO);
     }
@@ -189,6 +194,7 @@ public class MemberController {
     public ApiResponse<MemberUpdateDTO> updateMemberStudyReason(
         @PathVariable @ExistMember Long memberId,
         @RequestBody @Valid MemberRequestDTO.MemberReasonDTO requestDTO){
+        SecurityUtils.verifyUserId(memberId);
         MemberUpdateDTO memberUpdateDTO = memberService.updateStudyReason(memberId, requestDTO);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_INFO_UPDATE, memberUpdateDTO);
     }
@@ -205,6 +211,7 @@ public class MemberController {
     @Parameter(name = "memberId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
     public ApiResponse<MemberResponseDTO.MemberThemeDTO> getThemes(
         @PathVariable @ExistMember Long memberId){
+        SecurityUtils.verifyUserId(memberId);
         MemberResponseDTO.MemberThemeDTO memberThemeDTO = memberService.getThemes(memberId);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_THEME_UPDATE, memberThemeDTO);
     }
@@ -221,6 +228,7 @@ public class MemberController {
     @Parameter(name = "memberId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
     public ApiResponse<MemberResponseDTO.MemberRegionDTO> getRegions(
         @PathVariable @ExistMember Long memberId){
+        SecurityUtils.verifyUserId(memberId);
         MemberRegionDTO memberRegionDTO = memberService.getRegions(memberId);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_REGION_UPDATE, memberRegionDTO);
     }
@@ -237,6 +245,7 @@ public class MemberController {
     @Parameter(name = "memberId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
     public ApiResponse<MemberResponseDTO.MemberStudyReasonDTO> getStudyReasons(
         @PathVariable @ExistMember Long memberId){
+        SecurityUtils.verifyUserId(memberId);
         MemberStudyReasonDTO memberStudyReasonDTO = memberService.getStudyReasons(memberId);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_REGION_UPDATE, memberStudyReasonDTO);
     }
