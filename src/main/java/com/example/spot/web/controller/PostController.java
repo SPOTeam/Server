@@ -193,7 +193,7 @@ public class PostController {
 
 
     //댓글
-    @Operation(summary = "댓글 생성 API", description = "게시글 Id와 회원 Id를 받아 댓글을 생성합니다.")
+    @Operation(summary = "게시글 댓글 생성 API", description = "게시글 Id와 회원 Id를 받아 댓글을 생성합니다.")
     @PostMapping("/{postId}/{memberId}/comments")
     public ApiResponse<CommentCreateResponse> createComment(
             @PathVariable Long postId,
@@ -203,7 +203,7 @@ public class PostController {
         return ApiResponse.onSuccess(SuccessStatus._CREATED, response);
     }
 
-    @Operation(summary = "!테스트용! 댓글 조회 API", description = "게시글 ID를 받아 댓글을 조회합니다. 댓글 조회는 이미 게시글 단건 조회에 포함되어 있습니다.")
+    @Operation(summary = "!테스트용! 게시글 댓글 조회 API", description = "게시글 ID를 받아 댓글을 조회합니다. 댓글 조회는 이미 게시글 단건 조회에 포함되어 있습니다.")
     @GetMapping("/{postId}/comments")
     public ApiResponse<CommentResponse> getComment(
             @Parameter(
@@ -227,13 +227,23 @@ public class PostController {
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
-    @Operation(summary = "댓글 좋아요 취소 API", description = "댓글 ID와 회원 ID를 받아 댓글에 좋아요를 취소합니다.")
+    @Operation(summary = "게시글 댓글 좋아요 취소 API", description = "댓글 ID와 회원 ID를 받아 댓글에 좋아요를 취소합니다.")
     @DeleteMapping("/comments/{commentId}/{memberId}/like")
     public ApiResponse<CommentLikeResponse> cancelCommentLike(
             @PathVariable Long commentId,
             @PathVariable Long memberId) {
         CommentLikeResponse response = postCommandService.cancelCommentLike(commentId, memberId);
         return ApiResponse.onSuccess(SuccessStatus._NO_CONTENT, response);
+    }
+
+    //게시글 댓글 싫어요
+    @Operation(summary = "게시글 댓글 싫어요 API", description = "댓글 ID와 회원 ID를 받아 댓글에 싫어요를 추가합니다.")
+    @PostMapping("/comments/{commentId}/{memberId}/dislike")
+    public ApiResponse<CommentLikeResponse> dislikeComment(
+            @PathVariable Long commentId,
+            @PathVariable Long memberId) {
+        CommentLikeResponse response = postCommandService.dislikeComment(commentId, memberId);
+        return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
 }

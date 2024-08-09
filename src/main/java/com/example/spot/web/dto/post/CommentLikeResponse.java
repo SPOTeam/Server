@@ -23,10 +23,17 @@ public class CommentLikeResponse {
 
     private long likeCount;
 
-    public static CommentLikeResponse toDTO(Long commentId, long likeCount) {
+    @Schema(
+            description = "싫어요 수", example = "1"
+    )
+
+    private long disLikeCount;
+
+    public static CommentLikeResponse toDTO(Long commentId, long likeCount, long disLikeCount) {
         return CommentLikeResponse.builder()
                 .commentId(commentId)
                 .likeCount(likeCount)
+                .disLikeCount(disLikeCount)
                 .build();
     }
 
