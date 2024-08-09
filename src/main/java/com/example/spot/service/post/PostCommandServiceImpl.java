@@ -232,9 +232,12 @@ public class PostCommandServiceImpl implements PostCommandService {
 
         long likeCount = likedPostCommentQueryService.countByPostCommentIdAndIsLikedTrue(commentId);
 
-        return CommentLikeResponse.toDTO(comment.getId(), likeCount);
+        long disLikeCount = likedPostCommentRepository.countByPostCommentIdAndIsLikedFalse(commentId);
+
+        return CommentLikeResponse.toDTO(comment.getId(), likeCount, disLikeCount);
     }
 
+    //게시글 댓글 좋아요 취소
     @Transactional
     @Override
     public CommentLikeResponse cancelCommentLike(Long commentId, Long memberId) {
@@ -254,7 +257,34 @@ public class PostCommandServiceImpl implements PostCommandService {
 
         long likeCount = likedPostCommentQueryService.countByPostCommentIdAndIsLikedTrue(commentId);
 
-        return CommentLikeResponse.toDTO(comment.getId(), likeCount);
+        long disLikeCount = likedPostCommentRepository.countByPostCommentIdAndIsLikedFalse(commentId);
+
+        return CommentLikeResponse.toDTO(comment.getId(), likeCount, disLikeCount);
     }
+
+    //게시글 댓글 싫어요
+    @Transactional
+    @Override
+    public CommentLikeResponse dislikeComment(Long commentId, Long memberId) {
+        PostComment comment = postCommentRepository.findById(commentId)
+                .orElseThrow(() -> new PostHandler(ErrorStatus._POST_COMMENT_NOT_FOUND));
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        if (likedPostCommentRepository.findByMemberIdAndPostCommentIdAndIsLikedFalse(memberId, commentId).isPresent()) {
+            throw new PostHandler(ErrorStatus._POST_COMMENT_ALREADY_DISLIKED);
+        }
+
+        LikedPostComment dislikedPostComment = new LikedPostComment(comment, member, false);
+        likedPostCommentRepository.saveAndFlush(dislikedPostComment);
+
+        long likeCount = likedPostCommentQueryService.countByPostCommentIdAndIsLikedTrue(commentId);
+
+        long disLikeCount = likedPostCommentRepository.countByPostCommentIdAndIsLikedFalse(commentId);
+
+        return CommentLikeResponse.toDTO(comment.getId(), likeCount, disLikeCount);
+    }
+
 
 }

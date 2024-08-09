@@ -9,4 +9,6 @@ public interface LikedPostCommentRepository extends JpaRepository<LikedPostComme
     Optional<LikedPostComment> findByMemberIdAndPostCommentIdAndIsLikedTrue(Long memberId, Long postCommentId);
     Optional<LikedPostComment> findByMemberIdAndPostCommentIdAndIsLikedFalse(Long memberId, Long postCommentId);
     long countByPostCommentIdAndIsLikedTrue(Long postCommentId);
+    long countByPostCommentIdAndIsLikedFalse(Long postCommentId);
+
 }
