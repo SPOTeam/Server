@@ -263,18 +263,46 @@ public class PostCommandServiceImpl implements PostCommandService {
     @Transactional
     @Override
     public CommentLikeResponse dislikeComment(Long commentId, Long memberId) {
+        //댓글 조회
         PostComment comment = postCommentRepository.findById(commentId)
                 .orElseThrow(() -> new PostHandler(ErrorStatus._POST_COMMENT_NOT_FOUND));
 
+        //회원 정보
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
 
+        //싫어요 여부
         if (likedPostCommentRepository.findByMemberIdAndPostCommentIdAndIsLikedFalse(memberId, commentId).isPresent()) {
             throw new PostHandler(ErrorStatus._POST_COMMENT_ALREADY_DISLIKED);
         }
 
         LikedPostComment dislikedPostComment = new LikedPostComment(comment, member, false);
         likedPostCommentRepository.saveAndFlush(dislikedPostComment);
+
+        long likeCount = likedPostCommentQueryService.countByPostCommentIdAndIsLikedTrue(commentId);
+
+        long disLikeCount = likedPostCommentRepository.countByPostCommentIdAndIsLikedFalse(commentId);
+
+        return CommentLikeResponse.toDTO(comment.getId(), likeCount, disLikeCount);
+    }
+
+    //게시글 댓글 싫어요 취소
+    @Transactional
+    @Override
+    public CommentLikeResponse cancelCommentDislike(Long commentId, Long memberId) {
+        //댓글 조회
+        PostComment comment = postCommentRepository.findById(commentId)
+                .orElseThrow(() -> new PostHandler(ErrorStatus._POST_COMMENT_NOT_FOUND));
+
+        //회원 정보
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        //싫어요 여부
+        LikedPostComment dislikedPostComment = likedPostCommentRepository.findByMemberIdAndPostCommentIdAndIsLikedFalse(memberId, commentId)
+                .orElseThrow(() -> new PostHandler(ErrorStatus._POST_COMMENT_NOT_DISLIKED));
+
+        likedPostCommentRepository.delete(dislikedPostComment);
 
         long likeCount = likedPostCommentQueryService.countByPostCommentIdAndIsLikedTrue(commentId);
 
