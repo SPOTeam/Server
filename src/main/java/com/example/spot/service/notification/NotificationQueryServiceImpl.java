@@ -1,14 +1,11 @@
 package com.example.spot.service.notification;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.api.exception.handler.NotificationHandler;
-import com.example.spot.api.exception.handler.StudyHandler;
-import com.example.spot.domain.Member;
 import com.example.spot.domain.Notification;
 import com.example.spot.domain.enums.ApplicationStatus;
 import com.example.spot.domain.mapping.MemberStudy;
@@ -23,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.spot.repository.NotificationRepository;
-import com.example.spot.repository.StudyRepository;
 import com.example.spot.web.dto.notification.NotificationResponseDTO;
 import com.example.spot.web.dto.notification.NotificationResponseDTO.NotificationDTO;
 import com.example.spot.web.dto.notification.NotificationResponseDTO.NotificationListDTO;
@@ -36,7 +32,6 @@ public class NotificationQueryServiceImpl implements NotificationQueryService {
     private final NotificationRepository notificationRepository;
     private final MemberRepository memberRepository;
     private final MemberStudyRepository memberStudyRepository;
-    private final StudyRepository studyRepository;
 
     @Override
     public NotificationListDTO getAllNotifications(Long memberId, Pageable pageable) {
@@ -51,15 +46,15 @@ public class NotificationQueryServiceImpl implements NotificationQueryService {
     
     @Override
     public NotificationListDTO getAllAppliedStudyNotification(Long memberId, Pageable pageable) {
-        // 메서드 구현 예정
+        
         if(!memberRepository.existsById(memberId)) {
             throw new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND);
         }
 
         List<MemberStudy> memberStudies = memberStudyRepository.findAllByMemberIdAndStatus(memberId, ApplicationStatus.APPLIED);
-
-        List<Long> studyIds = memberStudies.stream().map(ms->ms.getStudy().getId()).collect(Collectors.toList());
-
+        List<Long> studyIds = memberStudies.stream()
+            .map(ms->ms.getStudy().getId())
+            .collect(Collectors.toList());
         Page<Notification> notifications = notificationRepository.findAllByMemberIdAndStudyIdIn(memberId, studyIds, pageable);
 
         return NotificationListDTO.of(notifications);
@@ -77,8 +72,21 @@ public class NotificationQueryServiceImpl implements NotificationQueryService {
     @Override
     public NotificationDTO getAppliedStudyNotification(Long memberId, Long studyId) {
 
-        return null;
+        if(!memberRepository.existsById(memberId)) {
+            throw new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND);
+        }
+        
+        MemberStudy memberStudy = memberStudyRepository.findByMemberIdAndStudyId(memberId, studyId)
+        .orElseThrow(() -> new NotificationHandler(ErrorStatus._NOTIFICATION_NOT_FOUND));
 
+        if(memberStudy.getStatus() != ApplicationStatus.APPLIED) {
+            throw new NotificationHandler(ErrorStatus._NOTIFICATION_NOT_FOUND);
+        }
+
+        Notification notification = notificationRepository.findByMemberIdAndStudyId(memberId, studyId)
+        .orElseThrow(()->new NotificationHandler(ErrorStatus._NOTIFICATION_NOT_FOUND));
+
+        return  NotificationResponseDTO.NotificationDTO.from(notification);
     }
     
     @Override
@@ -90,6 +98,4 @@ public class NotificationQueryServiceImpl implements NotificationQueryService {
 
         return notificationRepository.existsByMemberIdAndIsReadFalse(memberId);
     }
-
-
 }

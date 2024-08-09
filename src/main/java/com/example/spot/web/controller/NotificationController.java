@@ -2,7 +2,6 @@ package com.example.spot.web.controller;
 
 import com.example.spot.api.ApiResponse;
 import com.example.spot.api.code.status.SuccessStatus;
-import com.example.spot.web.dto.notification.NotificationRequestDTO;
 import com.example.spot.web.dto.notification.NotificationResponseDTO;
 import com.example.spot.service.notification.NotificationCommandService;
 import com.example.spot.service.notification.NotificationQueryService;
@@ -40,10 +39,9 @@ public class NotificationController {
     //신청한 스터디 참여 확인 알림
     @Operation(summary = "[참가 신청한 스터디 알림 조회 - 개발중]", description = "유저가 참가 신청한 스터디 조회")
     @GetMapping("/members/{memberId}/notifications/applied-study")
-    public ApiResponse<List<NotificationResponseDTO.NotificationDTO>> getAppliedStudyNotification(@PathVariable Long memberId) {
-        List<NotificationResponseDTO.NotificationDTO> notificationDTO = notificationQueryService.getAllAppliedStudyNotification(memberId);
-        return ApiResponse.onSuccess(SuccessStatus._NOTIFICATION_FOUND, notificationDTO);
-
+    public ApiResponse<NotificationResponseDTO.NotificationListDTO> getAppliedStudyNotification(@PathVariable Long memberId, Pageable pageable) {
+        NotificationResponseDTO.NotificationListDTO notificationListDTO = notificationQueryService.getAllAppliedStudyNotification(memberId, pageable);
+        return ApiResponse.onSuccess(SuccessStatus._NOTIFICATION_FOUND, notificationListDTO);
     }
 
     //알림 읽음 처리
@@ -72,9 +70,8 @@ public class NotificationController {
             해당 스터디 참석 처리
             """)
     @PostMapping("/members/{memberId}/notifications/applied-study/{studyId}/join")
-    public ApiResponse<NotificationResponseDTO.NotificationDTO> joinAppliedStudy(@PathVariable Long memberId, @PathVariable Long studyId,
-                                                                                 @RequestBody NotificationRequestDTO.appliedStudyDTO joinAppliedStudyRequestDTO) {
-        NotificationResponseDTO.NotificationDTO notification = notificationCommandService.joinAppliedStudy(studyId, memberId, joinAppliedStudyRequestDTO);
+    public ApiResponse<NotificationResponseDTO.NotificationDTO> joinAppliedStudy(@PathVariable Long memberId, @PathVariable Long studyId) {
+        NotificationResponseDTO.NotificationDTO notification = notificationCommandService.joinAppliedStudy(studyId, memberId);
         return ApiResponse.onSuccess(SuccessStatus._NOTIFICATION_APPLIED_STUDY_JOINED, notification);
     }
 
@@ -84,9 +81,8 @@ public class NotificationController {
             해당 스터디 참석 불참 처리
             """)
     @PostMapping("/members/{memberId}/notifications/applied-study/{studyId}/reject")
-    public ApiResponse<NotificationResponseDTO.NotificationDTO> rejectAppliedStudy(@PathVariable Long memberId, @PathVariable Long studyId,
-                                                                                   @RequestBody NotificationRequestDTO.appliedStudyDTO rejectAppliedStudyRequestDTO) {
-        NotificationResponseDTO.NotificationDTO notification = notificationCommandService.rejectAppliedStudy(studyId, memberId, rejectAppliedStudyRequestDTO);
+    public ApiResponse<NotificationResponseDTO.NotificationDTO> rejectAppliedStudy(@PathVariable Long memberId, @PathVariable Long studyId) {
+        NotificationResponseDTO.NotificationDTO notification = notificationCommandService.rejectAppliedStudy(studyId, memberId);
         return ApiResponse.onSuccess(SuccessStatus._NOTIFICATION_APPLIED_STUDY_REJECTED, notification);
     }
 }
