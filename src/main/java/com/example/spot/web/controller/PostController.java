@@ -192,6 +192,7 @@ public class PostController {
     }
 
 
+    //댓글
     @Operation(summary = "댓글 생성 API", description = "게시글 Id와 회원 Id를 받아 댓글을 생성합니다.")
     @PostMapping("/{postId}/{memberId}/comments")
     public ApiResponse<CommentCreateResponse> createComment(
@@ -212,6 +213,17 @@ public class PostController {
             @PathVariable Long postId
     ) {
         CommentResponse response = postQueryService.getCommentsByPostId(postId);
+        return ApiResponse.onSuccess(SuccessStatus._OK, response);
+    }
+
+
+    //게시글 댓글 좋아요
+    @Operation(summary = "게시글 댓글 좋아요 API", description = "댓글 ID와 회원 ID를 받아 댓글에 좋아요를 추가합니다.")
+    @PostMapping("/comments/{commentId}/{memberId}/like")
+    public ApiResponse<CommentLikeResponse> likeComment(
+            @PathVariable Long commentId,
+            @PathVariable Long memberId) {
+        CommentLikeResponse response = postCommandService.likeComment(commentId, memberId);
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 

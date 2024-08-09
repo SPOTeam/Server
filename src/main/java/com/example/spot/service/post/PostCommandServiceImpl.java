@@ -3,15 +3,9 @@ package com.example.spot.service.post;
 import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.api.exception.handler.PostHandler;
-import com.example.spot.domain.LikedPost;
-import com.example.spot.domain.Member;
-import com.example.spot.domain.Post;
-import com.example.spot.domain.PostComment;
+import com.example.spot.domain.*;
 import com.example.spot.domain.enums.Board;
-import com.example.spot.repository.LikedPostRepository;
-import com.example.spot.repository.MemberRepository;
-import com.example.spot.repository.PostCommentRepository;
-import com.example.spot.repository.PostRepository;
+import com.example.spot.repository.*;
 import com.example.spot.web.dto.post.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,8 +21,11 @@ public class PostCommandServiceImpl implements PostCommandService {
     private final MemberRepository memberRepository;
     private final LikedPostRepository likedPostRepository;
     private final PostCommentRepository postCommentRepository;
+    private final LikedPostCommentRepository likedPostCommentRepository;
 
     private final LikedPostQueryService likedPostQueryService;
+    private final LikedPostCommentQueryService likedPostCommentQueryService;
+
 
     @Transactional
     @Override
@@ -209,5 +206,30 @@ public class PostCommandServiceImpl implements PostCommandService {
         }
     }
 
+
+    //게시글 댓글 좋아요
+    @Transactional
+    @Override
+    public CommentLikeResponse likeComment(Long commentId, Long memberId) {
+        //댓글 조회하기
+        PostComment comment = postCommentRepository.findById(commentId)
+                .orElseThrow(() -> new PostHandler(ErrorStatus._POST_COMMENT_NOT_FOUND));
+
+        //회원 정보 가져오기
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        //좋아요 여부 확인
+        if (likedPostCommentRepository.findByMemberIdAndPostCommentIdAndIsLikedTrue(memberId, commentId).isPresent()) {
+            throw new PostHandler(ErrorStatus._POST_COMMENT_ALREADY_LIKED);
+        }
+
+        LikedPostComment likedPostComment = new LikedPostComment(comment, member, true);
+        likedPostCommentRepository.saveAndFlush(likedPostComment);
+
+        long likeCount = likedPostCommentQueryService.countByPostCommentIdAndIsLikedTrue(commentId);
+
+        return CommentLikeResponse.toDTO(comment.getId(), likeCount);
+    }
 
 }
