@@ -45,17 +45,17 @@ public class CommentDetailResponse {
 
     @Schema(
             description = "좋아요 수입니다.",
-            format = "int"
+            format = "long"
     )
-    private int likeCount;
+    private long likeCount;
 
-    @Schema(
-            description = "싫어요 수입니다.",
-            format = "int"
-    )
-    private int disLikeCount;
+//    @Schema(
+//            description = "싫어요 수입니다.",
+//            format = "int"
+//    )
+//    private int disLikeCount;
 
-    public static CommentDetailResponse toDTO(PostComment comment) {
+    public static CommentDetailResponse toDTO(PostComment comment, long likeCount) {
         // 작성자가 익명인지 확인하여 작성자 이름 설정
         String writerName = judgeAnonymous(comment.isAnonymous(), comment.getMember().getName());
 
@@ -65,8 +65,8 @@ public class CommentDetailResponse {
                 .parentCommentId(comment.getParentComment() != null ? comment.getParentComment().getId() : null)
                 .writer(writerName)
                 .writtenTime(comment.getCreatedAt().toString())
-                .likeCount(comment.getLikeNum())
-                .disLikeCount(comment.getDisLikeNum())
+                .likeCount(likeCount)
+                //.disLikeCount(comment.getDisLikeNum())
                 .build();
     }
     public static String judgeAnonymous(Boolean isAnonymous, String writer) {
