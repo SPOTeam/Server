@@ -11,6 +11,10 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class PostBest5DetailResponse {
+    @Schema(
+            description = "게시글 ID", example = "1"
+    )
+    private Long postId;
 
     @Schema(
             description = "순위입니다.",
@@ -32,6 +36,7 @@ public class PostBest5DetailResponse {
 
     public static PostBest5DetailResponse from(Post post, int rank) {
         return PostBest5DetailResponse.builder()
+                .postId(post.getId())
                 .rank(rank)
                 .postTitle(post.getTitle())
                 .commentCount(post.getPostCommentList().size())
