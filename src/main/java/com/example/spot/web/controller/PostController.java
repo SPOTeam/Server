@@ -202,16 +202,17 @@ public class PostController {
         return ApiResponse.onSuccess(SuccessStatus._CREATED, response);
     }
 
-    @Operation(summary = "댓글 조회 API", description = "댓글 ID를 받아 댓글을 조회합니다.")
-    @GetMapping("/comments/{commentId}")
-    public void getComment(
+    @Operation(summary = "!테스트용! 댓글 조회 API", description = "게시글 ID를 받아 댓글을 조회합니다. 댓글 조회는 이미 게시글 단건 조회에 포함되어 있습니다.")
+    @GetMapping("/{postId}/comments")
+    public ApiResponse<CommentResponse> getComment(
             @Parameter(
-                    description = "조회할 댓글의 ID입니다.",
+                    description = "조회할 게시글의 ID입니다.",
                     schema = @Schema(type = "integer", format = "int64")
             )
-            @PathVariable Long commentId
+            @PathVariable Long postId
     ) {
-        //메서드
+        CommentResponse response = postQueryService.getCommentsByPostId(postId);
+        return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
 }

@@ -14,4 +14,6 @@ public interface PostQueryService {
 
     PostAnnouncementResponse getPostAnnouncements();
 
+    CommentResponse getCommentsByPostId(Long postId);
+
 }
