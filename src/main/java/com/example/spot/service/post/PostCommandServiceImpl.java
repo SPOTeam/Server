@@ -232,4 +232,26 @@ public class PostCommandServiceImpl implements PostCommandService {
         return CommentLikeResponse.toDTO(comment.getId(), likeCount);
     }
 
+    @Transactional
+    @Override
+    public CommentLikeResponse cancelCommentLike(Long commentId, Long memberId) {
+        //댓글 조회하기
+        PostComment comment = postCommentRepository.findById(commentId)
+                .orElseThrow(() -> new PostHandler(ErrorStatus._POST_COMMENT_NOT_FOUND));
+
+        //회원 정보 가져오기
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        //좋아요 여부 확인
+        LikedPostComment likedPostComment = likedPostCommentRepository.findByMemberIdAndPostCommentIdAndIsLikedTrue(memberId, commentId)
+                .orElseThrow(() -> new PostHandler(ErrorStatus._POST_COMMENT_NOT_LIKED));
+
+        likedPostCommentRepository.delete(likedPostComment);
+
+        long likeCount = likedPostCommentQueryService.countByPostCommentIdAndIsLikedTrue(commentId);
+
+        return CommentLikeResponse.toDTO(comment.getId(), likeCount);
+    }
+
 }
