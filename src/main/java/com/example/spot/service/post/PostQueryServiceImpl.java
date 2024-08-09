@@ -25,6 +25,8 @@ public class PostQueryServiceImpl implements PostQueryService {
     private final PostRepository postRepository;
     private final LikedPostQueryService likedPostQueryService;
     private final PostCommentRepository postCommentRepository;
+    private final LikedPostCommentQueryService likedPostCommentQueryService;
+
 
     @Transactional
     @Override
@@ -190,7 +192,10 @@ public class PostQueryServiceImpl implements PostQueryService {
         List<PostComment> comments = postCommentRepository.findByPostId(postId);
 
         List<CommentDetailResponse> commentResponses = comments.stream()
-                .map(CommentDetailResponse::toDTO)
+                .map(comment -> {
+                    long likeCount = likedPostCommentQueryService.countByPostCommentIdAndIsLikedTrue(comment.getId());
+                    return CommentDetailResponse.toDTO(comment, likeCount);
+                })
                 .toList();
 
         return CommentResponse.builder()
