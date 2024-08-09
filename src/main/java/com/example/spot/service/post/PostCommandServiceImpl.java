@@ -17,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class PostCommandServiceImpl implements PostCommandService {
@@ -175,17 +177,36 @@ public class PostCommandServiceImpl implements PostCommandService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
 
-        // 댓글 생성
-        PostComment comment = PostComment.builder()
-                .content(request.getContent())
-                .isAnonymous(request.isAnonymous())
-                .post(post)
-                .member(member)
-                .build();
+        //부모 댓글아이디
+        Long parentCommentId = request.getParentCommentId();
+        Optional<PostComment> optionalParentComment = postCommentRepository.findById(parentCommentId);
 
-        comment = postCommentRepository.save(comment);
+        if (optionalParentComment.isPresent()) {
+            PostComment parentComment = optionalParentComment.get();
+            // 자식댓글 생성
+            PostComment comment = PostComment.builder()
+                    .content(request.getContent())
+                    .isAnonymous(request.isAnonymous())
+                    .post(post)
+                    .parentComment(parentComment)
+                    .member(member)
+                    .build();
 
-        return CommentCreateResponse.toDTO(comment);
+            postCommentRepository.saveAndFlush(comment);
+            return CommentCreateResponse.toDTOwithParent(comment, parentComment.getId());
+
+        } else {
+            // 부모댓글 생성
+            PostComment comment = PostComment.builder()
+                    .content(request.getContent())
+                    .isAnonymous(request.isAnonymous())
+                    .post(post)
+                    .member(member)
+                    .build();
+
+            postCommentRepository.saveAndFlush(comment);
+            return CommentCreateResponse.toDTO(comment);
+        }
     }
 
 

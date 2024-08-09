@@ -15,4 +15,10 @@ public class CommentCreateRequest {
 
     @Schema(description = "익명 여부", example = "false")
     private boolean isAnonymous;
+
+    @Schema(
+            description = "부모 댓글 ID (대댓글의 경우)",
+            example = "1"
+    )
+    private Long parentCommentId;
 }
