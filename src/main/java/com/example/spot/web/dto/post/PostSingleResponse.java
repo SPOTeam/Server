@@ -9,7 +9,6 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Builder
 @Getter
@@ -74,7 +73,7 @@ public class PostSingleResponse {
             description = "댓글 리스트입니다.",
             format = "array"
     )
-    private List<CommentResponse> commentResponses;
+    private CommentResponse commentResponses;
 
     @Schema(
             description = "신고 여부입니다.",
@@ -94,7 +93,7 @@ public class PostSingleResponse {
         return writer;
     }
 
-    public static PostSingleResponse toDTO(Post post, long likeCount) {
+    public static PostSingleResponse toDTO(Post post, long likeCount, CommentResponse commentResponse) {
         // 작성자가 익명인지 확인하여 작성자 이름 설정
         String writerName = judgeAnonymous(post.isAnonymous(), post.getMember().getName());
 
@@ -106,9 +105,9 @@ public class PostSingleResponse {
                 .title(post.getTitle())
                 .content(post.getContent())
                 .likeCount(likeCount)
-                .commentCount(post.getPostCommentList().size())
+                .commentCount(commentResponse.getComments().size())
                 .viewCount(post.getHitNum())
-                .commentResponses(post.getPostCommentList().stream().map(CommentResponse::toDTO).toList())
+                .commentResponses(commentResponse)
                 .build();
     }
 }
