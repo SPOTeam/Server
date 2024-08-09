@@ -33,4 +33,7 @@ public interface PostCommandService {
     //게시글 댓글 싫어요
     CommentLikeResponse dislikeComment(Long CommentId, Long memberId);
 
+    //게시글 댓글 싫어요 취소
+    CommentLikeResponse cancelCommentDislike(Long CommentId, Long memberId);
+
 }

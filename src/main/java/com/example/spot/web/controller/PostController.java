@@ -216,4 +216,13 @@ public class PostController {
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
+    @Operation(summary = "게시글 댓글 싫어요 취소 API", description = "댓글 ID와 회원 ID를 받아 댓글에 싫어요를 취소합니다.")
+    @DeleteMapping("/comments/{commentId}/{memberId}/dislike")
+    public ApiResponse<CommentLikeResponse> cancelCommentDislike(
+            @PathVariable Long commentId,
+            @PathVariable Long memberId) {
+        CommentLikeResponse response = postCommandService.cancelCommentDislike(commentId, memberId);
+        return ApiResponse.onSuccess(SuccessStatus._NO_CONTENT, response);
+    }
+
 }

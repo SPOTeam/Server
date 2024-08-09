@@ -121,6 +121,7 @@ public enum ErrorStatus implements BaseErrorCode {
     _POST_COMMENT_ALREADY_LIKED(HttpStatus.BAD_REQUEST, "POST5011", "이미 좋아요한 댓글입니다."),
     _POST_COMMENT_NOT_LIKED(HttpStatus.BAD_REQUEST, "POST5012", "좋아요하지 않은 게시글 댓글입니다."),
     _POST_COMMENT_ALREADY_DISLIKED(HttpStatus.BAD_REQUEST, "POST5013", "이미 싫어요한 댓글입니다."),
+    _POST_COMMENT_NOT_DISLIKED(HttpStatus.BAD_REQUEST, "POST5014", "싫어요하지 않은 게시글 댓글입니다."),
 
     // 스터디 투표 관련 에러
     _STUDY_VOTE_NOT_FOUND(HttpStatus.NOT_FOUND, "VOTE4001", "스터디 투표를 찾을 수 없습니다."),
