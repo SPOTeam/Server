@@ -24,4 +24,7 @@ public interface PostCommandService {
     //게시글 댓글 생섣
     CommentCreateResponse createComment(Long postId, Long memberId, CommentCreateRequest request);
 
+    //게시글 댓글 좋아요
+    CommentLikeResponse likeComment(Long CommentId, Long memberId);
+
 }
