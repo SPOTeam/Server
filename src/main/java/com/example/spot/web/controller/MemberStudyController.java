@@ -157,6 +157,7 @@ public class MemberStudyController {
         처음 캘린더를 클릭하면 오늘 날짜가 포함된 연/월에 해당하는 일정 목록이 schedule에서 반환됩니다.
         캘린더를 넘기면 해당 연/월에 해당하는 일정 목록이 schedule에서 반환됩니다.
         """)
+    @Parameter(name = "studyId", description = "일정을 불러올 스터디의 id를 입력합니다.", required = true)
     @GetMapping("/studies/{studyId}/schedules")
     public ApiResponse<ScheduleResponseDTO.MonthlyScheduleListDTO> getMonthlySchedules(
             @PathVariable @ExistStudy Long studyId,
@@ -165,11 +166,14 @@ public class MemberStudyController {
         ScheduleResponseDTO.MonthlyScheduleListDTO monthlyScheduleDTO = memberStudyQueryService.getMonthlySchedules(studyId, year, month);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_SCHEDULE_FOUND, monthlyScheduleDTO);
     }
+
     @Tag(name = "스터디 일정")
     @Operation(summary = "[스터디 일정] 상세 일정 불러오기", description = """ 
         ## [스터디 일정] 내 스터디 > 스터디 > 캘린더 > 일정 클릭, 로그인한 회원이 참여하는 특정 스터디의 상세 일정을 불러옵니다.
         스터디의 일정 정보를 상세하게 불러옵니다.
         """)
+    @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
+    @Parameter(name = "scheduleId", description = "불러올 스터디 일정의 id를 입력합니다.", required = true)
     @GetMapping("/studies/{studyId}/schedules/{scheduleId}")
     public ApiResponse<ScheduleResponseDTO.MonthlyScheduleDTO> getSchedule(
             @PathVariable @ExistStudy Long studyId,
@@ -177,11 +181,15 @@ public class MemberStudyController {
         ScheduleResponseDTO.MonthlyScheduleDTO scheduleDTO = memberStudyQueryService.getSchedule(studyId, scheduleId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_SCHEDULE_FOUND, scheduleDTO);
     }
+
     @Tag(name = "스터디 일정")
     @Operation(summary = "[스터디 일정] 일정 추가하기", description = """ 
         ## [스터디 일정] 내 스터디 > 스터디 > 캘린더 > 추가 버튼 클릭, 로그인한 회원이 운영하는 특정 스터디에 일정을 추가합니다.
         로그인한 회원이 owner인 경우 schedule에 새로운 일정을 등록합니다.
+        
+        period에는 [NONE, DAILY, WEEKLY, BIWEEKLY, MONTHLY] 중 하나를 입력해야 합니다.
         """)
+    @Parameter(name = "studyId", description = "일정을 추가할 스터디의 id를 입력합니다.", required = true)
     @PostMapping("/studies/{studyId}/schedules")
     public ApiResponse<ScheduleResponseDTO.ScheduleDTO> addSchedule(
             @PathVariable @ExistStudy Long studyId,
@@ -189,11 +197,16 @@ public class MemberStudyController {
         ScheduleResponseDTO.ScheduleDTO scheduleResponseDTO = memberStudyCommandService.addSchedule(studyId, scheduleRequestDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_SCHEDULE_CREATED, scheduleResponseDTO);
     }
+
     @Tag(name = "스터디 일정")
     @Operation(summary = "[스터디 일정] 일정 변경하기", description = """ 
         ## [스터디 일정] 내 스터디 > 스터디 > 캘린더 > 일정 클릭, 로그인한 회원이 특정 스터디에 등록한 일정을 수정합니다.
         로그인한 회원이 owner인 경우 schedule에 등록한 일정을 수정할 수 있습니다.
+        
+        period에는 [NONE, DAILY, WEEKLY, BIWEEKLY, MONTHLY] 중 하나를 입력해야 합니다.
         """)
+    @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
+    @Parameter(name = "scheduleId", description = "변경할 일정의 id를 입력합니다.", required = true)
     @PatchMapping("/studies/{studyId}/schedules/{scheduleId}")
     public ApiResponse<ScheduleResponseDTO.ScheduleDTO> modSchedule(
             @PathVariable @ExistStudy Long studyId,
@@ -205,11 +218,13 @@ public class MemberStudyController {
 
 
 /* ----------------------------- 스터디 투표 관련 API ------------------------------------- */
+
     @Tag(name = "스터디 투표")
     @Operation(summary = "[스터디 투표] 투표 생성하기", description = """ 
         ## [스터디 투표] 내 스터디 > 스터디 > 투표 > 작성 버튼 클릭, 로그인한 회원이 참여하는 특정 스터디에서 새로운 투표를 등록합니다.
         스터디에 참여하는 회원이 생성한 투표를 vote에 저장합니다.
         """)
+    @Parameter(name = "studyId", description = "투표를 생성할 스터디의 id를 입력합니다.", required = true)
     @PostMapping("/studies/{studyId}/votes")
     public ApiResponse<StudyVoteResponseDTO.VotePreviewDTO> createVote(
             @PathVariable @ExistStudy Long studyId,
@@ -217,11 +232,14 @@ public class MemberStudyController {
         StudyVoteResponseDTO.VotePreviewDTO votePreviewDTO = memberStudyCommandService.createVote(studyId, voteDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_VOTE_CREATED, votePreviewDTO);
     }
+
     @Tag(name = "스터디 투표")
     @Operation(summary = "[스터디 투표] 투표하기", description = """ 
         ## [스터디 투표] 내 스터디 > 스터디 > 투표 > 특정 투표 클릭, 로그인한 회원이 참여하는 스터디에서 특정 항목에 투표합니다.
         member_vote에 투표 정보를 저장합니다.
         """)
+    @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
+    @Parameter(name = "voteId", description = "참여할 스터디 투표의 id를 입력합니다.")
     @PostMapping("/studies/{studyId}/votes/{voteId}/options")
     public ApiResponse<StudyVoteResponseDTO.VotedOptionDTO> vote(
             @PathVariable @ExistStudy Long studyId,
@@ -230,11 +248,14 @@ public class MemberStudyController {
         StudyVoteResponseDTO.VotedOptionDTO votedOptionResDTO = memberStudyCommandService.vote(studyId, voteId, votedOptionDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_VOTE_PARTICIPATED, votedOptionResDTO);
     }
+
     @Tag(name = "스터디 투표")
     @Operation(summary = "[스터디 투표] 투표 편집하기", description = """ 
         ## [스터디 투표] 내 스터디 > 스터디 > 투표 > 편집하기 버튼 클릭, 로그인한 회원이 참여하는 특정 스터디에서 투표 정보를 수정합니다.
         스터디에 참여하는 회원이 생성한 투표를 vote에 저장합니다.
         """)
+    @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
+    @Parameter(name = "voteId", description = "편집할 스터디 투표의 id를 입력합니다.")
     @PatchMapping("/studies/{studyId}/votes/{voteId}")
     public ApiResponse<StudyVoteResponseDTO.VotePreviewDTO> updateVote(
             @PathVariable @ExistStudy Long studyId,
@@ -243,11 +264,14 @@ public class MemberStudyController {
         StudyVoteResponseDTO.VotePreviewDTO votePreviewDTO = memberStudyCommandService.updateVote(studyId, voteId, voteDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_VOTE_UPDATED, votePreviewDTO);
     }
+
     @Tag(name = "스터디 투표")
     @Operation(summary = "[스터디 투표] 투표 삭제하기", description = """ 
         ## [스터디 투표] 내 스터디 > 스터디 > 투표 > 삭제하기 버튼 클릭, 로그인한 회원이 참여하는 특정 스터디에서 투표를 삭제합니다.
         스터디에 참여하는 회원이 생성한 투표를 vote에 저장합니다.
         """)
+    @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
+    @Parameter(name = "voteId", description = "삭제할 스터디 투표의 id를 입력합니다.")
     @DeleteMapping("/studies/{studyId}/votes/{voteId}")
     public ApiResponse<StudyVoteResponseDTO.VotePreviewDTO> deleteVote(
             @PathVariable @ExistStudy Long studyId,
@@ -255,23 +279,28 @@ public class MemberStudyController {
         StudyVoteResponseDTO.VotePreviewDTO votePreviewDTO = memberStudyCommandService.deleteVote(studyId, voteId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_VOTE_DELETED, votePreviewDTO);
     }
+
     @Tag(name = "스터디 투표")
     @Operation(summary = "[스터디 투표] 투표 목록 불러오기", description = """
         ## [스터디 투표] 내 스터디 > 스터디 > 투표 클릭, 로그인한 회원이 참여하는 특정 스터디의 투표 목록을 불러옵니다.
         진행 중(finished_at 이전)인 투표 목록과 마감(finished_at 이후)된 투표 목록을 구분하여 반환합니다.
         """)
+    @Parameter(name = "studyId", description = "투표 목록을 불러올 스터디의 id를 입력합니다.", required = true)
     @GetMapping("/studies/{studyId}/votes")
     public ApiResponse<StudyVoteResponseDTO.VoteListDTO> getAllVotes(
             @PathVariable @ExistStudy Long studyId) {
         StudyVoteResponseDTO.VoteListDTO voteListDTO = memberStudyQueryService.getAllVotes(studyId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_VOTE_FOUND, voteListDTO);
     }
+
     @Tag(name = "스터디 투표")
     @Operation(summary = "[스터디 투표] 투표 불러오기", description = """ 
         ## [스터디 투표] 내 스터디 > 스터디 > 투표 > 특정 투표 클릭, 로그인한 회원이 참여하는 특정 스터디의 투표를 불러옵니다.
         진행중인 투표 : 진행중인 투표에 대한 항목 및 기본 정보가 반환됩니다.
         마감된 투표 : 마감된 투표에 대한 항목과 투표 인원수가 반환됩니다.
         """)
+    @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
+    @Parameter(name = "voteId", description = "불러올 스터디 투표의 id를 입력합니다.")
     @GetMapping("/studies/{studyId}/votes/{voteId}")
     public ApiResponse<?> getVote(
             @PathVariable @ExistStudy Long studyId,
@@ -285,11 +314,14 @@ public class MemberStudyController {
             return ApiResponse.onSuccess(SuccessStatus._STUDY_VOTE_FOUND, voteDTO);
         }
     }
+
     @Tag(name = "스터디 투표")
     @Operation(summary = "[스터디 투표] 마감된 투표 현황 불러오기", description = """ 
         ## [스터디 투표] 내 스터디 > 스터디 > 투표 > 마감된 투표 > n명 참여 클릭, 로그인한 회원이 참여하는 특정 스터디의 투표를 불러옵니다.
         마감된 투표에 대하여 항목별 투표 회원 목록을 반환합니다.
         """)
+    @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
+    @Parameter(name = "voteId", description = "마감된 스터디 투표의 id를 입력합니다.")
     @GetMapping("/studies/{studyId}/votes/{voteId}/details")
     public ApiResponse<StudyVoteResponseDTO.CompletedVoteDetailDTO> getCompletedVoteDetail(
             @PathVariable @ExistStudy Long studyId,
@@ -304,21 +336,25 @@ public class MemberStudyController {
         ## [스터디 갤러리] 내 스터디 > 스터디 > 갤러리 클릭, 로그인한 회원이 참여하는 스터디의 이미지 목록을 불러옵니다.
         study_post에 존재하는 모든 게시글의 이미지를 최신순으로 반환합니다.
         """)
+    @Parameter(name = "studyId", description = "이미지 목록을 불러올 스터디의 id를 입력합니다.", required = true)
     @GetMapping("/studies/{studyId}/images")
     public ApiResponse<StudyImageResponseDTO.ImageListDTO> getAllStudyImages(
             @PathVariable @ExistStudy Long studyId,
             @RequestParam @Min(0) Integer offset,
+
             @RequestParam @Min(1) Integer limit) {
         StudyImageResponseDTO.ImageListDTO imageListDTO = memberStudyQueryService.getAllStudyImages(studyId, PageRequest.of(offset, limit));
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_IMAGES_FOUND, imageListDTO);
     }
 
 /* ----------------------------- 스터디 출석체크 관련 API ------------------------------------- */
+
     @Tag(name = "스터디 출석체크")
     @Operation(summary = "[스터디 출석체크] 출석 퀴즈 생성하기", description = """ 
         ## [스터디 출석체크] 내 스터디 > 스터디 > 캘린더 > 출석체크 > 퀴즈 만들기 클릭, 로그인한 회원이 운영하는 스터디에 퀴즈를 생성합니다.
         로그인한 회원이 스터디장인 경우 quiz에 새로운 퀴즈를 생성합니다.
         """)
+    @Parameter(name = "studyId", description = "출석 퀴즈를 생성할 스터디의 id를 입력합니다.", required = true)
     @PostMapping("/studies/{studyId}/quizzes")
     public ApiResponse<StudyQuizResponseDTO.QuizDTO> createAttendanceQuiz(
             @PathVariable @ExistStudy Long studyId,
@@ -326,11 +362,14 @@ public class MemberStudyController {
         StudyQuizResponseDTO.QuizDTO quizResponseDTO = memberStudyCommandService.createAttendanceQuiz(studyId, quizRequestDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_QUIZ_CREATED, quizResponseDTO);
     }
+
     @Tag(name = "스터디 출석체크")
     @Operation(summary = "[스터디 출석체크] 출석 체크하기", description = """ 
         ## [스터디 출석체크] 내 스터디 > 스터디 > 캘린더 > 이미지 클릭, 로그인한 회원이 참여하는 스터디에서 오늘의 퀴즈를 풀어 출석을 체크합니다.
         특정 시점의 quiz에 대해 member_attendance 튜플을 추가합니다.
         """)
+    @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
+    @Parameter(name = "quizId", description = "출석 체크를 위한 퀴즈의 id를 입력합니다.", required = true)
     @PostMapping("/studies/{studyId}/quizzes/{quizId}")
     public ApiResponse<StudyQuizResponseDTO.AttendanceDTO> attendantStudy(
             @PathVariable @ExistStudy Long studyId,
@@ -343,12 +382,15 @@ public class MemberStudyController {
             return ApiResponse.onSuccess(SuccessStatus._STUDY_ATTENDANCE_CREATED_WRONG_ANSWER, attendanceResponseDTO);
         }
     }
+
     @Tag(name = "스터디 출석체크")
     @Operation(summary = "[스터디 출석체크] 출석 퀴즈 삭제하기", description = """ 
         ## [스터디 출석체크] 기한이 지난 출석 퀴즈를 삭제합니다. (화면 X)
         PathVariable을 통해 전달받은 정보를 바탕으로 출석 퀴즈를 삭제합니다.
         출석 퀴즈 정보와 함께 퀴즈에 대한 MemberAttendance(회원 출석) 목록도 함께 삭제됩니다.
         """)
+    @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
+    @Parameter(name = "quizId", description = "삭제할 출석 퀴즈의 id를 입력합니다.", required = true)
     @DeleteMapping("/studies/{studyId}/quizzes/{quizId}")
     public ApiResponse<StudyQuizResponseDTO.QuizDTO> deleteAttendanceQuiz(
             @PathVariable @ExistStudy Long studyId,
@@ -356,11 +398,14 @@ public class MemberStudyController {
         StudyQuizResponseDTO.QuizDTO quizDTO = memberStudyCommandService.deleteAttendanceQuiz(studyId, quizId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_QUIZ_DELETED, quizDTO);
     }
+
     @Tag(name = "스터디 출석체크")
     @Operation(summary = "[스터디 출석체크] 금일 회원 출석부 불러오기", description = """ 
         ## [스터디 출석체크] 금일 모든 스터디 회원의 출석 여부를 불러옵니다.
         출석체크 화면에 표시되는 스터디 회원 정보(프로필 사진, 이름, 출석 여부, 스터디장 여부) 목록를 반환합니다.
         """)
+    @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
+    @Parameter(name = "quizId", description = "금일 출석 퀴즈의 id를 입력합니다.", required = true)
     @GetMapping("/studies/{studyId}/quizzes/{quizId}/members")
     public ApiResponse<StudyQuizResponseDTO.AttendanceListDTO> getAllAttendances(
             @PathVariable @ExistStudy Long studyId,
@@ -378,6 +423,8 @@ public class MemberStudyController {
         ## [스터디 신고] 로그인한 회원이 참여하는 스터디의 다른 회원을 신고합니다.
         신고당한 회원의 id와 이름이 반환됩니다.
         """)
+    @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
+    @Parameter(name = "memberId", description = "신고할 스터디원의 id를 입력합니다.", required = true)
     @PostMapping("/studies/{studyId}/members/{memberId}/reports")
     public ApiResponse<MemberResponseDTO.ReportedMemberDTO> reportStudyMember(
             @PathVariable @ExistStudy Long studyId, @PathVariable @ExistMember Long memberId,
@@ -391,6 +438,8 @@ public class MemberStudyController {
         ## [스터디 신고] 로그인한 회원이 참여하는 스터디의 게시글을 신고합니다.
         신고당한 스터디 게시글의 id와 제목이 반환됩니다.
         """)
+    @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
+    @Parameter(name = "postId", description = "신고할 스터디 게시글의 id를 입력합니다.", required = true)
     @PostMapping("/studies/{studyId}/posts/{postId}/reports")
     public ApiResponse<StudyPostResDTO.PostPreviewDTO> reportStudyPost(
             @PathVariable @ExistStudy Long studyId,

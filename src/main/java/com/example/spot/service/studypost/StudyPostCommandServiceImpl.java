@@ -463,7 +463,7 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
     }
 
     @Override
-    public StudyPostCommentResponseDTO.CommentPreviewDTO cancelCommentLike(Long studyId, Long postId, Long commentId, Long likeId) {
+    public StudyPostCommentResponseDTO.CommentPreviewDTO cancelCommentLike(Long studyId, Long postId, Long commentId) {
 
         Long memberId = SecurityUtils.getCurrentUserId();
         SecurityUtils.verifyUserId(memberId);
@@ -471,28 +471,18 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
         StudyLikedComment studyLikedComment = studyLikedCommentRepository.findByMemberIdAndStudyPostCommentIdAndIsLiked(memberId, commentId, Boolean.TRUE)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_LIKED_COMMENT_NOT_FOUND));
 
-        if (!studyLikedComment.equals(studyLikedCommentRepository.findById(likeId)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_DISLIKED_COMMENT_NOT_FOUND)))) {
-            throw new StudyHandler(ErrorStatus._STUDY_DISLIKED_COMMENT_NOT_FOUND);
-        }
-
         StudyPostComment studyPostComment = deleteStudyLikedComment(studyId, postId, commentId, memberId, studyLikedComment);
         return StudyPostCommentResponseDTO.CommentPreviewDTO.toDTO(studyPostComment);
     }
 
     @Override
-    public StudyPostCommentResponseDTO.CommentPreviewDTO cancelCommentDislike(Long studyId, Long postId, Long commentId, Long dislikeId) {
+    public StudyPostCommentResponseDTO.CommentPreviewDTO cancelCommentDislike(Long studyId, Long postId, Long commentId) {
 
         Long memberId = SecurityUtils.getCurrentUserId();
         SecurityUtils.verifyUserId(memberId);
 
         StudyLikedComment studyLikedComment = studyLikedCommentRepository.findByMemberIdAndStudyPostCommentIdAndIsLiked(memberId, commentId, Boolean.FALSE)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_DISLIKED_COMMENT_NOT_FOUND));
-
-        if (!studyLikedComment.equals(studyLikedCommentRepository.findById(dislikeId)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_DISLIKED_COMMENT_NOT_FOUND)))) {
-            throw new StudyHandler(ErrorStatus._STUDY_DISLIKED_COMMENT_NOT_FOUND);
-        }
 
         StudyPostComment studyPostComment = deleteStudyLikedComment(studyId, postId, commentId, memberId, studyLikedComment);
         return StudyPostCommentResponseDTO.CommentPreviewDTO.toDTO(studyPostComment);
