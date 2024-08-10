@@ -2,6 +2,7 @@ package com.example.spot.web.controller;
 
 import com.example.spot.api.ApiResponse;
 import com.example.spot.api.code.status.SuccessStatus;
+import com.example.spot.security.utils.SecurityUtils;
 import com.example.spot.service.study.StudyCommandService;
 import com.example.spot.service.study.StudyQueryService;
 import com.example.spot.validation.annotation.ExistMember;
@@ -51,6 +52,7 @@ public class StudyController {
     public ApiResponse<StudyJoinResponseDTO.JoinDTO> applyToStudy(
             @PathVariable @ExistMember Long memberId, @PathVariable @ExistStudy Long studyId,
             @RequestBody @Valid StudyJoinRequestDTO.StudyJoinDTO studyJoinRequestDTO) {
+        SecurityUtils.verifyUserId(memberId);
         StudyJoinResponseDTO.JoinDTO studyJoinResponseDTO = studyCommandService.applyToStudy(memberId, studyId, studyJoinRequestDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_APPLY_COMPLETED, studyJoinResponseDTO);
     }
@@ -63,6 +65,7 @@ public class StudyController {
     public ApiResponse<StudyRegisterResponseDTO.RegisterDTO> registerStudy(
             @PathVariable @ExistMember Long memberId,
             @RequestBody @Valid StudyRegisterRequestDTO.RegisterDTO studyRegisterRequestDTO) {
+        SecurityUtils.verifyUserId(memberId);
         StudyRegisterResponseDTO.RegisterDTO studyRegisterResponseDTO = studyCommandService.registerStudy(memberId, studyRegisterRequestDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_CREATED, studyRegisterResponseDTO);
     }
@@ -81,6 +84,7 @@ public class StudyController {
     public ApiResponse<StudyLikeResponseDTO> likeStudy(
         @PathVariable("studyId") @ExistStudy Long studyId,
         @PathVariable("memberId") @ExistMember Long memberId) {
+        SecurityUtils.verifyUserId(memberId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_LIKED, studyCommandService.likeStudy(memberId, studyId));
     }
 }

@@ -71,6 +71,9 @@ public class StudyPost extends BaseEntity {
     @OneToMany(mappedBy = "studyPost", cascade = CascadeType.ALL)
     private List<StudyLikedPost> likedPosts;
 
+    @OneToMany(mappedBy = "studyPost", cascade = CascadeType.ALL)
+    private List<StudyPostReport> studyPostReports;
+
 /* ----------------------------- 생성자 ------------------------------------- */
 
     @Builder
@@ -85,6 +88,7 @@ public class StudyPost extends BaseEntity {
         this.images = new ArrayList<>();
         this.comments = new ArrayList<>();
         this.likedPosts = new ArrayList<>();
+        this.studyPostReports = new ArrayList<>();
     }
 /* ----------------------------- 연관관계 메소드 ------------------------------------- */
 
@@ -139,5 +143,9 @@ public class StudyPost extends BaseEntity {
         likeNum--;
         member.updateStudyPost(this);
         study.updateStudyPost(this);
+    }
+
+    public void addStudyPostReport(StudyPostReport studyPostReport) {
+        studyPostReports.add(studyPostReport);
     }
 }

@@ -1,8 +1,10 @@
 package com.example.spot.service.memberstudy;
 
+import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.web.dto.memberstudy.request.*;
 import com.example.spot.web.dto.memberstudy.response.*;
 import com.example.spot.web.dto.study.response.StudyApplyResponseDTO;
+import jakarta.validation.Valid;
 
 public interface MemberStudyCommandService {
 
@@ -28,39 +30,6 @@ public interface MemberStudyCommandService {
     // 스터디 퀴즈 삭제
     StudyQuizResponseDTO.QuizDTO deleteAttendanceQuiz(Long studyId, Long quizId);
 
-    // 스터디 게시글 생성
-    StudyPostResDTO.PostPreviewDTO createPost(Long studyId, StudyPostRequestDTO.PostDTO postRequestDTO);
-
-    // 스터디 게시글 삭제
-    StudyPostResDTO.PostPreviewDTO deletePost(Long studyId, Long postId);
-
-    // 스터디 게시글 좋아요
-    StudyPostResDTO.PostLikeNumDTO likePost(Long studyId, Long postId);
-
-    // 스터디 게시글 좋아요 취소
-    StudyPostResDTO.PostLikeNumDTO cancelPostLike(Long studyId, Long postId);
-
-    // 스터디 게시글 댓글 생성
-    StudyPostCommentResponseDTO.CommentDTO createComment(Long studyId, Long postId, StudyPostCommentRequestDTO.CommentDTO commentRequestDTO);
-
-    // 스터디 게시글 답글 생성
-    StudyPostCommentResponseDTO.CommentDTO createReply(Long studyId, Long postId, Long commentId, StudyPostCommentRequestDTO.CommentDTO commentRequestDTO);
-
-    // 스터디 게시글 댓글 삭제 (댓/답글 구분 X)
-    StudyPostCommentResponseDTO.CommentIdDTO deleteComment(Long studyId, Long postId, Long commentId);
-
-    // 스터디 게시글 댓글 좋아요
-    StudyPostCommentResponseDTO.CommentPreviewDTO likeComment(Long studyId, Long postId, Long commentId);
-
-    // 스터디 게시글 댓글 싫어요
-    StudyPostCommentResponseDTO.CommentPreviewDTO dislikeComment(Long studyId, Long postId, Long commentId);
-
-    // 스터디 게시글 댓글 좋아요 취소
-    StudyPostCommentResponseDTO.CommentPreviewDTO cancelCommentLike(Long studyId, Long postId, Long commentId, Long likeId);
-
-    // 스터디 게시글 댓글 싫어요 취소
-    StudyPostCommentResponseDTO.CommentPreviewDTO cancelCommentDislike(Long studyId, Long postId, Long commentId, Long dislikeId);
-
     // 스터디 투표 생성
     StudyVoteResponseDTO.VotePreviewDTO createVote(Long studyId, StudyVoteRequestDTO.VoteDTO voteDTO);
 
@@ -73,5 +42,9 @@ public interface MemberStudyCommandService {
     // 스터디 투표 삭제
     StudyVoteResponseDTO.VotePreviewDTO deleteVote(Long studyId, Long voteId);
 
+    // 스터디 회원 신고
+    MemberResponseDTO.ReportedMemberDTO reportStudyMember(Long studyId, Long memberId, @Valid StudyMemberReportDTO studyMemberReportDTO);
 
+    // 스터디 게시글 신고
+    StudyPostResDTO.PostPreviewDTO reportStudyPost(Long studyId, Long postId);
 }

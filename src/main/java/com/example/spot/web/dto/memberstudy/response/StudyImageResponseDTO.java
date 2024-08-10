@@ -22,14 +22,10 @@ public class StudyImageResponseDTO {
         private final Long studyId;
         private final List<ImageDTO> images;
 
-        public static ImageListDTO toDTO(Study study) {
+        public static ImageListDTO toDTO(Long studyId, List<ImageDTO> images) {
             return ImageListDTO.builder()
-                    .studyId(study.getId())
-                    .images(study.getStudyPosts().stream()
-                            .sorted(Comparator.comparing(StudyPost::getCreatedAt))
-                            .flatMap(studyPost -> studyPost.getImages().stream())
-                            .map(ImageDTO::toDTO)
-                            .toList())
+                    .studyId(studyId)
+                    .images(images)
                     .build();
         }
     }

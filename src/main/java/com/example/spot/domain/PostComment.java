@@ -39,7 +39,6 @@ public class PostComment extends BaseEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
-
     //대댓글
     @ManyToOne
     @JoinColumn(name = "parent_id")

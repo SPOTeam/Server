@@ -338,4 +338,8 @@ public class Member extends BaseEntity {
     public void toAdmin() {
         this.isAdmin = true;
     }
+
+    public void addMemberReport(MemberReport memberReport) {
+        this.memberReportList.add(memberReport);
+    }
 }
