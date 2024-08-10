@@ -242,6 +242,11 @@ public class Member extends BaseEntity {
         this.preferredRegionList.addAll(preferredRegions);
     }
 
+    public void updateReasons(List<StudyReason> studyReasons) {
+        this.studyReasonList.clear();
+        this.studyReasonList.addAll(studyReasons);
+    }
+
     public void updateInfo(MemberInfoListDTO req) {
         this.name = req.getName();
         this.phone = req.getPhone();
@@ -328,6 +333,10 @@ public class Member extends BaseEntity {
 
     public void updateSchedule(Schedule schedule) {
         scheduleList.set(scheduleList.indexOf(schedule), schedule);
+    }
+
+    public void toAdmin() {
+        this.isAdmin = true;
     }
 
     public void addMemberReport(MemberReport memberReport) {
