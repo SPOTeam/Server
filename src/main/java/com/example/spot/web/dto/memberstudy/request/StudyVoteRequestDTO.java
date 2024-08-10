@@ -40,10 +40,8 @@ public class StudyVoteRequestDTO {
 
         @TextLength(min = 1, max = 255)
         private String title;
-
-        @IntSize(min = 1)
+        
         private List<OptionDTO> options;
-
         private Boolean isMultipleChoice;
         private LocalDateTime finishedAt;
     }
