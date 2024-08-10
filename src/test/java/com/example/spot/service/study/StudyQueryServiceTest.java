@@ -34,6 +34,7 @@ import com.example.spot.web.dto.search.SearchResponseDTO.StudyPreviewDTO;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -579,6 +580,35 @@ class StudyQueryServiceTest {
 
     @Test
     void findStudiesByTheme() {
+        // given
+        Pageable pageable = PageRequest.of(0, 10);
+        ThemeType themeType = ThemeType.어학;
+        StudySortBy sortBy = StudySortBy.ALL;
+        Theme theme = Theme.builder()
+            .id(1L)
+            .studyTheme(themeType)
+            .build();
+        StudyTheme studyTheme = new StudyTheme(theme, study1);
+
+        when(themeRepository.findByStudyTheme(themeType)).thenReturn(Optional.ofNullable(theme));
+        when(studyThemeRepository.findAllByTheme(theme)).thenReturn(List.of(studyTheme));
+
+        when(studyRepository.findByStudyTheme(List.of(studyTheme), sortBy, pageable))
+            .thenReturn(List.of(study1));
+        when(studyRepository.countStudyByStudyTheme(List.of(studyTheme), sortBy))
+            .thenReturn(1L);
+
+        // when
+        StudyPreviewDTO result = studyQueryService.findStudiesByTheme(pageable, themeType, sortBy);
+
+        // then
+        assertNotNull(result);
+        assertEquals(1, result.getTotalElements());
+        verify(themeRepository).findByStudyTheme(themeType);
+        verify(studyThemeRepository).findAllByTheme(theme);
+        verify(studyRepository).findByStudyTheme(List.of(studyTheme), sortBy, pageable);
+        verify(studyRepository).countStudyByStudyTheme(List.of(studyTheme), sortBy);
+
     }
 
     @Test
