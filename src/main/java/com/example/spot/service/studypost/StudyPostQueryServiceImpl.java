@@ -6,6 +6,7 @@ import com.example.spot.api.exception.handler.StudyHandler;
 import com.example.spot.domain.Member;
 import com.example.spot.domain.enums.ApplicationStatus;
 import com.example.spot.domain.enums.Theme;
+import com.example.spot.domain.enums.ThemeQuery;
 import com.example.spot.domain.study.Study;
 import com.example.spot.domain.study.StudyPost;
 import com.example.spot.repository.*;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -35,7 +37,7 @@ public class StudyPostQueryServiceImpl implements StudyPostQueryService {
 /* ----------------------------- 스터디 게시글 관련 API ------------------------------------- */
 
     @Override
-    public StudyPostResDTO.PostListDTO getAllPosts(PageRequest pageRequest, Long studyId, Theme theme) {
+    public StudyPostResDTO.PostListDTO getAllPosts(PageRequest pageRequest, Long studyId, ThemeQuery themeQuery) {
 
         //=== Exception ===//
         Long memberId = SecurityUtils.getCurrentUserId();
@@ -47,14 +49,23 @@ public class StudyPostQueryServiceImpl implements StudyPostQueryService {
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
 
         //=== Feature ===//
-        List<StudyPostResDTO.PostDTO> studyPosts =
-                (theme == null ? studyPostRepository.findAllByStudyId(studyId, pageRequest)
-                        : studyPostRepository.findAllByStudyIdAndTheme(studyId, theme, pageRequest))
-                        .stream()
-                        .map(StudyPostResDTO.PostDTO::toDTO)
-                        .toList();
 
-        return StudyPostResDTO.PostListDTO.toDTO(study, studyPosts);
+        List<StudyPost> studyPosts;
+        if (themeQuery == null) {
+            // query가 없는 경우
+            studyPosts = studyPostRepository.findAllByStudyId(studyId, pageRequest);
+        } else if (themeQuery.equals(ThemeQuery.ANNOUNCEMENT)) {
+            // query가 ANNOUNCEMENT인 경우
+            studyPosts = studyPostRepository.findAllByStudyIdAndIsAnnouncement(studyId, Boolean.TRUE, pageRequest);
+        } else {
+            // query가 스터디 테마인 경우
+            Theme theme = themeQuery.toTheme();
+            studyPosts = studyPostRepository.findAllByStudyIdAndTheme(studyId, theme, pageRequest);
+        }
+
+        return StudyPostResDTO.PostListDTO.toDTO(study, studyPosts.stream()
+                .map(StudyPostResDTO.PostDTO::toDTO)
+                .toList());
 
     }
 

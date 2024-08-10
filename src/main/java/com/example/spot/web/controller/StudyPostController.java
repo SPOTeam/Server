@@ -3,6 +3,7 @@ package com.example.spot.web.controller;
 import com.example.spot.api.ApiResponse;
 import com.example.spot.api.code.status.SuccessStatus;
 import com.example.spot.domain.enums.Theme;
+import com.example.spot.domain.enums.ThemeQuery;
 import com.example.spot.service.studypost.StudyPostCommandService;
 import com.example.spot.service.studypost.StudyPostQueryService;
 import com.example.spot.validation.annotation.ExistStudy;
@@ -72,10 +73,10 @@ public class StudyPostController {
     @GetMapping("/studies/{studyId}/posts")
     public ApiResponse<StudyPostResDTO.PostListDTO> getAllPosts(
             @PathVariable @ExistStudy Long studyId,
-            @RequestParam(required = false) Theme theme,
+            @RequestParam(required = false) ThemeQuery themeQuery,
             @RequestParam @Min(0) Integer offset,
             @RequestParam @Min(1) Integer limit) {
-        StudyPostResDTO.PostListDTO postListDTO = studyPostQueryService.getAllPosts(PageRequest.of(offset, limit), studyId, theme);
+        StudyPostResDTO.PostListDTO postListDTO = studyPostQueryService.getAllPosts(PageRequest.of(offset, limit), studyId, themeQuery);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_LIST_FOUND, postListDTO);
     }
 
