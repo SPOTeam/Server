@@ -9,6 +9,7 @@ import com.example.spot.domain.enums.Theme;
 import com.example.spot.domain.enums.ThemeQuery;
 import com.example.spot.domain.study.Study;
 import com.example.spot.domain.study.StudyPost;
+import com.example.spot.domain.study.StudyPostComment;
 import com.example.spot.repository.*;
 import com.example.spot.security.utils.SecurityUtils;
 import com.example.spot.web.dto.memberstudy.response.StudyPostCommentResponseDTO;
@@ -20,12 +21,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class StudyPostQueryServiceImpl implements StudyPostQueryService {
 
+    private final StudyPostCommentRepository studyPostCommentRepository;
     @Value("${cloud.aws.default-image}")
     private String defaultImage;
 
@@ -126,7 +129,12 @@ public class StudyPostQueryServiceImpl implements StudyPostQueryService {
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
 
         //=== Feature ===//
-        return StudyPostCommentResponseDTO.CommentReplyListDTO.toDTO(studyPost.getId(), studyPost.getComments(), defaultImage);
+        List<StudyPostComment> studyPostComments = studyPostCommentRepository.findByStudyPostId(studyPost.getId()).stream()
+                .filter(studyPostComment -> studyPostComment.getParentComment() == null)
+                .sorted(Comparator.comparing(StudyPostComment::getCreatedAt))
+                .toList();
+
+        return StudyPostCommentResponseDTO.CommentReplyListDTO.toDTO(studyPost.getId(), studyPostComments, defaultImage);
     }
 
 }
