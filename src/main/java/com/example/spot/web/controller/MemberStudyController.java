@@ -3,6 +3,7 @@ package com.example.spot.web.controller;
 import com.example.spot.api.ApiResponse;
 import com.example.spot.api.code.status.SuccessStatus;
 import com.example.spot.domain.enums.Theme;
+import com.example.spot.security.utils.SecurityUtils;
 import com.example.spot.service.memberstudy.MemberStudyCommandService;
 import com.example.spot.service.memberstudy.MemberStudyQueryService;
 import com.example.spot.validation.annotation.*;
@@ -39,6 +40,7 @@ public class MemberStudyController {
         """)
     @DeleteMapping("/members/{memberId}/studies/{studyId}/withdrawal")
     public ApiResponse<StudyWithdrawalResponseDTO.WithdrawalDTO> withdrawFromStudy(@PathVariable Long memberId, @PathVariable Long studyId) {
+        SecurityUtils.verifyUserId(memberId);
         StudyWithdrawalResponseDTO.WithdrawalDTO withdrawalDTO = memberStudyCommandService.withdrawFromStudy(memberId, studyId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_MEMBER_DELETED, withdrawalDTO);
     }

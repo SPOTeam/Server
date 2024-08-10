@@ -50,6 +50,10 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_APPLY_ALREADY_PROCESSED(HttpStatus.BAD_REQUEST, "STUDY4010","스터디 신청이 이미 처리된 회원입니다."),
     _STUDY_OWNER_CANNOT_APPLY(HttpStatus.BAD_REQUEST, "STUDY4011", "스터디장은 스터디에 신청할 수 없습니다."),
     _STUDY_IS_FULL(HttpStatus.BAD_REQUEST, "STUDY4012", "스터디 인원이 가득 찼습니다."),
+    _ONLY_STUDY_OWNER_CAN_ACCESS_APPLICANTS(HttpStatus.FORBIDDEN, "STUDY4013", "스터디장만 신청자 목록에 접근할 수 있습니다."),
+    _ONLY_STUDY_MEMBER_CAN_ACCESS_ANNOUNCEMENT_POST(HttpStatus.FORBIDDEN, "STUDY4014", "스터디 멤버만 공지 게시글에 접근할 수 있습니다."),
+    _ONLY_STUDY_MEMBER_CAN_ACCESS_SCHEDULE(HttpStatus.FORBIDDEN, "STUDY4015", "스터디 멤버만 일정에 접근할 수 있습니다."),
+    _ONLY_STUDY_MEMBER_CAN_ACCESS_MEMBERS(HttpStatus.FORBIDDEN, "STUDY4016", "스터디 멤버만 회원 목록에 접근할 수 있습니다."),
 
     //스터디 게시글 관련 에러
     _STUDY_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST4001", "스터디 게시글을 찾을 수 없습니다."),

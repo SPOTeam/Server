@@ -36,7 +36,6 @@ public class StudyRegisterRequestDTO {
 
         private List<String> regions;
 
-        @IntSize(min = 2)
         private Long maxPeople;
 
         private Gender gender;
