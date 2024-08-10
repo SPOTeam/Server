@@ -46,6 +46,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.parameters.P;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -556,6 +557,24 @@ class StudyQueryServiceTest {
 
     @Test
     void findStudiesByKeyword() {
+
+        // given
+        Pageable pageable = PageRequest.of(0, 10);
+        String keyword = "English";
+        StudySortBy sortBy = StudySortBy.ALL;
+
+        when(studyRepository.findAllByTitleContaining(keyword, sortBy, pageable))
+            .thenReturn(List.of(study1));
+        when(studyRepository.countAllByTitleContaining(keyword, sortBy))
+            .thenReturn(1L);
+
+        // when
+        StudyPreviewDTO result = studyQueryService.findStudiesByKeyword(pageable, keyword, sortBy);
+
+        // then
+        assertNotNull(result);
+        assertEquals(1, result.getTotalElements());
+        verify(studyRepository).findAllByTitleContaining(keyword, sortBy, pageable);
     }
 
     @Test
