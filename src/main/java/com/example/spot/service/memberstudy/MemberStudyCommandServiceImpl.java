@@ -98,6 +98,9 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
     public StudyApplyResponseDTO acceptAndRejectStudyApply(Long memberId, Long studyId,
         boolean isAccept) {
 
+        if (!isOwner(SecurityUtils.getCurrentUserId(), studyId))
+            throw new GeneralException(ErrorStatus._ONLY_STUDY_OWNER_CAN_ACCESS_APPLICANTS);
+
         MemberStudy memberStudy = memberStudyRepository.findByMemberIdAndStudyId(memberId, studyId)
             .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_APPLICANT_NOT_FOUND));
 
@@ -527,6 +530,16 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
             memberVoteRepository.deleteAll(memberVoteRepository.findAllByOptionId(option.getId()));
             optionRepository.delete(option);
         });
+    }
+
+    // 로그인 한 회원이 해당 스터디 장인지 확인
+    private boolean isOwner(Long memberId, Long studyId) {
+        return memberStudyRepository.findByMemberIdAndStudyIdAndIsOwned(memberId, studyId, true).isPresent();
+    }
+
+    // 로그인 한 회원이 해당 스터디 원인지 확인
+    private boolean isMember(Long memberId, Long studyId) {
+        return memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED).isPresent();
     }
 
     @Override

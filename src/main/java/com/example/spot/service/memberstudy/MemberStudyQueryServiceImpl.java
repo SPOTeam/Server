@@ -59,6 +59,10 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 
     @Override
     public StudyPostResponseDTO findStudyAnnouncementPost(Long studyId) {
+
+        if (!isMember(SecurityUtils.getCurrentUserId(), studyId))
+            throw new GeneralException(ErrorStatus._ONLY_STUDY_MEMBER_CAN_ACCESS_ANNOUNCEMENT_POST);
+
         StudyPost studyPost = studyPostRepository.findByStudyIdAndIsAnnouncement(
             studyId, true).orElseThrow(() -> new GeneralException(ErrorStatus._STUDY_POST_NOT_FOUND));
 
@@ -69,6 +73,10 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 
     @Override
     public StudyScheduleResponseDTO findStudySchedule(Long studyId, Pageable pageable) {
+
+        if (!isMember(SecurityUtils.getCurrentUserId(), studyId))
+            throw new GeneralException(ErrorStatus._ONLY_STUDY_MEMBER_CAN_ACCESS_SCHEDULE);
+
         List<Schedule> schedules = scheduleRepository.findAllByStudyId(studyId, pageable);
         if (schedules.isEmpty())
             throw  new GeneralException(ErrorStatus._STUDY_SCHEDULE_NOT_FOUND);
@@ -84,6 +92,10 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 
     @Override
     public StudyMemberResponseDTO findStudyMembers(Long studyId) {
+
+        if (!isMember(SecurityUtils.getCurrentUserId(), studyId))
+            throw new GeneralException(ErrorStatus._ONLY_STUDY_MEMBER_CAN_ACCESS_MEMBERS);
+
         List<MemberStudy> memberStudies = memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED);
         if (memberStudies.isEmpty())
             throw new GeneralException(ErrorStatus._STUDY_MEMBER_NOT_FOUND);
@@ -97,6 +109,10 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 
     @Override
     public StudyMemberResponseDTO findStudyApplicants(Long studyId) {
+
+        if (!isOwner(SecurityUtils.getCurrentUserId(), studyId))
+            throw new GeneralException(ErrorStatus._ONLY_STUDY_OWNER_CAN_ACCESS_APPLICANTS);
+
         List<MemberStudy> memberStudies = memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPLIED);
         if (memberStudies.isEmpty())
             throw new GeneralException(ErrorStatus._STUDY_APPLICANT_NOT_FOUND);
@@ -110,6 +126,10 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 
     @Override
     public StudyApplyMemberDTO findStudyApplication(Long studyId, Long memberId) {
+
+        if (!isOwner(SecurityUtils.getCurrentUserId(), studyId))
+            throw new GeneralException(ErrorStatus._ONLY_STUDY_OWNER_CAN_ACCESS_APPLICANTS);
+
         MemberStudy memberStudy = memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPLIED)
             .orElseThrow(() -> new GeneralException(ErrorStatus._STUDY_APPLICANT_NOT_FOUND));
 
@@ -403,6 +423,15 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
         return StudyVoteResponseDTO.CompletedVoteDetailDTO.toDTO(vote);
     }
 
+    // 로그인 한 회원이 해당 스터디 장인지 확인
+    private boolean isOwner(Long memberId, Long studyId) {
+        return memberStudyRepository.findByMemberIdAndStudyIdAndIsOwned(memberId, studyId, true).isPresent();
+    }
+
+    // 로그인 한 회원이 해당 스터디 원인지 확인
+    private boolean isMember(Long memberId, Long studyId) {
+        return memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED).isPresent();
+    }
 /* ----------------------------- 스터디 갤러리 관련 API ------------------------------------- */
 
     @Override
