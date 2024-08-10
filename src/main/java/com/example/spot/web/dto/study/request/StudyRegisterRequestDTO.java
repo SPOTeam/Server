@@ -3,6 +3,7 @@ package com.example.spot.web.dto.study.request;
 import com.example.spot.domain.enums.Gender;
 import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.validation.annotation.IntSize;
+import com.example.spot.validation.annotation.LongSize;
 import com.example.spot.validation.annotation.TextLength;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -36,7 +37,7 @@ public class StudyRegisterRequestDTO {
 
         private List<String> regions;
 
-        @IntSize(min = 2)
+        @LongSize(min = 2)
         private Long maxPeople;
 
         private Gender gender;

@@ -304,8 +304,10 @@ public class MemberStudyController {
         """)
     @GetMapping("/studies/{studyId}/images")
     public ApiResponse<StudyImageResponseDTO.ImageListDTO> getAllStudyImages(
-            @PathVariable @ExistStudy Long studyId) {
-        StudyImageResponseDTO.ImageListDTO imageListDTO = memberStudyQueryService.getAllStudyImages(studyId);
+            @PathVariable @ExistStudy Long studyId,
+            @RequestParam @Min(0) Integer offset,
+            @RequestParam @Min(1) Integer limit) {
+        StudyImageResponseDTO.ImageListDTO imageListDTO = memberStudyQueryService.getAllStudyImages(studyId, PageRequest.of(offset, limit));
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_IMAGES_FOUND, imageListDTO);
     }
 

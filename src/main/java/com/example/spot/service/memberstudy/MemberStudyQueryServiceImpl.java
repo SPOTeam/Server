@@ -1,12 +1,10 @@
 package com.example.spot.service.memberstudy;
 
 import com.example.spot.api.code.status.ErrorStatus;
-import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.api.exception.handler.StudyHandler;
 import com.example.spot.domain.Member;
 import com.example.spot.domain.Quiz;
 import com.example.spot.domain.enums.Period;
-import com.example.spot.domain.enums.Theme;
 import com.example.spot.domain.mapping.MemberAttendance;
 import com.example.spot.domain.study.*;
 import com.example.spot.repository.*;
@@ -35,6 +33,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -407,14 +406,14 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 /* ----------------------------- 스터디 갤러리 관련 API ------------------------------------- */
 
     @Override
-    public StudyImageResponseDTO.ImageListDTO getAllStudyImages(Long studyId) {
+    public StudyImageResponseDTO.ImageListDTO getAllStudyImages(Long studyId, PageRequest pageRequest) {
 
         //=== Exception ===//
         Long memberId = SecurityUtils.getCurrentUserId();
         SecurityUtils.verifyUserId(memberId);
-        Study study = studyRepository.findById(studyId)
+        studyRepository.findById(studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
-        Member member = memberRepository.findById(memberId)
+        memberRepository.findById(memberId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._MEMBER_NOT_FOUND));
 
         // 로그인한 회원이 스터디 회원인지 확인
@@ -422,6 +421,14 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
 
         //=== Feature ===//
-        return StudyImageResponseDTO.ImageListDTO.toDTO(study);
+        List<StudyImageResponseDTO.ImageDTO> images = studyPostRepository.findAllByStudyId(studyId, pageRequest)
+                .stream()
+                .sorted(Comparator.comparing(StudyPost::getCreatedAt))
+                .flatMap(studyPost -> studyPost.getImages().stream())
+                .map(StudyImageResponseDTO.ImageDTO::toDTO)
+                .toList();
+
+        return StudyImageResponseDTO.ImageListDTO.toDTO(studyId, images);
+
     }
 }
