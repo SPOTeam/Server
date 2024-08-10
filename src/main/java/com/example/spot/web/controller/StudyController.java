@@ -63,6 +63,10 @@ public class StudyController {
     @Operation(summary = "[스터디 생성/참여] 스터디 등록하기", description = """ 
         ## [스터디 생성/참여] 스터디 등록 페이지 클릭, 로그인한 회원이 스터디를 등록합니다.
         로그인한 회원이 owner인 새로운 스터디가 study에 생성됩니다.
+        
+        themes는 [어학, 자격증, 취업, 시사뉴스, 자율학습, 토론, 프로젝트, 공모전, 전공및진로학습, 기타]에서 복수 선택 가능합니다.
+        
+        regions에는 지역 코드를 입력해야 합니다.
         """)
     @Parameter(name = "memberId", description = "스터디를 생성할 회원의 id를 입력 받습니다.", required = true)
     @PostMapping("/members/{memberId}/studies")

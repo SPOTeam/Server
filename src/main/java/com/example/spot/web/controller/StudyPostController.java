@@ -40,10 +40,6 @@ public class StudyPostController {
     @Operation(summary = "[스터디 게시글] 게시글 작성하기", description = """
         ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 작성 버튼 클릭, 로그인한 회원이 참여하는 특정 스터디에서 새로운 게시글을 등록합니다.
         스터디에 참여하는 회원이 작성한 게시글을 `study_post`에 저장합니다.
-        
-        themes는 [어학, 자격증, 취업, 시사뉴스, 자율학습, 토론, 프로젝트, 공모전, 전공및진로학습, 기타]에서 복수 선택 가능합니다.
-        
-        regions에는 지역 코드를 입력해야 합니다.
         """)
     @Parameter(name = "studyId", description = "게시글을 작성할 스터디의 id를 입력합니다.", required = true)
     @PostMapping(value = "/studies/{studyId}/posts", consumes = "multipart/form-data")
