@@ -423,7 +423,7 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
         //=== Feature ===//
         List<StudyImageResponseDTO.ImageDTO> images = studyPostRepository.findAllByStudyId(studyId, pageRequest)
                 .stream()
-                .sorted(Comparator.comparing(StudyPost::getCreatedAt))
+                .sorted(Comparator.comparing(StudyPost::getCreatedAt).reversed())
                 .flatMap(studyPost -> studyPost.getImages().stream())
                 .map(StudyImageResponseDTO.ImageDTO::toDTO)
                 .toList();
