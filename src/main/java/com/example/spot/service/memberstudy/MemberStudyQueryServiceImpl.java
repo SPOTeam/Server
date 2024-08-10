@@ -1,12 +1,10 @@
 package com.example.spot.service.memberstudy;
 
 import com.example.spot.api.code.status.ErrorStatus;
-import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.api.exception.handler.StudyHandler;
 import com.example.spot.domain.Member;
 import com.example.spot.domain.Quiz;
 import com.example.spot.domain.enums.Period;
-import com.example.spot.domain.enums.Theme;
 import com.example.spot.domain.mapping.MemberAttendance;
 import com.example.spot.domain.study.*;
 import com.example.spot.repository.*;
@@ -35,6 +33,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -188,114 +187,6 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 
     }
 
-/* ----------------------------- 스터디 게시글 관련 API ------------------------------------- */
-
-    @Override
-    public StudyPostResDTO.PostListDTO getAllPosts(PageRequest pageRequest, Long studyId, Theme theme) {
-
-        //=== Exception ===//
-        Long memberId = SecurityUtils.getCurrentUserId();
-        SecurityUtils.verifyUserId(memberId);
-
-        memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
-        Study study = studyRepository.findById(studyId)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
-
-        // 로그인한 회원이 스터디 회원인지 확인
-        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
-
-        //=== Feature ===//
-        List<StudyPostResDTO.PostDTO> studyPosts =
-                (theme == null ? studyPostRepository.findAllByStudyId(studyId, pageRequest)
-                        : studyPostRepository.findAllByStudyIdAndTheme(studyId, theme, pageRequest))
-                .stream()
-                .map(StudyPostResDTO.PostDTO::toDTO)
-                .toList();
-
-        return StudyPostResDTO.PostListDTO.toDTO(study, studyPosts);
-
-    }
-
-    @Override
-    @Transactional(readOnly = false)
-    public StudyPostResDTO.PostDetailDTO getPost(Long studyId, Long postId) {
-
-        //=== Exception ===//
-        Long memberId = SecurityUtils.getCurrentUserId();
-        SecurityUtils.verifyUserId(memberId);
-
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
-        Study study = studyRepository.findById(studyId)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
-        StudyPost studyPost = studyPostRepository.findById(postId)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
-
-        // 로그인한 회원이 스터디 회원인지 확인
-        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
-
-        // 해당 스터디의 게시글인지 확인
-        studyPostRepository.findByIdAndStudyId(postId, studyId)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
-
-        //=== Feature ===//
-        studyPost.plusHitNum();
-        studyPost = studyPostRepository.save(studyPost);
-        memberRepository.save(member);
-        studyRepository.save(study);
-
-        return StudyPostResDTO.PostDetailDTO.toDTO(studyPost);
-    }
-
-    @Override
-    public StudyPostCommentResponseDTO.CommentReplyListDTO getAllComments(Long studyId, Long postId) {
-
-        //=== Exception ===//
-        Long memberId = SecurityUtils.getCurrentUserId();
-        SecurityUtils.verifyUserId(memberId);
-
-        memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
-        studyRepository.findById(studyId)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
-        StudyPost studyPost = studyPostRepository.findById(postId)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
-
-        // 로그인한 회원이 스터디 회원인지 확인
-        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
-
-        // 해당 스터디의 게시글인지 확인
-        studyPostRepository.findByIdAndStudyId(postId, studyId)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
-
-        //=== Feature ===//
-
-        return StudyPostCommentResponseDTO.CommentReplyListDTO.toDTO(studyPost.getId(), studyPost.getComments(), defaultImage);
-    }
-
-    @Override
-    public StudyImageResponseDTO.ImageListDTO getAllStudyImages(Long studyId) {
-
-        //=== Exception ===//
-        Long memberId = SecurityUtils.getCurrentUserId();
-        SecurityUtils.verifyUserId(memberId);
-        Study study = studyRepository.findById(studyId)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._MEMBER_NOT_FOUND));
-
-        // 로그인한 회원이 스터디 회원인지 확인
-        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
-
-        //=== Feature ===//
-        return StudyImageResponseDTO.ImageListDTO.toDTO(study);
-    }
-
     /* ----------------------------- 스터디 일정 관련 API ------------------------------------- */
 
     @Override
@@ -310,16 +201,20 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
 
         // 로그인한 회원이 스터디 회원인지 확인
-        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
+        boolean isStudyMember;
+        if (memberStudyRepository.existsByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)) {
+            isStudyMember = true;
+        } else {
+            isStudyMember = false;
+        }
 
         List<ScheduleResponseDTO.MonthlyScheduleDTO> monthlyScheduleDTOS = new ArrayList<>();
 
         study.getSchedules().forEach(schedule -> {
                     if (schedule.getPeriod().equals(Period.NONE)) {
-                        addSchedule(schedule, year, month, monthlyScheduleDTOS);
+                        addSchedule(schedule, year, month, monthlyScheduleDTOS, isStudyMember);
                     } else {
-                        addPeriodSchedules(schedule, year, month, monthlyScheduleDTOS);
+                        addPeriodSchedules(schedule, year, month, monthlyScheduleDTOS, isStudyMember);
                     }
                 });
 
@@ -341,23 +236,27 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_SCHEDULE_NOT_FOUND));
 
         // 로그인한 회원이 스터디 회원인지 확인
-        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
+        boolean isStudyMember;
+        if (memberStudyRepository.existsByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)) {
+            isStudyMember = true;
+        } else {
+            isStudyMember = false;
+        }
 
         // 해당 스터디의 일정인지 확인
         scheduleRepository.findByIdAndStudyId(scheduleId, studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_SCHEDULE_NOT_FOUND));
 
-        return ScheduleResponseDTO.MonthlyScheduleDTO.toDTO(schedule);
+        return ScheduleResponseDTO.MonthlyScheduleDTO.toDTO(schedule, isStudyMember);
     }
 
-    private void addSchedule(Schedule schedule, int year, int month, List<ScheduleResponseDTO.MonthlyScheduleDTO> monthlyScheduleDTOS) {
+    private void addSchedule(Schedule schedule, int year, int month, List<ScheduleResponseDTO.MonthlyScheduleDTO> monthlyScheduleDTOS, boolean isStudyMember) {
         if (schedule.getStartedAt().getYear() == year && schedule.getStartedAt().getMonthValue() == month) {
-            monthlyScheduleDTOS.add(ScheduleResponseDTO.MonthlyScheduleDTO.toDTO(schedule));
+            monthlyScheduleDTOS.add(ScheduleResponseDTO.MonthlyScheduleDTO.toDTO(schedule, isStudyMember));
         }
     }
 
-    private void addPeriodSchedules(Schedule schedule, int year, int month, List<ScheduleResponseDTO.MonthlyScheduleDTO> monthlyScheduleDTOS) {
+    private void addPeriodSchedules(Schedule schedule, int year, int month, List<ScheduleResponseDTO.MonthlyScheduleDTO> monthlyScheduleDTOS, boolean isStudyMember) {
 
         Duration duration = Duration.between(schedule.getStartedAt(), schedule.getFinishedAt()); // 일정 수행 시간
         DayOfWeek targetDayOfWeek = schedule.getStartedAt().getDayOfWeek(); // 일정을 반복할 요일
@@ -370,7 +269,7 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
                 LocalDateTime newStartedAt = newStartedAtDate.atStartOfDay().with(schedule.getStartedAt().toLocalTime());
                 LocalDateTime newFinishedAt = newStartedAt.plus(duration);
 
-                monthlyScheduleDTOS.add(ScheduleResponseDTO.MonthlyScheduleDTO.toDTOWithDate(schedule, newStartedAt, newFinishedAt));
+                monthlyScheduleDTOS.add(ScheduleResponseDTO.MonthlyScheduleDTO.toDTOWithDate(schedule, newStartedAt, newFinishedAt, isStudyMember));
 
                 if (schedule.getPeriod().equals(Period.DAILY)) {
                     newStartedAtDate = newStartedAtDate.plusDays(1);
@@ -533,5 +432,32 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
     private boolean isMember(Long memberId, Long studyId) {
         return memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED).isPresent();
     }
-}
+/* ----------------------------- 스터디 갤러리 관련 API ------------------------------------- */
 
+    @Override
+    public StudyImageResponseDTO.ImageListDTO getAllStudyImages(Long studyId, PageRequest pageRequest) {
+
+        //=== Exception ===//
+        Long memberId = SecurityUtils.getCurrentUserId();
+        SecurityUtils.verifyUserId(memberId);
+        studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        memberRepository.findById(memberId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        // 로그인한 회원이 스터디 회원인지 확인
+        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
+
+        //=== Feature ===//
+        List<StudyImageResponseDTO.ImageDTO> images = studyPostRepository.findAllByStudyId(studyId, pageRequest)
+                .stream()
+                .sorted(Comparator.comparing(StudyPost::getCreatedAt).reversed())
+                .flatMap(studyPost -> studyPost.getImages().stream())
+                .map(StudyImageResponseDTO.ImageDTO::toDTO)
+                .toList();
+
+        return StudyImageResponseDTO.ImageListDTO.toDTO(studyId, images);
+
+    }
+}

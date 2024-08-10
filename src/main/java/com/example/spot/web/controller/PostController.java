@@ -19,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Post", description = "Post API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/spot/posts")
@@ -162,7 +163,7 @@ public class PostController {
                     description = "삭제할 게시글의 ID입니다.",
                     schema = @Schema(type = "integer", format = "int64")
             )
-            @PathVariable @ExistPost Long postId
+            @PathVariable Long postId
     ) {
         postCommandService.deletePost(memberId, postId);
         return ApiResponse.onSuccess(SuccessStatus._NO_CONTENT);
@@ -212,9 +213,8 @@ public class PostController {
         return ApiResponse.onSuccess(SuccessStatus._CREATED, response);
     }
 
-    @Tag(name = "게시판 - 댓글", description = "댓글 관련 API")
-    @Operation(summary = "!테스트용! [게시판] 댓글 조회 API", description = "게시글 ID를 받아 댓글을 조회합니다. 댓글 조회는 이미 게시글 단건 조회에 포함되어 있습니다.")
-    @GetMapping("/{postId}/{commentId}")
+    @Operation(summary = "!테스트용! 게시글 댓글 조회 API", description = "게시글 ID를 받아 댓글을 조회합니다. 댓글 조회는 이미 게시글 단건 조회에 포함되어 있습니다.")
+    @GetMapping("/{postId}/comments")
     public ApiResponse<CommentResponse> getComment(
             @Parameter(
                     description = "조회할 게시글의 ID입니다.",
@@ -225,6 +225,7 @@ public class PostController {
         CommentResponse response = postQueryService.getCommentsByPostId(postId);
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
+
 
     //게시글 댓글 좋아요
     @Tag(name = "게시판 - 댓글", description = "댓글 관련 API")

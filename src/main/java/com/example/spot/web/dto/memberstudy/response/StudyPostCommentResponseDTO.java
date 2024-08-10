@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Getter
@@ -126,6 +127,7 @@ public class StudyPostCommentResponseDTO {
                     .dislikeCount(comment.getDislikeCount())
                     .isDeleted(comment.getIsDeleted())
                     .applies(comment.getChildrenComment().stream()
+                            .sorted(Comparator.comparing(StudyPostComment::getCreatedAt))
                             .map(child -> CommentReplyDTO.toDTO(child, defaultImage))
                             .toList())
                     .build();

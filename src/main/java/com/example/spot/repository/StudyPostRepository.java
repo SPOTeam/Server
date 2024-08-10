@@ -2,10 +2,12 @@ package com.example.spot.repository;
 
 import com.example.spot.domain.study.StudyPost;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import com.example.spot.repository.querydsl.StudyPostRepositoryCustom;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -17,4 +19,6 @@ public interface StudyPostRepository extends JpaRepository<StudyPost, Long>, Stu
     Optional<StudyPost> findByIdAndStudyId(Long postId, Long studyId);
 
     Optional<StudyPost> findByIdAndMemberId(Long postId, Long memberId);
+
+    List<StudyPost> findAllByStudyIdAndIsAnnouncement(Long studyId, Boolean isAnnouncement, PageRequest pageRequest);
 }

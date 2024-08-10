@@ -1,7 +1,7 @@
 package com.example.spot.validation.validator;
 
 import com.example.spot.api.code.status.ErrorStatus;
-import com.example.spot.validation.annotation.IntSize;
+import com.example.spot.validation.annotation.LongSize;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import lombok.AllArgsConstructor;
@@ -11,20 +11,19 @@ import org.springframework.stereotype.Component;
 @Component
 @NoArgsConstructor
 @AllArgsConstructor
-public class IntSizeValidator implements ConstraintValidator<IntSize, Integer> {
+public class LongSizeValidator implements ConstraintValidator<LongSize, Long> {
 
-    private int min;
-    private int max;
+    private long min;
+    private long max;
 
     @Override
-    public void initialize(IntSize constraintAnnotation) {
+    public void initialize(LongSize constraintAnnotation) {
         this.min = constraintAnnotation.min();
         this.max = constraintAnnotation.max();
     }
 
     @Override
-    public boolean isValid(Integer value, ConstraintValidatorContext context) {
-
+    public boolean isValid(Long value, ConstraintValidatorContext context) {
         boolean isValid = false;
         ErrorStatus errorStatus;
 
