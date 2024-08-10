@@ -54,13 +54,14 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     //실시간순
     @Override
     public List<Post> findTopByRealTimeScore() {
-        LocalDateTime twoHoursAgo = LocalDateTime.now().minusHours(2);
+        // TODO 실시간 두시간 전 게시글만 통계
+        //LocalDateTime twoHoursAgo = LocalDateTime.now().minusHours(2);
 
         return jpaQueryFactory
                 .selectFrom(post)
                 .leftJoin(post.postCommentList, comment)
                 .leftJoin(post.likedPostList, like).fetchJoin()
-                .where(post.createdAt.after(twoHoursAgo))
+                //.where(post.createdAt.after(twoHoursAgo))
                 //.groupBy(post)
                 .orderBy(
                         post.hitNum.add(post.likedPostList.size()).add(post.postCommentList.size()).desc(),
