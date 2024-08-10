@@ -32,7 +32,7 @@ public class StudyPostQueryServiceImpl implements StudyPostQueryService {
     private final StudyPostRepository studyPostRepository;
     private final MemberStudyRepository memberStudyRepository;
 
-    /* ----------------------------- 스터디 게시글 관련 API ------------------------------------- */
+/* ----------------------------- 스터디 게시글 관련 API ------------------------------------- */
 
     @Override
     public StudyPostResDTO.PostListDTO getAllPosts(PageRequest pageRequest, Long studyId, Theme theme) {
@@ -72,7 +72,7 @@ public class StudyPostQueryServiceImpl implements StudyPostQueryService {
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
         StudyPost studyPost = studyPostRepository.findById(postId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
-        
+
         // 해당 스터디의 게시글인지 확인
         studyPostRepository.findByIdAndStudyId(postId, studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
@@ -85,6 +85,8 @@ public class StudyPostQueryServiceImpl implements StudyPostQueryService {
 
         return StudyPostResDTO.PostDetailDTO.toDTO(studyPost);
     }
+
+/* ----------------------------- 스터디 게시글 댓글 관련 API ------------------------------------- */
 
     @Override
     public StudyPostCommentResponseDTO.CommentReplyListDTO getAllComments(Long studyId, Long postId) {
@@ -99,10 +101,6 @@ public class StudyPostQueryServiceImpl implements StudyPostQueryService {
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
         StudyPost studyPost = studyPostRepository.findById(postId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
-
-        // 로그인한 회원이 스터디 회원인지 확인
-        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
 
         // 해당 스터디의 게시글인지 확인
         studyPostRepository.findByIdAndStudyId(postId, studyId)

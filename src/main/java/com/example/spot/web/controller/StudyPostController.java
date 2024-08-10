@@ -34,6 +34,7 @@ public class StudyPostController {
     private final StudyPostCommandService studyPostCommandService;
 
 /* ----------------------------- 스터디 게시글 관련 API ------------------------------------- */
+
     @Tag(name = "스터디 게시글")
     @Operation(summary = "[스터디 게시글] 게시글 작성하기", description = """
         ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 작성 버튼 클릭, 로그인한 회원이 참여하는 특정 스터디에서 새로운 게시글을 등록합니다.
@@ -46,6 +47,7 @@ public class StudyPostController {
         StudyPostResDTO.PostPreviewDTO postPreviewDTO = studyPostCommandService.createPost(studyId, postRequestDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_CREATED, postPreviewDTO);
     }
+
     @Tag(name = "스터디 게시글")
     @Operation(summary = "[스터디 게시글] 게시글 삭제하기", description = """ 
         ## [스터디 게시글] 로그인한 회원이 참여하는 특정 스터디에서 작성한 게시글을 삭제합니다.
@@ -59,6 +61,7 @@ public class StudyPostController {
         StudyPostResDTO.PostPreviewDTO postPreviewDTO = studyPostCommandService.deletePost(studyId, postId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_DELETED, postPreviewDTO);
     }
+
     @Tag(name = "스터디 게시글")
     @Operation(summary = "[스터디 게시글] 글 목록 불러오기", description = """ 
         ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 클릭, 로그인한 회원이 참여하는 특정 스터디의 게시글 목록을 불러옵니다.
@@ -75,6 +78,7 @@ public class StudyPostController {
         StudyPostResDTO.PostListDTO postListDTO = studyPostQueryService.getAllPosts(PageRequest.of(offset, limit), studyId, theme);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_LIST_FOUND, postListDTO);
     }
+
     @Tag(name = "스터디 게시글")
     @Operation(summary = "[스터디 게시글] 게시글 불러오기", description = """ 
         ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 게시글 클릭, 로그인한 회원이 참여하는 특정 스터디의 게시글을 불러옵니다.
@@ -87,6 +91,7 @@ public class StudyPostController {
         StudyPostResDTO.PostDetailDTO postDetailDTO = studyPostQueryService.getPost(studyId, postId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_FOUND, postDetailDTO);
     }
+
     @Tag(name = "스터디 게시글")
     @Operation(summary = "[스터디 게시글] 좋아요 누르기", description = """ 
         ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 게시글 클릭, 로그인한 회원이 참여하는 특정 스터디의 게시글에 좋아요를 누릅니다.
@@ -99,6 +104,7 @@ public class StudyPostController {
         StudyPostResDTO.PostLikeNumDTO postLikeNumDTO = studyPostCommandService.likePost(studyId, postId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_LIKED, postLikeNumDTO);
     }
+
     @Tag(name = "스터디 게시글")
     @Operation(summary = "[스터디 게시글] 좋아요 취소하기", description = """ 
         ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 > 게시글 클릭, 로그인한 회원이 참여하는 특정 스터디의 게시글에 좋아요를 취소합니다.
@@ -112,6 +118,9 @@ public class StudyPostController {
         StudyPostResDTO.PostLikeNumDTO postLikeNumDTO = studyPostCommandService.cancelPostLike(studyId, postId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_DISLIKED, postLikeNumDTO);
     }
+
+/* ----------------------------- 스터디 게시글 댓글 관련 API ------------------------------------- */
+
     @Tag(name = "스터디 게시글 - 댓글")
     @Operation(summary = "[스터디 게시글 - 댓글] 댓글 작성하기", description = """ 
         ## [스터디 게시글] 로그인한 회원이 참여하는 특정 스터디의 게시글에 댓글을 작성합니다.

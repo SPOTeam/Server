@@ -238,6 +238,8 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
         return StudyPostResDTO.PostLikeNumDTO.toDTO(studyPost);
     }
 
+/* ----------------------------- 스터디 게시글 댓글 관련 API ------------------------------------- */
+
     @Override
     public StudyPostCommentResponseDTO.CommentDTO createComment(Long studyId, Long postId, StudyPostCommentRequestDTO.CommentDTO commentRequestDTO) {
 
