@@ -182,16 +182,20 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
 
         // 로그인한 회원이 스터디 회원인지 확인
-        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
+        boolean isStudyMember;
+        if (memberStudyRepository.existsByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)) {
+            isStudyMember = true;
+        } else {
+            isStudyMember = false;
+        }
 
         List<ScheduleResponseDTO.MonthlyScheduleDTO> monthlyScheduleDTOS = new ArrayList<>();
 
         study.getSchedules().forEach(schedule -> {
                     if (schedule.getPeriod().equals(Period.NONE)) {
-                        addSchedule(schedule, year, month, monthlyScheduleDTOS);
+                        addSchedule(schedule, year, month, monthlyScheduleDTOS, isStudyMember);
                     } else {
-                        addPeriodSchedules(schedule, year, month, monthlyScheduleDTOS);
+                        addPeriodSchedules(schedule, year, month, monthlyScheduleDTOS, isStudyMember);
                     }
                 });
 
@@ -213,23 +217,27 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_SCHEDULE_NOT_FOUND));
 
         // 로그인한 회원이 스터디 회원인지 확인
-        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
+        boolean isStudyMember;
+        if (memberStudyRepository.existsByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)) {
+            isStudyMember = true;
+        } else {
+            isStudyMember = false;
+        }
 
         // 해당 스터디의 일정인지 확인
         scheduleRepository.findByIdAndStudyId(scheduleId, studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_SCHEDULE_NOT_FOUND));
 
-        return ScheduleResponseDTO.MonthlyScheduleDTO.toDTO(schedule);
+        return ScheduleResponseDTO.MonthlyScheduleDTO.toDTO(schedule, isStudyMember);
     }
 
-    private void addSchedule(Schedule schedule, int year, int month, List<ScheduleResponseDTO.MonthlyScheduleDTO> monthlyScheduleDTOS) {
+    private void addSchedule(Schedule schedule, int year, int month, List<ScheduleResponseDTO.MonthlyScheduleDTO> monthlyScheduleDTOS, boolean isStudyMember) {
         if (schedule.getStartedAt().getYear() == year && schedule.getStartedAt().getMonthValue() == month) {
-            monthlyScheduleDTOS.add(ScheduleResponseDTO.MonthlyScheduleDTO.toDTO(schedule));
+            monthlyScheduleDTOS.add(ScheduleResponseDTO.MonthlyScheduleDTO.toDTO(schedule, isStudyMember));
         }
     }
 
-    private void addPeriodSchedules(Schedule schedule, int year, int month, List<ScheduleResponseDTO.MonthlyScheduleDTO> monthlyScheduleDTOS) {
+    private void addPeriodSchedules(Schedule schedule, int year, int month, List<ScheduleResponseDTO.MonthlyScheduleDTO> monthlyScheduleDTOS, boolean isStudyMember) {
 
         Duration duration = Duration.between(schedule.getStartedAt(), schedule.getFinishedAt()); // 일정 수행 시간
         DayOfWeek targetDayOfWeek = schedule.getStartedAt().getDayOfWeek(); // 일정을 반복할 요일
@@ -242,7 +250,7 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
                 LocalDateTime newStartedAt = newStartedAtDate.atStartOfDay().with(schedule.getStartedAt().toLocalTime());
                 LocalDateTime newFinishedAt = newStartedAt.plus(duration);
 
-                monthlyScheduleDTOS.add(ScheduleResponseDTO.MonthlyScheduleDTO.toDTOWithDate(schedule, newStartedAt, newFinishedAt));
+                monthlyScheduleDTOS.add(ScheduleResponseDTO.MonthlyScheduleDTO.toDTOWithDate(schedule, newStartedAt, newFinishedAt, isStudyMember));
 
                 if (schedule.getPeriod().equals(Period.DAILY)) {
                     newStartedAtDate = newStartedAtDate.plusDays(1);

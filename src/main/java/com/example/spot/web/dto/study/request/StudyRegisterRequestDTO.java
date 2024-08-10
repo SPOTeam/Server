@@ -47,7 +47,6 @@ public class StudyRegisterRequestDTO {
         @IntSize(min = 1)
         private Integer maxAge;
 
-        @IntSize(min = 0)
         private Integer fee;
 
         private boolean hasFee;

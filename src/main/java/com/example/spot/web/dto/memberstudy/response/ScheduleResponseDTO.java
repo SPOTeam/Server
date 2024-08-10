@@ -66,11 +66,12 @@ public class ScheduleResponseDTO {
         private final Boolean isAllDay;
         private final Period period;
 
-        public static MonthlyScheduleDTO toDTO(Schedule schedule) {
+        public static MonthlyScheduleDTO toDTO(
+                Schedule schedule, boolean isStudyMember) {
             return MonthlyScheduleDTO.builder()
                     .scheduleId(schedule.getId())
                     .title(schedule.getTitle())
-                    .location(schedule.getLocation())
+                    .location(isStudyMember ? schedule.getLocation() : "공개되지 않습니다.")
                     .startedAt(schedule.getStartedAt())
                     .finishedAt(schedule.getFinishedAt())
                     .isAllDay(schedule.getIsAllDay())
@@ -78,11 +79,12 @@ public class ScheduleResponseDTO {
                     .build();
         }
 
-        public static MonthlyScheduleDTO toDTOWithDate(Schedule schedule, LocalDateTime startedAt, LocalDateTime finishedAt) {
+        public static MonthlyScheduleDTO toDTOWithDate(
+                Schedule schedule, LocalDateTime startedAt, LocalDateTime finishedAt, boolean isStudyMember) {
             return MonthlyScheduleDTO.builder()
                     .scheduleId(schedule.getId())
                     .title(schedule.getTitle())
-                    .location(schedule.getLocation())
+                    .location(isStudyMember ? schedule.getLocation() : "공개되지 않습니다.")
                     .startedAt(startedAt)
                     .finishedAt(finishedAt)
                     .isAllDay(schedule.getIsAllDay())

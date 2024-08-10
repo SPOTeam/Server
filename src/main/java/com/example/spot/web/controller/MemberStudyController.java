@@ -167,7 +167,6 @@ public class MemberStudyController {
     @Operation(summary = "[스터디 일정] 상세 일정 불러오기", description = """ 
         ## [스터디 일정] 내 스터디 > 스터디 > 캘린더 > 일정 클릭, 로그인한 회원이 참여하는 특정 스터디의 상세 일정을 불러옵니다.
         스터디의 일정 정보를 상세하게 불러옵니다.
-        ** 스터디원이 아닌 회원에게는 위치 정보가 보이지 않도록 수정하기 **
         """)
     @GetMapping("/studies/{studyId}/schedules/{scheduleId}")
     public ApiResponse<ScheduleResponseDTO.MonthlyScheduleDTO> getSchedule(
