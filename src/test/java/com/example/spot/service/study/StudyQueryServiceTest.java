@@ -487,6 +487,7 @@ class StudyQueryServiceTest {
     }
 
     @Test
+    @DisplayName("모집 중 스터디 조회 - 모집 중인 스터디가 있는 경우")
     void findRecruitingStudiesByConditions() {
         // given
         Pageable pageable = PageRequest.of(0, 10);
@@ -527,6 +528,7 @@ class StudyQueryServiceTest {
     }
 
     @Test
+    @DisplayName("찜한 스터디 조회 - 찜한 스터디가 있는 경우")
     void findLikedStudies() {
         // given
         Member member = Member.builder()
@@ -559,6 +561,7 @@ class StudyQueryServiceTest {
     }
 
     @Test
+    @DisplayName("키워드로 스터디 검색 - 해당 키워드에 해당하는 스터디가 있는 경우")
     void findStudiesByKeyword() {
 
         // given
@@ -581,6 +584,7 @@ class StudyQueryServiceTest {
     }
 
     @Test
+    @DisplayName("테마 별 스터디 검색 - 해당 테마에 해당하는 스터디가 있는 경우")
     void findStudiesByTheme() {
         // given
         Pageable pageable = PageRequest.of(0, 10);
@@ -614,10 +618,10 @@ class StudyQueryServiceTest {
     }
 
     @Test
+    @DisplayName("내가 참여하고 있는 스터디 조회 - 참여하고 있는 스터디가 있는 경우")
     void findOngoingStudiesByMemberId() {
 
         // given
-
         Member member = Member.builder()
             .id(1L)
             .build();
@@ -648,7 +652,38 @@ class StudyQueryServiceTest {
     }
 
     @Test
+    @DisplayName("내가 신청한 스터디 조회 - 신청한 스터디가 있는 경우")
     void findAppliedStudies() {
+        // given
+        Member member = Member.builder()
+            .id(1L)
+            .build();
+
+        Pageable pageable = PageRequest.of(0, 10);
+
+        MemberStudy memberStudy1 = MemberStudy.builder()
+            .member(member)
+            .study(study1)
+            .build();
+        MemberStudy memberStudy2 = MemberStudy.builder()
+            .member(member)
+            .study(study2)
+            .build();
+
+        when(memberStudyRepository.findAllByMemberIdAndStatus(member.getId(), ApplicationStatus.APPLIED))
+            .thenReturn(List.of(memberStudy1, memberStudy2));
+        when(studyRepository.findByMemberStudy(List.of(memberStudy1, memberStudy2), pageable))
+            .thenReturn(List.of(study1, study2));
+
+        // when
+        StudyPreviewDTO result = studyQueryService.findAppliedStudies(pageable, member.getId());
+
+        // then
+        assertNotNull(result);
+        assertEquals(2, result.getTotalElements());
+        verify(memberStudyRepository).findAllByMemberIdAndStatus(member.getId(), ApplicationStatus.APPLIED);
+        verify(studyRepository).findByMemberStudy(List.of(memberStudy1, memberStudy2), pageable);
+
     }
 
     @Test
