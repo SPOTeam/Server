@@ -87,7 +87,7 @@ public enum SuccessStatus implements BaseCode {
 
     // 스터디 회원 신고 관련
     _STUDY_MEMBER_REPORTED(HttpStatus.CREATED, "REPORT2001", "스터디 회원 신고 완료"),
-
+    _STUDY_POST_REPORTED(HttpStatus.CREATED, "REPORT2002", "스터디 게시글 신고 완료"),
 
     ;
 

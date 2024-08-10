@@ -77,4 +77,7 @@ public interface MemberStudyCommandService {
 
     // 스터디 회원 신고
     MemberResponseDTO.ReportedMemberDTO reportStudyMember(Long studyId, Long memberId, @Valid StudyMemberReportDTO studyMemberReportDTO);
+
+    // 스터디 게시글 신고
+    StudyPostResDTO.PostPreviewDTO reportStudyPost(Long studyId, Long postId);
 }

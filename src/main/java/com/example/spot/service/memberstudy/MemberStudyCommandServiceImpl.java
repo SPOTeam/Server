@@ -18,7 +18,6 @@ import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.web.dto.memberstudy.request.*;
 import com.example.spot.web.dto.memberstudy.response.*;
 import com.example.spot.web.dto.study.response.StudyApplyResponseDTO;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -47,6 +46,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
     private final VoteRepository voteRepository;
     private final OptionRepository optionRepository;
     private final MemberReportRepository memberReportRepository;
+    private final StudyPostReportRepository studyPostReportRepository;
 
     private final MemberStudyRepository memberStudyRepository;
     private final MemberAttendanceRepository memberAttendanceRepository;
@@ -1056,6 +1056,39 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         member.addMemberReport(memberReport);
 
         return MemberResponseDTO.ReportedMemberDTO.toDTO(member);
+    }
+
+    @Override
+    public StudyPostResDTO.PostPreviewDTO reportStudyPost(Long studyId, Long postId) {
+
+        //=== Exception ===//
+        Long reporterId = SecurityUtils.getCurrentUserId();
+        SecurityUtils.verifyUserId(reporterId);
+
+        memberRepository.findById(reporterId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+        studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        StudyPost studyPost = studyPostRepository.findById(postId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+
+        // 로그인한 회원이 스터디 회원인지 확인
+        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(reporterId, studyId, ApplicationStatus.APPROVED)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
+
+        // 해당 스터디의 게시글인지 확인
+        studyPostRepository.findByIdAndStudyId(postId, studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
+
+        //=== Feature ===//
+        StudyPostReport studyPostReport = StudyPostReport.builder()
+                .studyPost(studyPost)
+                .build();
+
+        studyPostReport = studyPostReportRepository.save(studyPostReport);
+        studyPost.addStudyPostReport(studyPostReport);
+
+        return StudyPostResDTO.PostPreviewDTO.toDTO(studyPost);
     }
 
 }

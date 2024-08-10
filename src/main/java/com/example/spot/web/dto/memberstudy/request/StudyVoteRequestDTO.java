@@ -30,7 +30,6 @@ public class StudyVoteRequestDTO {
     @AllArgsConstructor
     public static class VotedOptionDTO {
 
-        @IntSize(min = 1)
         private List<Long> optionIdList;
     }
 
