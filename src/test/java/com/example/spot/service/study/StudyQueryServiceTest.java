@@ -687,6 +687,37 @@ class StudyQueryServiceTest {
     }
 
     @Test
+    @DisplayName("내가 모집중인 스터디 조회 - 모집중인 스터디가 있는 경우")
     void findMyRecruitingStudies() {
+        // given
+        Member member = Member.builder()
+            .id(1L)
+            .build();
+
+        Pageable pageable = PageRequest.of(0, 10);
+
+        MemberStudy memberStudy1 = MemberStudy.builder()
+            .member(member)
+            .study(study1)
+            .build();
+        MemberStudy memberStudy2 = MemberStudy.builder()
+            .member(member)
+            .study(study2)
+            .build();
+
+        when(memberStudyRepository.findAllByMemberIdAndIsOwned(member.getId(), true))
+            .thenReturn(List.of(memberStudy1, memberStudy2));
+        when(studyRepository.findRecruitingStudiesByMemberStudy(List.of(memberStudy1, memberStudy2), pageable))
+            .thenReturn(List.of(study1, study2));
+
+        // when
+        StudyPreviewDTO result = studyQueryService.findMyRecruitingStudies(pageable, member.getId());
+
+        // then
+        assertNotNull(result);
+        assertEquals(2, result.getTotalElements());
+        verify(memberStudyRepository).findAllByMemberIdAndIsOwned(member.getId(), true);
+        verify(studyRepository).findRecruitingStudiesByMemberStudy(List.of(memberStudy1, memberStudy2), pageable);
+
     }
 }
