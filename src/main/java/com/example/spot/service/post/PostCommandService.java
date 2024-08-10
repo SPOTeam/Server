@@ -1,7 +1,6 @@
 package com.example.spot.service.post;
 
 import com.example.spot.web.dto.post.*;
-import org.springframework.transaction.annotation.Transactional;
 
 
 public interface PostCommandService {
@@ -35,5 +34,8 @@ public interface PostCommandService {
 
     //게시글 댓글 싫어요 취소
     CommentLikeResponse cancelCommentDislike(Long CommentId, Long memberId);
+
+    //게시글 스크랩
+    ScrapPostResponse scrapPost(Long PostId, Long MemberId);
 
 }
