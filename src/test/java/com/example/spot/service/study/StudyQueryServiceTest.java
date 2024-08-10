@@ -11,6 +11,7 @@ import com.example.spot.domain.Region;
 import com.example.spot.domain.Theme;
 import com.example.spot.domain.enums.Gender;
 import com.example.spot.domain.enums.StudySortBy;
+import com.example.spot.domain.enums.StudyState;
 import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.domain.mapping.MemberTheme;
 import com.example.spot.domain.mapping.PreferredRegion;
@@ -178,7 +179,7 @@ class StudyQueryServiceTest {
     }
 
     @Test
-    @DisplayName("내 전체 관심사 조회 - 내 전체 관심사에 해당하는 스터디가 있는 경우")
+    @DisplayName("내 전체 관심사 스터디 조회 - 내 전체 관심사에 해당하는 스터디가 있는 경우")
     void findInterestStudiesByConditionsAll() {
         // given
         Member member = Member.builder()
@@ -252,7 +253,7 @@ class StudyQueryServiceTest {
     }
 
     @Test
-    @DisplayName("내 특정 관심사 조회 - 내 특정 관심사에 해당하는 스터디가 있는 경우")
+    @DisplayName("내 특정 관심사 스터디 조회 - 내 특정 관심사에 해당하는 스터디가 있는 경우")
     void findInterestStudiesByConditionsSpecific() {
         // given
         Member member = Member.builder()
@@ -326,6 +327,7 @@ class StudyQueryServiceTest {
     }
 
     @Test
+    @DisplayName("내 전체 관심 지역 스터디 조회 - 내 전체 관심 지역에 해당하는 스터디가 있는 경우")
     void findInterestRegionStudiesByConditionsAll() {
         // given
         Member member = Member.builder()
@@ -402,6 +404,7 @@ class StudyQueryServiceTest {
     }
 
     @Test
+    @DisplayName("내 특정 관심 지역 스터디 조회 - 내 특정 관심 지역에 해당하는 스터디가 있는 경우")
     void findInterestRegionStudiesByConditionsSpecific() {
         // given
         Member member = Member.builder()
@@ -479,6 +482,42 @@ class StudyQueryServiceTest {
 
     @Test
     void findRecruitingStudiesByConditions() {
+        // given
+        Pageable pageable = PageRequest.of(0, 10);
+
+        StudySortBy sortBy = StudySortBy.ALL;
+
+        SearchRequestStudyDTO request = SearchRequestStudyDTO.builder()
+            .gender(Gender.FEMALE)
+            .minAge(18)
+            .maxAge(35)
+            .fee(5000)
+            .isOnline(true)
+            .hasFee(true)
+            .build();
+
+        // Mock conditions
+        Map<String, Object> searchConditions = new HashMap<>();
+        searchConditions.put("gender", Gender.FEMALE);
+        searchConditions.put("minAge", 18);
+        searchConditions.put("maxAge", 35);
+        searchConditions.put("isOnline", true);
+        searchConditions.put("hasFee", true);
+        searchConditions.put("fee", 5000);
+
+        when(studyRepository.findStudyByConditions(searchConditions, sortBy, pageable))
+            .thenReturn(List.of(study1, study2));
+        when(studyRepository.countStudyByConditions(searchConditions, sortBy))
+            .thenReturn(2L);
+
+        // when
+        StudyPreviewDTO result = studyQueryService.findRecruitingStudiesByConditions(pageable, request, sortBy);
+
+        // then
+        assertNotNull(result);
+        assertEquals(2, result.getTotalElements());  // Verify the count of elements
+        verify(studyRepository).findStudyByConditions(searchConditions, sortBy, pageable);
+        verify(studyRepository).countStudyByConditions(searchConditions, sortBy);
     }
 
     @Test
