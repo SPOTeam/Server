@@ -142,6 +142,9 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_VOTE_NOT_COMPLETED(HttpStatus.BAD_REQUEST, "VOTE4007", "마감되지 않은 스터디 투표입니다."),
     _STUDY_VOTE_NULL(HttpStatus.BAD_REQUEST, "VOTE4008", "스터디 투표 아이디가 입력되지 않았습니다."),
 
+    // 신고 기능 관련 에러
+    _STUDY_MEMBER_REPORT_INVALID(HttpStatus.BAD_REQUEST, "REPORT4001", "자기 자신을 신고할 수 없습니다."),
+
     ;
 
 

@@ -5,6 +5,7 @@ import com.example.spot.api.exception.GeneralException;
 import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.api.exception.handler.StudyHandler;
 import com.example.spot.domain.Member;
+import com.example.spot.domain.MemberReport;
 import com.example.spot.domain.Quiz;
 import com.example.spot.domain.enums.ApplicationStatus;
 import com.example.spot.domain.enums.Status;
@@ -13,14 +14,12 @@ import com.example.spot.domain.study.*;
 import com.example.spot.repository.*;
 import com.example.spot.security.utils.SecurityUtils;
 import com.example.spot.service.s3.S3ImageService;
+import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.web.dto.memberstudy.request.*;
 import com.example.spot.web.dto.memberstudy.response.*;
 import com.example.spot.web.dto.study.response.StudyApplyResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,6 +45,8 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
     private final QuizRepository quizRepository;
     private final VoteRepository voteRepository;
     private final OptionRepository optionRepository;
+    private final MemberReportRepository memberReportRepository;
+    private final StudyPostReportRepository studyPostReportRepository;
 
     private final MemberStudyRepository memberStudyRepository;
     private final MemberAttendanceRepository memberAttendanceRepository;
@@ -1028,6 +1029,79 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
     // 로그인 한 회원이 해당 스터디 원인지 확인
     private boolean isMember(Long memberId, Long studyId) {
         return memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED).isPresent();
+    }
+
+    @Override
+    public MemberResponseDTO.ReportedMemberDTO reportStudyMember(Long studyId, Long memberId, StudyMemberReportDTO studyMemberReportDTO) {
+
+        //=== Exception ===//
+        Long reporterId = SecurityUtils.getCurrentUserId();
+        SecurityUtils.verifyUserId(reporterId);
+
+        Member reporter = memberRepository.findById(reporterId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        // 로그인한 회원이 스터디 회원인지 확인
+        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(reporterId, studyId, ApplicationStatus.APPROVED)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
+
+        // 신고당한 회원이 스터디 회원인지 확인
+        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
+
+        // 자기 자신을 신고할 수 없음
+        if (reporterId.equals(memberId)) {
+            throw new StudyHandler(ErrorStatus._STUDY_MEMBER_REPORT_INVALID);
+        }
+
+
+        //=== Feature ===//
+        MemberReport memberReport = MemberReport.builder()
+                .content(studyMemberReportDTO.getContent())
+                .member(member)
+                .build();
+
+        memberReport = memberReportRepository.save(memberReport);
+        member.addMemberReport(memberReport);
+
+        return MemberResponseDTO.ReportedMemberDTO.toDTO(member);
+    }
+
+    @Override
+    public StudyPostResDTO.PostPreviewDTO reportStudyPost(Long studyId, Long postId) {
+
+        //=== Exception ===//
+        Long reporterId = SecurityUtils.getCurrentUserId();
+        SecurityUtils.verifyUserId(reporterId);
+
+        memberRepository.findById(reporterId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+        studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        StudyPost studyPost = studyPostRepository.findById(postId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+
+        // 로그인한 회원이 스터디 회원인지 확인
+        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(reporterId, studyId, ApplicationStatus.APPROVED)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
+
+        // 해당 스터디의 게시글인지 확인
+        studyPostRepository.findByIdAndStudyId(postId, studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
+
+        //=== Feature ===//
+        StudyPostReport studyPostReport = StudyPostReport.builder()
+                .studyPost(studyPost)
+                .build();
+
+        studyPostReport = studyPostReportRepository.save(studyPostReport);
+        studyPost.addStudyPostReport(studyPostReport);
+
+        return StudyPostResDTO.PostPreviewDTO.toDTO(studyPost);
     }
 
 }

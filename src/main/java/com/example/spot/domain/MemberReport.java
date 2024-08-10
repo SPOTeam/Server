@@ -3,17 +3,12 @@ package com.example.spot.domain;
 import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.enums.ReportStatus;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
 @Getter
-@Builder
 @DynamicUpdate
 @DynamicInsert
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -36,5 +31,15 @@ public class MemberReport extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
+
+
+/* ----------------------------- 생성자 ------------------------------------- */
+
+    @Builder
+    public MemberReport(String content, Member member) {
+        this.content = content;
+        this.status = ReportStatus.IN_PROGRESS;
+        this.member = member;
+    }
 
 }

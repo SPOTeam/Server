@@ -1,8 +1,10 @@
 package com.example.spot.service.memberstudy;
 
+import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.web.dto.memberstudy.request.*;
 import com.example.spot.web.dto.memberstudy.response.*;
 import com.example.spot.web.dto.study.response.StudyApplyResponseDTO;
+import jakarta.validation.Valid;
 
 public interface MemberStudyCommandService {
 
@@ -73,5 +75,9 @@ public interface MemberStudyCommandService {
     // 스터디 투표 삭제
     StudyVoteResponseDTO.VotePreviewDTO deleteVote(Long studyId, Long voteId);
 
+    // 스터디 회원 신고
+    MemberResponseDTO.ReportedMemberDTO reportStudyMember(Long studyId, Long memberId, @Valid StudyMemberReportDTO studyMemberReportDTO);
 
+    // 스터디 게시글 신고
+    StudyPostResDTO.PostPreviewDTO reportStudyPost(Long studyId, Long postId);
 }

@@ -7,6 +7,7 @@ import com.example.spot.security.utils.SecurityUtils;
 import com.example.spot.service.memberstudy.MemberStudyCommandService;
 import com.example.spot.service.memberstudy.MemberStudyQueryService;
 import com.example.spot.validation.annotation.*;
+import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.web.dto.memberstudy.request.*;
 import com.example.spot.web.dto.memberstudy.response.*;
 import com.example.spot.web.dto.study.response.*;
@@ -168,6 +169,7 @@ public class MemberStudyController {
     @Operation(summary = "[스터디 일정] 상세 일정 불러오기", description = """ 
         ## [스터디 일정] 내 스터디 > 스터디 > 캘린더 > 일정 클릭, 로그인한 회원이 참여하는 특정 스터디의 상세 일정을 불러옵니다.
         스터디의 일정 정보를 상세하게 불러옵니다.
+        ** 스터디원이 아닌 회원에게는 위치 정보가 보이지 않도록 수정하기 **
         """)
     @GetMapping("/studies/{studyId}/schedules/{scheduleId}")
     public ApiResponse<ScheduleResponseDTO.MonthlyScheduleDTO> getSchedule(
@@ -233,6 +235,7 @@ public class MemberStudyController {
         ## [스터디 게시글] 내 스터디 > 스터디 > 게시판 클릭, 로그인한 회원이 참여하는 특정 스터디의 게시글 목록을 불러옵니다.
         로그인한 회원이 참여하는 특정 스터디의 study_post 목록이 최신순으로 반환됩니다.
         query를 추가하는 경우 해당 카테고리에 속한 스터디 게시글 목록을 반환합니다.
+        ** 공지 게시글 불러오는 것도 구현해야 함 **
         """)
     @GetMapping("/studies/{studyId}/posts")
     public ApiResponse<StudyPostResDTO.PostListDTO> getAllPosts(
@@ -554,12 +557,30 @@ public class MemberStudyController {
 
 
 /* ----------------------------- 스터디 회원 신고 관련 API ------------------------------------- */
-    @Tag(name = "스터디 회원 신고")
-    @Operation(summary = "[스터디 회원 신고] 스터디원 신고하기", description = """ 
-        ## [스터디 회원 신고] 로그인한 회원이 참여하는 스터디의 다른 회원을 신고합니다.
-        member_report에 피신고자의 member_id를 포함하여 새로운 튜플을 추가합니다.
+
+    @Tag(name = "스터디 신고")
+    @Operation(summary = "[스터디 신고] 스터디원 신고하기", description = """ 
+        ## [스터디 신고] 로그인한 회원이 참여하는 스터디의 다른 회원을 신고합니다.
+        신고당한 회원의 id와 이름이 반환됩니다.
         """)
-    @PostMapping("/studies/{studyId}/members/{memberId}")
-    public void reportStudyMember(@PathVariable Long memberId, @PathVariable Long studyId) {
+    @PostMapping("/studies/{studyId}/members/{memberId}/reports")
+    public ApiResponse<MemberResponseDTO.ReportedMemberDTO> reportStudyMember(
+            @PathVariable @ExistStudy Long studyId, @PathVariable @ExistMember Long memberId,
+            @RequestBody @Valid StudyMemberReportDTO studyMemberReportDTO) {
+        MemberResponseDTO.ReportedMemberDTO reportedMemberDTO = memberStudyCommandService.reportStudyMember(studyId, memberId, studyMemberReportDTO);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_MEMBER_REPORTED, reportedMemberDTO);
+    }
+
+    @Tag(name = "스터디 신고")
+    @Operation(summary = "[스터디 신고] 스터디 게시글 신고하기", description = """ 
+        ## [스터디 신고] 로그인한 회원이 참여하는 스터디의 게시글을 신고합니다.
+        신고당한 스터디 게시글의 id와 제목이 반환됩니다.
+        """)
+    @PostMapping("/studies/{studyId}/posts/{postId}/reports")
+    public ApiResponse<StudyPostResDTO.PostPreviewDTO> reportStudyPost(
+            @PathVariable @ExistStudy Long studyId,
+            @PathVariable @ExistStudyPost Long postId) {
+        StudyPostResDTO.PostPreviewDTO postPreviewDTO = memberStudyCommandService.reportStudyPost(studyId, postId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_REPORTED, postPreviewDTO);
     }
 }

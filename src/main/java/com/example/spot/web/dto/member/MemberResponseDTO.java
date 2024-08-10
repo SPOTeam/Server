@@ -1,16 +1,15 @@
 package com.example.spot.web.dto.member;
 
 import com.example.spot.domain.enums.Reason;
-import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.enums.ThemeType;
-import java.time.LocalDateTime;
+import com.example.spot.domain.Member;
 import com.example.spot.web.dto.token.TokenResponseDTO.TokenDTO;
-import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+import java.util.List;
+import java.time.LocalDateTime;
+
+@Getter
 public class MemberResponseDTO {
 
     @Builder
@@ -82,6 +81,22 @@ public class MemberResponseDTO {
     public static class MemberStudyReasonDTO {
         private Long memberId;
         private List<Reason> reasons;
+    }
+
+    @Getter
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    @Builder(access = AccessLevel.PRIVATE)
+    public static class ReportedMemberDTO {
+
+        private final Long memberId;
+        private final String name;
+
+        public static ReportedMemberDTO toDTO(Member member) {
+            return ReportedMemberDTO.builder()
+                    .memberId(member.getId())
+                    .name(member.getName())
+                    .build();
+        }
     }
 }
 

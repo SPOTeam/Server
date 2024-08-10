@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 public class IntSizeValidator implements ConstraintValidator<IntSize, Integer> {
 
-    private int min;
-    private int max;
+    private long min;
+    private long max;
 
     @Override
     public void initialize(IntSize constraintAnnotation) {
