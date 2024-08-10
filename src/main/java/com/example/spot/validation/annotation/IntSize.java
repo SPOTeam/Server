@@ -16,6 +16,6 @@ public @interface IntSize {
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 
-    long min() default 0;
-    long max() default Long.MAX_VALUE;
+    int min() default 0;
+    int max() default Integer.MAX_VALUE;
 }
