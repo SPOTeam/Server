@@ -12,6 +12,10 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 public class PostPagingDetailResponse {
+    @Schema(
+            description = "게시글 ID", example = "1"
+    )
+    private Long postId;
 
     @Schema(
             description = "작성자입니다.",
@@ -71,13 +75,14 @@ public class PostPagingDetailResponse {
         String writerName = judgeAnonymous(post.isAnonymous(), post.getMember().getName());
 
         return PostPagingDetailResponse.builder()
+                .postId(post.getId())
                 .writer(writerName)
                 .writtenTime(post.getCreatedAt())
                 .scrapCount(post.getScrapNum())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .likeCount(likeCount)
-                .commentCount(post.getCommentNum())
+                .commentCount(post.getPostCommentList().size())
                 .viewCount(post.getHitNum())
                 .build();
     }

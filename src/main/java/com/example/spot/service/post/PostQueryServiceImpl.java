@@ -3,7 +3,9 @@ package com.example.spot.service.post;
 import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.handler.PostHandler;
 import com.example.spot.domain.Post;
+import com.example.spot.domain.PostComment;
 import com.example.spot.domain.enums.Board;
+import com.example.spot.repository.PostCommentRepository;
 import com.example.spot.web.dto.post.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,6 +24,9 @@ public class PostQueryServiceImpl implements PostQueryService {
 
     private final PostRepository postRepository;
     private final LikedPostQueryService likedPostQueryService;
+    private final PostCommentRepository postCommentRepository;
+    private final LikedPostCommentQueryService likedPostCommentQueryService;
+
 
     @Transactional
     @Override
@@ -41,8 +46,11 @@ public class PostQueryServiceImpl implements PostQueryService {
         // 좋아요 수 조회
         long likeCount = likedPostQueryService.countByPostId(postId);
 
+        //댓글
+        CommentResponse commentResponse = getCommentsByPostId(post.getId());
+
         // 조회된 게시글을 PostSingleResponse로 변환하여 반환
-        return PostSingleResponse.toDTO(post, likeCount);
+        return PostSingleResponse.toDTO(post, likeCount, commentResponse);
     }
 
     @Transactional(readOnly = true)
@@ -175,6 +183,23 @@ public class PostQueryServiceImpl implements PostQueryService {
 
         return PostAnnouncementResponse.builder()
                 .responses(responses)
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public CommentResponse getCommentsByPostId(Long postId) {
+        List<PostComment> comments = postCommentRepository.findByPostId(postId);
+
+        List<CommentDetailResponse> commentResponses = comments.stream()
+                .map(comment -> {
+                    long likeCount = likedPostCommentQueryService.countByPostCommentIdAndIsLikedTrue(comment.getId());
+                    return CommentDetailResponse.toDTO(comment, likeCount);
+                })
+                .toList();
+
+        return CommentResponse.builder()
+                .comments(commentResponses)
                 .build();
     }
 }

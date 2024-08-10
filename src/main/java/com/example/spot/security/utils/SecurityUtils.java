@@ -19,10 +19,21 @@ public class SecurityUtils {
 
     // 현재 인증된 사용자의 ID와 매개변수로 전달된 ID가 일치하는지 확인
     public static void verifyUserId(Long memberId) {
+        // 관리자면, 모든 API 접근 가능
+        if (isAdmin())
+            return;
+
         Long currentUserId = getCurrentUserId();
-        if (!Objects.equals(currentUserId, memberId)) {
+
+        if (!Objects.equals(currentUserId, memberId))
             throw new GeneralException(ErrorStatus._MEMBER_NO_ACCESS);
-        }
+    }
+
+    // 현재 인증된 사용자의 역할이 ADMIN인지 확인
+    public static boolean isAdmin() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication.getAuthorities().stream()
+            .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
     }
 
 }

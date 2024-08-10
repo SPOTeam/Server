@@ -46,7 +46,8 @@ public class SearchController {
         security = @SecurityRequirement(name = "accessToken"))
     @Parameter(name = "memberId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
     public ApiResponse<StudyPreviewDTO> recommendStudiesForMain(@PathVariable @ExistMember long memberId) {
-       StudyPreviewDTO recommendStudies = studyQueryService.findRecommendStudies(memberId);
+        SecurityUtils.verifyUserId(memberId);
+        StudyPreviewDTO recommendStudies = studyQueryService.findRecommendStudies(memberId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, recommendStudies);
     }
     @Tag(name = "마이 페이지", description = "마이 페이지 API")
@@ -58,6 +59,7 @@ public class SearchController {
         security = @SecurityRequirement(name = "accessToken"))
     @Parameter(name = "memberId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
     public ApiResponse<MyPageDTO> myPage(@PathVariable @ExistMember long memberId) {
+        SecurityUtils.verifyUserId(memberId);
         MyPageDTO myPageStudyCount = studyQueryService.getMyPageStudyCount(memberId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND,  myPageStudyCount);
     }
@@ -96,6 +98,7 @@ public class SearchController {
         @RequestParam @Min(1) Integer size,
         @RequestParam StudySortBy sortBy
     ) {
+        SecurityUtils.verifyUserId(memberId);
         StudyPreviewDTO studies = studyQueryService.findInterestStudiesByConditionsAll(PageRequest.of(page, size), memberId,
             searchRequestStudyDTO, sortBy);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
@@ -131,6 +134,7 @@ public class SearchController {
         @RequestParam @Min(1) Integer size,
         @RequestParam StudySortBy sortBy
     ) {
+        SecurityUtils.verifyUserId(memberId);
         StudyPreviewDTO studies = studyQueryService.findInterestStudiesByConditionsSpecific(PageRequest.of(page, size), memberId,
             searchRequestStudyDTO, theme, sortBy);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
@@ -171,6 +175,7 @@ public class SearchController {
         @RequestParam StudySortBy sortBy
 
     ) {
+        SecurityUtils.verifyUserId(memberId);
         StudyPreviewDTO studies = studyQueryService.findInterestRegionStudiesByConditionsAll(
             PageRequest.of(page, size), memberId, searchRequestStudyDTO, sortBy);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
@@ -206,6 +211,7 @@ public class SearchController {
         @RequestParam @Min(1) Integer size,
         @RequestParam StudySortBy sortBy
     ) {
+        SecurityUtils.verifyUserId(memberId);
         StudyPreviewDTO studies = studyQueryService.findInterestRegionStudiesByConditionsSpecific(
             PageRequest.of(page, size), memberId, searchRequestStudyDTO, regionCode, sortBy);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
@@ -214,7 +220,7 @@ public class SearchController {
     /* ----------------------------- 모집 중 스터디 조회  ------------------------------------- */
 
 
-    @Tag(name = "내 스터디 조회")
+    @Tag(name = "모집 중 스터디 조회")
     @GetMapping("/search/studies/recruiting")
     @Operation(
         summary = "[모집 중 스터디 조회] 모집 중인 스터디 조회",
@@ -261,6 +267,7 @@ public class SearchController {
     @Parameter(name = "memberId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
     public ApiResponse<StudyPreviewDTO> likedStudies(
         @PathVariable @ExistMember long memberId) {
+        SecurityUtils.verifyUserId(memberId);
         // 메소드 구현
         StudyPreviewDTO studies = studyQueryService.findLikedStudies(memberId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
@@ -327,6 +334,7 @@ public class SearchController {
         @PathVariable @ExistMember Long memberId,
         @RequestParam @Min(0) Integer page,
         @RequestParam @Min(1) Integer size) {
+        SecurityUtils.verifyUserId(memberId);
         StudyPreviewDTO studies = studyQueryService.findOngoingStudiesByMemberId(
             PageRequest.of(page, size), memberId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
@@ -347,6 +355,7 @@ public class SearchController {
         @PathVariable @ExistMember Long memberId,
         @RequestParam @Min(0) Integer page,
         @RequestParam @Min(1) Integer size) {
+        SecurityUtils.verifyUserId(memberId);
         StudyPreviewDTO studies = studyQueryService.findMyRecruitingStudies(
             PageRequest.of(page, size), memberId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
