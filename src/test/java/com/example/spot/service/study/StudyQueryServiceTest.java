@@ -9,11 +9,13 @@ import static org.mockito.internal.verification.VerificationModeFactory.times;
 import com.example.spot.domain.Member;
 import com.example.spot.domain.Region;
 import com.example.spot.domain.Theme;
+import com.example.spot.domain.enums.ApplicationStatus;
 import com.example.spot.domain.enums.Gender;
 import com.example.spot.domain.enums.StudyLikeStatus;
 import com.example.spot.domain.enums.StudySortBy;
 import com.example.spot.domain.enums.StudyState;
 import com.example.spot.domain.enums.ThemeType;
+import com.example.spot.domain.mapping.MemberStudy;
 import com.example.spot.domain.mapping.MemberTheme;
 import com.example.spot.domain.mapping.PreferredRegion;
 import com.example.spot.domain.mapping.PreferredStudy;
@@ -613,6 +615,36 @@ class StudyQueryServiceTest {
 
     @Test
     void findOngoingStudiesByMemberId() {
+
+        // given
+
+        Member member = Member.builder()
+            .id(1L)
+            .build();
+        Pageable pageable = PageRequest.of(0, 10);
+        MemberStudy memberStudy1 = MemberStudy.builder()
+            .member(member)
+            .study(study1)
+            .build();
+        MemberStudy memberStudy2 = MemberStudy.builder()
+            .member(member)
+            .study(study2)
+            .build();
+
+        when(memberStudyRepository.findAllByMemberIdAndStatus(member.getId(), ApplicationStatus.APPROVED))
+            .thenReturn(List.of(memberStudy1, memberStudy2));
+        when(studyRepository.findByMemberStudy(List.of(memberStudy1, memberStudy2), pageable))
+            .thenReturn(List.of(study1, study2));
+
+        // when
+        StudyPreviewDTO result = studyQueryService.findOngoingStudiesByMemberId(pageable, member.getId());
+
+        // then
+        assertNotNull(result);
+        assertEquals(2, result.getTotalElements());
+        verify(memberStudyRepository).findAllByMemberIdAndStatus(member.getId(), ApplicationStatus.APPROVED);
+        verify(studyRepository).findByMemberStudy(List.of(memberStudy1, memberStudy2), pageable);
+
     }
 
     @Test
