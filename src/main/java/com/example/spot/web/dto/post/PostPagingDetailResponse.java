@@ -82,7 +82,7 @@ public class PostPagingDetailResponse {
                 .title(post.getTitle())
                 .content(post.getContent())
                 .likeCount(likeCount)
-                .commentCount(post.getCommentNum())
+                .commentCount(post.getPostCommentList().size())
                 .viewCount(post.getHitNum())
                 .build();
     }

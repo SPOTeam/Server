@@ -15,7 +15,7 @@ public class LikedPostComment extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private boolean is_liked; //좋아요:1, 싫어요:0
+    private boolean isLiked; //좋아요:1, 싫어요:0
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_comment_id")
@@ -24,5 +24,11 @@ public class LikedPostComment extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
+    public LikedPostComment(PostComment postComment, Member member, boolean isLiked) {
+        this.postComment = postComment;
+        this.member = member;
+        this.isLiked = isLiked;
+    }
 
 }
