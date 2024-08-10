@@ -6,6 +6,7 @@ import com.example.spot.domain.enums.Theme;
 import com.example.spot.service.memberstudy.MemberStudyCommandService;
 import com.example.spot.service.memberstudy.MemberStudyQueryService;
 import com.example.spot.validation.annotation.*;
+import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.web.dto.memberstudy.request.*;
 import com.example.spot.web.dto.memberstudy.response.*;
 import com.example.spot.web.dto.study.response.*;
@@ -555,9 +556,13 @@ public class MemberStudyController {
     @Tag(name = "스터디 회원 신고")
     @Operation(summary = "[스터디 회원 신고] 스터디원 신고하기", description = """ 
         ## [스터디 회원 신고] 로그인한 회원이 참여하는 스터디의 다른 회원을 신고합니다.
-        member_report에 피신고자의 member_id를 포함하여 새로운 튜플을 추가합니다.
+        신고당한 회원의 id와 이름이 반환됩니다.
         """)
     @PostMapping("/studies/{studyId}/members/{memberId}")
-    public void reportStudyMember(@PathVariable Long memberId, @PathVariable Long studyId) {
+    public ApiResponse<MemberResponseDTO.ReportedMemberDTO> reportStudyMember(
+            @PathVariable @ExistStudy Long studyId, @PathVariable @ExistMember Long memberId,
+            @RequestBody @Valid StudyMemberReportDTO studyMemberReportDTO) {
+        MemberResponseDTO.ReportedMemberDTO reportedMemberDTO = memberStudyCommandService.reportStudyMember(studyId, memberId, studyMemberReportDTO);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_MEMBER_REPORTED, reportedMemberDTO);
     }
 }

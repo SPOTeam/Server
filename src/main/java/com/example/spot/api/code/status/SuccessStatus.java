@@ -83,7 +83,10 @@ public enum SuccessStatus implements BaseCode {
     _STUDY_VOTE_DELETED(HttpStatus.OK, "VOTE2003", "스터디 투표 삭제 완료"),
     _STUDY_VOTE_UPDATED(HttpStatus.OK, "VOTE2004", "스터디 투표 수정 완료"),
     _STUDY_VOTE_PARTICIPATED(HttpStatus.CREATED, "VOTE2005", "스터디 투표 참여 완료"),
-    _STUDY_VOTE_DETAIL_STATUS_FOUND(HttpStatus.OK, "VOTE2006", "스터디 투표 현황 조회 완료")
+    _STUDY_VOTE_DETAIL_STATUS_FOUND(HttpStatus.OK, "VOTE2006", "스터디 투표 현황 조회 완료"),
+
+    // 스터디 회원 신고 관련
+    _STUDY_MEMBER_REPORTED(HttpStatus.CREATED, "REPORT2001", "스터디 회원 신고 완료"),
 
 
     ;
