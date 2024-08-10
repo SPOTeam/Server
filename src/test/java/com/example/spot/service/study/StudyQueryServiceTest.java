@@ -10,11 +10,13 @@ import com.example.spot.domain.Member;
 import com.example.spot.domain.Region;
 import com.example.spot.domain.Theme;
 import com.example.spot.domain.enums.Gender;
+import com.example.spot.domain.enums.StudyLikeStatus;
 import com.example.spot.domain.enums.StudySortBy;
 import com.example.spot.domain.enums.StudyState;
 import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.domain.mapping.MemberTheme;
 import com.example.spot.domain.mapping.PreferredRegion;
+import com.example.spot.domain.mapping.PreferredStudy;
 import com.example.spot.domain.mapping.RegionStudy;
 import com.example.spot.domain.mapping.StudyTheme;
 import com.example.spot.domain.study.Study;
@@ -522,6 +524,34 @@ class StudyQueryServiceTest {
 
     @Test
     void findLikedStudies() {
+        // given
+        Member member = Member.builder()
+            .id(1L)
+            .build();
+
+        PreferredStudy preferredStudy1 = PreferredStudy.builder()
+            .member(member)
+            .study(study1)
+            .studyLikeStatus(StudyLikeStatus.LIKE)
+            .build();
+
+        PreferredStudy preferredStudy2 = PreferredStudy.builder()
+            .member(member)
+            .study(study2)
+            .studyLikeStatus(StudyLikeStatus.LIKE)
+            .build();
+
+        when(preferredStudyRepository.findByMemberIdOrderByCreatedAtDesc(member.getId()))
+            .thenReturn(List.of(preferredStudy1, preferredStudy2));
+
+        // when
+        StudyPreviewDTO result = studyQueryService.findLikedStudies(member.getId());
+
+        // then
+        assertNotNull(result);
+        assertEquals(2, result.getTotalElements());
+        verify(preferredStudyRepository).findByMemberIdOrderByCreatedAtDesc(member.getId());
+
     }
 
     @Test
