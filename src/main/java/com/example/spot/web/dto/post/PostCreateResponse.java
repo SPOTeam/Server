@@ -24,7 +24,8 @@ public class PostCreateResponse {
 
     @Schema(
             description = "생성된 게시글 타입입니다.",
-            allowableValues = {"ALL", "PASS_EXPERIENCE", "INFORMATION_SHARING", "COUNSELING", "JOB_TALK", "FREE_TALK", "SPOT_ANNOUNCEMENT"}
+            example = "PASS_EXPERIENCE",
+            allowableValues = {"PASS_EXPERIENCE", "INFORMATION_SHARING", "COUNSELING", "JOB_TALK", "FREE_TALK", "SPOT_ANNOUNCEMENT"}
     )
     private String type;
 

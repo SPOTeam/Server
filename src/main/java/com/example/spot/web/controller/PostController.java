@@ -192,11 +192,21 @@ public class PostController {
 
 
     //댓글
-    @Operation(summary = "게시글 댓글 생성 API", description = "게시글 Id와 회원 Id를 받아 댓글을 생성합니다.")
+    @Tag(name = "게시판 - 댓글", description = "댓글 관련 API")
+    @Operation(summary = "[게시판] 댓글 생성 API",
+            description = """
+            게시글 Id와 회원 Id를 받아 댓글을 생성합니다.
+            
+            댓글일 경우 parentCommentId는 0이고, 대댓글일 경우 부모댓글 parentCommentId를 받습니다.
+            
+            익명 여부 선택할 수 있습니다.
+            
+            생성된 댓글의 고유 ID와 부모댓글 ID(parentCommentId가 0일 경우 null로 반환), 댓글 내용, 작성자를 반환합니다.
+            """)
     @PostMapping("/{postId}/{memberId}/comments")
     public ApiResponse<CommentCreateResponse> createComment(
-            @PathVariable Long postId,
-            @PathVariable Long memberId,
+            @PathVariable @ExistPost Long postId,
+            @PathVariable @ExistMember Long memberId,
             @RequestBody CommentCreateRequest request) {
         CommentCreateResponse response = postCommandService.createComment(postId, memberId, request);
         return ApiResponse.onSuccess(SuccessStatus._CREATED, response);
@@ -207,49 +217,53 @@ public class PostController {
     @GetMapping("/{postId}/{commentId}")
     public ApiResponse<CommentResponse> getComment(
             @Parameter(
-                    description = "조회할 댓글의 ID입니다.",
+                    description = "조회할 게시글의 ID입니다.",
                     schema = @Schema(type = "integer", format = "int64")
             )
-            @PathVariable Long postId
+            @PathVariable @ExistPost Long postId
     ) {
         CommentResponse response = postQueryService.getCommentsByPostId(postId);
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
     //게시글 댓글 좋아요
-    @Operation(summary = "게시글 댓글 좋아요 API", description = "댓글 ID와 회원 ID를 받아 댓글에 좋아요를 추가합니다.")
+    @Tag(name = "게시판 - 댓글", description = "댓글 관련 API")
+    @Operation(summary = "[게시판] 댓글 좋아요 API", description = "댓글 ID와 회원 ID를 받아 댓글에 좋아요를 추가합니다.")
     @PostMapping("/comments/{commentId}/{memberId}/like")
     public ApiResponse<CommentLikeResponse> likeComment(
             @PathVariable Long commentId,
-            @PathVariable Long memberId) {
+            @PathVariable @ExistMember Long memberId) {
         CommentLikeResponse response = postCommandService.likeComment(commentId, memberId);
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
-    @Operation(summary = "게시글 댓글 좋아요 취소 API", description = "댓글 ID와 회원 ID를 받아 댓글에 좋아요를 취소합니다.")
+    @Tag(name = "게시판 - 댓글", description = "댓글 관련 API")
+    @Operation(summary = "[게시판] 댓글 좋아요 취소 API", description = "댓글 ID와 회원 ID를 받아 댓글에 좋아요를 취소합니다.")
     @DeleteMapping("/comments/{commentId}/{memberId}/like")
     public ApiResponse<CommentLikeResponse> cancelCommentLike(
             @PathVariable Long commentId,
-            @PathVariable Long memberId) {
+            @PathVariable @ExistMember Long memberId) {
         CommentLikeResponse response = postCommandService.cancelCommentLike(commentId, memberId);
         return ApiResponse.onSuccess(SuccessStatus._NO_CONTENT, response);
     }
 
     //게시글 댓글 싫어요
-    @Operation(summary = "게시글 댓글 싫어요 API", description = "댓글 ID와 회원 ID를 받아 댓글에 싫어요를 추가합니다.")
+    @Tag(name = "게시판 - 댓글", description = "댓글 관련 API")
+    @Operation(summary = "[게시판] 댓글 싫어요 API", description = "댓글 ID와 회원 ID를 받아 댓글에 싫어요를 추가합니다.")
     @PostMapping("/comments/{commentId}/{memberId}/dislike")
     public ApiResponse<CommentLikeResponse> dislikeComment(
             @PathVariable Long commentId,
-            @PathVariable Long memberId) {
+            @PathVariable @ExistMember Long memberId) {
         CommentLikeResponse response = postCommandService.dislikeComment(commentId, memberId);
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
-    @Operation(summary = "게시글 댓글 싫어요 취소 API", description = "댓글 ID와 회원 ID를 받아 댓글에 싫어요를 취소합니다.")
+    @Tag(name = "게시판 - 댓글", description = "댓글 관련 API")
+    @Operation(summary = "[게시판] 댓글 싫어요 취소 API", description = "댓글 ID와 회원 ID를 받아 댓글에 싫어요를 취소합니다.")
     @DeleteMapping("/comments/{commentId}/{memberId}/dislike")
     public ApiResponse<CommentLikeResponse> cancelCommentDislike(
             @PathVariable Long commentId,
-            @PathVariable Long memberId) {
+            @PathVariable @ExistMember Long memberId) {
         CommentLikeResponse response = postCommandService.cancelCommentDislike(commentId, memberId);
         return ApiResponse.onSuccess(SuccessStatus._NO_CONTENT, response);
     }

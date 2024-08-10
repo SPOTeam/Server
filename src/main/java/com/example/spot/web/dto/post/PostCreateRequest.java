@@ -27,7 +27,8 @@ public class PostCreateRequest {
 
     @Schema(
             description = "게시글 타입입니다. " +
-                    "PASS_EXPERIENCE, INFORMATION_SHARING, COUNSELING, JOB_TALK, FREE_TALK, SPOT_ANNOUNCEMENT 중에 작성해주세요."
+                    "PASS_EXPERIENCE, INFORMATION_SHARING, COUNSELING, JOB_TALK, FREE_TALK, SPOT_ANNOUNCEMENT 중에 작성해주세요.",
+            example = "PASS_EXPERIENCE"
     )
     private Board type;
 
