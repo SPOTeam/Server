@@ -23,14 +23,8 @@ public interface StudyRepositoryCustom {
     // 모집중 스터디 조회
     List<Study> findStudyByConditions(Map<String, Object> search, StudySortBy sortBy, Pageable pageable);
 
-    List<Study> findStudyByConditionsAndThemeTypes(Map<String, Object> search,
-        StudySortBy sortBy, Pageable pageable, List<StudyTheme> themeTypes);
-
     List<Study> findStudyByConditionsAndThemeTypesAndNotInIds(Map<String, Object> search,
         StudySortBy sortBy, Pageable pageable, List<StudyTheme> themeTypes, List<Long> studyIds);
-
-    List<Study> findStudyByConditionsAndRegionStudies(Map<String, Object> search,
-        StudySortBy sortBy, Pageable pageable, List<RegionStudy> regionStudies);
 
     List<Study> findStudyByConditionsAndRegionStudiesAndNotInIds(Map<String, Object> search,
         StudySortBy sortBy, Pageable pageable, List<RegionStudy> regionStudies, List<Long> studyIds);
@@ -42,12 +36,8 @@ public interface StudyRepositoryCustom {
     List<Study> findByMemberStudy(List<MemberStudy> memberStudy, Pageable pageable);
     List<Study> findRecruitingStudiesByMemberStudy(List<MemberStudy> memberStudy, Pageable pageable);
 
-    long countStudyByConditionsAndThemeTypes(Map<String, Object> search, List<StudyTheme> themeTypes, StudySortBy sortBy);
-
     long countStudyByConditionsAndThemeTypesAndNotInIds(
         Map<String, Object> search, List<StudyTheme> themeTypes, StudySortBy sortBy, List<Long> studyIds);
-
-    long countStudyByConditionsAndRegionStudies(Map<String, Object> search, List<RegionStudy> regionStudies, StudySortBy sortBy);
 
     long countStudyByConditionsAndRegionStudiesAndNotInIds(
         Map<String, Object> search, List<RegionStudy> regionStudies, StudySortBy sortBy, List<Long> studyIds);
