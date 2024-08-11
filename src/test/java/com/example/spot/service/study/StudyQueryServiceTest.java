@@ -145,6 +145,8 @@ class StudyQueryServiceTest {
             .build();
         Long memberId = 1L;
 
+        List<Long> studyIds = List.of();
+
         Theme theme1 = Theme.builder()
             .id(1L)
             .studyTheme(ThemeType.어학)
@@ -170,7 +172,7 @@ class StudyQueryServiceTest {
         when(studyThemeRepository.findAllByTheme(theme2)).thenReturn(List.of(studyTheme2));
 
         // Mocking the studyRepository to return studies based on the study themes
-        when(studyRepository.findByStudyTheme(anyList())).thenReturn(List.of(study1, study2));
+        when(studyRepository.findByStudyThemeAndNotInIds(anyList(), anyList())).thenReturn(List.of(study1, study2));
 
         // when
         StudyPreviewDTO result = studyQueryService.findRecommendStudies(memberId);
@@ -181,7 +183,7 @@ class StudyQueryServiceTest {
         verify(memberThemeRepository).findAllByMemberId(memberId);
         verify(studyThemeRepository, times(1)).findAllByTheme(theme1);
         verify(studyThemeRepository, times(1)).findAllByTheme(theme2);
-        verify(studyRepository).findByStudyTheme(anyList());
+        verify(studyRepository).findByStudyThemeAndNotInIds(anyList(), anyList());
     }
 
     @Test
@@ -215,6 +217,8 @@ class StudyQueryServiceTest {
             .hasFee(true)
             .build();
 
+        List<Long> studyIds = List.of();
+
         MemberTheme memberTheme1 = MemberTheme.builder().member(member).theme(theme1).build();
         MemberTheme memberTheme2 = MemberTheme.builder().member(member).theme(theme2).build();
 
@@ -237,11 +241,12 @@ class StudyQueryServiceTest {
         when(studyThemeRepository.findAllByTheme(theme2))
             .thenReturn(List.of(studyTheme2));
 
-        when(studyRepository.countStudyByConditionsAndThemeTypes(searchConditions, List.of(studyTheme1, studyTheme2), sortBy))
+        when(studyRepository.countStudyByConditionsAndThemeTypesAndNotInIds(
+            searchConditions, List.of(studyTheme1, studyTheme2), sortBy, studyIds))
             .thenReturn(2L);
 
-        when(studyRepository.findStudyByConditionsAndThemeTypes(
-            searchConditions, sortBy, pageable, List.of(studyTheme1, studyTheme2)))
+        when(studyRepository.findStudyByConditionsAndThemeTypesAndNotInIds(
+            searchConditions, sortBy, pageable, List.of(studyTheme1, studyTheme2), studyIds))
             .thenReturn(List.of(study1, study2));
 
         // when
@@ -253,8 +258,8 @@ class StudyQueryServiceTest {
         verify(memberThemeRepository).findAllByMemberId(member.getId());
         verify(studyThemeRepository, times(1)).findAllByTheme(theme1);
         verify(studyThemeRepository, times(1)).findAllByTheme(theme2);
-        verify(studyRepository).countStudyByConditionsAndThemeTypes(searchConditions, List.of(studyTheme1, studyTheme2), sortBy);
-        verify(studyRepository).findStudyByConditionsAndThemeTypes(searchConditions, sortBy, pageable, List.of(studyTheme1, studyTheme2));
+        verify(studyRepository).countStudyByConditionsAndThemeTypesAndNotInIds(searchConditions, List.of(studyTheme1, studyTheme2), sortBy, studyIds);
+        verify(studyRepository).findStudyByConditionsAndThemeTypesAndNotInIds(searchConditions, sortBy, pageable, List.of(studyTheme1, studyTheme2), studyIds);
 
     }
 
@@ -281,6 +286,8 @@ class StudyQueryServiceTest {
             .build();
 
         StudySortBy sortBy = StudySortBy.ALL;
+
+        List<Long> studyIds = List.of();
 
         SearchRequestStudyDTO request = SearchRequestStudyDTO.builder()
             .gender(Gender.MALE)
@@ -312,12 +319,13 @@ class StudyQueryServiceTest {
             .thenReturn(List.of(studyTheme1));
 
         // Only studyTheme1 should match
-        when(studyRepository.countStudyByConditionsAndThemeTypes(searchConditions, List.of(studyTheme1), sortBy))
+        when(studyRepository.countStudyByConditionsAndThemeTypesAndNotInIds(
+            searchConditions, List.of(studyTheme1), sortBy, studyIds))
             .thenReturn(1L);
 
         // Adjusting the mock to match the specific test data
-        when(studyRepository.findStudyByConditionsAndThemeTypes(
-            searchConditions, sortBy, pageable, List.of(studyTheme1)))
+        when(studyRepository.findStudyByConditionsAndThemeTypesAndNotInIds(
+            searchConditions, sortBy, pageable, List.of(studyTheme1), studyIds))
             .thenReturn(List.of(study1));
 
         // when
@@ -328,8 +336,8 @@ class StudyQueryServiceTest {
         assertEquals(1, result.getTotalElements());  // Verify the count matches expected result
         verify(memberThemeRepository).findAllByMemberId(member.getId());
         verify(studyThemeRepository).findAllByTheme(theme1);  // Ensure the correct theme is queried
-        verify(studyRepository).countStudyByConditionsAndThemeTypes(searchConditions, List.of(studyTheme1), sortBy);
-        verify(studyRepository).findStudyByConditionsAndThemeTypes(searchConditions, sortBy, pageable, List.of(studyTheme1));
+        verify(studyRepository).countStudyByConditionsAndThemeTypesAndNotInIds(searchConditions, List.of(studyTheme1), sortBy, studyIds);
+        verify(studyRepository).findStudyByConditionsAndThemeTypesAndNotInIds(searchConditions, sortBy, pageable, List.of(studyTheme1),studyIds);
     }
 
     @Test
@@ -357,6 +365,8 @@ class StudyQueryServiceTest {
             .build();
 
         StudySortBy sortBy = StudySortBy.ALL;
+
+        List<Long> studyIds = List.of();
 
         SearchRequestStudyDTO request = SearchRequestStudyDTO.builder()
             .gender(Gender.MALE)
@@ -389,11 +399,12 @@ class StudyQueryServiceTest {
         when(regionStudyRepository.findAllByRegion(region2))
             .thenReturn(List.of(regionStudy2));
 
-        when(studyRepository.countStudyByConditionsAndRegionStudies(searchConditions, List.of(regionStudy1, regionStudy2), sortBy))
+        when(studyRepository.countStudyByConditionsAndRegionStudiesAndNotInIds(
+            searchConditions, List.of(regionStudy1, regionStudy2), sortBy, studyIds))
             .thenReturn(2L);
 
-        when(studyRepository.findStudyByConditionsAndRegionStudies(
-            searchConditions, sortBy, pageable, List.of(regionStudy1, regionStudy2)))
+        when(studyRepository.findStudyByConditionsAndRegionStudiesAndNotInIds(
+            searchConditions, sortBy, pageable, List.of(regionStudy1, regionStudy2), studyIds))
             .thenReturn(List.of(study1, study2));
 
         // when
@@ -405,8 +416,8 @@ class StudyQueryServiceTest {
         verify(preferredRegionRepository).findAllByMemberId(member.getId());
         verify(regionStudyRepository, times(1)).findAllByRegion(region1);
         verify(regionStudyRepository, times(1)).findAllByRegion(region2);
-        verify(studyRepository).countStudyByConditionsAndRegionStudies(searchConditions, List.of(regionStudy1, regionStudy2), sortBy);
-        verify(studyRepository).findStudyByConditionsAndRegionStudies(searchConditions, sortBy, pageable, List.of(regionStudy1, regionStudy2));
+        verify(studyRepository).countStudyByConditionsAndRegionStudiesAndNotInIds(searchConditions, List.of(regionStudy1, regionStudy2), sortBy, studyIds);
+        verify(studyRepository).findStudyByConditionsAndRegionStudiesAndNotInIds(searchConditions, sortBy, pageable, List.of(regionStudy1, regionStudy2), studyIds);
     }
 
     @Test
@@ -437,6 +448,8 @@ class StudyQueryServiceTest {
 
         StudySortBy sortBy = StudySortBy.ALL;
 
+        List<Long> studyIds = List.of();
+
         SearchRequestStudyDTO request = SearchRequestStudyDTO.builder()
             .gender(Gender.MALE)
             .minAge(20)
@@ -466,12 +479,13 @@ class StudyQueryServiceTest {
             .thenReturn(List.of(regionStudy1));
 
         // Only studyTheme1 should match
-        when(studyRepository.countStudyByConditionsAndRegionStudies(searchConditions, List.of(regionStudy1), sortBy))
+        when(studyRepository.countStudyByConditionsAndRegionStudiesAndNotInIds(
+            searchConditions, List.of(regionStudy1), sortBy, studyIds))
             .thenReturn(1L);
 
         // Adjusting the mock to match the specific test data
-        when(studyRepository.findStudyByConditionsAndRegionStudies(
-            searchConditions, sortBy, pageable, List.of(regionStudy1)))
+        when(studyRepository.findStudyByConditionsAndRegionStudiesAndNotInIds(
+            searchConditions, sortBy, pageable, List.of(regionStudy1), studyIds))
             .thenReturn(List.of(study1));
 
         // when
@@ -482,8 +496,8 @@ class StudyQueryServiceTest {
         assertEquals(1, result.getTotalElements());  // Verify the count matches expected result
         verify(preferredRegionRepository).findAllByMemberId(member.getId());
         verify(regionStudyRepository).findAllByRegion(region1);  // Ensure the correct theme is queried
-        verify(studyRepository).countStudyByConditionsAndRegionStudies(searchConditions, List.of(regionStudy1), sortBy);
-        verify(studyRepository).findStudyByConditionsAndRegionStudies(searchConditions, sortBy, pageable, List.of(regionStudy1));
+        verify(studyRepository).countStudyByConditionsAndRegionStudiesAndNotInIds(searchConditions, List.of(regionStudy1), sortBy, studyIds);
+        verify(studyRepository).findStudyByConditionsAndRegionStudiesAndNotInIds(searchConditions, sortBy, pageable, List.of(regionStudy1), studyIds);
     }
 
     @Test

@@ -19,7 +19,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "Post", description = "Post API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/spot/posts")
@@ -213,6 +212,7 @@ public class PostController {
         return ApiResponse.onSuccess(SuccessStatus._CREATED, response);
     }
 
+    @Tag(name = "게시판 - 댓글", description = "댓글 관련 API")
     @Operation(summary = "!테스트용! 게시글 댓글 조회 API", description = "게시글 ID를 받아 댓글을 조회합니다. 댓글 조회는 이미 게시글 단건 조회에 포함되어 있습니다.")
     @GetMapping("/{postId}/comments")
     public ApiResponse<CommentResponse> getComment(

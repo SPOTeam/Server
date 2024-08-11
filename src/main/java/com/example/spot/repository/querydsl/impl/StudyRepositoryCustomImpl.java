@@ -36,6 +36,18 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
     }
 
     @Override
+    public List<Study> findByStudyThemeAndNotInIds(List<StudyTheme> studyThemes,
+        List<Long> studyIds) {
+        return queryFactory.selectFrom(study)
+            .where(study.studyThemes.any().in(studyThemes))
+            .where(study.id.notIn(studyIds))
+            .orderBy(study.createdAt.desc())
+            .offset(0)
+            .limit(3)
+            .fetch();
+    }
+
+    @Override
     public List<Study> findStudyByConditions(Map<String, Object> search, StudySortBy sortBy,
         Pageable pageable) {
         BooleanBuilder builder = new BooleanBuilder();
@@ -67,11 +79,11 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
     }
 
     @Override
-    public List<Study> findStudyByConditionsAndThemeTypes(
-        Map<String, Object> search, StudySortBy sortBy, Pageable pageable, List<StudyTheme> themes) {
+    public List<Study> findStudyByConditionsAndThemeTypesAndNotInIds(Map<String, Object> search,
+        StudySortBy sortBy, Pageable pageable, List<StudyTheme> themeTypes, List<Long> studyIds) {
         QStudy study = QStudy.study;
 
-        BooleanBuilder builder = getBooleanBuilderByThemeTypes(search, study, themes);
+        BooleanBuilder builder = getBooleanBuilderByThemeTypes(search, study, themeTypes);
         if (sortBy != null) {
             switch (sortBy) {
                 case RECRUITING:
@@ -88,6 +100,7 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
         // 정렬 조건 설정
         JPAQuery<Study> query = queryFactory.selectFrom(study)
             .where(builder)
+            .where(study.id.notIn(studyIds))
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize());
 
@@ -96,11 +109,11 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
         return query.fetch();
     }
 
-    @Override
-    public List<Study> findStudyByConditionsAndRegionStudies(
-        Map<String, Object> search, StudySortBy sortBy, Pageable pageable,
-        List<RegionStudy> regionStudies) {
 
+    @Override
+    public List<Study> findStudyByConditionsAndRegionStudiesAndNotInIds(Map<String, Object> search,
+        StudySortBy sortBy, Pageable pageable, List<RegionStudy> regionStudies,
+        List<Long> studyIds) {
         QStudy study = QStudy.study;
 
         BooleanBuilder builder = getBooleanBuilderByRegionStudies(search, study, regionStudies);
@@ -121,6 +134,7 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
         // 정렬 조건 설정
         JPAQuery<Study> query = queryFactory.selectFrom(study)
             .where(builder)
+            .where(study.id.notIn(studyIds))
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize());
 
@@ -128,7 +142,6 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
 
         return query.fetch();
     }
-
 
 
     @Override
@@ -189,23 +202,27 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
     }
 
 
+
     @Override
-    public long countStudyByConditionsAndThemeTypes(
-        Map<String, Object> search, List<StudyTheme> themeTypes, StudySortBy sortBy) {
+    public long countStudyByConditionsAndThemeTypesAndNotInIds(Map<String, Object> search,
+        List<StudyTheme> themeTypes, StudySortBy sortBy, List<Long> studyIds) {
         BooleanBuilder builder = getBooleanBuilderByThemeTypes(search, study, themeTypes);
         getStudyState(sortBy, builder, study);
         return queryFactory.selectFrom(study)
             .where(builder)
+            .where(study.id.notIn(studyIds))
             .fetchCount();
     }
 
+
     @Override
-    public long countStudyByConditionsAndRegionStudies(
-        Map<String, Object> search, List<RegionStudy> regionStudies, StudySortBy sortBy) {
+    public long countStudyByConditionsAndRegionStudiesAndNotInIds(Map<String, Object> search,
+        List<RegionStudy> regionStudies, StudySortBy sortBy, List<Long> studyIds) {
         BooleanBuilder builder = getBooleanBuilderByRegionStudies(search, study, regionStudies);
         getStudyState(sortBy, builder, study);
         return queryFactory.selectFrom(study)
             .where(builder)
+            .where(study.id.notIn(studyIds))
             .fetchCount();
     }
 
