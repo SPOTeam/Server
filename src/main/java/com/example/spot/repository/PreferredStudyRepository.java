@@ -11,4 +11,6 @@ public interface PreferredStudyRepository extends JpaRepository<PreferredStudy, 
 
     List<PreferredStudy> findByMemberIdOrderByCreatedAtDesc(Long memberId);
     Optional<PreferredStudy> findByMemberIdAndStudyId(Long memberId, Long studyId);
+
+    long countByMemberId(Long memberId);
 }
