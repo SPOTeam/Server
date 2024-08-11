@@ -75,6 +75,7 @@ public class SearchResponseDTO {
             this.memberCount = (long) study.getMemberStudies().size();
             this.heartCount = (long) study.getHeartCount();
             this.hitNum = study.getHitNum();
+            this.maxPeople = study.getMaxPeople();
             this.studyState = study.getStudyState();
             this.regions = study.getRegionStudies().stream().map(RegionStudy::getRegion).map(Region::getCode).toList();
             this.themeTypes = study.getStudyThemes().stream().map(StudyTheme::getTheme).map(Theme::getStudyTheme).toList();
@@ -89,6 +90,7 @@ public class SearchResponseDTO {
         Long memberCount;
         Long heartCount;
         Long hitNum;
+        Long maxPeople;
         boolean isLiked;
         StudyState studyState;
         List<ThemeType> themeTypes;
