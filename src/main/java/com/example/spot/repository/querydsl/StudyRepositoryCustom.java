@@ -11,10 +11,14 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jdbc.repository.query.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface StudyRepositoryCustom {
 
     List<Study> findByStudyTheme(List<StudyTheme> studyThemes);
+
+    List<Study> findByStudyThemeAndNotInIds(List<StudyTheme> studyThemes, List<Long> studyIds);
 
     // 모집중 스터디 조회
     List<Study> findStudyByConditions(Map<String, Object> search, StudySortBy sortBy, Pageable pageable);

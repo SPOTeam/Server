@@ -109,6 +109,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
     @Override
     public StudyPreviewDTO findRecommendStudies(Long memberId) {
+        List<Long> memberOngoingStudyIds = getOngoingStudyIds(memberId);
 
         // MemberId로 회원 관심사 전체 조회
         List<Theme> themes = memberThemeRepository.findAllByMemberId(memberId).stream()
@@ -119,7 +120,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         List<StudyTheme> studyThemes = themes.stream()
             .flatMap(theme -> studyThemeRepository.findAllByTheme(theme).stream())
             .toList();
-        List<Study> studies = studyRepository.findByStudyTheme(studyThemes);
+        List<Study> studies = studyRepository.findByStudyThemeAndNotInIds(studyThemes, memberOngoingStudyIds);
 
         if (studies.isEmpty())
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
@@ -340,6 +341,15 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
 
         return getDTOs(studies, pageable, studies.size(), memberId);
+    }
+
+    // 회원이 참가하고 있는 스터디 ID 가져오기
+    private List<Long> getOngoingStudyIds(Long memberId) {
+        List<MemberStudy> memberStudies = memberStudyRepository.findAllByMemberIdAndStatus(memberId, ApplicationStatus.APPROVED);
+        return memberStudies.stream()
+            .filter(memberStudy -> memberStudy.getStatus().equals(ApplicationStatus.APPROVED))
+            .map(memberStudy -> memberStudy.getStudy().getId())
+            .toList();
     }
 
     private static Map<String, Object> getSearchConditions(SearchRequestStudyDTO request) {

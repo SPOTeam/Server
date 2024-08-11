@@ -36,6 +36,18 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
     }
 
     @Override
+    public List<Study> findByStudyThemeAndNotInIds(List<StudyTheme> studyThemes,
+        List<Long> studyIds) {
+        return queryFactory.selectFrom(study)
+            .where(study.studyThemes.any().in(studyThemes))
+            .where(study.id.notIn(studyIds))
+            .orderBy(study.createdAt.desc())
+            .offset(0)
+            .limit(3)
+            .fetch();
+    }
+
+    @Override
     public List<Study> findStudyByConditions(Map<String, Object> search, StudySortBy sortBy,
         Pageable pageable) {
         BooleanBuilder builder = new BooleanBuilder();
