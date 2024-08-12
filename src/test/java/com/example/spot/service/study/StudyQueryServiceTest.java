@@ -563,6 +563,8 @@ class StudyQueryServiceTest {
 
         when(preferredStudyRepository.findByMemberIdOrderByCreatedAtDesc(member.getId()))
             .thenReturn(List.of(preferredStudy1, preferredStudy2));
+        when(preferredStudyRepository.countByMemberId(member.getId()))
+            .thenReturn(2L);
 
         // when
         StudyPreviewDTO result = studyQueryService.findLikedStudies(member.getId());
@@ -653,6 +655,8 @@ class StudyQueryServiceTest {
             .thenReturn(List.of(memberStudy1, memberStudy2));
         when(studyRepository.findByMemberStudy(List.of(memberStudy1, memberStudy2), pageable))
             .thenReturn(List.of(study1, study2));
+        when(memberStudyRepository.countByMemberIdAndStatus(member.getId(), ApplicationStatus.APPROVED))
+            .thenReturn(2L);
 
         // when
         StudyPreviewDTO result = studyQueryService.findOngoingStudiesByMemberId(pageable, member.getId());
@@ -688,6 +692,8 @@ class StudyQueryServiceTest {
             .thenReturn(List.of(memberStudy1, memberStudy2));
         when(studyRepository.findByMemberStudy(List.of(memberStudy1, memberStudy2), pageable))
             .thenReturn(List.of(study1, study2));
+        when(memberStudyRepository.countByMemberIdAndStatus(member.getId(), ApplicationStatus.APPLIED))
+            .thenReturn(2L);
 
         // when
         StudyPreviewDTO result = studyQueryService.findAppliedStudies(pageable, member.getId());
@@ -723,6 +729,8 @@ class StudyQueryServiceTest {
             .thenReturn(List.of(memberStudy1, memberStudy2));
         when(studyRepository.findRecruitingStudiesByMemberStudy(List.of(memberStudy1, memberStudy2), pageable))
             .thenReturn(List.of(study1, study2));
+        when(memberStudyRepository.countByMemberIdAndIsOwned(member.getId(), true))
+            .thenReturn(2L);
 
         // when
         StudyPreviewDTO result = studyQueryService.findMyRecruitingStudies(pageable, member.getId());
