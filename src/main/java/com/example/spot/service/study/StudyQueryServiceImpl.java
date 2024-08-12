@@ -291,7 +291,8 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         if (studies.isEmpty())
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
 
-        return getDTOs(studies, Pageable.unpaged(), studies.size(), memberId);
+        long totalElements = preferredStudyRepository.countByMemberId(memberId);
+        return getDTOs(studies, Pageable.unpaged(), totalElements, memberId);
     }
 
     @Override
@@ -331,8 +332,8 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
         if (studies.isEmpty())
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
-
-        return getDTOs(studies, pageable, studies.size(), memberId);
+        long totalElements = memberStudyRepository.countByMemberIdAndStatus(memberId, ApplicationStatus.APPROVED);
+        return getDTOs(studies, pageable, totalElements, memberId);
     }
 
     @Override
@@ -343,8 +344,8 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
         if (studies.isEmpty())
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
-
-        return getDTOs(studies, pageable, studies.size(), memberId);
+        long totalElements = memberStudyRepository.countByMemberIdAndStatus(memberId, ApplicationStatus.APPLIED);
+        return getDTOs(studies, pageable, totalElements, memberId);
     }
 
     @Override
@@ -355,8 +356,9 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
         if (studies.isEmpty())
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
+        long totalElements = memberStudyRepository.countByMemberIdAndIsOwned(memberId, true);
 
-        return getDTOs(studies, pageable, studies.size(), memberId);
+        return getDTOs(studies, pageable, totalElements, memberId);
     }
 
     // 회원이 참가하고 있는 스터디 ID 가져오기
