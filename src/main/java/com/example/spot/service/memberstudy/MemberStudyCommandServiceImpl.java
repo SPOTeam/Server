@@ -656,7 +656,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
 
     // studyId가 필요할까?
     @Override
-    public ToDoListUpdateResponseDTO updateToDoList(Long studyId, Long toDoListId) {
+    public ToDoListUpdateResponseDTO checkToDoList(Long studyId, Long toDoListId) {
 
         ToDoList toDoList = toDoListRepository.findById(toDoListId)
             .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_TODO_NOT_FOUND));
@@ -671,6 +671,32 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
 
 
         toDoList.check();
+
+        toDoListRepository.save(toDoList);
+
+        return ToDoListUpdateResponseDTO.builder()
+            .id(toDoList.getId())
+            .isDone(toDoList.isDone())
+            .updatedAt(toDoList.getUpdatedAt())
+            .build();
+    }
+
+    @Override
+    public ToDoListUpdateResponseDTO updateToDoList(Long studyId, Long toDoListId,
+        ToDoListCreateDTO toDoListCreateDTO) {
+
+        ToDoList toDoList = toDoListRepository.findById(toDoListId)
+            .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_TODO_NOT_FOUND));
+
+        if (!Objects.equals(toDoList.getStudy().getId(), studyId))
+            throw new StudyHandler(ErrorStatus._STUDY_TODO_IS_NOT_BELONG_TO_STUDY);
+
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+
+        if (!toDoList.getMember().getId().equals(currentUserId))
+            throw new StudyHandler(ErrorStatus._STUDY_TODO_NOT_AUTHORIZED);
+
+        toDoList.update(toDoListCreateDTO.getContent(), toDoListCreateDTO.getDate());
 
         toDoListRepository.save(toDoList);
 

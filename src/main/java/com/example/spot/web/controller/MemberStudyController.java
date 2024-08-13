@@ -461,13 +461,31 @@ public class MemberStudyController {
         To-do list의 id와 제목, 생성 시간이 반환됩니다.
         """)
     @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
-    @PostMapping("/to-do/studies/{studyId}/")
+    @PostMapping("/studies/{studyId}/to-do")
     public ApiResponse<ToDoListCreateResponseDTO> createToDoList(
         @PathVariable @ExistStudy Long studyId,
         @RequestBody @Valid ToDoListRequestDTO.ToDoListCreateDTO request) {
         ToDoListCreateResponseDTO toDoList = memberStudyCommandService.createToDoList(studyId,
             request);
         return ApiResponse.onSuccess(SuccessStatus._TO_DO_LIST_CREATED, toDoList);
+    }
+
+    @Tag(name = "To-do list")
+    @Operation(summary = "[To-do list] To-do list 내용 수정", description = """ 
+        ## [To-do list] To-do list에 작성한 할 일의 내용을 수정 합니다.
+        
+        To-do list의 id와 수정된 할 일의 내용, 수정 시간이 반환됩니다.
+        """)
+    @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
+    @Parameter(name = "toDoId", description = "상태를 변경할 To-do list의 id를 입력합니다.", required = true)
+    @PostMapping("/studies/{studyId}/to-do/{toDoId}/update")
+    public ApiResponse<ToDoListUpdateResponseDTO> updateToDoList(
+        @PathVariable @ExistStudy Long studyId,
+        @PathVariable Long toDoId,
+        @RequestBody @Valid ToDoListRequestDTO.ToDoListCreateDTO request) {
+        ToDoListUpdateResponseDTO toDoListUpdateResponseDTO = memberStudyCommandService.updateToDoList(
+            studyId, toDoId, request);
+        return ApiResponse.onSuccess(SuccessStatus._TO_DO_LIST_UPDATED, toDoListUpdateResponseDTO);
     }
 
 
@@ -485,11 +503,11 @@ public class MemberStudyController {
         """)
     @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
     @Parameter(name = "toDoId", description = "상태를 변경할 To-do list의 id를 입력합니다.", required = true)
-    @PostMapping("/to-do/{toDoId}/studies/{studyId}/")
-    public ApiResponse<ToDoListUpdateResponseDTO> updateToDoList(
+    @PostMapping("/studies/{studyId}/to-do/{toDoId}/check")
+    public ApiResponse<ToDoListUpdateResponseDTO> checkToDoList(
         @PathVariable @ExistStudy Long studyId,
         @PathVariable Long toDoId) {
-        ToDoListUpdateResponseDTO toDoListUpdateResponseDTO = memberStudyCommandService.updateToDoList(
+        ToDoListUpdateResponseDTO toDoListUpdateResponseDTO = memberStudyCommandService.checkToDoList(
             studyId, toDoId);
         return ApiResponse.onSuccess(SuccessStatus._TO_DO_LIST_UPDATED, toDoListUpdateResponseDTO);
     }
@@ -503,7 +521,7 @@ public class MemberStudyController {
         """)
     @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
     @Parameter(name = "toDoId", description = "삭제할 To-do list의 id를 입력합니다.", required = true)
-    @DeleteMapping("/to-do/{toDoId}/studies/{studyId}/")
+    @DeleteMapping("/studies/{studyId}/to-do/{toDoId}")
     public ApiResponse<ToDoListUpdateResponseDTO> deleteToDoList(
         @PathVariable @ExistStudy Long studyId,
         @PathVariable Long toDoId) {
@@ -518,7 +536,7 @@ public class MemberStudyController {
         날짜와 할 일 목록, 체크 여부가 반환됩니다.
         """)
     @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
-    @GetMapping("/to-do/studies/{studyId}/")
+    @GetMapping("/studies/{studyId}/to-do/my")
     public ApiResponse<ToDoListSearchResponseDTO> getMyToDoList(
         @PathVariable @ExistStudy Long studyId) {
         return null;
@@ -531,7 +549,7 @@ public class MemberStudyController {
         """)
     @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
     @Parameter(name = "memberId", description = "To-do list를 조회할 회원의 id를 입력합니다.", required = true)
-    @GetMapping("/to-do/studies/{studyId}/members/{memberId}")
+    @GetMapping("/studies/{studyId}/to-do/members/{memberId}")
     public ApiResponse<ToDoListSearchResponseDTO> getOtherToDoList(
         @PathVariable @ExistStudy Long studyId,
         @PathVariable @ExistMember Long memberId) {
