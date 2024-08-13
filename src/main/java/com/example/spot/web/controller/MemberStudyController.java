@@ -533,8 +533,9 @@ public class MemberStudyController {
 
     @Tag(name = "To-do list")
     @Operation(summary = "[To-do list] 내 To-do list 조회", description = """ 
-        ## [To-do list] 특정 스터디에 저장된 내 To-do list를 날짜 별로 조회합니다.
-        날짜와 할 일 목록, 체크 여부가 반환됩니다.
+        ## [To-do list] 특정 스터디에 저장된 내 To-do list를 날짜 별로 페이징 조회합니다.
+        조회하고 싶은 날짜를 입력 받아, 해당 날짜의 할 일 목록, 체크 여부가 반환됩니다.
+       
         """)
     @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
     @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
@@ -553,8 +554,8 @@ public class MemberStudyController {
 
     @Tag(name = "To-do list")
     @Operation(summary = "[To-do list] 다른 스터디 원 To-do list 조회", description = """ 
-        ## [To-do list] 특정 스터디에 저장된 다른 스터디원의 To-do list를 날짜 별로 조회합니다.
-        날짜와 할 일 목록, 체크 여부가 반환됩니다.
+        ## [To-do list] 특정 스터디에 저장된 다른 스터디원의 To-do list를 날짜 별로 페이징 조회합니다.
+        조회하고 싶은 날짜를 입력 받아, 해당 날짜의 할 일 목록, 체크 여부가 반환됩니다.
         """)
     @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
     @Parameter(name = "memberId", description = "To-do list를 조회할 회원의 id를 입력합니다.", required = true)
