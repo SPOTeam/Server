@@ -9,6 +9,8 @@ import com.example.spot.service.memberstudy.MemberStudyQueryService;
 import com.example.spot.validation.annotation.*;
 import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.web.dto.memberstudy.request.*;
+import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListRequestDTO;
+import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListRequestDTO.ToDoListCreateDTO;
 import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListResponseDTO.ToDoListCreateResponseDTO;
 import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListResponseDTO.ToDoListSearchResponseDTO;
 import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListResponseDTO.ToDoListUpdateResponseDTO;
@@ -461,13 +463,18 @@ public class MemberStudyController {
     @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
     @PostMapping("/to-do/studies/{studyId}/")
     public ApiResponse<ToDoListCreateResponseDTO> createToDoList(
-        @PathVariable @ExistStudy Long studyId) {
-        return null;
+        @PathVariable @ExistStudy Long studyId,
+        @RequestBody @Valid ToDoListRequestDTO.ToDoListCreateDTO request) {
+        ToDoListCreateResponseDTO toDoList = memberStudyCommandService.createToDoList(studyId,
+            request);
+        return ApiResponse.onSuccess(SuccessStatus._TO_DO_LIST_CREATED, toDoList);
     }
 
+
+
     @Tag(name = "To-do list")
-    @Operation(summary = "[To-do list] To-do list 체크 처리 및 상태 변경", description = """ 
-        ## [To-do list] To-do list에 작성한 할 일의 상태를 변경 합니다.
+    @Operation(summary = "[To-do list] To-do list 체크 처리", description = """ 
+        ## [To-do list] To-do list에 작성한 할 일의 체크 상태를 변경 합니다.
         
         체크 표시 되어 있는 경우, 해당 API를 재호출 하면 체크가 해제됩니다.
         
@@ -482,7 +489,9 @@ public class MemberStudyController {
     public ApiResponse<ToDoListUpdateResponseDTO> updateToDoList(
         @PathVariable @ExistStudy Long studyId,
         @PathVariable Long toDoId) {
-        return null;
+        ToDoListUpdateResponseDTO toDoListUpdateResponseDTO = memberStudyCommandService.updateToDoList(
+            studyId, toDoId);
+        return ApiResponse.onSuccess(SuccessStatus._TO_DO_LIST_UPDATED, toDoListUpdateResponseDTO);
     }
 
     @Tag(name = "To-do list")
@@ -495,10 +504,12 @@ public class MemberStudyController {
     @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
     @Parameter(name = "toDoId", description = "삭제할 To-do list의 id를 입력합니다.", required = true)
     @DeleteMapping("/to-do/{toDoId}/studies/{studyId}/")
-    public ApiResponse<String> deleteToDoList(
+    public ApiResponse<ToDoListUpdateResponseDTO> deleteToDoList(
         @PathVariable @ExistStudy Long studyId,
         @PathVariable Long toDoId) {
-        return null;
+        ToDoListUpdateResponseDTO toDoListUpdateResponseDTO = memberStudyCommandService.deleteToDoList(
+            studyId, toDoId);
+        return ApiResponse.onSuccess(SuccessStatus._TO_DO_LIST_DELETED, toDoListUpdateResponseDTO);
     }
 
     @Tag(name = "To-do list")

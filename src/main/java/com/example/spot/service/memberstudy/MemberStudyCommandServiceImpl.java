@@ -16,6 +16,7 @@ import com.example.spot.security.utils.SecurityUtils;
 import com.example.spot.service.s3.S3ImageService;
 import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.web.dto.memberstudy.request.*;
+import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListRequestDTO;
 import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListRequestDTO.ToDoListCreateDTO;
 import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListResponseDTO.ToDoListCreateResponseDTO;
 import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListResponseDTO.ToDoListUpdateResponseDTO;

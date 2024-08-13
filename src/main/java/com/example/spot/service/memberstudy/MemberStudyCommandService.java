@@ -4,6 +4,7 @@ import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.web.dto.memberstudy.request.*;
 import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListRequestDTO;
 import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListResponseDTO;
+import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListResponseDTO.ToDoListCreateResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.*;
 import com.example.spot.web.dto.study.response.StudyApplyResponseDTO;
 import jakarta.validation.Valid;
@@ -51,7 +52,7 @@ public interface MemberStudyCommandService {
     StudyPostResDTO.PostPreviewDTO reportStudyPost(Long studyId, Long postId);
 
     // 투두 리스트 생성
-    ToDoListResponseDTO.ToDoListCreateResponseDTO createToDoList(Long studyId, ToDoListRequestDTO.ToDoListCreateDTO toDoListCreateDTO);
+    ToDoListCreateResponseDTO createToDoList(Long studyId, ToDoListRequestDTO.ToDoListCreateDTO toDoListCreateDTO);
 
     // 투두 리스트 수정
     ToDoListResponseDTO.ToDoListUpdateResponseDTO updateToDoList(Long studyId, Long toDoListId);

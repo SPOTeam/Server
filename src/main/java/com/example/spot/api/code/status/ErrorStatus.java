@@ -148,7 +148,7 @@ public enum ErrorStatus implements BaseErrorCode {
     // 스터디 투두 리스트 관련 에러
     _STUDY_TODO_NOT_FOUND(HttpStatus.NOT_FOUND, "TODO4001", "스터디 투두 리스트를 찾을 수 없습니다."),
     _STUDY_TODO_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "TODO4002", "해당 투두 리스트를 수정할 권한이 없습니다."),
-    _STUDY_TODO_IS_NOT_BELONG_TO_STUDY(HttpStatus.BAD_REQUEST, "TODO4003", "해당 투두 리스트가 스터디에 속해있지 않습니다."),
+    _STUDY_TODO_IS_NOT_BELONG_TO_STUDY(HttpStatus.BAD_REQUEST, "TODO4003", "해당 투두 리스트가 해당 스터디에 속해있지 않습니다."),
     ;
 
 
