@@ -709,17 +709,19 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
     @Override
     public ToDoListUpdateResponseDTO deleteToDoList(Long studyId, Long toDoListId) {
 
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+
+        if (!isMember(currentUserId, studyId))
+            throw new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND);
+
         ToDoList toDoList = toDoListRepository.findById(toDoListId)
             .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_TODO_NOT_FOUND));
 
         if (!Objects.equals(toDoList.getStudy().getId(), studyId))
             throw new StudyHandler(ErrorStatus._STUDY_TODO_IS_NOT_BELONG_TO_STUDY);
 
-        Long currentUserId = SecurityUtils.getCurrentUserId();
-
         if (!toDoList.getMember().getId().equals(currentUserId))
             throw new StudyHandler(ErrorStatus._STUDY_TODO_NOT_AUTHORIZED);
-
 
         toDoListRepository.deleteById(toDoListId);
 
