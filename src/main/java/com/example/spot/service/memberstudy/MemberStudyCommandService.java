@@ -58,7 +58,7 @@ public interface MemberStudyCommandService {
     ToDoListResponseDTO.ToDoListUpdateResponseDTO checkToDoList(Long studyId, Long toDoListId);
 
     // 투두 리스트 수정
-    ToDoListResponseDTO.ToDoListUpdateResponseDTO updateToDoList(Long studyId, Long toDoListId, ToDoListRequestDTO.ToDoListUpdateDTO toDoListUpdateDTO);
+    ToDoListResponseDTO.ToDoListUpdateResponseDTO updateToDoList(Long studyId, Long toDoListId, ToDoListRequestDTO.ToDoListCreateDTO toDoListCreateDTO);
 
     // 투두 리스트 삭제
      ToDoListResponseDTO.ToDoListUpdateResponseDTO deleteToDoList(Long studyId, Long toDoListId);

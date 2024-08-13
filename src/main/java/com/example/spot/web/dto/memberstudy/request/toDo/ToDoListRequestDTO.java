@@ -20,14 +20,6 @@ public class ToDoListRequestDTO {
         private LocalDate date;
     }
 
-    @Getter
-    @Setter
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class ToDoListUpdateDTO{
-        private String content;
-    }
 
 
 }

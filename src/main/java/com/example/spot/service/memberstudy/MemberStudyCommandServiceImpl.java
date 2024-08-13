@@ -18,7 +18,6 @@ import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.web.dto.memberstudy.request.*;
 import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListRequestDTO;
 import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListRequestDTO.ToDoListCreateDTO;
-import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListRequestDTO.ToDoListUpdateDTO;
 import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListResponseDTO.ToDoListCreateResponseDTO;
 import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListResponseDTO.ToDoListUpdateResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.*;
@@ -683,7 +682,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
 
     @Override
     public ToDoListUpdateResponseDTO updateToDoList(Long studyId, Long toDoListId,
-        ToDoListUpdateDTO toDoListUpdateDTO) {
+        ToDoListCreateDTO toDoListCreateDTO) {
 
         ToDoList toDoList = toDoListRepository.findById(toDoListId)
             .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_TODO_NOT_FOUND));
@@ -696,7 +695,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         if (!toDoList.getMember().getId().equals(currentUserId))
             throw new StudyHandler(ErrorStatus._STUDY_TODO_NOT_AUTHORIZED);
 
-        toDoList.update(toDoListUpdateDTO.getContent());
+        toDoList.update(toDoListCreateDTO.getContent(), toDoListCreateDTO.getDate());
 
         toDoListRepository.save(toDoList);
 
