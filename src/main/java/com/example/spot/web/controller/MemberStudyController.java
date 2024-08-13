@@ -481,7 +481,7 @@ public class MemberStudyController {
     @PostMapping("/studies/{studyId}/to-do/{toDoId}/update")
     public ApiResponse<ToDoListUpdateResponseDTO> updateToDoList(
         @PathVariable @ExistStudy Long studyId,
-        @PathVariable Long toDoId,
+        @PathVariable @ExistToDoList Long toDoId,
         @RequestBody @Valid ToDoListRequestDTO.ToDoListCreateDTO request) {
         ToDoListUpdateResponseDTO toDoListUpdateResponseDTO = memberStudyCommandService.updateToDoList(
             studyId, toDoId, request);
@@ -506,7 +506,7 @@ public class MemberStudyController {
     @PostMapping("/studies/{studyId}/to-do/{toDoId}/check")
     public ApiResponse<ToDoListUpdateResponseDTO> checkToDoList(
         @PathVariable @ExistStudy Long studyId,
-        @PathVariable Long toDoId) {
+        @PathVariable @ExistToDoList Long toDoId) {
         ToDoListUpdateResponseDTO toDoListUpdateResponseDTO = memberStudyCommandService.checkToDoList(
             studyId, toDoId);
         return ApiResponse.onSuccess(SuccessStatus._TO_DO_LIST_UPDATED, toDoListUpdateResponseDTO);
@@ -524,7 +524,7 @@ public class MemberStudyController {
     @DeleteMapping("/studies/{studyId}/to-do/{toDoId}")
     public ApiResponse<ToDoListUpdateResponseDTO> deleteToDoList(
         @PathVariable @ExistStudy Long studyId,
-        @PathVariable Long toDoId) {
+        @PathVariable @ExistToDoList Long toDoId) {
         ToDoListUpdateResponseDTO toDoListUpdateResponseDTO = memberStudyCommandService.deleteToDoList(
             studyId, toDoId);
         return ApiResponse.onSuccess(SuccessStatus._TO_DO_LIST_DELETED, toDoListUpdateResponseDTO);
