@@ -9,6 +9,9 @@ import com.example.spot.service.memberstudy.MemberStudyQueryService;
 import com.example.spot.validation.annotation.*;
 import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.web.dto.memberstudy.request.*;
+import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListResponseDTO.ToDoListCreateResponseDTO;
+import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListResponseDTO.ToDoListSearchResponseDTO;
+import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListResponseDTO.ToDoListUpdateResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.*;
 import com.example.spot.web.dto.study.response.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -457,7 +460,7 @@ public class MemberStudyController {
         """)
     @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
     @PostMapping("/to-do/studies/{studyId}/")
-    public ApiResponse<String> createToDoList(
+    public ApiResponse<ToDoListCreateResponseDTO> createToDoList(
         @PathVariable @ExistStudy Long studyId) {
         return null;
     }
@@ -476,7 +479,7 @@ public class MemberStudyController {
     @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
     @Parameter(name = "toDoId", description = "상태를 변경할 To-do list의 id를 입력합니다.", required = true)
     @PostMapping("/to-do/{toDoId}/studies/{studyId}/")
-    public ApiResponse<String> updateToDoList(
+    public ApiResponse<ToDoListUpdateResponseDTO> updateToDoList(
         @PathVariable @ExistStudy Long studyId,
         @PathVariable Long toDoId) {
         return null;
@@ -505,7 +508,7 @@ public class MemberStudyController {
         """)
     @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
     @GetMapping("/to-do/studies/{studyId}/")
-    public ApiResponse<String> getMyToDoList(
+    public ApiResponse<ToDoListSearchResponseDTO> getMyToDoList(
         @PathVariable @ExistStudy Long studyId) {
         return null;
     }
@@ -518,7 +521,7 @@ public class MemberStudyController {
     @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
     @Parameter(name = "memberId", description = "To-do list를 조회할 회원의 id를 입력합니다.", required = true)
     @GetMapping("/to-do/studies/{studyId}/members/{memberId}")
-    public ApiResponse<String> getOtherToDoList(
+    public ApiResponse<ToDoListSearchResponseDTO> getOtherToDoList(
         @PathVariable @ExistStudy Long studyId,
         @PathVariable @ExistMember Long memberId) {
         return null;
