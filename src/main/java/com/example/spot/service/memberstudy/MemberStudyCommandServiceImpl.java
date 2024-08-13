@@ -18,6 +18,7 @@ import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.web.dto.memberstudy.request.*;
 import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListRequestDTO;
 import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListRequestDTO.ToDoListCreateDTO;
+import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListRequestDTO.ToDoListUpdateDTO;
 import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListResponseDTO.ToDoListCreateResponseDTO;
 import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListResponseDTO.ToDoListUpdateResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.*;
@@ -639,7 +640,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         ToDoList toDoList = ToDoList.builder()
             .study(study)
             .member(member)
-            .date(LocalDate.now())
+            .date(toDoListCreateDTO.getDate())
             .isDone(false)
             .content(toDoListCreateDTO.getContent())
             .build();
@@ -654,6 +655,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
             .build();
     }
 
+    // studyId가 필요할까?
     @Override
     public ToDoListUpdateResponseDTO checkToDoList(Long studyId, Long toDoListId) {
 
@@ -668,7 +670,6 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         if (!toDoList.getMember().getId().equals(currentUserId))
             throw new StudyHandler(ErrorStatus._STUDY_TODO_NOT_AUTHORIZED);
 
-
         toDoList.check();
 
         toDoListRepository.save(toDoList);
@@ -682,7 +683,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
 
     @Override
     public ToDoListUpdateResponseDTO updateToDoList(Long studyId, Long toDoListId,
-        ToDoListCreateDTO toDoListCreateDTO) {
+        ToDoListUpdateDTO toDoListUpdateDTO) {
 
         ToDoList toDoList = toDoListRepository.findById(toDoListId)
             .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_TODO_NOT_FOUND));
@@ -695,7 +696,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         if (!toDoList.getMember().getId().equals(currentUserId))
             throw new StudyHandler(ErrorStatus._STUDY_TODO_NOT_AUTHORIZED);
 
-        toDoList.update(toDoListCreateDTO.getContent());
+        toDoList.update(toDoListUpdateDTO.getContent());
 
         toDoListRepository.save(toDoList);
 

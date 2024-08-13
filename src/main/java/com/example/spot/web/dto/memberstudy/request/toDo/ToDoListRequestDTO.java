@@ -17,6 +17,16 @@ public class ToDoListRequestDTO {
     @NoArgsConstructor
     public static class ToDoListCreateDTO{
         private String content;
+        private LocalDate date;
+    }
+
+    @Getter
+    @Setter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class ToDoListUpdateDTO{
+        private String content;
     }
 
 

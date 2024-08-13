@@ -483,7 +483,7 @@ public class MemberStudyController {
     public ApiResponse<ToDoListUpdateResponseDTO> updateToDoList(
         @PathVariable @ExistStudy Long studyId,
         @PathVariable @ExistToDoList Long toDoId,
-        @RequestBody @Valid ToDoListRequestDTO.ToDoListCreateDTO request) {
+        @RequestBody @Valid ToDoListRequestDTO.ToDoListUpdateDTO request) {
         ToDoListUpdateResponseDTO toDoListUpdateResponseDTO = memberStudyCommandService.updateToDoList(
             studyId, toDoId, request);
         return ApiResponse.onSuccess(SuccessStatus._TO_DO_LIST_UPDATED, toDoListUpdateResponseDTO);
