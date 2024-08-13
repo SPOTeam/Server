@@ -22,6 +22,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.validation.annotation.Validated;
@@ -538,12 +539,14 @@ public class MemberStudyController {
     @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
     @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
+    @Parameter(name = "date", description = "조회할 날짜를 입력 받습니다. 날짜는 yyyy-MM-dd 형식으로 입력 받습니다.", required = true)
     @GetMapping("/studies/{studyId}/to-do/my")
     public ApiResponse<ToDoListSearchResponseDTO> getMyToDoList(
         @PathVariable @ExistStudy Long studyId,
         @RequestParam @Min(0) Integer page,
-        @RequestParam @Min(1) Integer size) {
-        ToDoListSearchResponseDTO toDoList = memberStudyQueryService.getToDoList(studyId,
+        @RequestParam @Min(1) Integer size,
+        @RequestParam LocalDate date) {
+        ToDoListSearchResponseDTO toDoList = memberStudyQueryService.getToDoList(studyId, date,
             PageRequest.of(page, size));
         return ApiResponse.onSuccess(SuccessStatus._TO_DO_LIST_FOUND, toDoList);
     }
@@ -557,18 +560,17 @@ public class MemberStudyController {
     @Parameter(name = "memberId", description = "To-do list를 조회할 회원의 id를 입력합니다.", required = true)
     @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
+    @Parameter(name = "date", description = "조회할 날짜를 입력 받습니다. 날짜는 yyyy-MM-dd 형식으로 입력 받습니다.", required = true)
     @GetMapping("/studies/{studyId}/to-do/members/{memberId}")
     public ApiResponse<ToDoListSearchResponseDTO> getOtherToDoList(
         @PathVariable @ExistStudy Long studyId,
         @PathVariable @ExistMember Long memberId,
         @RequestParam @Min(0) Integer page,
-        @RequestParam @Min(1) Integer size) {
+        @RequestParam @Min(1) Integer size,
+        @RequestParam LocalDate date) {
         ToDoListSearchResponseDTO toDoList = memberStudyQueryService.getMemberToDoList(studyId,
-            memberId, PageRequest.of(page, size));
+            memberId, date, PageRequest.of(page, size));
         return ApiResponse.onSuccess(SuccessStatus._TO_DO_LIST_FOUND, toDoList);
     }
-
-
-
 
 }

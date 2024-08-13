@@ -59,9 +59,8 @@ public class ToDoList extends BaseEntity {
         this.isDone = !this.isDone;
     }
 
-    public void update(String content, LocalDate date){
+    public void update(String content){
         if (content != null) this.content = content;
-        if (date != null) this.date = date;
     }
 
 }

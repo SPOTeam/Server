@@ -5,6 +5,7 @@ import com.example.spot.web.dto.memberstudy.response.*;
 
 import com.example.spot.web.dto.study.response.*;
 
+import java.time.LocalDate;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
@@ -51,8 +52,8 @@ public interface MemberStudyQueryService {
     StudyImageResponseDTO.ImageListDTO getAllStudyImages(Long studyId, PageRequest pageRequest);
 
     // 내 투두 리스트 조회
-    ToDoListResponseDTO.ToDoListSearchResponseDTO getToDoList(Long studyId, PageRequest pageRequest);
+    ToDoListResponseDTO.ToDoListSearchResponseDTO getToDoList(Long studyId, LocalDate date, PageRequest pageRequest);
 
     // 스터디 원 투두 리스트 조회
-    ToDoListResponseDTO.ToDoListSearchResponseDTO getMemberToDoList(Long studyId, Long memberId, PageRequest pageRequest);
+    ToDoListResponseDTO.ToDoListSearchResponseDTO getMemberToDoList(Long studyId, Long memberId, LocalDate date, PageRequest pageRequest);
 }

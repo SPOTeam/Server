@@ -465,18 +465,20 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
     }
 
     @Override
-    public ToDoListSearchResponseDTO getToDoList(Long studyId, PageRequest pageRequest) {
+    public ToDoListSearchResponseDTO getToDoList(Long studyId, LocalDate date, PageRequest pageRequest) {
         Long memberId = SecurityUtils.getCurrentUserId();
 
         if (!isMember(memberId, studyId))
             throw new GeneralException(ErrorStatus._ONLY_STUDY_MEMBER_CAN_ACCESS_TODO_LIST);
 
-        List<ToDoList> toDoLists = toDoListRepository.findByStudyIdAndMemberIdOrderByCreatedAtDesc(studyId, memberId, pageRequest);
+        List<ToDoList> toDoLists = toDoListRepository.findByStudyIdAndMemberIdAndDateOrderByCreatedAtDesc(
+            studyId, memberId, date, pageRequest);
+
         if (toDoLists.isEmpty())
             throw new GeneralException(ErrorStatus._STUDY_TODO_NOT_FOUND);
 
 
-        long totalElements = toDoListRepository.countByStudyIdAndMemberId(studyId, memberId);
+        long totalElements = toDoListRepository.countByStudyIdAndMemberIdAndDate(studyId, memberId, date);
 
         List<ToDoListDTO> toDoListDTOS = getToDoListDTOS(
             toDoLists);
@@ -486,7 +488,7 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
     }
 
     @Override
-    public ToDoListSearchResponseDTO getMemberToDoList(Long studyId, Long memberId,
+    public ToDoListSearchResponseDTO getMemberToDoList(Long studyId, Long memberId, LocalDate date,
         PageRequest pageRequest) {
 
         if (!isMember(SecurityUtils.getCurrentUserId(), studyId))
@@ -495,11 +497,13 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
         if (!isMember(memberId, studyId))
             throw new GeneralException(ErrorStatus._TODO_LIST_MEMBER_NOT_FOUND);
 
-        List<ToDoList> toDoLists = toDoListRepository.findByStudyIdAndMemberIdOrderByCreatedAtDesc(studyId, memberId, pageRequest);
+        List<ToDoList> toDoLists = toDoListRepository.findByStudyIdAndMemberIdAndDateOrderByCreatedAtDesc(
+            studyId, memberId, date, pageRequest);
+
         if (toDoLists.isEmpty())
             throw new GeneralException(ErrorStatus._STUDY_TODO_NOT_FOUND);
 
-        long totalElements = toDoListRepository.countByStudyIdAndMemberId(studyId, memberId);
+        long totalElements = toDoListRepository.countByStudyIdAndMemberIdAndDate(studyId, memberId, date);
 
         List<ToDoListDTO> toDoListDTOS = getToDoListDTOS(
             toDoLists);

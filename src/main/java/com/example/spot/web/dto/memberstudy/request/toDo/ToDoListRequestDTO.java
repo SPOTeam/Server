@@ -17,7 +17,6 @@ public class ToDoListRequestDTO {
     @NoArgsConstructor
     public static class ToDoListCreateDTO{
         private String content;
-        private LocalDate date;
     }
 
 

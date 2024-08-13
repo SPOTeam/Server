@@ -639,7 +639,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         ToDoList toDoList = ToDoList.builder()
             .study(study)
             .member(member)
-            .date(toDoListCreateDTO.getDate())
+            .date(LocalDate.now())
             .isDone(false)
             .content(toDoListCreateDTO.getContent())
             .build();
@@ -654,7 +654,6 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
             .build();
     }
 
-    // studyId가 필요할까?
     @Override
     public ToDoListUpdateResponseDTO checkToDoList(Long studyId, Long toDoListId) {
 
@@ -696,7 +695,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         if (!toDoList.getMember().getId().equals(currentUserId))
             throw new StudyHandler(ErrorStatus._STUDY_TODO_NOT_AUTHORIZED);
 
-        toDoList.update(toDoListCreateDTO.getContent(), toDoListCreateDTO.getDate());
+        toDoList.update(toDoListCreateDTO.getContent());
 
         toDoListRepository.save(toDoList);
 
