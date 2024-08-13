@@ -16,8 +16,12 @@ import com.example.spot.security.utils.SecurityUtils;
 import com.example.spot.service.s3.S3ImageService;
 import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.web.dto.memberstudy.request.*;
+import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListRequestDTO.ToDoListCreateDTO;
+import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListResponseDTO.ToDoListCreateResponseDTO;
+import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListResponseDTO.ToDoListUpdateResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.*;
 import com.example.spot.web.dto.study.response.StudyApplyResponseDTO;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -50,6 +54,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
     private final MemberAttendanceRepository memberAttendanceRepository;
     private final StudyPostRepository studyPostRepository;
     private final MemberVoteRepository memberVoteRepository;
+    private final ToDoListRepository toDoListRepository;
 
     // S3 Service
     private final S3ImageService s3ImageService;
@@ -613,6 +618,90 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         studyPost.addStudyPostReport(studyPostReport);
 
         return StudyPostResDTO.PostPreviewDTO.toDTO(studyPost);
+    }
+
+    @Override
+    public ToDoListCreateResponseDTO createToDoList(Long studyId,
+        ToDoListCreateDTO toDoListCreateDTO) {
+
+        Study study = studyRepository.findById(studyId)
+            .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+
+        if (!isMember(currentUserId, studyId))
+            throw new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND);
+
+        Member member = memberRepository.findById(currentUserId)
+            .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        ToDoList toDoList = ToDoList.builder()
+            .study(study)
+            .member(member)
+            .date(toDoListCreateDTO.getDate())
+            .isDone(false)
+            .content(toDoListCreateDTO.getContent())
+            .build();
+
+        toDoList.setToDoList();
+        toDoListRepository.save(toDoList);
+
+        return ToDoListCreateResponseDTO.builder()
+            .id(toDoList.getId())
+            .content(toDoList.getContent())
+            .createdAt(toDoList.getCreatedAt())
+            .build();
+    }
+
+    // studyId가 필요할까?
+    @Override
+    public ToDoListUpdateResponseDTO updateToDoList(Long studyId, Long toDoListId) {
+
+        ToDoList toDoList = toDoListRepository.findById(toDoListId)
+            .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_TODO_NOT_FOUND));
+
+        if (!Objects.equals(toDoList.getStudy().getId(), studyId))
+            throw new StudyHandler(ErrorStatus._STUDY_TODO_IS_NOT_BELONG_TO_STUDY);
+
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+
+        if (!toDoList.getMember().getId().equals(currentUserId))
+            throw new StudyHandler(ErrorStatus._STUDY_TODO_NOT_AUTHORIZED);
+
+
+        toDoList.check();
+
+        toDoListRepository.save(toDoList);
+
+        return ToDoListUpdateResponseDTO.builder()
+            .id(toDoList.getId())
+            .isDone(toDoList.isDone())
+            .updatedAt(toDoList.getUpdatedAt())
+            .build();
+    }
+
+    @Override
+    public ToDoListUpdateResponseDTO deleteToDoList(Long studyId, Long toDoListId) {
+
+        ToDoList toDoList = toDoListRepository.findById(toDoListId)
+            .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_TODO_NOT_FOUND));
+
+        if (!Objects.equals(toDoList.getStudy().getId(), studyId))
+            throw new StudyHandler(ErrorStatus._STUDY_TODO_IS_NOT_BELONG_TO_STUDY);
+
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+
+        if (!toDoList.getMember().getId().equals(currentUserId))
+            throw new StudyHandler(ErrorStatus._STUDY_TODO_NOT_AUTHORIZED);
+
+
+        toDoListRepository.deleteById(toDoListId);
+
+        return ToDoListUpdateResponseDTO.builder()
+            .id(toDoList.getId())
+            .isDone(toDoList.isDone())
+            .updatedAt(toDoList.getUpdatedAt())
+            .build();
     }
 
 }

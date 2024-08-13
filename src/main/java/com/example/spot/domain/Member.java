@@ -347,4 +347,8 @@ public class Member extends BaseEntity {
     public void addMemberReport(MemberReport memberReport) {
         this.memberReportList.add(memberReport);
     }
+
+    public void addToDoList(ToDoList toDoList) {
+        this.toDoLists.add(toDoList);
+    }
 }

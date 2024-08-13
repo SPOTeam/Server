@@ -12,15 +12,20 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import java.time.LocalDate;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
 @Getter
+@Builder
 @DynamicUpdate
 @DynamicInsert
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ToDoList extends BaseEntity {
 
@@ -36,12 +41,22 @@ public class ToDoList extends BaseEntity {
     @Column(nullable = false)
     private boolean isDone;
 
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_id")
     private Study study;
+
+    public void setToDoList(){
+        this.study.addToDoList(this);
+        this.member.addToDoList(this);
+    }
+    public void check(){
+        this.isDone = !this.isDone;
+    }
 
 }

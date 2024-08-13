@@ -225,4 +225,8 @@ public class Study extends BaseEntity {
     public void deleteVote(Vote vote) {
         votes.remove(vote);
     }
+
+    public void addToDoList(ToDoList toDoList) {
+        toDoLists.add(toDoList);
+    }
 }

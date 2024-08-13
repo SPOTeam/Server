@@ -10,6 +10,7 @@ import com.example.spot.domain.study.*;
 import com.example.spot.repository.*;
 
 import com.example.spot.security.utils.SecurityUtils;
+import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListResponseDTO.ToDoListSearchResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.*;
 
 import com.example.spot.web.dto.study.response.*;
@@ -459,5 +460,16 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 
         return StudyImageResponseDTO.ImageListDTO.toDTO(studyId, images);
 
+    }
+
+    @Override
+    public ToDoListSearchResponseDTO getToDoList(Long studyId, PageRequest pageRequest) {
+        return null;
+    }
+
+    @Override
+    public ToDoListSearchResponseDTO getMemberToDoList(Long studyId, Long memberId,
+        PageRequest pageRequest) {
+        return null;
     }
 }

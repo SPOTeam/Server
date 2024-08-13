@@ -29,7 +29,6 @@ public class ToDoListResponseDTO {
     @AllArgsConstructor
     public static class ToDoListUpdateResponseDTO {
         private Long id;
-        private String content;
         private boolean isDone;
         private LocalDateTime updatedAt;
     }
