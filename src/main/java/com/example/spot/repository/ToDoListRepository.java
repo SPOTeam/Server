@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ToDoListRepository extends JpaRepository<ToDoList, Long> {
     List<ToDoList> findByStudyId(Long studyId, Pageable pageable);
-    List<ToDoList> findByStudyIdAndMemberId(Long studyId, Long memberId, Pageable pageable);
+    Long countByStudyIdAndMemberId(Long studyId, Long memberId);
+    List<ToDoList> findByStudyIdAndMemberIdOrderByCreatedAtDesc(Long studyId, Long memberId, Pageable pageable);
 
 }

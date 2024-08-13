@@ -149,6 +149,10 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_TODO_NOT_FOUND(HttpStatus.NOT_FOUND, "TODO4001", "스터디 투두 리스트를 찾을 수 없습니다."),
     _STUDY_TODO_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "TODO4002", "해당 투두 리스트를 수정할 권한이 없습니다."),
     _STUDY_TODO_IS_NOT_BELONG_TO_STUDY(HttpStatus.BAD_REQUEST, "TODO4003", "해당 투두 리스트가 해당 스터디에 속해있지 않습니다."),
+    _ONLY_STUDY_MEMBER_CAN_ACCESS_TODO_LIST(HttpStatus.FORBIDDEN, "TODO4004", "스터디 멤버만 투두 리스트에 접근할 수 있습니다."),
+    // 일정을 조회하려는 멤버가 스터디에 가입되지 않았습니다.
+    _TODO_LIST_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "SCHEDULE4004", "일정을 조회하려는 멤버가 스터디에 가입되지 않았습니다."),
+
     ;
 
 

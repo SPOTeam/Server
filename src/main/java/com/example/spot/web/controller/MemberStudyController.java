@@ -536,10 +536,16 @@ public class MemberStudyController {
         날짜와 할 일 목록, 체크 여부가 반환됩니다.
         """)
     @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
+    @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
+    @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
     @GetMapping("/studies/{studyId}/to-do/my")
     public ApiResponse<ToDoListSearchResponseDTO> getMyToDoList(
-        @PathVariable @ExistStudy Long studyId) {
-        return null;
+        @PathVariable @ExistStudy Long studyId,
+        @RequestParam @Min(0) Integer page,
+        @RequestParam @Min(1) Integer size) {
+        ToDoListSearchResponseDTO toDoList = memberStudyQueryService.getToDoList(studyId,
+            PageRequest.of(page, size));
+        return ApiResponse.onSuccess(SuccessStatus._TO_DO_LIST_FOUND, toDoList);
     }
 
     @Tag(name = "To-do list")
@@ -549,11 +555,17 @@ public class MemberStudyController {
         """)
     @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
     @Parameter(name = "memberId", description = "To-do list를 조회할 회원의 id를 입력합니다.", required = true)
+    @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
+    @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
     @GetMapping("/studies/{studyId}/to-do/members/{memberId}")
     public ApiResponse<ToDoListSearchResponseDTO> getOtherToDoList(
         @PathVariable @ExistStudy Long studyId,
-        @PathVariable @ExistMember Long memberId) {
-        return null;
+        @PathVariable @ExistMember Long memberId,
+        @RequestParam @Min(0) Integer page,
+        @RequestParam @Min(1) Integer size) {
+        ToDoListSearchResponseDTO toDoList = memberStudyQueryService.getMemberToDoList(studyId,
+            memberId, PageRequest.of(page, size));
+        return ApiResponse.onSuccess(SuccessStatus._TO_DO_LIST_FOUND, toDoList);
     }
 
 

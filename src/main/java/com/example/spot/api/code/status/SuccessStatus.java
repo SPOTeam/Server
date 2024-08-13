@@ -93,6 +93,7 @@ public enum SuccessStatus implements BaseCode {
     _TO_DO_LIST_CREATED(HttpStatus.CREATED, "TODO2001", "TO-DO List 생성 완료"),
     _TO_DO_LIST_UPDATED(HttpStatus.OK, "TODO2002", "TO-DO List 상태 변경 완료"),
     _TO_DO_LIST_DELETED(HttpStatus.NO_CONTENT, "TODO2003", "TO-DO List 삭제 완료"),
+    _TO_DO_LIST_FOUND(HttpStatus.OK, "TODO2004", "TO-DO List 조회 완료"),
 
     ;
 
