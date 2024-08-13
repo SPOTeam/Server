@@ -447,4 +447,84 @@ public class MemberStudyController {
         StudyPostResDTO.PostPreviewDTO postPreviewDTO = memberStudyCommandService.reportStudyPost(studyId, postId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_REPORTED, postPreviewDTO);
     }
+
+    /* ----------------------------- To-do list 관련 API ------------------------------------- */
+
+    @Tag(name = "To-do list")
+    @Operation(summary = "[To-do list] To-do list 생성", description = """ 
+        ## [To-do list] 로그인한 회원이 참여하는 스터디에 To-do list를 생성합니다.
+        To-do list의 id와 제목, 생성 시간이 반환됩니다.
+        """)
+    @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
+    @PostMapping("/to-do/studies/{studyId}/")
+    public ApiResponse<String> createToDoList(
+        @PathVariable @ExistStudy Long studyId) {
+        return null;
+    }
+
+    @Tag(name = "To-do list")
+    @Operation(summary = "[To-do list] To-do list 체크 처리 및 상태 변경", description = """ 
+        ## [To-do list] To-do list에 작성한 할 일의 상태를 변경 합니다.
+        
+        체크 표시 되어 있는 경우, 해당 API를 재호출 하면 체크가 해제됩니다.
+        
+        To-do list의 id와 체크한 할 일의 id, 체크 여부가 반환됩니다.
+       
+        본인이 작성한 To-do list만 체크할 수 있습니다.
+        체크 여부가 true 인 경우, 할 일이 완료 되었음을 의미합니다.
+        """)
+    @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
+    @Parameter(name = "toDoId", description = "상태를 변경할 To-do list의 id를 입력합니다.", required = true)
+    @PostMapping("/to-do/{toDoId}/studies/{studyId}/")
+    public ApiResponse<String> updateToDoList(
+        @PathVariable @ExistStudy Long studyId,
+        @PathVariable Long toDoId) {
+        return null;
+    }
+
+    @Tag(name = "To-do list")
+    @Operation(summary = "[To-do list] To-do list 삭제", description = """ 
+        ## [To-do list] 로그인한 회원이 참여하는 스터디에 To-do list를 삭제합니다.
+        
+        To-do list 완료 처리와는 다른 개념으로, To-do list를 삭제합니다.
+        To-do list의 id와 상태 업데이트 시간이 반환됩니다.
+        """)
+    @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
+    @Parameter(name = "toDoId", description = "삭제할 To-do list의 id를 입력합니다.", required = true)
+    @DeleteMapping("/to-do/{toDoId}/studies/{studyId}/")
+    public ApiResponse<String> deleteToDoList(
+        @PathVariable @ExistStudy Long studyId,
+        @PathVariable Long toDoId) {
+        return null;
+    }
+
+    @Tag(name = "To-do list")
+    @Operation(summary = "[To-do list] 내 To-do list 조회", description = """ 
+        ## [To-do list] 특정 스터디에 저장된 내 To-do list를 날짜 별로 조회합니다.
+        날짜와 할 일 목록, 체크 여부가 반환됩니다.
+        """)
+    @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
+    @GetMapping("/to-do/studies/{studyId}/")
+    public ApiResponse<String> getMyToDoList(
+        @PathVariable @ExistStudy Long studyId) {
+        return null;
+    }
+
+    @Tag(name = "To-do list")
+    @Operation(summary = "[To-do list] 다른 스터디 원 To-do list 조회", description = """ 
+        ## [To-do list] 특정 스터디에 저장된 다른 스터디원의 To-do list를 날짜 별로 조회합니다.
+        날짜와 할 일 목록, 체크 여부가 반환됩니다.
+        """)
+    @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
+    @Parameter(name = "memberId", description = "To-do list를 조회할 회원의 id를 입력합니다.", required = true)
+    @GetMapping("/to-do/studies/{studyId}/members/{memberId}")
+    public ApiResponse<String> getOtherToDoList(
+        @PathVariable @ExistStudy Long studyId,
+        @PathVariable @ExistMember Long memberId) {
+        return null;
+    }
+
+
+
+
 }
