@@ -8,7 +8,6 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Builder
 @Getter
@@ -37,12 +36,6 @@ public class PostSingleResponse {
     )
     private int scrapCount;
 
-    @Schema(
-            description = "사진 url입니다.",
-            format = "string"
-    )
-    private List<String> fileUrls;
-
     @Schema(description = "게시글 제목입니다.",
             format = "string")
     private String title;
@@ -70,6 +63,11 @@ public class PostSingleResponse {
     private int viewCount;
 
     @Schema(
+            description = "현재 사용자의 해당 게시글 좋아요 여부입니다."
+    )
+    private boolean likedByCurrentUser;
+
+    @Schema(
             description = "댓글 리스트입니다.",
             format = "array"
     )
@@ -93,7 +91,7 @@ public class PostSingleResponse {
         return writer;
     }
 
-    public static PostSingleResponse toDTO(Post post, long likeCount, CommentResponse commentResponse) {
+    public static PostSingleResponse toDTO(Post post, long likeCount, CommentResponse commentResponse, boolean likedByCurrentUser) {
         // 작성자가 익명인지 확인하여 작성자 이름 설정
         String writerName = judgeAnonymous(post.isAnonymous(), post.getMember().getName());
 
@@ -105,6 +103,7 @@ public class PostSingleResponse {
                 .title(post.getTitle())
                 .content(post.getContent())
                 .likeCount(likeCount)
+                .likedByCurrentUser(likedByCurrentUser)
                 .commentCount(commentResponse.getComments().size())
                 .viewCount(post.getHitNum())
                 .commentResponses(commentResponse)

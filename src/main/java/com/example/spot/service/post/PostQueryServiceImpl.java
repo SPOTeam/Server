@@ -46,11 +46,14 @@ public class PostQueryServiceImpl implements PostQueryService {
         // 좋아요 수 조회
         long likeCount = likedPostQueryService.countByPostId(postId);
 
+        //현재 사용자 좋아요 여부
+        boolean likedByCurrentUser = likedPostQueryService.existsByMemberIdAndPostId(post.getId());
+
         //댓글
         CommentResponse commentResponse = getCommentsByPostId(post.getId());
 
         // 조회된 게시글을 PostSingleResponse로 변환하여 반환
-        return PostSingleResponse.toDTO(post, likeCount, commentResponse);
+        return PostSingleResponse.toDTO(post, likeCount, commentResponse, likedByCurrentUser);
     }
 
     @Transactional(readOnly = true)
