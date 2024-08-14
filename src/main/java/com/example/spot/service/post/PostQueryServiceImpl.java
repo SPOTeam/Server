@@ -6,12 +6,12 @@ import com.example.spot.domain.Post;
 import com.example.spot.domain.PostComment;
 import com.example.spot.domain.enums.Board;
 import com.example.spot.repository.PostCommentRepository;
+import com.example.spot.repository.PostRepository;
 import com.example.spot.web.dto.post.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import com.example.spot.repository.PostRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -191,6 +191,7 @@ public class PostQueryServiceImpl implements PostQueryService {
                 .build();
     }
 
+    // 게시글 별 댓글 조회
     @Transactional(readOnly = true)
     @Override
     public CommentResponse getCommentsByPostId(Long postId) {
@@ -199,7 +200,9 @@ public class PostQueryServiceImpl implements PostQueryService {
         List<CommentDetailResponse> commentResponses = comments.stream()
                 .map(comment -> {
                     long likeCount = likedPostCommentQueryService.countByPostCommentIdAndIsLikedTrue(comment.getId());
-                    return CommentDetailResponse.toDTO(comment, likeCount);
+                    //현재 사용자 댓글 좋아요 여부
+                    boolean likedByCurrentUser = likedPostCommentQueryService.existsByMemberIdAndPostCommentIdAndIsLikedTrue(comment.getId());
+                    return CommentDetailResponse.toDTO(comment, likeCount, likedByCurrentUser);
                 })
                 .toList();
 
