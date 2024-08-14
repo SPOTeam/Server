@@ -89,6 +89,12 @@ public enum SuccessStatus implements BaseCode {
     _STUDY_MEMBER_REPORTED(HttpStatus.CREATED, "REPORT2001", "스터디 회원 신고 완료"),
     _STUDY_POST_REPORTED(HttpStatus.CREATED, "REPORT2002", "스터디 게시글 신고 완료"),
 
+    // 할 일 관련 응답
+    _TO_DO_LIST_CREATED(HttpStatus.CREATED, "TODO2001", "TO-DO List 생성 완료"),
+    _TO_DO_LIST_UPDATED(HttpStatus.OK, "TODO2002", "TO-DO List 상태 변경 완료"),
+    _TO_DO_LIST_DELETED(HttpStatus.NO_CONTENT, "TODO2003", "TO-DO List 삭제 완료"),
+    _TO_DO_LIST_FOUND(HttpStatus.OK, "TODO2004", "TO-DO List 조회 완료"),
+
     ;
 
     private final HttpStatus httpStatus;

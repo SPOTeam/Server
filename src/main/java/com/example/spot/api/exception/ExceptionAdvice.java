@@ -33,9 +33,9 @@ public class ExceptionAdvice {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ApiResponse handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
-        String errorMessage = String.format("잘못된 enum 값을 입력 하셨습니다. %s: %s", ex.getName(), ex.getValue());
+        String errorMessage = String.format("올바르지 않은 값을 입력 하셨습니다. %s: %s", ex.getName(), ex.getValue());
         log.warn("MethodArgumentTypeMismatchException. error message: {}", errorMessage);
-        return new ApiResponse<>(ErrorStatus._BAD_ENUM_REQUEST, errorMessage);
+        return new ApiResponse<>(ErrorStatus._BAD_VALUE_REQUEST, errorMessage);
     }
 
 

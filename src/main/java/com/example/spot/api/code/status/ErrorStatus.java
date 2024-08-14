@@ -15,7 +15,7 @@ public enum ErrorStatus implements BaseErrorCode {
     _BAD_REQUEST(HttpStatus.BAD_REQUEST, "COMMON4000", "잘못된 요청입니다."),
     _UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "COMMON4001", "인증되지 않은 요청입니다."),
     _FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON4002", "접근이 거부되었습니다."),
-    _BAD_ENUM_REQUEST(HttpStatus.BAD_REQUEST, "COMMON4003", "잘못된 열거형 요청입니다."),
+    _BAD_VALUE_REQUEST(HttpStatus.BAD_REQUEST, "COMMON4003", "올바르지 않은 값을 입력 하셨습니다."),
     _INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "COMMON4004", "입력값이 유효하지 않습니다."),
     _EMPTY_JWT(HttpStatus.BAD_REQUEST, "COMMON4005", "JWT 토큰이 비어있습니다."),
     _INVALID_JWT(HttpStatus.BAD_REQUEST, "COMMON4006", "유효하지 않은 JWT token입니다."),
@@ -144,6 +144,14 @@ public enum ErrorStatus implements BaseErrorCode {
 
     // 신고 기능 관련 에러
     _STUDY_MEMBER_REPORT_INVALID(HttpStatus.BAD_REQUEST, "REPORT4001", "자기 자신을 신고할 수 없습니다."),
+
+    // 스터디 투두 리스트 관련 에러
+    _STUDY_TODO_NOT_FOUND(HttpStatus.NOT_FOUND, "TODO4001", "스터디 투두 리스트를 찾을 수 없습니다."),
+    _STUDY_TODO_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "TODO4002", "해당 투두 리스트를 수정할 권한이 없습니다."),
+    _STUDY_TODO_IS_NOT_BELONG_TO_STUDY(HttpStatus.BAD_REQUEST, "TODO4003", "해당 투두 리스트가 해당 스터디에 속해있지 않습니다."),
+    _ONLY_STUDY_MEMBER_CAN_ACCESS_TODO_LIST(HttpStatus.FORBIDDEN, "TODO4004", "스터디 멤버만 투두 리스트에 접근할 수 있습니다."),
+    _TODO_LIST_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "SCHEDULE4004", "일정을 조회하려는 멤버가 스터디에 가입되지 않았습니다."),
+    _STUDY_TODO_NULL(HttpStatus.BAD_REQUEST, "TODO4005", "투두 리스트 아이디가 입력되지 않았습니다."),
 
     ;
 
