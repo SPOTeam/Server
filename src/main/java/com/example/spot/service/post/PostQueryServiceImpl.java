@@ -75,7 +75,9 @@ public class PostQueryServiceImpl implements PostQueryService {
         List<PostPagingDetailResponse> postResponses = postPage.getContent().stream()
                 .map(post -> {
                     long likeCount = likedPostQueryService.countByPostId(post.getId());
-                    return PostPagingDetailResponse.toDTO(post, likeCount);
+                    //현재 사용자 좋아요 여부
+                    boolean likedByCurrentUser = likedPostQueryService.existsByMemberIdAndPostId(post.getId());
+                    return PostPagingDetailResponse.toDTO(post, likeCount, likedByCurrentUser);
                 })
                 .toList();
 

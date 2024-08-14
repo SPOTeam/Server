@@ -63,6 +63,11 @@ public class PostPagingDetailResponse {
     )
     private int viewCount;
 
+    @Schema(
+            description = "현재 사용자의 해당 게시글 좋아요 여부입니다."
+    )
+    private boolean likedByCurrentUser;
+
     public static String judgeAnonymous(Boolean isAnonymous, String writer) {
 
         if (isAnonymous) {
@@ -70,7 +75,7 @@ public class PostPagingDetailResponse {
         }
         return writer;
     }
-    public static PostPagingDetailResponse toDTO(Post post, long likeCount) {
+    public static PostPagingDetailResponse toDTO(Post post, long likeCount, boolean likedByCurrentUser) {
         // 작성자가 익명인지 확인하여 작성자 이름 설정
         String writerName = judgeAnonymous(post.isAnonymous(), post.getMember().getName());
 
@@ -82,6 +87,7 @@ public class PostPagingDetailResponse {
                 .title(post.getTitle())
                 .content(post.getContent())
                 .likeCount(likeCount)
+                .likedByCurrentUser(likedByCurrentUser)
                 .commentCount(post.getPostCommentList().size())
                 .viewCount(post.getHitNum())
                 .build();

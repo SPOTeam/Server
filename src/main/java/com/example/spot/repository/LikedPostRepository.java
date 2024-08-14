@@ -11,4 +11,7 @@ public interface LikedPostRepository extends JpaRepository<LikedPost, Long> {
     // 게시글 ID별로 LikedPost의 개수 세기
     long countByPostId(Long postId);
 
+    // 회원 ID와 게시글 ID로 LikedPost 존재 여부
+    boolean existsByMemberIdAndPostId(Long memberId, Long postId);
+
 }
