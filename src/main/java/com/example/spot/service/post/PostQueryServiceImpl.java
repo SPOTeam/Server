@@ -202,7 +202,9 @@ public class PostQueryServiceImpl implements PostQueryService {
                     long likeCount = likedPostCommentQueryService.countByPostCommentIdAndIsLikedTrue(comment.getId());
                     //현재 사용자 댓글 좋아요 여부
                     boolean likedByCurrentUser = likedPostCommentQueryService.existsByMemberIdAndPostCommentIdAndIsLikedTrue(comment.getId());
-                    return CommentDetailResponse.toDTO(comment, likeCount, likedByCurrentUser);
+                    //현재 사용자 댓글 싫어요 여부
+                    boolean dislikedByCurrentUser = likedPostCommentQueryService.existsByMemberIdAndPostCommentIdAndIsLikedFalse(comment.getId());
+                    return CommentDetailResponse.toDTO(comment, likeCount, likedByCurrentUser, dislikedByCurrentUser);
                 })
                 .toList();
 

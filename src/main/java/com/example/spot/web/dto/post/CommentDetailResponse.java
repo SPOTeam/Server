@@ -54,13 +54,18 @@ public class CommentDetailResponse {
     )
     private boolean likedByCurrentUser;
 
+    @Schema(
+            description = "현재 사용자의 해당 댓글 싫어요 여부입니다."
+    )
+    private boolean dislikedByCurrentUser;
+
 //    @Schema(
 //            description = "싫어요 수입니다.",
 //            format = "int"
 //    )
 //    private int disLikeCount;
 
-    public static CommentDetailResponse toDTO(PostComment comment, long likeCount, boolean likedByCurrentUser) {
+    public static CommentDetailResponse toDTO(PostComment comment, long likeCount, boolean likedByCurrentUser, boolean dislikedByCurrentUser) {
         // 작성자가 익명인지 확인하여 작성자 이름 설정
         String writerName = judgeAnonymous(comment.isAnonymous(), comment.getMember().getName());
 
@@ -72,6 +77,7 @@ public class CommentDetailResponse {
                 .writtenTime(comment.getCreatedAt().toString())
                 .likeCount(likeCount)
                 .likedByCurrentUser(likedByCurrentUser)
+                .dislikedByCurrentUser(dislikedByCurrentUser)
                 //.disLikeCount(comment.getDisLikeNum())
                 .build();
     }

@@ -26,4 +26,10 @@ public class LikedPostCommentQueryServiceImpl implements LikedPostCommentQuerySe
         return likedPostCommentRepository.existsByMemberIdAndPostCommentIdAndIsLikedTrue(currentUserId, postCommentId);
     }
 
+    //현재 사용자의 댓글 싫어요 여부
+    @Override
+    public boolean existsByMemberIdAndPostCommentIdAndIsLikedFalse(Long postCommentId) {
+        Long currentUserId = getCurrentUserId();
+        return likedPostCommentRepository.existsByMemberIdAndPostCommentIdAndIsLikedFalse(currentUserId, postCommentId);
+    }
 }
