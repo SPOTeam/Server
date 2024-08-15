@@ -95,6 +95,9 @@ public enum SuccessStatus implements BaseCode {
     _TO_DO_LIST_DELETED(HttpStatus.NO_CONTENT, "TODO2003", "TO-DO List 삭제 완료"),
     _TO_DO_LIST_FOUND(HttpStatus.OK, "TODO2004", "TO-DO List 조회 완료"),
 
+    // 이미지 관련 응답
+    _IMAGE_UPLOADED(HttpStatus.CREATED, "IMAGE2001", "이미지 업로드 완료"),
+
     ;
 
     private final HttpStatus httpStatus;
