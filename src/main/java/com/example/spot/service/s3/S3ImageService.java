@@ -8,6 +8,11 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.util.IOUtils;
 import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.handler.S3Handler;
+import com.example.spot.web.dto.util.response.ImageResponse;
+import com.example.spot.web.dto.util.response.ImageResponse.ImageUploadResponse;
+import com.example.spot.web.dto.util.response.ImageResponse.Images;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,6 +40,27 @@ public class S3ImageService {
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
+
+    public ImageUploadResponse uploadImages(List<MultipartFile> images) {
+
+        List<Images> imageUrls = new ArrayList<>();
+
+        for (MultipartFile image : images) {
+            String upload = this.upload(image);
+            imageUrls.add(Images.builder()
+                    .imageUrl(upload)
+                    .uploadAt(LocalDateTime.now())
+                    .build());
+        }
+        if (imageUrls.isEmpty()) {
+            throw new S3Handler(ErrorStatus._PUT_OBJECT_EXCEPTION);
+        }
+
+        return ImageUploadResponse.builder()
+                .imageCount(imageUrls.size())
+                .imageUrls(imageUrls)
+                .build();
+    }
 
     public String upload(MultipartFile image) {
         // image가 비어있으면 오류
