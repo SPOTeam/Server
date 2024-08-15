@@ -8,6 +8,7 @@ import com.example.spot.domain.mapping.*;
 import com.example.spot.domain.study.Schedule;
 import com.example.spot.domain.study.StudyPost;
 import com.example.spot.domain.study.StudyPostComment;
+import com.example.spot.domain.study.ToDoList;
 import com.example.spot.domain.study.Vote;
 import com.example.spot.web.dto.member.MemberRequestDTO.MemberInfoListDTO;
 import jakarta.persistence.*;
@@ -194,6 +195,10 @@ public class Member extends BaseEntity {
     @Builder.Default
     private List<Schedule> scheduleList = new ArrayList<>();
 
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<ToDoList> toDoLists = new ArrayList<>();
+
 /* ----------------------------- 연관관계 메소드 ------------------------------------- */
 
     public void addMemberStudy(MemberStudy memberStudy) {
@@ -341,5 +346,9 @@ public class Member extends BaseEntity {
 
     public void addMemberReport(MemberReport memberReport) {
         this.memberReportList.add(memberReport);
+    }
+
+    public void addToDoList(ToDoList toDoList) {
+        this.toDoLists.add(toDoList);
     }
 }

@@ -6,9 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -33,7 +30,6 @@ public class PostCreateRequest {
     private Board type;
 
     @Schema(description = "익명 여부", example = "false")
-    private boolean isAnonymous;
-
+    private boolean anonymous;
 
 }

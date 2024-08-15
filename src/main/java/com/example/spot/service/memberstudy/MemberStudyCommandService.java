@@ -2,6 +2,9 @@ package com.example.spot.service.memberstudy;
 
 import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.web.dto.memberstudy.request.*;
+import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListRequestDTO;
+import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListResponseDTO;
+import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListResponseDTO.ToDoListCreateResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.*;
 import com.example.spot.web.dto.study.response.StudyApplyResponseDTO;
 import jakarta.validation.Valid;
@@ -47,4 +50,16 @@ public interface MemberStudyCommandService {
 
     // 스터디 게시글 신고
     StudyPostResDTO.PostPreviewDTO reportStudyPost(Long studyId, Long postId);
+
+    // 투두 리스트 생성
+    ToDoListCreateResponseDTO createToDoList(Long studyId, ToDoListRequestDTO.ToDoListCreateDTO toDoListCreateDTO);
+
+    // 투두 리스트 체크
+    ToDoListResponseDTO.ToDoListUpdateResponseDTO checkToDoList(Long studyId, Long toDoListId);
+
+    // 투두 리스트 수정
+    ToDoListResponseDTO.ToDoListUpdateResponseDTO updateToDoList(Long studyId, Long toDoListId, ToDoListRequestDTO.ToDoListCreateDTO toDoListCreateDTO);
+
+    // 투두 리스트 삭제
+     ToDoListResponseDTO.ToDoListUpdateResponseDTO deleteToDoList(Long studyId, Long toDoListId);
 }
