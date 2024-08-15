@@ -14,7 +14,7 @@ public class CommentCreateRequest {
     private String content;
 
     @Schema(description = "익명 여부", example = "false")
-    private boolean isAnonymous;
+    private boolean anonymous;
 
     @Schema(
             description = "부모 댓글 ID (대댓글의 경우)",

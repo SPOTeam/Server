@@ -6,12 +6,12 @@ import com.example.spot.domain.Post;
 import com.example.spot.domain.PostComment;
 import com.example.spot.domain.enums.Board;
 import com.example.spot.repository.PostCommentRepository;
+import com.example.spot.repository.PostRepository;
 import com.example.spot.web.dto.post.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import com.example.spot.repository.PostRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -46,11 +46,14 @@ public class PostQueryServiceImpl implements PostQueryService {
         // 좋아요 수 조회
         long likeCount = likedPostQueryService.countByPostId(postId);
 
+        //현재 사용자 좋아요 여부
+        boolean likedByCurrentUser = likedPostQueryService.existsByMemberIdAndPostId(post.getId());
+
         //댓글
         CommentResponse commentResponse = getCommentsByPostId(post.getId());
 
         // 조회된 게시글을 PostSingleResponse로 변환하여 반환
-        return PostSingleResponse.toDTO(post, likeCount, commentResponse);
+        return PostSingleResponse.toDTO(post, likeCount, commentResponse, likedByCurrentUser);
     }
 
     @Transactional(readOnly = true)
@@ -75,7 +78,9 @@ public class PostQueryServiceImpl implements PostQueryService {
         List<PostPagingDetailResponse> postResponses = postPage.getContent().stream()
                 .map(post -> {
                     long likeCount = likedPostQueryService.countByPostId(post.getId());
-                    return PostPagingDetailResponse.toDTO(post, likeCount);
+                    //현재 사용자 좋아요 여부
+                    boolean likedByCurrentUser = likedPostQueryService.existsByMemberIdAndPostId(post.getId());
+                    return PostPagingDetailResponse.toDTO(post, likeCount, likedByCurrentUser);
                 })
                 .toList();
 
@@ -186,6 +191,7 @@ public class PostQueryServiceImpl implements PostQueryService {
                 .build();
     }
 
+    // 게시글 별 댓글 조회
     @Transactional(readOnly = true)
     @Override
     public CommentResponse getCommentsByPostId(Long postId) {
@@ -194,7 +200,11 @@ public class PostQueryServiceImpl implements PostQueryService {
         List<CommentDetailResponse> commentResponses = comments.stream()
                 .map(comment -> {
                     long likeCount = likedPostCommentQueryService.countByPostCommentIdAndIsLikedTrue(comment.getId());
-                    return CommentDetailResponse.toDTO(comment, likeCount);
+                    //현재 사용자 댓글 좋아요 여부
+                    boolean likedByCurrentUser = likedPostCommentQueryService.existsByMemberIdAndPostCommentIdAndIsLikedTrue(comment.getId());
+                    //현재 사용자 댓글 싫어요 여부
+                    boolean dislikedByCurrentUser = likedPostCommentQueryService.existsByMemberIdAndPostCommentIdAndIsLikedFalse(comment.getId());
+                    return CommentDetailResponse.toDTO(comment, likeCount, likedByCurrentUser, dislikedByCurrentUser);
                 })
                 .toList();
 
