@@ -24,18 +24,20 @@ public interface PostCommandService {
     CommentCreateResponse createComment(Long postId, Long memberId, CommentCreateRequest request);
 
     //게시글 댓글 좋아요
-    CommentLikeResponse likeComment(Long CommentId, Long memberId);
+    CommentLikeResponse likeComment(Long commentId, Long memberId);
 
     //게시글 댓글 좋아요 취소
-    CommentLikeResponse cancelCommentLike(Long CommentId, Long memberId);
+    CommentLikeResponse cancelCommentLike(Long commentId, Long memberId);
 
     //게시글 댓글 싫어요
-    CommentLikeResponse dislikeComment(Long CommentId, Long memberId);
+    CommentLikeResponse dislikeComment(Long commentId, Long memberId);
 
     //게시글 댓글 싫어요 취소
-    CommentLikeResponse cancelCommentDislike(Long CommentId, Long memberId);
+    CommentLikeResponse cancelCommentDislike(Long commentId, Long memberId);
 
     //게시글 스크랩
-    ScrapPostResponse scrapPost(Long PostId, Long MemberId);
+    ScrapPostResponse scrapPost(Long postId, Long memberId);
 
+    //게시글 스크랩 취소
+    ScrapPostResponse cancelPostScrap(Long postId, Long memberId);
 }

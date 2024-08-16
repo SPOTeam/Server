@@ -281,13 +281,15 @@ public class PostController {
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
-//    @Operation(summary = "게시글 스크랩 취소 API", description = "댓글 ID와 회원 ID를 받아 댓글에 좋아요를 취소합니다.")
-//    @DeleteMapping("/comments/{commentId}/{memberId}/scrap")
-//    public ApiResponse<CommentLikeResponse> cancelPostScrap(
-//            @PathVariable Long commentId,
-//            @PathVariable Long memberId) {
-//        CommentLikeResponse response = postCommandService.cancelCommentLike(commentId, memberId);
-//        return ApiResponse.onSuccess(SuccessStatus._NO_CONTENT, response);
-//    }
+
+    @Tag(name = "게시판", description = "게시판 관련 API")
+    @Operation(summary = "[게시판] 게시글 스크랩 취소 API", description = "게시글 ID와 회원 ID를 받아 스크랩을 취소합니다.")
+    @DeleteMapping("/{postId}/{memberId}/scrap")
+    public ApiResponse<ScrapPostResponse> cancelPostScrap(
+            @PathVariable Long postId,
+            @PathVariable Long memberId) {
+        ScrapPostResponse response = postCommandService.cancelPostScrap(postId, memberId);
+        return ApiResponse.onSuccess(SuccessStatus._NO_CONTENT, response);
+    }
 
 }

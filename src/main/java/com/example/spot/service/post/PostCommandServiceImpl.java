@@ -25,7 +25,6 @@ public class PostCommandServiceImpl implements PostCommandService {
     private final LikedPostCommentRepository likedPostCommentRepository;
     private final MemberScrapRepository memberScrapRepository;
 
-
     private final LikedPostQueryService likedPostQueryService;
     private final LikedPostCommentQueryService likedPostCommentQueryService;
 
@@ -152,7 +151,7 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .orElseThrow(() -> new PostHandler(ErrorStatus._POST_NOT_FOUND));
         //좋아요 여부 확인
         LikedPost likedPost = likedPostRepository.findByMemberIdAndPostId(member.getId(), post.getId())
-                .orElseThrow(() -> new PostHandler(ErrorStatus._MEMBER_NOT_FOUND));
+                .orElseThrow(() -> new PostHandler(ErrorStatus._POST_NOT_LIKED));
 
         likedPostRepository.delete(likedPost);
 
@@ -342,6 +341,35 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .postId(post.getId())
                 .scrapCount(scrapCount)
                 .build();
+    }
+
+
+    @Transactional
+    @Override
+    public ScrapPostResponse cancelPostScrap(Long postId, Long memberId) {
+        // 게시글 조회
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostHandler(ErrorStatus._POST_NOT_FOUND));
+
+        // 회원 정보 가져오기
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        //스크랩 여부
+        MemberScrap memberScrap = memberScrapRepository.findByMemberIdAndPostId(memberId, postId)
+                .orElseThrow(() -> new PostHandler(ErrorStatus._POST_NOT_SCRAPPED));
+
+        //스크랩 삭제
+        memberScrapRepository.delete(memberScrap);
+
+        // 스크랩된 리스트의 갯수를 조회하여 스크랩 수 계산
+        long scrapCount = memberScrapRepository.countByPostId(postId);
+
+        return ScrapPostResponse.builder()
+                .postId(post.getId())
+                .scrapCount(scrapCount)
+                .build();
+
     }
 
 }
