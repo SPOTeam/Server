@@ -315,4 +315,13 @@ public class PostController {
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
+    @Tag(name = "게시글 스크랩", description = "게시글 스크랩 관련 API")
+    @Operation(summary = "[마이페이지] 게시글 스크랩 모두 삭제 API", description = "로그인한 회원의 취소 할 스크랩 게시글 ID를 리스트 형식으로 입력받아 해당하는 모든 스크랩을 취소합니다.")
+    @DeleteMapping("/scraps")
+    public ApiResponse<ScrapsPostDeleteResponse> deleteAllPostScrap(
+            @RequestBody ScrapAllDeleteRequest request) {
+        ScrapsPostDeleteResponse response = postCommandService.cancelPostScraps(request);
+        return ApiResponse.onSuccess(SuccessStatus._NO_CONTENT, response);
+    }
+
 }

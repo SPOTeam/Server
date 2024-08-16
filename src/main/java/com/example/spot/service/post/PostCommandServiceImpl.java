@@ -12,7 +12,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+
+import static com.example.spot.security.utils.SecurityUtils.getCurrentUserId;
 
 @Service
 @RequiredArgsConstructor
@@ -373,5 +376,20 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .scrapCount(scrapCount)
                 .build();
     }
+
+    @Transactional
+    @Override
+    public ScrapsPostDeleteResponse cancelPostScraps(ScrapAllDeleteRequest request) {
+        Long currentMemberId = getCurrentUserId();
+
+        List<ScrapPostResponse> deletePostResponses = request.getDeletePostIds().stream().map(
+                deletePostId -> cancelPostScrap(deletePostId, currentMemberId)
+        ).toList();
+
+        return ScrapsPostDeleteResponse.builder()
+                .cancelScraps(deletePostResponses)
+                .build();
+    }
+
 
 }
