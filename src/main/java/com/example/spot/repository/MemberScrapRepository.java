@@ -9,4 +9,6 @@ public interface MemberScrapRepository extends JpaRepository<MemberScrap, Long> 
     Optional<MemberScrap> findByMemberIdAndPostId(Long memberId, Long postId);
 
     long countByPostId(Long postId);
+
+    boolean existsByMemberIdAndPostId(Long memberId, Long postId);
 }

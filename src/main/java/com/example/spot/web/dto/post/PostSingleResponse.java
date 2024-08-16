@@ -70,6 +70,11 @@ public class PostSingleResponse {
     private int viewCount;
 
     @Schema(
+            description = "현재 사용자의 해당 게시글 스크랩 여부입니다."
+    )
+    private boolean scrapedByCurrentUser;
+
+    @Schema(
             description = "댓글 리스트입니다.",
             format = "array"
     )
@@ -93,7 +98,7 @@ public class PostSingleResponse {
         return writer;
     }
 
-    public static PostSingleResponse toDTO(Post post, long likeCount, long scrapCount, CommentResponse commentResponse) {
+    public static PostSingleResponse toDTO(Post post, long likeCount, long scrapCount, boolean scrapedByCurrentUser, CommentResponse commentResponse) {
         // 작성자가 익명인지 확인하여 작성자 이름 설정
         String writerName = judgeAnonymous(post.isAnonymous(), post.getMember().getName());
 
@@ -102,6 +107,7 @@ public class PostSingleResponse {
                 .writer(writerName)
                 .writtenTime(post.getCreatedAt())
                 .scrapCount(scrapCount)
+                .scrapedByCurrentUser(scrapedByCurrentUser)
                 .title(post.getTitle())
                 .content(post.getContent())
                 .likeCount(likeCount)

@@ -18,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.example.spot.security.utils.SecurityUtils.getCurrentUserId;
+
 
 @Service
 @RequiredArgsConstructor
@@ -51,11 +53,15 @@ public class PostQueryServiceImpl implements PostQueryService {
         // 스크랩 수 조회
         long scrapCount = memberScrapRepository.countByPostId(postId);
 
+        // 현재 사용자 스크랩 여부
+        Long currentUserId = getCurrentUserId();
+        boolean scrapedByCurrentUser = memberScrapRepository.existsByMemberIdAndPostId(currentUserId, postId);
+
         //댓글
         CommentResponse commentResponse = getCommentsByPostId(post.getId());
 
         // 조회된 게시글을 PostSingleResponse로 변환하여 반환
-        return PostSingleResponse.toDTO(post, likeCount, scrapCount, commentResponse);
+        return PostSingleResponse.toDTO(post, likeCount, scrapCount, scrapedByCurrentUser, commentResponse);
     }
 
     @Transactional(readOnly = true)
@@ -81,7 +87,9 @@ public class PostQueryServiceImpl implements PostQueryService {
                 .map(post -> {
                     long likeCount = likedPostQueryService.countByPostId(post.getId());
                     long scrapCount = memberScrapRepository.countByPostId(post.getId());
-                    return PostPagingDetailResponse.toDTO(post, likeCount, scrapCount);
+                    Long currentUserId = getCurrentUserId();
+                    boolean scrapedByCurrentUser = memberScrapRepository.existsByMemberIdAndPostId(currentUserId, post.getId());
+                    return PostPagingDetailResponse.toDTO(post, likeCount, scrapCount, scrapedByCurrentUser);
                 })
                 .toList();
 
