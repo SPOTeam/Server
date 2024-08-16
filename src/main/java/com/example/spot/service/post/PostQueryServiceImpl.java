@@ -5,6 +5,7 @@ import com.example.spot.api.exception.handler.PostHandler;
 import com.example.spot.domain.Post;
 import com.example.spot.domain.PostComment;
 import com.example.spot.domain.enums.Board;
+import com.example.spot.repository.MemberScrapRepository;
 import com.example.spot.repository.PostCommentRepository;
 import com.example.spot.web.dto.post.*;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class PostQueryServiceImpl implements PostQueryService {
     private final LikedPostQueryService likedPostQueryService;
     private final PostCommentRepository postCommentRepository;
     private final LikedPostCommentQueryService likedPostCommentQueryService;
+    private final MemberScrapRepository memberScrapRepository;
 
 
     @Transactional
@@ -46,11 +48,14 @@ public class PostQueryServiceImpl implements PostQueryService {
         // 좋아요 수 조회
         long likeCount = likedPostQueryService.countByPostId(postId);
 
+        // 스크랩 수 조회
+        long scrapCount = memberScrapRepository.countByPostId(postId);
+
         //댓글
         CommentResponse commentResponse = getCommentsByPostId(post.getId());
 
         // 조회된 게시글을 PostSingleResponse로 변환하여 반환
-        return PostSingleResponse.toDTO(post, likeCount, commentResponse);
+        return PostSingleResponse.toDTO(post, likeCount, scrapCount, commentResponse);
     }
 
     @Transactional(readOnly = true)
@@ -75,7 +80,8 @@ public class PostQueryServiceImpl implements PostQueryService {
         List<PostPagingDetailResponse> postResponses = postPage.getContent().stream()
                 .map(post -> {
                     long likeCount = likedPostQueryService.countByPostId(post.getId());
-                    return PostPagingDetailResponse.toDTO(post, likeCount);
+                    long scrapCount = memberScrapRepository.countByPostId(post.getId());
+                    return PostPagingDetailResponse.toDTO(post, likeCount, scrapCount);
                 })
                 .toList();
 

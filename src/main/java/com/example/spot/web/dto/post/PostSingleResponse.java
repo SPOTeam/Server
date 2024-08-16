@@ -35,7 +35,7 @@ public class PostSingleResponse {
             description = "스크랩 수입니다.",
             format = "int"
     )
-    private int scrapCount;
+    private Long scrapCount;
 
     @Schema(
             description = "사진 url입니다.",
@@ -93,7 +93,7 @@ public class PostSingleResponse {
         return writer;
     }
 
-    public static PostSingleResponse toDTO(Post post, long likeCount, CommentResponse commentResponse) {
+    public static PostSingleResponse toDTO(Post post, long likeCount, long scrapCount, CommentResponse commentResponse) {
         // 작성자가 익명인지 확인하여 작성자 이름 설정
         String writerName = judgeAnonymous(post.isAnonymous(), post.getMember().getName());
 
@@ -101,7 +101,7 @@ public class PostSingleResponse {
                 .type(post.getBoard().name())
                 .writer(writerName)
                 .writtenTime(post.getCreatedAt())
-                .scrapCount(post.getMemberScrapList().size())
+                .scrapCount(scrapCount)
                 .title(post.getTitle())
                 .content(post.getContent())
                 .likeCount(likeCount)

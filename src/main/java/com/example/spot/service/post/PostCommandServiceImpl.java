@@ -253,6 +253,7 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .orElseThrow(() -> new PostHandler(ErrorStatus._POST_COMMENT_NOT_LIKED));
 
         likedPostCommentRepository.delete(likedPostComment);
+        likedPostCommentRepository.flush();
 
         long likeCount = likedPostCommentQueryService.countByPostCommentIdAndIsLikedTrue(commentId);
 
@@ -305,6 +306,7 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .orElseThrow(() -> new PostHandler(ErrorStatus._POST_COMMENT_NOT_DISLIKED));
 
         likedPostCommentRepository.delete(dislikedPostComment);
+        likedPostCommentRepository.flush();
 
         long likeCount = likedPostCommentQueryService.countByPostCommentIdAndIsLikedTrue(commentId);
 
@@ -332,7 +334,7 @@ public class PostCommandServiceImpl implements PostCommandService {
 
         // 스크랩 정보 저장
         MemberScrap memberScrap = new MemberScrap(post, member);
-        memberScrapRepository.save(memberScrap);
+        memberScrapRepository.saveAndFlush(memberScrap);
 
         // 스크랩된 리스트의 갯수를 조회하여 스크랩 수 계산
         long scrapCount = memberScrapRepository.countByPostId(postId);
@@ -361,6 +363,7 @@ public class PostCommandServiceImpl implements PostCommandService {
 
         //스크랩 삭제
         memberScrapRepository.delete(memberScrap);
+        memberScrapRepository.flush();
 
         // 스크랩된 리스트의 갯수를 조회하여 스크랩 수 계산
         long scrapCount = memberScrapRepository.countByPostId(postId);
@@ -369,7 +372,6 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .postId(post.getId())
                 .scrapCount(scrapCount)
                 .build();
-
     }
 
 }
