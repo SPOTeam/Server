@@ -80,7 +80,7 @@ public class PostController {
         description = """
         게시글 종류를 받아 페이지 번호에 해당하는 게시글을 조회합니다.
         
-        게시글 종류는 PASS_EXPERIENCE, INFORMATION_SHARING, COUNSELING, JOB_TALK, FREE_TALK, SPOT_ANNOUNCEMENT 중 하나입니다.
+        게시글 종류는 ALL, PASS_EXPERIENCE, INFORMATION_SHARING, COUNSELING, JOB_TALK, FREE_TALK, SPOT_ANNOUNCEMENT 중 하나입니다.
         
         페이지 번호는 0부터 시작하며 기본값은 0입니다.
         """
@@ -271,25 +271,48 @@ public class PostController {
     }
 
     //스크랩
-    @Tag(name = "게시판", description = "게시판 관련 API")
+    @Tag(name = "게시글 스크랩", description = "게시글 스크랩 관련 API")
     @Operation(summary = "[게시판] 게시글 스크랩 API", description = "게시글 ID와 회원 ID를 받아 스크랩을 추가합니다.")
     @PostMapping("/{postId}/{memberId}/scrap")
     public ApiResponse<ScrapPostResponse> scrapPost(
-            @PathVariable Long postId,
-            @PathVariable Long memberId) {
+            @PathVariable @ExistPost Long postId,
+            @PathVariable @ExistMember Long memberId) {
         ScrapPostResponse response = postCommandService.scrapPost(postId, memberId);
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
 
-    @Tag(name = "게시판", description = "게시판 관련 API")
+    @Tag(name = "게시글 스크랩", description = "게시글 스크랩 관련 API")
     @Operation(summary = "[게시판] 게시글 스크랩 취소 API", description = "게시글 ID와 회원 ID를 받아 스크랩을 취소합니다.")
     @DeleteMapping("/{postId}/{memberId}/scrap")
     public ApiResponse<ScrapPostResponse> cancelPostScrap(
-            @PathVariable Long postId,
-            @PathVariable Long memberId) {
+            @PathVariable @ExistPost Long postId,
+            @PathVariable @ExistMember Long memberId) {
         ScrapPostResponse response = postCommandService.cancelPostScrap(postId, memberId);
         return ApiResponse.onSuccess(SuccessStatus._NO_CONTENT, response);
+    }
+
+    @Tag(name = "게시글 스크랩", description = "게시글 스크랩 관련 API")
+    @Operation(
+            summary = "[마이페이지] 게시글 스크랩 페이지 조회 API",
+            description = """
+        로그인한 회원이 스크랩한 게시글을 게시글 종류와 페이지 번호를 받아 조회합니다.
+        
+        게시글 종류는 ALL, PASS_EXPERIENCE, INFORMATION_SHARING, COUNSELING, JOB_TALK, FREE_TALK, SPOT_ANNOUNCEMENT 중 하나입니다.
+        
+        페이지 번호는 0부터 시작하며 기본값은 0입니다.
+        """
+    )
+    @GetMapping("/scraps")
+    public ApiResponse<PostPagingResponse> getScrapPagingPost(
+            @Parameter(description = "게시글 종류. ALL, PASS_EXPERIENCE, INFORMATION_SHARING, COUNSELING, JOB_TALK, FREE_TALK, SPOT_ANNOUNCEMENT 중 하나입니다.", required = true, example = "JOB_TALK")
+            @RequestParam String type,
+            @Parameter(description = "페이지 번호 (0부터 시작, 기본값 0)", example = "0")
+            @RequestParam(required = false, defaultValue = "0") int pageNumber
+    ) {
+        Pageable pageable = PageRequest.of(pageNumber, PAGE_SIZE);
+        PostPagingResponse response = postQueryService.getScrapPagingPost(type, pageable);
+        return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
 }

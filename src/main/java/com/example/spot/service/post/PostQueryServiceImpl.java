@@ -5,6 +5,8 @@ import com.example.spot.api.exception.handler.PostHandler;
 import com.example.spot.domain.Post;
 import com.example.spot.domain.PostComment;
 import com.example.spot.domain.enums.Board;
+import com.example.spot.domain.mapping.MemberScrap;
+import com.example.spot.repository.MemberRepository;
 import com.example.spot.repository.MemberScrapRepository;
 import com.example.spot.repository.PostCommentRepository;
 import com.example.spot.web.dto.post.*;
@@ -214,6 +216,47 @@ public class PostQueryServiceImpl implements PostQueryService {
 
         return CommentResponse.builder()
                 .comments(commentResponses)
+                .build();
+    }
+
+    //스크랩 게시글 조회
+    @Transactional(readOnly = true)
+    @Override
+    public PostPagingResponse getScrapPagingPost(String type, Pageable pageable) {
+        Long currentUserId = getCurrentUserId();
+
+        Page<MemberScrap> postScrapPage;
+
+        Board boardType = Board.findByValue(type);
+
+        if (boardType == Board.ALL) {
+            // ALL 타입일 경우 모든 게시글 조회
+            postScrapPage = memberScrapRepository.findByMemberId(currentUserId,pageable);
+        } else {
+            // 특정 게시판 타입의 게시글 조회
+            postScrapPage = memberScrapRepository.findByMemberIdAndPost_Board(currentUserId, boardType, pageable);
+        }
+
+        List<Post> scrapPosts = postScrapPage.getContent().stream()
+                .map(MemberScrap::getPost)
+                .toList();
+
+        List<PostPagingDetailResponse> postResponses = scrapPosts.stream()
+                .map(post -> {
+                    long likeCount = likedPostQueryService.countByPostId(post.getId());
+                    long scrapCount = memberScrapRepository.countByPostId(post.getId());
+                    boolean scrapedByCurrentUser = memberScrapRepository.existsByMemberIdAndPostId(currentUserId, post.getId());
+                    return PostPagingDetailResponse.toDTO(post, likeCount, scrapCount, scrapedByCurrentUser);
+                })
+                .toList();
+
+        return PostPagingResponse.builder()
+                .postType(type)
+                .postResponses(postResponses)
+                .totalPage(postScrapPage.getTotalPages())
+                .totalElements(postScrapPage.getTotalElements())
+                .isFirst(postScrapPage.isFirst())
+                .isLast(postScrapPage.isLast())
                 .build();
     }
 }
