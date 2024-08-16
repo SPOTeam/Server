@@ -23,6 +23,7 @@ public class StudyInfoResponseDTO {
         private final Long hitNum;
         private final Integer heartCount;
         private final Integer memberCount;
+        private final Long maxPeople;
         private final Gender gender;
         private final Integer minAge;
         private final Integer maxAge;
@@ -34,7 +35,7 @@ public class StudyInfoResponseDTO {
 
         @Builder(access = AccessLevel.PRIVATE)
         private StudyInfoDTO(Long studyId, String studyName, StudyOwnerDTO studyOwner,
-                             Long hitNum, Integer heartCount, Integer memberCount, Gender gender,
+                             Long hitNum, Integer heartCount, Integer memberCount, Long maxPeople, Gender gender,
                              Integer minAge, Integer maxAge, Integer fee, Boolean isOnline,
                              List<ThemeType> themes, String goal, String introduction) {
             this.studyId = studyId;
@@ -43,6 +44,7 @@ public class StudyInfoResponseDTO {
             this.hitNum = hitNum;
             this.heartCount = heartCount;
             this.memberCount = memberCount;
+            this.maxPeople = maxPeople;
             this.gender = gender;
             this.minAge = minAge;
             this.maxAge = maxAge;
@@ -61,6 +63,7 @@ public class StudyInfoResponseDTO {
                     .hitNum(study.getHitNum())
                     .heartCount(study.getHeartCount())
                     .memberCount(study.getMemberStudies().size())
+                    .maxPeople(study.getMaxPeople())
                     .gender(study.getGender())
                     .minAge(study.getMinAge())
                     .maxAge(study.getMaxAge())
