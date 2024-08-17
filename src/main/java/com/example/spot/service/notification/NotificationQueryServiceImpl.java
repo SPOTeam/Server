@@ -7,6 +7,7 @@ import com.example.spot.domain.enums.NotifyType;
 import com.example.spot.web.dto.notification.NotificationResponseDTO.NotificationListDTO;
 import com.example.spot.web.dto.notification.NotificationResponseDTO.NotificationListDTO.NotificationDTO;
 import com.example.spot.web.dto.notification.NotificationResponseDTO.StduyNotificationListDTO;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,9 +18,11 @@ import org.springframework.stereotype.Service;
 
 import com.example.spot.repository.NotificationRepository;
 import com.example.spot.web.dto.notification.NotificationResponseDTO;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class NotificationQueryServiceImpl implements NotificationQueryService {
 
     private final NotificationRepository notificationRepository;

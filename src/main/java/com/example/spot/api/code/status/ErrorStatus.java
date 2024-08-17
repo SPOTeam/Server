@@ -82,6 +82,9 @@ public enum ErrorStatus implements BaseErrorCode {
 
     //알림 관련 에러
     _NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTIFICATION4001", "알림을 찾을 수 없습니다."),
+    _NOTIFICATION_ALREADY_READ(HttpStatus.BAD_REQUEST, "NOTIFICATION4002", "이미 읽은 알림입니다."),
+    _NOTIFICATION_NULL(HttpStatus.BAD_REQUEST, "NOTIFICATION4003", "알림 아이디가 입력되지 않았습니다."),
+    _NOTIFICATION_IS_NOT_BELONG_TO_MEMBER(HttpStatus.BAD_REQUEST, "NOTIFICATION4004", "해당 알림이 해당 회원에 속해있지 않습니다."),
 
     //지역 관련 에러
     _REGION_NOT_FOUND(HttpStatus.NOT_FOUND, "REGION4001", "지역을 찾을 수 없습니다."),
