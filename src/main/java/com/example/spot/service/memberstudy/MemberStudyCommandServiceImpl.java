@@ -148,7 +148,40 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
             .build();
     }
 
-/* ----------------------------- 스터디 일정 관련 API ------------------------------------- */
+    @Override
+    public StudyApplyResponseDTO acceptAndRejectStudyApplyForTest(Long memberId, Long studyId,
+        boolean isAccept) {
+
+        if (!isOwner(SecurityUtils.getCurrentUserId(), studyId))
+            throw new GeneralException(ErrorStatus._ONLY_STUDY_OWNER_CAN_ACCESS_APPLICANTS);
+
+        MemberStudy memberStudy = memberStudyRepository.findByMemberIdAndStudyId(memberId, studyId)
+            .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_APPLICANT_NOT_FOUND));
+
+        if (memberStudy.getIsOwned())
+            throw new GeneralException(ErrorStatus._STUDY_OWNER_CANNOT_APPLY);
+
+        if (memberStudy.getStatus() != ApplicationStatus.APPLIED)
+            throw new GeneralException(ErrorStatus._STUDY_APPLY_ALREADY_PROCESSED);
+
+        Member owner = memberRepository.findById(SecurityUtils.getCurrentUserId())
+            .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        if (isAccept) {
+            memberStudy.setStatus(ApplicationStatus.APPROVED);
+        }
+        else {
+            memberStudy.setStatus(ApplicationStatus.REJECTED);
+            memberStudyRepository.delete(memberStudy);
+        }
+
+        return StudyApplyResponseDTO.builder()
+            .status(memberStudy.getStatus())
+            .updatedAt(memberStudy.getUpdatedAt())
+            .build();
+    }
+
+    /* ----------------------------- 스터디 일정 관련 API ------------------------------------- */
 
     @Override
     public ScheduleResponseDTO.ScheduleDTO addSchedule(Long studyId, ScheduleRequestDTO.ScheduleDTO scheduleRequestDTO) {
