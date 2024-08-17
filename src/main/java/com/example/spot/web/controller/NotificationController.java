@@ -13,9 +13,11 @@ import com.example.spot.web.dto.notification.NotificationResponseDTO.StduyNotifi
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import jakarta.validation.constraints.Min;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "알림", description = "알림 관련 API")
@@ -41,9 +43,12 @@ public class NotificationController {
             
             """)
     @GetMapping("/notifications")
-    public ApiResponse<NotificationListDTO> getAllNotifications() {
+    public ApiResponse<NotificationListDTO> getAllNotifications(
+        @RequestParam @Min(0) Integer page,
+        @RequestParam @Min(1) Integer size
+    ) {
         NotificationListDTO notificationDTO = notificationQueryService.getAllNotifications(
-            SecurityUtils.getCurrentUserId());
+            SecurityUtils.getCurrentUserId(), PageRequest.of(page, size));
         return ApiResponse.onSuccess(SuccessStatus._NOTIFICATION_FOUND, notificationDTO);
     }
 

@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.spot.repository.NotificationRepository;
@@ -33,9 +35,9 @@ public class NotificationQueryServiceImpl implements NotificationQueryService {
 
     // 생성된 알림 전체 조회
     @Override
-    public NotificationListDTO getAllNotifications(Long memberId) {
+    public NotificationListDTO getAllNotifications(Long memberId, Pageable pageable) {
 
-        List<Notification> notifications = notificationRepository.findByMemberId(memberId);
+        List<Notification> notifications = notificationRepository.findByMemberId(memberId, pageable);
 
         if (notifications.isEmpty())
             throw new GeneralException(ErrorStatus._NOTIFICATION_NOT_FOUND);
