@@ -254,9 +254,11 @@ public class PostQueryServiceImpl implements PostQueryService {
         List<PostPagingDetailResponse> postResponses = scrapPosts.stream()
                 .map(post -> {
                     long likeCount = likedPostQueryService.countByPostId(post.getId());
+                    //현재 사용자 좋아요 여부
+                    boolean likedByCurrentUser = likedPostQueryService.existsByMemberIdAndPostId(post.getId());
                     long scrapCount = memberScrapRepository.countByPostId(post.getId());
                     boolean scrapedByCurrentUser = memberScrapRepository.existsByMemberIdAndPostId(currentUserId, post.getId());
-                    return PostPagingDetailResponse.toDTO(post, likeCount, scrapCount, scrapedByCurrentUser);
+                    return PostPagingDetailResponse.toDTO(post, likeCount, scrapCount, likedByCurrentUser, scrapedByCurrentUser);
                 })
                 .toList();
 
