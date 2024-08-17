@@ -125,6 +125,7 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
                     .study(studyPost.getStudy())
                     .member(studyMember)
                     .type(NotifyType.ANNOUNCEMENT)
+                    .isChecked(false)
                     .build();
                 notificationRepository.save(notification);
             }

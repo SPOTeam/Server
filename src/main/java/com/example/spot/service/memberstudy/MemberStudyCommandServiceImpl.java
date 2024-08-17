@@ -6,8 +6,10 @@ import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.api.exception.handler.StudyHandler;
 import com.example.spot.domain.Member;
 import com.example.spot.domain.MemberReport;
+import com.example.spot.domain.Notification;
 import com.example.spot.domain.Quiz;
 import com.example.spot.domain.enums.ApplicationStatus;
+import com.example.spot.domain.enums.NotifyType;
 import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.mapping.*;
 import com.example.spot.domain.study.*;
@@ -56,6 +58,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
     private final StudyPostRepository studyPostRepository;
     private final MemberVoteRepository memberVoteRepository;
     private final ToDoListRepository toDoListRepository;
+    private final NotificationRepository notificationRepository;
 
     // S3 Service
     private final S3ImageService s3ImageService;
@@ -158,6 +161,26 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
                 .isAllDay(scheduleRequestDTO.getIsAllDay())
                 .period(scheduleRequestDTO.getPeriod())
                 .build();
+
+        // 알림 생성
+
+        // 스터디에 참여중인 회원들에게 알림 전송 위해 회원 조회
+        List<Member> members = memberStudyRepository.findByStudyId(studyId).stream()
+            .map(MemberStudy::getMember)
+            .toList();
+
+        if (members.isEmpty())
+            throw new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND);
+
+        members.forEach(studyMember -> {
+                Notification notification = Notification.builder()
+                    .member(studyMember)
+                    .study(study)
+                    .type(NotifyType.SCHEDULE_UPDATE)
+                    .isChecked(Boolean.FALSE)
+                    .build();
+                notificationRepository.save(notification);
+            });
 
         scheduleRepository.save(schedule);
         study.addSchedule(schedule);
