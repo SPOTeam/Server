@@ -37,7 +37,7 @@ public class AdminController {
         @RequestParam Integer page,
         @RequestParam Integer size
     ) {
-        throw new GeneralException(ErrorStatus._BAD_ENUM_REQUEST);
+        throw new GeneralException(ErrorStatus._BAD_VALUE_REQUEST);
         // 메소드 구현
     }
 

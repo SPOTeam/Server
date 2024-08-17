@@ -109,6 +109,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
     @Override
     public StudyPreviewDTO findRecommendStudies(Long memberId) {
+        List<Long> memberOngoingStudyIds = getOngoingStudyIds(memberId);
 
         // MemberId로 회원 관심사 전체 조회
         List<Theme> themes = memberThemeRepository.findAllByMemberId(memberId).stream()
@@ -119,7 +120,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         List<StudyTheme> studyThemes = themes.stream()
             .flatMap(theme -> studyThemeRepository.findAllByTheme(theme).stream())
             .toList();
-        List<Study> studies = studyRepository.findByStudyTheme(studyThemes);
+        List<Study> studies = studyRepository.findByStudyThemeAndNotInIds(studyThemes, memberOngoingStudyIds);
 
         if (studies.isEmpty())
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
@@ -131,6 +132,9 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     public StudyPreviewDTO findInterestStudiesByConditionsAll(Pageable pageable, Long memberId,
         SearchRequestStudyDTO request, StudySortBy sortBy) {
 
+        List<Long> memberOngoingStudyIds = getOngoingStudyIds(memberId);
+
+
         List<Theme> themes = memberThemeRepository.findAllByMemberId(memberId).stream()
             .map(MemberTheme::getTheme)
             .toList();
@@ -141,12 +145,13 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
         Map<String, Object> conditions = getSearchConditions(request);
 
-        long totalElements = studyRepository.countStudyByConditionsAndThemeTypes(conditions, studyThemes, sortBy);
+        long totalElements = studyRepository.countStudyByConditionsAndThemeTypesAndNotInIds(
+            conditions, studyThemes, sortBy, memberOngoingStudyIds);
 
 
-        List<Study> studies = studyRepository.findStudyByConditionsAndThemeTypes(
+        List<Study> studies = studyRepository.findStudyByConditionsAndThemeTypesAndNotInIds(
             conditions, sortBy,
-            pageable, studyThemes);
+            pageable, studyThemes, memberOngoingStudyIds);
 
         if (studies.isEmpty())
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
@@ -158,6 +163,9 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     @Override
     public StudyPreviewDTO findInterestStudiesByConditionsSpecific(Pageable pageable,
         Long memberId, SearchRequestStudyDTO request, ThemeType themeType, StudySortBy sortBy) {
+
+        List<Long> memberOngoingStudyIds = getOngoingStudyIds(memberId);
+
 
         List<Theme> themes = memberThemeRepository.findAllByMemberId(memberId)
             .stream()
@@ -176,10 +184,11 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
         Map<String, Object> conditions = getSearchConditions(request);
 
-        long totalElements = studyRepository.countStudyByConditionsAndThemeTypes(conditions, studyThemes, sortBy);
+        long totalElements = studyRepository.countStudyByConditionsAndThemeTypesAndNotInIds(
+            conditions, studyThemes, sortBy, memberOngoingStudyIds);
 
-        List<Study> studies = studyRepository.findStudyByConditionsAndThemeTypes(
-            conditions, sortBy, pageable, studyThemes);
+        List<Study> studies = studyRepository.findStudyByConditionsAndThemeTypesAndNotInIds(
+            conditions, sortBy, pageable, studyThemes, memberOngoingStudyIds);
 
         if (studies.isEmpty())
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
@@ -192,6 +201,9 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     public StudyPreviewDTO findInterestRegionStudiesByConditionsAll(Pageable pageable,
         Long memberId, SearchRequestStudyDTO request, StudySortBy sortBy) {
 
+        List<Long> memberOngoingStudyIds = getOngoingStudyIds(memberId);
+
+
         List<Region> regions = preferredRegionRepository.findAllByMemberId(memberId).stream()
             .map(PreferredRegion::getRegion)
             .toList();
@@ -202,12 +214,13 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
         Map<String, Object> conditions = getSearchConditions(request);
 
-        long totalElements = studyRepository.countStudyByConditionsAndRegionStudies(conditions, regionStudies, sortBy);
+        long totalElements = studyRepository.countStudyByConditionsAndRegionStudiesAndNotInIds(
+            conditions, regionStudies, sortBy, memberOngoingStudyIds);
 
 
-        List<Study> studies = studyRepository.findStudyByConditionsAndRegionStudies(
+        List<Study> studies = studyRepository.findStudyByConditionsAndRegionStudiesAndNotInIds(
             conditions, sortBy,
-            pageable, regionStudies);
+            pageable, regionStudies, memberOngoingStudyIds);
 
         if (studies.isEmpty())
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
@@ -218,6 +231,9 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     @Override
     public StudyPreviewDTO findInterestRegionStudiesByConditionsSpecific(Pageable pageable,
         Long memberId, SearchRequestStudyDTO request, String regionCode, StudySortBy sortBy) {
+
+        List<Long> memberOngoingStudyIds = getOngoingStudyIds(memberId);
+
 
         List<Region> regions = preferredRegionRepository.findAllByMemberId(memberId)
             .stream()
@@ -235,10 +251,11 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
         Map<String, Object> conditions = getSearchConditions(request);
 
-        long totalElements = studyRepository.countStudyByConditionsAndRegionStudies(conditions, regionStudies, sortBy);
+        long totalElements = studyRepository.countStudyByConditionsAndRegionStudiesAndNotInIds(
+            conditions, regionStudies, sortBy, memberOngoingStudyIds);
 
-        List<Study> studies = studyRepository.findStudyByConditionsAndRegionStudies(
-            conditions, sortBy, pageable, regionStudies);
+        List<Study> studies = studyRepository.findStudyByConditionsAndRegionStudiesAndNotInIds(
+            conditions, sortBy, pageable, regionStudies, memberOngoingStudyIds);
 
         if (studies.isEmpty())
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
@@ -274,7 +291,8 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         if (studies.isEmpty())
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
 
-        return getDTOs(studies, Pageable.unpaged(), studies.size(), memberId);
+        long totalElements = preferredStudyRepository.countByMemberId(memberId);
+        return getDTOs(studies, Pageable.unpaged(), totalElements, memberId);
     }
 
     @Override
@@ -314,8 +332,8 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
         if (studies.isEmpty())
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
-
-        return getDTOs(studies, pageable, studies.size(), memberId);
+        long totalElements = memberStudyRepository.countByMemberIdAndStatus(memberId, ApplicationStatus.APPROVED);
+        return getDTOs(studies, pageable, totalElements, memberId);
     }
 
     @Override
@@ -326,8 +344,8 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
         if (studies.isEmpty())
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
-
-        return getDTOs(studies, pageable, studies.size(), memberId);
+        long totalElements = memberStudyRepository.countByMemberIdAndStatus(memberId, ApplicationStatus.APPLIED);
+        return getDTOs(studies, pageable, totalElements, memberId);
     }
 
     @Override
@@ -338,8 +356,18 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
         if (studies.isEmpty())
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
+        long totalElements = memberStudyRepository.countByMemberIdAndIsOwned(memberId, true);
 
-        return getDTOs(studies, pageable, studies.size(), memberId);
+        return getDTOs(studies, pageable, totalElements, memberId);
+    }
+
+    // 회원이 참가하고 있는 스터디 ID 가져오기
+    private List<Long> getOngoingStudyIds(Long memberId) {
+        List<MemberStudy> memberStudies = memberStudyRepository.findAllByMemberIdAndStatus(memberId, ApplicationStatus.APPROVED);
+        return memberStudies.stream()
+            .filter(memberStudy -> memberStudy.getStatus().equals(ApplicationStatus.APPROVED))
+            .map(memberStudy -> memberStudy.getStudy().getId())
+            .toList();
     }
 
     private static Map<String, Object> getSearchConditions(SearchRequestStudyDTO request) {

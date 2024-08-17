@@ -37,6 +37,7 @@ public class StudyController {
         ## [스터디 생성/참여] 스터디 페이지 클릭, 전체 공개되는 스터디의 정보를 불러옵니다.
         스터디의 정보(이름, 참여인원, 찜 개수, 테마, 온라인 여부, 비용 여부, 연령 제한, 목표, 소개, 스터디장 등)가 반환됩니다.
         """)
+    @Parameter(name = "studyId", description = "정보를 가져올 스터디의 id를 입력 받습니다.", required = true)
     @GetMapping("/studies/{studyId}")
     public ApiResponse<StudyInfoResponseDTO.StudyInfoDTO> getStudyInfo(
             @PathVariable @ExistStudy Long studyId) {
@@ -48,6 +49,8 @@ public class StudyController {
         ## [스터디 생성/참여] 스터디 페이지 > 신청하기 클릭, 로그인한 회원이 스터디에 신청합니다.
         로그인한 회원이 member_study에 application_status = APPLIED 상태로 추가됩니다.
         """)
+    @Parameter(name = "memberId", description = "스터디에 참여하는 회원의 id를 입력 받습니다.", required = true)
+    @Parameter(name = "studyId", description = "참여할 스터디의 id를 입력 받습니다.", required = true)
     @PostMapping("/members/{memberId}/studies/{studyId}")
     public ApiResponse<StudyJoinResponseDTO.JoinDTO> applyToStudy(
             @PathVariable @ExistMember Long memberId, @PathVariable @ExistStudy Long studyId,
@@ -60,7 +63,12 @@ public class StudyController {
     @Operation(summary = "[스터디 생성/참여] 스터디 등록하기", description = """ 
         ## [스터디 생성/참여] 스터디 등록 페이지 클릭, 로그인한 회원이 스터디를 등록합니다.
         로그인한 회원이 owner인 새로운 스터디가 study에 생성됩니다.
+        
+        themes는 [어학, 자격증, 취업, 시사뉴스, 자율학습, 토론, 프로젝트, 공모전, 전공및진로학습, 기타]에서 복수 선택 가능합니다.
+        
+        regions에는 지역 코드를 입력해야 합니다.
         """)
+    @Parameter(name = "memberId", description = "스터디를 생성할 회원의 id를 입력 받습니다.", required = true)
     @PostMapping("/members/{memberId}/studies")
     public ApiResponse<StudyRegisterResponseDTO.RegisterDTO> registerStudy(
             @PathVariable @ExistMember Long memberId,

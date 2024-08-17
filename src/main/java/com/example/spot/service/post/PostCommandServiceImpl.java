@@ -56,7 +56,7 @@ public class PostCommandServiceImpl implements PostCommandService {
     private Post createPostEntity(PostCreateRequest postCreateRequest, Member currentMember) {
 
         return Post.builder()
-                .isAnonymous(false)
+                .isAnonymous(postCreateRequest.isAnonymous())
                 .title(postCreateRequest.getTitle())
                 .content(postCreateRequest.getContent())
                 .scrapNum(0)

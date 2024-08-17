@@ -19,7 +19,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-//@Tag(name = "Post", description = "Post API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/spot/posts")

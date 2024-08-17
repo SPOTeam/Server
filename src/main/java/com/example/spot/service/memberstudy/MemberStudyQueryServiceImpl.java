@@ -10,6 +10,8 @@ import com.example.spot.domain.study.*;
 import com.example.spot.repository.*;
 
 import com.example.spot.security.utils.SecurityUtils;
+import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListResponseDTO.ToDoListSearchResponseDTO;
+import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListResponseDTO.ToDoListSearchResponseDTO.ToDoListDTO;
 import com.example.spot.web.dto.memberstudy.response.*;
 
 import com.example.spot.web.dto.study.response.*;
@@ -55,6 +57,7 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
     private final VoteRepository voteRepository;
     private final OptionRepository optionRepository;
     private final MemberVoteRepository memberVoteRepository;
+    private final ToDoListRepository toDoListRepository;
 
 
     @Override
@@ -460,4 +463,65 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
         return StudyImageResponseDTO.ImageListDTO.toDTO(studyId, images);
 
     }
+
+    @Override
+    public ToDoListSearchResponseDTO getToDoList(Long studyId, LocalDate date, PageRequest pageRequest) {
+        Long memberId = SecurityUtils.getCurrentUserId();
+
+        if (!isMember(memberId, studyId))
+            throw new GeneralException(ErrorStatus._ONLY_STUDY_MEMBER_CAN_ACCESS_TODO_LIST);
+
+        List<ToDoList> toDoLists = toDoListRepository.findByStudyIdAndMemberIdAndDateOrderByCreatedAtDesc(
+            studyId, memberId, date, pageRequest);
+
+        if (toDoLists.isEmpty())
+            throw new GeneralException(ErrorStatus._STUDY_TODO_NOT_FOUND);
+
+
+        long totalElements = toDoListRepository.countByStudyIdAndMemberIdAndDate(studyId, memberId, date);
+
+        List<ToDoListDTO> toDoListDTOS = getToDoListDTOS(
+            toDoLists);
+
+        return new ToDoListSearchResponseDTO(
+            new PageImpl<>(toDoListDTOS, pageRequest, totalElements), toDoListDTOS, totalElements);
+    }
+
+    @Override
+    public ToDoListSearchResponseDTO getMemberToDoList(Long studyId, Long memberId, LocalDate date,
+        PageRequest pageRequest) {
+
+        if (!isMember(SecurityUtils.getCurrentUserId(), studyId))
+            throw new GeneralException(ErrorStatus._ONLY_STUDY_MEMBER_CAN_ACCESS_TODO_LIST);
+
+        if (!isMember(memberId, studyId))
+            throw new GeneralException(ErrorStatus._TODO_LIST_MEMBER_NOT_FOUND);
+
+        List<ToDoList> toDoLists = toDoListRepository.findByStudyIdAndMemberIdAndDateOrderByCreatedAtDesc(
+            studyId, memberId, date, pageRequest);
+
+        if (toDoLists.isEmpty())
+            throw new GeneralException(ErrorStatus._STUDY_TODO_NOT_FOUND);
+
+        long totalElements = toDoListRepository.countByStudyIdAndMemberIdAndDate(studyId, memberId, date);
+
+        List<ToDoListDTO> toDoListDTOS = getToDoListDTOS(
+            toDoLists);
+
+        return new ToDoListSearchResponseDTO(
+            new PageImpl<>(toDoListDTOS, pageRequest, totalElements), toDoListDTOS, totalElements);
+    }
+
+    private static List<ToDoListDTO> getToDoListDTOS(List<ToDoList> toDoLists) {
+        List<ToDoListDTO> toDoListDTOS = toDoLists.stream()
+            .map(toDoList -> ToDoListDTO.builder()
+                .id(toDoList.getId())
+                .content(toDoList.getContent())
+                .date(toDoList.getDate())
+                .isDone(toDoList.isDone())
+                .build())
+            .toList();
+        return toDoListDTOS;
+    }
+
 }
