@@ -82,6 +82,9 @@ public enum ErrorStatus implements BaseErrorCode {
 
     //알림 관련 에러
     _NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTIFICATION4001", "알림을 찾을 수 없습니다."),
+    _NOTIFICATION_ALREADY_READ(HttpStatus.BAD_REQUEST, "NOTIFICATION4002", "이미 처리된 알림입니다."),
+    _NOTIFICATION_NULL(HttpStatus.BAD_REQUEST, "NOTIFICATION4003", "알림 아이디가 입력되지 않았습니다."),
+    _NOTIFICATION_IS_NOT_BELONG_TO_MEMBER(HttpStatus.BAD_REQUEST, "NOTIFICATION4004", "해당 알림이 해당 회원에 속해있지 않습니다."),
 
     //지역 관련 에러
     _REGION_NOT_FOUND(HttpStatus.NOT_FOUND, "REGION4001", "지역을 찾을 수 없습니다."),
@@ -153,7 +156,7 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_TODO_IS_NOT_BELONG_TO_STUDY(HttpStatus.BAD_REQUEST, "TODO4003", "해당 투두 리스트가 해당 스터디에 속해있지 않습니다."),
     _ONLY_STUDY_MEMBER_CAN_ACCESS_TODO_LIST(HttpStatus.FORBIDDEN, "TODO4004", "스터디 멤버만 투두 리스트에 접근할 수 있습니다."),
     _TODO_LIST_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "SCHEDULE4004", "일정을 조회하려는 멤버가 스터디에 가입되지 않았습니다."),
-    _STUDY_TODO_NULL(HttpStatus.BAD_REQUEST, "TODO4005", "투두 리스트 아이디가 입력되지 않았습니다."),
+    _STUDY_TODO_NULL(HttpStatus.BAD_REQUEST, "TODO4005", "투두 리스트 아이디가 입력되지 않았습니다."),;
 
     ;
 
