@@ -1,6 +1,6 @@
 package com.example.spot.service.notification;
 
-import com.example.spot.web.dto.notification.NotificationRequestDTO;
+import com.example.spot.web.dto.notification.NotificationResponseDTO.NotificationProcessDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,17 +15,13 @@ public class NotificationCommandServiceImpl implements NotificationCommandServic
 
 
     @Override
-    public NotificationResponseDTO.NotificationDTO readNotification(Long memberId, Long notificationId) {
+    public NotificationProcessDTO readNotification(Long memberId, Long notificationId) {
         return null;
     }
 
     @Override
-    public NotificationResponseDTO.NotificationDTO joinAppliedStudy(long studyId, Long userId, NotificationRequestDTO.joinStudyDTO joinStudyDTO) {
+    public NotificationProcessDTO joinAppliedStudy(Long studyId, Long memberId, boolean isAccept) {
         return null;
     }
 
-    @Override
-    public NotificationResponseDTO.NotificationDTO rejectAppliedStudy(long studyId, Long userId, NotificationRequestDTO.rejectStudyDTO rejectStudyDTO) {
-        return null;
-    }
 }

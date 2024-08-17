@@ -1,12 +1,13 @@
 package com.example.spot.service.notification;
 
+import com.example.spot.web.dto.notification.NotificationResponseDTO.NotificationListDTO;
+import com.example.spot.web.dto.notification.NotificationResponseDTO.StduyNotificationListDTO;
 import java.util.List;
 
 import com.example.spot.web.dto.notification.NotificationResponseDTO;
 
 public interface NotificationQueryService {
 
-    List<NotificationResponseDTO.NotificationDTO> getAllNotifications(Long memberId);
-    List<NotificationResponseDTO.NotificationDTO> getAllAppliedStudyNotification(Long memberId);
-    Boolean exitsNotification(long memberId);
+    NotificationListDTO getAllNotifications(Long memberId);
+    StduyNotificationListDTO getAllAppliedStudyNotification(Long memberId);
 }

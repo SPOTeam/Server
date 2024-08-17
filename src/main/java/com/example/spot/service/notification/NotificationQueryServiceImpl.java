@@ -1,5 +1,7 @@
 package com.example.spot.service.notification;
 
+import com.example.spot.web.dto.notification.NotificationResponseDTO.NotificationListDTO;
+import com.example.spot.web.dto.notification.NotificationResponseDTO.StduyNotificationListDTO;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
@@ -15,17 +17,13 @@ public class NotificationQueryServiceImpl implements NotificationQueryService {
     private final NotificationRepository notificationRepository;
 
     @Override
-    public List<NotificationResponseDTO.NotificationDTO> getAllAppliedStudyNotification(Long memberId) {
-        return List.of();
-    }
-
-    @Override
-    public Boolean exitsNotification(long memberId) {
+    public StduyNotificationListDTO getAllAppliedStudyNotification(Long memberId) {
         return null;
     }
 
+
     @Override
-    public List<NotificationResponseDTO.NotificationDTO> getAllNotifications(Long memberId) {
+    public NotificationListDTO getAllNotifications(Long memberId) {
         return null;
     }
 

@@ -2,6 +2,7 @@ package com.example.spot.web.dto.notification;
 
 import com.example.spot.domain.Notification;
 import com.example.spot.domain.enums.NotifyType;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,23 +15,56 @@ public class NotificationResponseDTO {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class NotificationDTO {
-        public NotificationDTO(Notification notification) {
+    public static class NotificationListDTO {
 
-            this.notificationId = notification.getId();
-            this.title = notification.getTitle();
-            this.content = notification.getContent();
-            this.type = notification.getType();
-            this.isChecked = notification.getIsChecked();
-            this.createdAt = notification.getCreatedAt();
+        List<NotificationDTO> notifications;
+        Long totalNotificationCount;
+        Long uncheckedNotificationCount;
 
+        @Builder
+        @Getter
+        @NoArgsConstructor
+        @AllArgsConstructor
+        public static class NotificationDTO{
+            Long notificationId;
+            String studyTitle;
+            String studyMemberName;
+            NotifyType type;
+            Boolean isChecked;
+            LocalDateTime createdAt;
         }
+    }
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class StduyNotificationListDTO {
 
-        Long notificationId;
-        String title;
-        String content;
-        NotifyType type;
-        Boolean isChecked;
-        LocalDateTime createdAt;
+        List<StudyNotificationDTO> notifications;
+        Long totalNotificationCount;
+        Long uncheckedNotificationCount;
+
+        @Builder
+        @Getter
+        @NoArgsConstructor
+        @AllArgsConstructor
+        public static class StudyNotificationDTO{
+            Long notificationId;
+            String studyTitle;
+            String studyProfileImage;
+            NotifyType type;
+            Boolean isChecked;
+            LocalDateTime createdAt;
+        }
+    }
+
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class NotificationProcessDTO {
+        boolean isAccept;
+        LocalDateTime processedAt;
     }
 }
