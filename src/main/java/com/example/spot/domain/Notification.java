@@ -25,12 +25,12 @@ public class Notification extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, unique = true)
     private Long id;
-
-    @Column(nullable = false, length = 20)
-    private String title;
-
-    @Column(nullable = false, length = 40)
-    private String content;
+//
+//    @Column(nullable = false, length = 20)
+//    private String title;
+//
+//    @Column(nullable = false, length = 40)
+//    private String content;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
