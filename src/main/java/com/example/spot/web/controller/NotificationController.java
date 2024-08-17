@@ -30,9 +30,9 @@ public class NotificationController {
     private final NotificationCommandService notificationCommandService;
 
     //알림 전체 조회
-    @Operation(summary = "[내 알림 전체 조회]", description = """
+    @Operation(summary = "[내 알림 전체 조회] 내게 생성된 알림을 전체 조회합니다.", description = """
             ## [내 알림 전체 조회] 
-            내게 할당된 알림 전체를 조회합니다.
+            내게 생성된 알림을 전체 조회합니다.
             
             알림의 내용, 생성 시간, 알림의 종류, 알림을 생성한 스터디의 이름을 반환합니다.
             
@@ -51,7 +51,7 @@ public class NotificationController {
     }
 
 
-    @Operation(summary = "[참가 신청한 스터디 알림 조회]", description = """
+    @Operation(summary = "[참가 신청한 스터디 알림 조회] 참가 신청한 스터디에 대한 알림 조회", description = """
             ## [참가 신청한 스터디 알림 조회] 회원이 참가 신청한 스터디에 대한 알림을 조회합니다.
             참가 신청 했던 스터디의 제목과 프로필 이미지를 반환합니다.
             
@@ -70,7 +70,7 @@ public class NotificationController {
     }
 
     //알림 읽음 처리
-    @Operation(summary = "[알림 읽음 처리]", description = """
+    @Operation(summary = "[알림 읽음 처리] 일반 알림 읽음 처리", description = """
             ## [알림 읽음 처리] 알림을 읽음 처리합니다.
             알림 처리 후 읽음 처리 결과를 반환합니다.
             """)
@@ -82,7 +82,7 @@ public class NotificationController {
     }
 
     // 신청한 스터디 참여
-    @Operation(summary = "[참가 신청한 스터디 알람 처리]", description = """
+    @Operation(summary = "[참가 신청한 스터디 알람 처리] 알림 통한 스터디 참여 처리", description = """
             ## [참가 신청한 스터디 알람 처리] 유저가 참가 신청한 스터디에 대해 생성된 알림을 처리합니다.
             isAccepted 값이 true일 경우 스터디 참여, false일 경우 스터디 참여 거절 처리합니다.
             """)
