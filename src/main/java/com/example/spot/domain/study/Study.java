@@ -151,6 +151,7 @@ public class Study extends BaseEntity {
         this.quizzes = new ArrayList<>();
         this.studyPosts = new ArrayList<>();
         this.toDoLists = new ArrayList<>();
+        this.notifications = new ArrayList<>();
 
     }
 
