@@ -169,6 +169,9 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
             .map(MemberStudy::getMember)
             .toList();
 
+        // 본인은 제거
+        members.remove(member);
+
         if (members.isEmpty())
             throw new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND);
 
@@ -693,6 +696,29 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
             throw new StudyHandler(ErrorStatus._STUDY_TODO_NOT_AUTHORIZED);
 
         toDoList.check();
+
+        // 스터디 회원의 To-Do List 중 하나가 완료 되면, 해당 스터디의 모든 회원에게 알림 전송
+        if (toDoList.isDone()){
+            List<Member> members = memberStudyRepository.findByStudyId(studyId).stream()
+                .map(MemberStudy::getMember)
+                .toList();
+
+            // 본인은 제거
+            members.remove(toDoList.getMember());
+
+            if (members.isEmpty())
+                throw new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND);
+
+            members.forEach(studyMember -> {
+                Notification notification = Notification.builder()
+                    .member(studyMember)
+                    .study(toDoList.getStudy())
+                    .type(NotifyType.TO_DO_UPDATE)
+                    .isChecked(Boolean.FALSE)
+                    .build();
+                notificationRepository.save(notification);
+            });
+        }
 
         toDoListRepository.save(toDoList);
 
