@@ -169,8 +169,6 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
             .map(MemberStudy::getMember)
             .toList();
 
-        // 본인은 제거
-        members.remove(member);
 
         if (members.isEmpty())
             throw new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND);
@@ -179,6 +177,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
                 Notification notification = Notification.builder()
                     .member(studyMember)
                     .study(study)
+                    .notifierName(member.getName()) // 일정 생성자 이름
                     .type(NotifyType.SCHEDULE_UPDATE)
                     .isChecked(Boolean.FALSE)
                     .build();
@@ -703,15 +702,13 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
                 .map(MemberStudy::getMember)
                 .toList();
 
-            // 본인은 제거
-            members.remove(toDoList.getMember());
-
             if (members.isEmpty())
                 throw new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND);
 
             members.forEach(studyMember -> {
                 Notification notification = Notification.builder()
                     .member(studyMember)
+                    .notifierName(toDoList.getMember().getName()) // To-Do 완료한 회원 이름
                     .study(toDoList.getStudy())
                     .type(NotifyType.TO_DO_UPDATE)
                     .isChecked(Boolean.FALSE)

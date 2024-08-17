@@ -25,12 +25,6 @@ public class Notification extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, unique = true)
     private Long id;
-//
-//    @Column(nullable = false, length = 20)
-//    private String title;
-//
-//    @Column(nullable = false, length = 40)
-//    private String content;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -38,6 +32,10 @@ public class Notification extends BaseEntity {
 
     @Column(nullable = false, columnDefinition = "BIT DEFAULT 0")
     private Boolean isChecked;
+
+    // 알림 생성한 회원 이름
+    @Column(nullable = false)
+    private String notifierName;
 
     //== 회원 ==//
     @ManyToOne(fetch = FetchType.LAZY)

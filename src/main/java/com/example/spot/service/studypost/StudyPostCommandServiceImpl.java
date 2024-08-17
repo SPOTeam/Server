@@ -109,21 +109,20 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
         if (studyPost.getIsAnnouncement()){
 
             // 스터디에 참여중인 회원들에게 알림 전송 위해 회원 조회
-            List<Member> members = memberStudyRepository.findByStudyId(studyPost.getStudy().getId()).stream()
+            List<Member> members = memberStudyRepository.findAllByStudyIdAndStatus(
+                studyPost.getStudy().getId(), ApplicationStatus.APPROVED).stream()
                     .map(MemberStudy::getMember)
                         .toList();
 
             if (members.isEmpty())
                 throw new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND);
 
-            // 본인은 제외
-            members.remove(member);
-
             // 알림 생성
             for (Member studyMember : members) {
                 Notification notification = Notification.builder()
                     .study(studyPost.getStudy())
                     .member(studyMember)
+                    .notifierName(member.getName()) // 글을 작성한 회원 이름
                     .type(NotifyType.ANNOUNCEMENT)
                     .isChecked(false)
                     .build();

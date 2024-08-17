@@ -28,7 +28,7 @@ public class NotificationResponseDTO {
         public static class NotificationDTO{
             Long notificationId;
             String studyTitle;
-            String studyMemberName;
+            String notifierName;
             NotifyType type;
             Boolean isChecked;
             LocalDateTime createdAt;

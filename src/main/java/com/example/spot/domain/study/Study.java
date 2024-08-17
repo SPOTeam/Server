@@ -1,5 +1,6 @@
 package com.example.spot.domain.study;
 
+import com.example.spot.domain.Notification;
 import com.example.spot.domain.Quiz;
 import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.enums.Gender;
@@ -113,6 +114,9 @@ public class Study extends BaseEntity {
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
     private List<ToDoList> toDoLists = new ArrayList<>();
+
+    @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
+    private List<Notification> notifications = new ArrayList<>();
 
 
 /* ----------------------------- 생성자 ------------------------------------- */
