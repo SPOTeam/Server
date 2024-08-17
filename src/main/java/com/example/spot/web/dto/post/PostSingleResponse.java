@@ -34,7 +34,7 @@ public class PostSingleResponse {
             description = "스크랩 수입니다.",
             format = "int"
     )
-    private int scrapCount;
+    private Long scrapCount;
 
     @Schema(description = "게시글 제목입니다.",
             format = "string")
@@ -68,6 +68,11 @@ public class PostSingleResponse {
     private boolean likedByCurrentUser;
 
     @Schema(
+            description = "현재 사용자의 해당 게시글 스크랩 여부입니다."
+    )
+    private boolean scrapedByCurrentUser;
+
+    @Schema(
             description = "댓글 리스트입니다.",
             format = "array"
     )
@@ -91,7 +96,7 @@ public class PostSingleResponse {
         return writer;
     }
 
-    public static PostSingleResponse toDTO(Post post, long likeCount, CommentResponse commentResponse, boolean likedByCurrentUser) {
+    public static PostSingleResponse toDTO(Post post, long likeCount, long scrapCount, CommentResponse commentResponse, boolean likedByCurrentUser, boolean scrapedByCurrentUser) {
         // 작성자가 익명인지 확인하여 작성자 이름 설정
         String writerName = judgeAnonymous(post.isAnonymous(), post.getMember().getName());
 
@@ -99,7 +104,8 @@ public class PostSingleResponse {
                 .type(post.getBoard().name())
                 .writer(writerName)
                 .writtenTime(post.getCreatedAt())
-                .scrapCount(post.getMemberScrapList().size())
+                .scrapCount(scrapCount)
+                .scrapedByCurrentUser(scrapedByCurrentUser)
                 .title(post.getTitle())
                 .content(post.getContent())
                 .likeCount(likeCount)

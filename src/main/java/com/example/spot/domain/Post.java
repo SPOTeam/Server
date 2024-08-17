@@ -44,19 +44,19 @@ public class Post extends BaseEntity {
     @Builder.Default
     private List<PostImage> postImageList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     @Builder.Default
     private List<LikedPost> likedPostList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     @Builder.Default
     private List<PostReport> postReportList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     @Builder.Default
     private List<PostComment> postCommentList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     @Builder.Default
     private List<MemberScrap> memberScrapList = new ArrayList<>();
 

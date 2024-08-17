@@ -5,6 +5,9 @@ import com.example.spot.api.exception.handler.PostHandler;
 import com.example.spot.domain.Post;
 import com.example.spot.domain.PostComment;
 import com.example.spot.domain.enums.Board;
+import com.example.spot.domain.mapping.MemberScrap;
+import com.example.spot.repository.MemberRepository;
+import com.example.spot.repository.MemberScrapRepository;
 import com.example.spot.repository.PostCommentRepository;
 import com.example.spot.repository.PostRepository;
 import com.example.spot.web.dto.post.*;
@@ -17,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.example.spot.security.utils.SecurityUtils.getCurrentUserId;
+
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +31,7 @@ public class PostQueryServiceImpl implements PostQueryService {
     private final LikedPostQueryService likedPostQueryService;
     private final PostCommentRepository postCommentRepository;
     private final LikedPostCommentQueryService likedPostCommentQueryService;
+    private final MemberScrapRepository memberScrapRepository;
 
 
     @Transactional
@@ -49,11 +55,18 @@ public class PostQueryServiceImpl implements PostQueryService {
         //현재 사용자 좋아요 여부
         boolean likedByCurrentUser = likedPostQueryService.existsByMemberIdAndPostId(post.getId());
 
+        // 스크랩 수 조회
+        long scrapCount = memberScrapRepository.countByPostId(postId);
+
+        // 현재 사용자 스크랩 여부
+        Long currentUserId = getCurrentUserId();
+        boolean scrapedByCurrentUser = memberScrapRepository.existsByMemberIdAndPostId(currentUserId, postId);
+
         //댓글
         CommentResponse commentResponse = getCommentsByPostId(post.getId());
 
         // 조회된 게시글을 PostSingleResponse로 변환하여 반환
-        return PostSingleResponse.toDTO(post, likeCount, commentResponse, likedByCurrentUser);
+        return PostSingleResponse.toDTO(post, likeCount, scrapCount, commentResponse, likedByCurrentUser, scrapedByCurrentUser);
     }
 
     @Transactional(readOnly = true)
@@ -80,7 +93,10 @@ public class PostQueryServiceImpl implements PostQueryService {
                     long likeCount = likedPostQueryService.countByPostId(post.getId());
                     //현재 사용자 좋아요 여부
                     boolean likedByCurrentUser = likedPostQueryService.existsByMemberIdAndPostId(post.getId());
-                    return PostPagingDetailResponse.toDTO(post, likeCount, likedByCurrentUser);
+                    long scrapCount = memberScrapRepository.countByPostId(post.getId());
+                    Long currentUserId = getCurrentUserId();
+                    boolean scrapedByCurrentUser = memberScrapRepository.existsByMemberIdAndPostId(currentUserId, post.getId());
+                    return PostPagingDetailResponse.toDTO(post, likeCount, scrapCount, likedByCurrentUser, scrapedByCurrentUser);
                 })
                 .toList();
 
@@ -210,6 +226,49 @@ public class PostQueryServiceImpl implements PostQueryService {
 
         return CommentResponse.builder()
                 .comments(commentResponses)
+                .build();
+    }
+
+    //스크랩 게시글 조회
+    @Transactional(readOnly = true)
+    @Override
+    public PostPagingResponse getScrapPagingPost(String type, Pageable pageable) {
+        Long currentUserId = getCurrentUserId();
+
+        Page<MemberScrap> postScrapPage;
+
+        Board boardType = Board.findByValue(type);
+
+        if (boardType == Board.ALL) {
+            // ALL 타입일 경우 모든 게시글 조회
+            postScrapPage = memberScrapRepository.findByMemberId(currentUserId,pageable);
+        } else {
+            // 특정 게시판 타입의 게시글 조회
+            postScrapPage = memberScrapRepository.findByMemberIdAndPost_Board(currentUserId, boardType, pageable);
+        }
+
+        List<Post> scrapPosts = postScrapPage.getContent().stream()
+                .map(MemberScrap::getPost)
+                .toList();
+
+        List<PostPagingDetailResponse> postResponses = scrapPosts.stream()
+                .map(post -> {
+                    long likeCount = likedPostQueryService.countByPostId(post.getId());
+                    //현재 사용자 좋아요 여부
+                    boolean likedByCurrentUser = likedPostQueryService.existsByMemberIdAndPostId(post.getId());
+                    long scrapCount = memberScrapRepository.countByPostId(post.getId());
+                    boolean scrapedByCurrentUser = memberScrapRepository.existsByMemberIdAndPostId(currentUserId, post.getId());
+                    return PostPagingDetailResponse.toDTO(post, likeCount, scrapCount, likedByCurrentUser, scrapedByCurrentUser);
+                })
+                .toList();
+
+        return PostPagingResponse.builder()
+                .postType(type)
+                .postResponses(postResponses)
+                .totalPage(postScrapPage.getTotalPages())
+                .totalElements(postScrapPage.getTotalElements())
+                .isFirst(postScrapPage.isFirst())
+                .isLast(postScrapPage.isLast())
                 .build();
     }
 }

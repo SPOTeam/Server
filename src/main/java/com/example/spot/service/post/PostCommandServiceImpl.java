@@ -5,13 +5,17 @@ import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.api.exception.handler.PostHandler;
 import com.example.spot.domain.*;
 import com.example.spot.domain.enums.Board;
+import com.example.spot.domain.mapping.MemberScrap;
 import com.example.spot.repository.*;
 import com.example.spot.web.dto.post.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+
+import static com.example.spot.security.utils.SecurityUtils.getCurrentUserId;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +26,7 @@ public class PostCommandServiceImpl implements PostCommandService {
     private final LikedPostRepository likedPostRepository;
     private final PostCommentRepository postCommentRepository;
     private final LikedPostCommentRepository likedPostCommentRepository;
+    private final MemberScrapRepository memberScrapRepository;
 
     private final LikedPostQueryService likedPostQueryService;
     private final LikedPostCommentQueryService likedPostCommentQueryService;
@@ -149,7 +154,7 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .orElseThrow(() -> new PostHandler(ErrorStatus._POST_NOT_FOUND));
         //좋아요 여부 확인
         LikedPost likedPost = likedPostRepository.findByMemberIdAndPostId(member.getId(), post.getId())
-                .orElseThrow(() -> new PostHandler(ErrorStatus._MEMBER_NOT_FOUND));
+                .orElseThrow(() -> new PostHandler(ErrorStatus._POST_NOT_LIKED));
 
         likedPostRepository.delete(likedPost);
 
@@ -251,6 +256,7 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .orElseThrow(() -> new PostHandler(ErrorStatus._POST_COMMENT_NOT_LIKED));
 
         likedPostCommentRepository.delete(likedPostComment);
+        likedPostCommentRepository.flush();
 
         long likeCount = likedPostCommentQueryService.countByPostCommentIdAndIsLikedTrue(commentId);
 
@@ -303,12 +309,86 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .orElseThrow(() -> new PostHandler(ErrorStatus._POST_COMMENT_NOT_DISLIKED));
 
         likedPostCommentRepository.delete(dislikedPostComment);
+        likedPostCommentRepository.flush();
 
         long likeCount = likedPostCommentQueryService.countByPostCommentIdAndIsLikedTrue(commentId);
 
         long disLikeCount = likedPostCommentRepository.countByPostCommentIdAndIsLikedFalse(commentId);
 
         return CommentLikeResponse.toDTO(comment.getId(), likeCount, disLikeCount);
+    }
+
+    // 게시글 스크랩
+    @Transactional
+    @Override
+    public ScrapPostResponse scrapPost(Long postId, Long memberId) {
+        // 게시글 조회
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostHandler(ErrorStatus._POST_NOT_FOUND));
+
+        // 회원 정보 가져오기
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        // 스크랩 여부 확인
+        if (memberScrapRepository.findByMemberIdAndPostId(memberId, postId).isPresent()) {
+            throw new PostHandler(ErrorStatus._POST_ALREADY_SCRAPPED);
+        }
+
+        // 스크랩 정보 저장
+        MemberScrap memberScrap = new MemberScrap(post, member);
+        memberScrapRepository.saveAndFlush(memberScrap);
+
+        // 스크랩된 리스트의 갯수를 조회하여 스크랩 수 계산
+        long scrapCount = memberScrapRepository.countByPostId(postId);
+
+        return ScrapPostResponse.builder()
+                .postId(post.getId())
+                .scrapCount(scrapCount)
+                .build();
+    }
+
+
+    @Transactional
+    @Override
+    public ScrapPostResponse cancelPostScrap(Long postId, Long memberId) {
+        // 게시글 조회
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostHandler(ErrorStatus._POST_NOT_FOUND));
+
+        // 회원 정보 가져오기
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        //스크랩 여부
+        MemberScrap memberScrap = memberScrapRepository.findByMemberIdAndPostId(memberId, postId)
+                .orElseThrow(() -> new PostHandler(ErrorStatus._POST_NOT_SCRAPPED));
+
+        //스크랩 삭제
+        memberScrapRepository.delete(memberScrap);
+        memberScrapRepository.flush();
+
+        // 스크랩된 리스트의 갯수를 조회하여 스크랩 수 계산
+        long scrapCount = memberScrapRepository.countByPostId(postId);
+
+        return ScrapPostResponse.builder()
+                .postId(post.getId())
+                .scrapCount(scrapCount)
+                .build();
+    }
+
+    @Transactional
+    @Override
+    public ScrapsPostDeleteResponse cancelPostScraps(ScrapAllDeleteRequest request) {
+        Long currentMemberId = getCurrentUserId();
+
+        List<ScrapPostResponse> deletePostResponses = request.getDeletePostIds().stream().map(
+                deletePostId -> cancelPostScrap(deletePostId, currentMemberId)
+        ).toList();
+
+        return ScrapsPostDeleteResponse.builder()
+                .cancelScraps(deletePostResponses)
+                .build();
     }
 
 
