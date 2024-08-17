@@ -64,8 +64,9 @@ public class StudyPostResDTO {
         private final Integer likeNum;
         private final Integer hitNum;
         private final Integer commentNum;
+        private final Boolean isLiked;
 
-        public static PostDTO toDTO(StudyPost studyPost) {
+        public static PostDTO toDTO(StudyPost studyPost, boolean isLiked) {
             return PostDTO.builder()
                     .postId(studyPost.getId())
                     .title(studyPost.getTitle())
@@ -76,6 +77,7 @@ public class StudyPostResDTO {
                     .likeNum(studyPost.getLikeNum())
                     .hitNum(studyPost.getHitNum())
                     .commentNum(studyPost.getCommentNum())
+                    .isLiked(isLiked)
                     .build();
         }
     }
@@ -95,9 +97,10 @@ public class StudyPostResDTO {
         private final Integer likeNum;
         private final Integer hitNum;
         private final Integer commentNum;
+        private final Boolean isLiked;
         private final List<ImageDTO> studyPostImages;
 
-        public static PostDetailDTO toDTO(StudyPost studyPost) {
+        public static PostDetailDTO toDTO(StudyPost studyPost, boolean isLiked) {
             return PostDetailDTO.builder()
                     .memberId(studyPost.getMember().getId())
                     .postId(studyPost.getId())
@@ -109,6 +112,7 @@ public class StudyPostResDTO {
                     .likeNum(studyPost.getLikeNum())
                     .hitNum(studyPost.getHitNum())
                     .commentNum(studyPost.getCommentNum())
+                    .isLiked(isLiked)
                     .studyPostImages(studyPost.getImages().stream()
                             .map(ImageDTO::toDTO)
                             .toList())
