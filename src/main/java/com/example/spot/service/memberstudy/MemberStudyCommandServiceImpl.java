@@ -119,8 +119,24 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         if (memberStudy.getStatus() != ApplicationStatus.APPLIED)
             throw new GeneralException(ErrorStatus._STUDY_APPLY_ALREADY_PROCESSED);
 
-        if (isAccept)
-            memberStudy.setStatus(ApplicationStatus.APPROVED);
+        Member owner = memberRepository.findById(SecurityUtils.getCurrentUserId())
+            .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        if (isAccept) {
+            // 스터디 참여 승인 최종 대기
+            memberStudy.setStatus(ApplicationStatus.AWAITING_SELF_APPROVAL);
+
+            // 알림 생성
+            Notification notification = Notification.builder()
+                .member(memberStudy.getMember()) // 신청자
+                .study(memberStudy.getStudy())
+                .notifierName(owner.getName()) // 스터디장 이름
+                .type(NotifyType.STUDY_APPLY)
+                .isChecked(Boolean.FALSE)
+                .build();
+
+            notificationRepository.save(notification);
+        }
         else {
             memberStudy.setStatus(ApplicationStatus.REJECTED);
             memberStudyRepository.delete(memberStudy);

@@ -40,7 +40,8 @@ public class NotificationQueryServiceImpl implements NotificationQueryService {
     @Override
     public NotificationListDTO getAllNotifications(Long memberId, Pageable pageable) {
 
-        List<Notification> notifications = notificationRepository.findByMemberId(memberId, pageable);
+        List<Notification> notifications = notificationRepository.findByMemberIdAndTypeNot(
+            memberId, pageable, NotifyType.STUDY_APPLY);
 
         if (notifications.isEmpty())
             throw new GeneralException(ErrorStatus._NOTIFICATION_NOT_FOUND);
