@@ -28,9 +28,6 @@ public class PostController {
     private final PostCommandService postCommandService;
     private final PostQueryService postQueryService;
 
-
-    private final static int PAGE_SIZE = 10; //페이지당 개수
-
     @Tag(name = "게시판", description = "게시판 관련 API")
     @Operation(
             summary = "[게시판] 게시글 등록 API",
@@ -77,22 +74,25 @@ public class PostController {
     @Operation(
             summary = "[게시판] 게시글 페이지 조회 API",
         description = """
-        게시글 종류를 받아 페이지 번호에 해당하는 게시글을 조회합니다.
+        게시글 종류를 받아 페이지 번호와 페이지 크기에 해당하는 게시글을 조회합니다.
         
         게시글 종류는 ALL, PASS_EXPERIENCE, INFORMATION_SHARING, COUNSELING, JOB_TALK, FREE_TALK, SPOT_ANNOUNCEMENT 중 하나입니다.
         
         페이지 번호는 0부터 시작하며 기본값은 0입니다.
+        
+        페이지 크기는 1부터 시작하며 기본값은 10입니다.
         """
     )
     @GetMapping
     public ApiResponse<PostPagingResponse> getPagingPost(
             @Parameter(description = "게시글 종류. ALL, PASS_EXPERIENCE, INFORMATION_SHARING, COUNSELING, JOB_TALK, FREE_TALK, SPOT_ANNOUNCEMENT 중 하나입니다.", required = true, example = "JOB_TALK")
             @RequestParam String type,
-
             @Parameter(description = "페이지 번호 (0부터 시작, 기본값 0)", example = "0")
-            @RequestParam(required = false, defaultValue = "0") int pageNumber
+            @RequestParam(required = false, defaultValue = "0") int pageNumber,
+            @Parameter(description = "페이지 크기 (1부터 시작, 기본값 10)", example = "10")
+            @RequestParam(required = false, defaultValue = "10") int pageSize
     ) {
-        Pageable pageable = PageRequest.of(pageNumber, PAGE_SIZE);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
         PostPagingResponse response = postQueryService.getPagingPosts(type, pageable);
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
@@ -295,11 +295,13 @@ public class PostController {
     @Operation(
             summary = "[마이페이지] 게시글 스크랩 페이지 조회 API",
             description = """
-        로그인한 회원이 스크랩한 게시글을 게시글 종류와 페이지 번호를 받아 조회합니다.
+        로그인한 회원이 스크랩한 게시글을 게시글 종류와 페이지 번호, 페이지 크기를 받아 조회합니다.
         
         게시글 종류는 ALL, PASS_EXPERIENCE, INFORMATION_SHARING, COUNSELING, JOB_TALK, FREE_TALK, SPOT_ANNOUNCEMENT 중 하나입니다.
         
         페이지 번호는 0부터 시작하며 기본값은 0입니다.
+        
+        페이지 크기는 1부터 시작하며 기본값은 10입니다.
         """
     )
     @GetMapping("/scraps")
@@ -307,9 +309,11 @@ public class PostController {
             @Parameter(description = "게시글 종류. ALL, PASS_EXPERIENCE, INFORMATION_SHARING, COUNSELING, JOB_TALK, FREE_TALK, SPOT_ANNOUNCEMENT 중 하나입니다.", required = true, example = "JOB_TALK")
             @RequestParam String type,
             @Parameter(description = "페이지 번호 (0부터 시작, 기본값 0)", example = "0")
-            @RequestParam(required = false, defaultValue = "0") int pageNumber
+            @RequestParam(required = false, defaultValue = "0") int pageNumber,
+            @Parameter(description = "페이지 크기 (1부터 시작, 기본값 10)", example = "10")
+            @RequestParam(required = false, defaultValue = "10") int pageSize
     ) {
-        Pageable pageable = PageRequest.of(pageNumber, PAGE_SIZE);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
         PostPagingResponse response = postQueryService.getScrapPagingPost(type, pageable);
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
