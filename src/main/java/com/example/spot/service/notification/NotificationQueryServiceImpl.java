@@ -7,6 +7,7 @@ import com.example.spot.domain.enums.NotifyType;
 import com.example.spot.web.dto.notification.NotificationResponseDTO.NotificationListDTO;
 import com.example.spot.web.dto.notification.NotificationResponseDTO.NotificationListDTO.NotificationDTO;
 import com.example.spot.web.dto.notification.NotificationResponseDTO.StduyNotificationListDTO;
+import com.example.spot.web.dto.notification.NotificationResponseDTO.StduyNotificationListDTO.StudyNotificationDTO;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,10 +31,33 @@ public class NotificationQueryServiceImpl implements NotificationQueryService {
 
     // 신청한 스터디 알림 전체 조회
     @Override
-    public StduyNotificationListDTO getAllAppliedStudyNotification(Long memberId) {
+    public StduyNotificationListDTO getAllAppliedStudyNotification(Long memberId, Pageable pageable) {
+        List<Notification> notifications = notificationRepository.findByMemberIdAndType(
+            memberId, pageable, NotifyType.STUDY_APPLY);
 
+        if (notifications.isEmpty())
+            throw new GeneralException(ErrorStatus._NOTIFICATION_NOT_FOUND);
 
-        return null;
+        List<StudyNotificationDTO> notificationDTOs = new ArrayList<>();
+
+        notifications.forEach(notification -> {
+            StudyNotificationDTO notificationDTO = StudyNotificationDTO.builder()
+                .notificationId(notification.getId())
+                .studyId(notification.getStudy().getId())
+                .createdAt(notification.getCreatedAt())
+                .type(notification.getType())
+                .studyTitle(notification.getStudy().getTitle())
+                .studyProfileImage(notification.getStudy().getProfileImage())
+                .isChecked(notification.getIsChecked())
+                .build();
+            notificationDTOs.add(notificationDTO);
+        });
+
+        return StduyNotificationListDTO.builder()
+            .notifications(notificationDTOs)
+            .totalNotificationCount((long) notificationDTOs.size())
+            .uncheckedNotificationCount((long) (int) notificationDTOs.stream().filter(notificationDTO -> !notificationDTO.getIsChecked()).count())
+            .build();
     }
 
     // 생성된 알림 전체 조회

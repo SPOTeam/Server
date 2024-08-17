@@ -14,6 +14,7 @@ import java.util.List;
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
     List<Notification> findByMemberId(Long memberId, Pageable pageable);
     List<Notification> findByMemberIdAndTypeNot(Long memberId, Pageable pageable, NotifyType type);
+    List<Notification> findByMemberIdAndType(Long memberId, Pageable pageable, NotifyType type);
 
     List<Notification> findByType(NotifyType type);
 }

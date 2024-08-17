@@ -39,8 +39,6 @@ public class NotificationController {
             알림의 종류는 다음과 같습니다.
             ANNOUNCEMENT, SCHEDULE_UPDATE ,TO_DO_UPDATE, POPULAR_POST
             
-            TODO 관련 알림 조회 시, studyMemberName은 해당 스터디의 멤버 이름을 반환합니다. 이외의 경우에는 Null을 반환합니다.
-            
             """)
     @GetMapping("/notifications")
     public ApiResponse<NotificationListDTO> getAllNotifications(
@@ -62,9 +60,12 @@ public class NotificationController {
             [참가 신청한 스터디 알람 처리] API를 통해 참여 버튼을 누르면 스터디에 참여할 수 있습니다.
     """)
     @GetMapping("/notifications/applied-study")
-    public ApiResponse<StduyNotificationListDTO> getAppliedStudyNotification() {
+    public ApiResponse<StduyNotificationListDTO> getAppliedStudyNotification(
+        @RequestParam @Min(0) Integer page,
+        @RequestParam @Min(1) Integer size
+    ) {
         StduyNotificationListDTO notificationDTO = notificationQueryService.getAllAppliedStudyNotification(
-            SecurityUtils.getCurrentUserId());
+            SecurityUtils.getCurrentUserId(), PageRequest.of(page, size));
         return ApiResponse.onSuccess(SuccessStatus._NOTIFICATION_FOUND, notificationDTO);
     }
 

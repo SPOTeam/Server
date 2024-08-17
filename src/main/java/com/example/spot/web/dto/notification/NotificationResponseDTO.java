@@ -50,6 +50,7 @@ public class NotificationResponseDTO {
         @AllArgsConstructor
         public static class StudyNotificationDTO{
             Long notificationId;
+            Long studyId;
             String studyTitle;
             String studyProfileImage;
             NotifyType type;

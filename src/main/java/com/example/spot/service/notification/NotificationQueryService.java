@@ -14,5 +14,5 @@ public interface NotificationQueryService {
     NotificationListDTO getAllNotifications(Long memberId, Pageable pageable);
 
     // 신청한 스터디 알림 전체 조회
-    StduyNotificationListDTO getAllAppliedStudyNotification(Long memberId);
+    StduyNotificationListDTO getAllAppliedStudyNotification(Long memberId, Pageable pageable);
 }
