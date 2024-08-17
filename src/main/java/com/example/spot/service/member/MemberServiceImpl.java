@@ -4,6 +4,7 @@ import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.GeneralException;
 import com.example.spot.domain.StudyReason;
 import com.example.spot.domain.enums.Carrier;
+import com.example.spot.domain.enums.LoginType;
 import com.example.spot.domain.enums.Reason;
 import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.enums.ThemeType;
@@ -12,7 +13,6 @@ import com.example.spot.security.utils.JwtTokenProvider;
 import com.example.spot.domain.Member;
 import com.example.spot.repository.MemberRepository;
 import com.example.spot.web.dto.member.MemberRequestDTO.MemberReasonDTO;
-import com.example.spot.web.dto.member.MemberRequestDTO.TestMemberDTO;
 import com.example.spot.domain.auth.CustomUserDetails;
 import com.example.spot.domain.auth.RefreshToken;
 import com.example.spot.repository.RefreshTokenRepository;
@@ -409,37 +409,26 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public MemberTestDTO testMember(TestMemberDTO requestDTO) {
-        Random random = new Random();
-
-        String name = "testMember" + random.nextInt(1000);
-        String email = "test" + random.nextInt(1000) + "@gmail.com";
-        String password = UUID.randomUUID().toString().substring(0, 8);
-        String phone = "010" + (random.nextInt(90000000) + 10000000);
-        LocalDate birth = LocalDate.of(
-            random.nextInt(50) + 1970, // Year between 1970 and 2020
-            random.nextInt(12) + 1,    // Month between 1 and 12
-            random.nextInt(28) + 1     // Day between 1 and 28 to avoid invalid dates
-        );
+    public MemberTestDTO testMember(MemberInfoListDTO memberInfoListDTO) {
 
         Member member = Member.builder()
-            .name(name)
-            .email(email)
-            .password(password)
-            .carrier(Carrier.NONE)
-            .phone(phone)
-            .birth(birth)
-            .profileImage("test")
-            .personalInfo(true)
-            .idInfo(true)
-            .isAdmin(false)
-            .status(Status.ON)
-            .build();
+                .name(memberInfoListDTO.getName())
+                .carrier(memberInfoListDTO.getCarrier())
+                .birth(memberInfoListDTO.getBirth())
+                .email(memberInfoListDTO.getEmail())
+                .password(UUID.randomUUID().toString())
+                .phone(memberInfoListDTO.getPhone())
+                .personalInfo(memberInfoListDTO.isPersonalInfo())
+                .idInfo(memberInfoListDTO.isIdInfo())
+                .profileImage(memberInfoListDTO.getProfileImage())
+                .status(Status.ON)
+                .loginType(LoginType.NORMAL)
+                .build();
 
         memberRepository.save(member);
 
-        updateTheme(member.getId(), requestDTO.getThemes());
-        updateRegion(member.getId(), requestDTO.getRegions());
+        updateTheme(member.getId(), memberInfoListDTO.getThemes());
+        updateRegion(member.getId(), memberInfoListDTO.getRegions());
 
         TokenDTO token = jwtTokenProvider.createToken(member.getId());
 

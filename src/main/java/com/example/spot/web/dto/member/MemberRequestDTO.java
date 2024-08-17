@@ -60,18 +60,13 @@ public class MemberRequestDTO {
         private boolean idInfo;
         private boolean personalInfo;
 
+        private MemberRegionDTO regions;
+        private MemberThemeDTO themes;
+
         @AssertTrue(message = "휴대폰 번호는 11자리 이하로 입력해주세요.")
         private boolean isPhoneNumValid(){
             return phone.length() <= 11;
         }
     }
-    @Getter
-    @Setter
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class TestMemberDTO{
-        private MemberRegionDTO regions;
-        private MemberThemeDTO themes;
-    }
+
 }

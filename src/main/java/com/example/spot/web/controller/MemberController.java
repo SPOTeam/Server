@@ -49,8 +49,8 @@ public class MemberController {
            생성된 회원의 ID와 Email이 반환 됩니다. """)
     @PostMapping("/member/test")
     public ApiResponse<MemberResponseDTO.MemberTestDTO> testMember(
-        @RequestBody @Valid MemberRequestDTO.TestMemberDTO requestDTO){
-        MemberTestDTO dto = memberService.testMember(requestDTO);
+        @RequestBody @Valid MemberRequestDTO.MemberInfoListDTO memberInfoListDTO){
+        MemberTestDTO dto = memberService.testMember(memberInfoListDTO);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_CREATED, dto);
     }
 
