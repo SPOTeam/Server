@@ -1,6 +1,7 @@
 package com.example.spot.web.dto.memberstudy.response;
 
 import com.example.spot.domain.Member;
+import com.example.spot.domain.mapping.StudyLikedComment;
 import com.example.spot.domain.study.StudyPostComment;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -93,11 +94,11 @@ public class StudyPostCommentResponseDTO {
         private final Long postId;
         private final List<CommentReplyDTO> comments;
 
-        public static CommentReplyListDTO toDTO(Long postId, List<StudyPostComment> comments, String defaultImage) {
+        public static CommentReplyListDTO toDTO(Long postId, List<StudyPostComment> comments, Member member, String defaultImage) {
             return CommentReplyListDTO.builder()
                     .postId(postId)
                     .comments(comments.stream()
-                            .map(comment -> CommentReplyDTO.toDTO(comment, defaultImage))
+                            .map(comment -> CommentReplyDTO.toDTO(comment, member, defaultImage))
                             .toList())
                     .build();
         }
@@ -114,9 +115,10 @@ public class StudyPostCommentResponseDTO {
         private final Integer likeCount;
         private final Integer dislikeCount;
         private final Boolean isDeleted;
+        private final String isLiked;
         private final List<CommentReplyDTO> applies;
 
-        public static CommentReplyDTO toDTO(StudyPostComment comment, String defaultImage) {
+        public static CommentReplyDTO toDTO(StudyPostComment comment, Member member, String defaultImage) {
 
             String anonymity = "익명" + comment.getAnonymousNum();
             return CommentReplyDTO.builder()
@@ -126,11 +128,27 @@ public class StudyPostCommentResponseDTO {
                     .likeCount(comment.getLikeCount())
                     .dislikeCount(comment.getDislikeCount())
                     .isDeleted(comment.getIsDeleted())
+                    .isLiked(getIsLiked(comment, member))
                     .applies(comment.getChildrenComment().stream()
                             .sorted(Comparator.comparing(StudyPostComment::getCreatedAt))
-                            .map(child -> CommentReplyDTO.toDTO(child, defaultImage))
+                            .map(child -> CommentReplyDTO.toDTO(child, member, defaultImage))
                             .toList())
                     .build();
+        }
+
+        private static String getIsLiked(StudyPostComment comment, Member member) {
+            String isLiked = "NONE";
+            for (StudyLikedComment likedComment : comment.getLikedComments()) {
+                if (likedComment.getMember().equals(member)) {
+                    if (likedComment.getIsLiked()) {
+                        isLiked = "LIKED";
+                    } else {
+                        isLiked = "DISLIKED";
+                    }
+                    break;
+                }
+            }
+            return isLiked;
         }
     }
 }
