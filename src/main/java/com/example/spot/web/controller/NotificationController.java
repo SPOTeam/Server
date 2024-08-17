@@ -2,20 +2,25 @@ package com.example.spot.web.controller;
 
 import com.example.spot.api.ApiResponse;
 import com.example.spot.api.code.status.SuccessStatus;
-import com.example.spot.web.dto.notification.NotificationRequestDTO;
+import com.example.spot.security.utils.SecurityUtils;
 import com.example.spot.web.dto.notification.NotificationResponseDTO;
 import com.example.spot.service.notification.NotificationCommandService;
 import com.example.spot.service.notification.NotificationQueryService;
 
+import com.example.spot.web.dto.notification.NotificationResponseDTO.NotificationListDTO;
+import com.example.spot.web.dto.notification.NotificationResponseDTO.NotificationProcessDTO;
+import com.example.spot.web.dto.notification.NotificationResponseDTO.StduyNotificationListDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import jakarta.validation.constraints.Min;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "알림 - 개발 중", description = "알림 관련 API")
+@Tag(name = "알림", description = "알림 관련 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/spot")
@@ -25,67 +30,68 @@ public class NotificationController {
     private final NotificationCommandService notificationCommandService;
 
     //알림 전체 조회
-    @Tag(name = "알림", description = "알림 관련 API")
-    @Operation(summary = "[알림 전체 조회]", description = """
-            ## [알림 전체 조회] 내게 할당된 알림 전체 조회
-            내게 할당된 알림 전체를 조회합니다.
+    @Operation(summary = "[내 알림 전체 조회] 내게 생성된 알림을 전체 조회합니다.", description = """
+            ## [내 알림 전체 조회] 
+            내게 생성된 알림을 전체 조회합니다.
+            
+            알림의 내용, 생성 시간, 알림의 종류, 알림을 생성한 스터디의 이름을 반환합니다.
+            
+            알림의 종류는 다음과 같습니다.
+            ANNOUNCEMENT, SCHEDULE_UPDATE ,TO_DO_UPDATE, POPULAR_POST
+            
             """)
-    @GetMapping("/members/{memberId}/notifications")
-    public ApiResponse<List<NotificationResponseDTO.NotificationDTO>> getAllNotifications(@PathVariable Long memberId) {
-        List<NotificationResponseDTO.NotificationDTO> notificationDTO = notificationQueryService.getAllNotifications(memberId);
+    @GetMapping("/notifications")
+    public ApiResponse<NotificationListDTO> getAllNotifications(
+        @RequestParam @Min(0) Integer page,
+        @RequestParam @Min(1) Integer size
+    ) {
+        NotificationListDTO notificationDTO = notificationQueryService.getAllNotifications(
+            SecurityUtils.getCurrentUserId(), PageRequest.of(page, size));
         return ApiResponse.onSuccess(SuccessStatus._NOTIFICATION_FOUND, notificationDTO);
     }
 
-    //신청한 스터디 참여 확인 알림
-    @Tag(name = "알림", description = "알림 관련 API")
-    @Operation(summary = "[참가 신청한 스터디 알림 조회]", description = "유저가 참가 신청한 스터디 조회")
-    @GetMapping("/members/{memberId}/notifications/applied-study")
-    public ApiResponse<List<NotificationResponseDTO.NotificationDTO>> getAppliedStudyNotification(@PathVariable Long memberId) {
-        List<NotificationResponseDTO.NotificationDTO> notificationDTO = notificationQueryService.getAllAppliedStudyNotification(memberId);
-        return ApiResponse.onSuccess(SuccessStatus._NOTIFICATION_FOUND, notificationDTO);
 
+    @Operation(summary = "[참가 신청한 스터디 알림 조회] 참가 신청한 스터디에 대한 알림 조회", description = """
+            ## [참가 신청한 스터디 알림 조회] 회원이 참가 신청한 스터디에 대한 알림을 조회합니다.
+            참가 신청 했던 스터디의 제목과 프로필 이미지를 반환합니다.
+            
+            해당 알림은 본인의 스터디 신청을 스터디 소유자가 승인 처리 했을 경우 생성됩니다. 
+            
+            [참가 신청한 스터디 알람 처리] API를 통해 참여 버튼을 누르면 스터디에 참여할 수 있습니다.
+    """)
+    @GetMapping("/notifications/applied-study")
+    public ApiResponse<StduyNotificationListDTO> getAppliedStudyNotification(
+        @RequestParam @Min(0) Integer page,
+        @RequestParam @Min(1) Integer size
+    ) {
+        StduyNotificationListDTO notificationDTO = notificationQueryService.getAllAppliedStudyNotification(
+            SecurityUtils.getCurrentUserId(), PageRequest.of(page, size));
+        return ApiResponse.onSuccess(SuccessStatus._NOTIFICATION_FOUND, notificationDTO);
     }
 
     //알림 읽음 처리
-    @Operation(summary = "[알림 읽음 처리 - 개발중]", description = """
+    @Operation(summary = "[알림 읽음 처리] 일반 알림 읽음 처리", description = """
             ## [알림 읽음 처리] 알림을 읽음 처리합니다.
-            알림을 읽음 처리합니다.
+            알림 처리 후 읽음 처리 결과를 반환합니다.
             """)
-    @PostMapping("/members/{memberId}/notifications/{notificationId}/read")
-    public ApiResponse<NotificationResponseDTO.NotificationDTO> readNotification(@PathVariable Long memberId, @PathVariable Long notificationId) {
-        NotificationResponseDTO.NotificationDTO notificationDTO = notificationCommandService.readNotification(memberId, notificationId);
+    @PostMapping("/notifications/{notificationId}/read")
+    public ApiResponse<NotificationResponseDTO.NotificationProcessDTO> readNotification(@PathVariable Long notificationId) {
+        NotificationResponseDTO.NotificationProcessDTO notificationDTO = notificationCommandService.readNotification(
+            SecurityUtils.getCurrentUserId(), notificationId);
         return ApiResponse.onSuccess(SuccessStatus._NOTIFICATION_READ, notificationDTO);
-
-    }
-
-
-    @Operation(summary = "[참가 신청한 스터디 참여 여부 - 개발중]", description = "유저가 참가 신청한 스터디 참여 여부")
-    @GetMapping("/members/{memberId}/notifications/applied-study/{studyId}")
-    public ApiResponse<List<NotificationResponseDTO.NotificationDTO>> checkAppliedStudyNotification(@PathVariable Long memberId, @PathVariable Long studyId) {
-        return null;
     }
 
     // 신청한 스터디 참여
-    @Operation(summary = "[참가 신청한 스터디 참여 처리  - 개발중]", description = """
-            ## [참가 신청한 스터디 참여 확인] 유저가 참가 신청한 스터디를 참여 처리합니다.
-            해당 스터디 참석 처리
+    @Operation(summary = "[참가 신청한 스터디 알람 처리] 알림 통한 스터디 참여 처리", description = """
+            ## [참가 신청한 스터디 알람 처리] 유저가 참가 신청한 스터디에 대해 생성된 알림을 처리합니다.
+            isAccepted 값이 true일 경우 스터디 참여, false일 경우 스터디 참여 거절 처리합니다.
             """)
-    @PostMapping("/members/{memberId}/notifications/applied-study/{studyId}/join")
-    public ApiResponse<NotificationResponseDTO.NotificationDTO> joinAppliedStudy(@PathVariable Long memberId, @PathVariable Long studyId,
-                                                                                 @RequestBody NotificationRequestDTO.joinStudyDTO joinAppliedStudyRequestDTO) {
-        NotificationResponseDTO.NotificationDTO notification = notificationCommandService.joinAppliedStudy(studyId, memberId, joinAppliedStudyRequestDTO);
+    @PostMapping("/notifications/applied-study/{studyId}/join")
+    public ApiResponse<NotificationProcessDTO> joinAppliedStudy(
+        @PathVariable Long studyId,
+        @RequestParam boolean isAccepted) {
+        NotificationProcessDTO notification = notificationCommandService.joinAppliedStudy(
+            studyId, SecurityUtils.getCurrentUserId(), isAccepted);
         return ApiResponse.onSuccess(SuccessStatus._NOTIFICATION_APPLIED_STUDY_JOINED, notification);
-    }
-
-    // 신청한 스터디 불참
-    @Operation(summary = "[참가 신청한 스터디 불참 - 개발중]", description = """
-            ## [참가 신청한 스터디 참여 취소] 유저가 참가 신청한 스터디를 불참 처리합니다.
-            해당 스터디 참석 불참 처리
-            """)
-    @PostMapping("/members/{memberId}/notifications/applied-study/{studyId}/reject")
-    public ApiResponse<NotificationResponseDTO.NotificationDTO> rejectAppliedStudy(@PathVariable Long memberId, @PathVariable Long studyId,
-                                                                                   @RequestBody NotificationRequestDTO.rejectStudyDTO rejectAppliedStudyRequestDTO) {
-        NotificationResponseDTO.NotificationDTO notification = notificationCommandService.rejectAppliedStudy(studyId, memberId, rejectAppliedStudyRequestDTO);
-        return ApiResponse.onSuccess(SuccessStatus._NOTIFICATION_APPLIED_STUDY_REJECTED, notification);
     }
 }

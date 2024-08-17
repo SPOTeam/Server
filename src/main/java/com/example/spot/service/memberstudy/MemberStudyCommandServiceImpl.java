@@ -6,8 +6,10 @@ import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.api.exception.handler.StudyHandler;
 import com.example.spot.domain.Member;
 import com.example.spot.domain.MemberReport;
+import com.example.spot.domain.Notification;
 import com.example.spot.domain.Quiz;
 import com.example.spot.domain.enums.ApplicationStatus;
+import com.example.spot.domain.enums.NotifyType;
 import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.mapping.*;
 import com.example.spot.domain.study.*;
@@ -56,6 +58,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
     private final StudyPostRepository studyPostRepository;
     private final MemberVoteRepository memberVoteRepository;
     private final ToDoListRepository toDoListRepository;
+    private final NotificationRepository notificationRepository;
 
     // S3 Service
     private final S3ImageService s3ImageService;
@@ -116,8 +119,24 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         if (memberStudy.getStatus() != ApplicationStatus.APPLIED)
             throw new GeneralException(ErrorStatus._STUDY_APPLY_ALREADY_PROCESSED);
 
-        if (isAccept)
-            memberStudy.setStatus(ApplicationStatus.APPROVED);
+        Member owner = memberRepository.findById(SecurityUtils.getCurrentUserId())
+            .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        if (isAccept) {
+            // 스터디 참여 승인 최종 대기
+            memberStudy.setStatus(ApplicationStatus.AWAITING_SELF_APPROVAL);
+
+            // 알림 생성
+            Notification notification = Notification.builder()
+                .member(memberStudy.getMember()) // 신청자
+                .study(memberStudy.getStudy())
+                .notifierName(owner.getName()) // 스터디장 이름
+                .type(NotifyType.STUDY_APPLY)
+                .isChecked(Boolean.FALSE)
+                .build();
+
+            notificationRepository.save(notification);
+        }
         else {
             memberStudy.setStatus(ApplicationStatus.REJECTED);
             memberStudyRepository.delete(memberStudy);
@@ -129,7 +148,40 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
             .build();
     }
 
-/* ----------------------------- 스터디 일정 관련 API ------------------------------------- */
+    @Override
+    public StudyApplyResponseDTO acceptAndRejectStudyApplyForTest(Long memberId, Long studyId,
+        boolean isAccept) {
+
+        if (!isOwner(SecurityUtils.getCurrentUserId(), studyId))
+            throw new GeneralException(ErrorStatus._ONLY_STUDY_OWNER_CAN_ACCESS_APPLICANTS);
+
+        MemberStudy memberStudy = memberStudyRepository.findByMemberIdAndStudyId(memberId, studyId)
+            .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_APPLICANT_NOT_FOUND));
+
+        if (memberStudy.getIsOwned())
+            throw new GeneralException(ErrorStatus._STUDY_OWNER_CANNOT_APPLY);
+
+        if (memberStudy.getStatus() != ApplicationStatus.APPLIED)
+            throw new GeneralException(ErrorStatus._STUDY_APPLY_ALREADY_PROCESSED);
+
+        Member owner = memberRepository.findById(SecurityUtils.getCurrentUserId())
+            .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        if (isAccept) {
+            memberStudy.setStatus(ApplicationStatus.APPROVED);
+        }
+        else {
+            memberStudy.setStatus(ApplicationStatus.REJECTED);
+            memberStudyRepository.delete(memberStudy);
+        }
+
+        return StudyApplyResponseDTO.builder()
+            .status(memberStudy.getStatus())
+            .updatedAt(memberStudy.getUpdatedAt())
+            .build();
+    }
+
+    /* ----------------------------- 스터디 일정 관련 API ------------------------------------- */
 
     @Override
     public ScheduleResponseDTO.ScheduleDTO addSchedule(Long studyId, ScheduleRequestDTO.ScheduleDTO scheduleRequestDTO) {
@@ -158,6 +210,28 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
                 .isAllDay(scheduleRequestDTO.getIsAllDay())
                 .period(scheduleRequestDTO.getPeriod())
                 .build();
+
+        // 알림 생성
+
+        // 스터디에 참여중인 회원들에게 알림 전송 위해 회원 조회
+        List<Member> members = memberStudyRepository.findByStudyId(studyId).stream()
+            .map(MemberStudy::getMember)
+            .toList();
+
+
+        if (members.isEmpty())
+            throw new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND);
+
+        members.forEach(studyMember -> {
+                Notification notification = Notification.builder()
+                    .member(studyMember)
+                    .study(study)
+                    .notifierName(member.getName()) // 일정 생성자 이름
+                    .type(NotifyType.SCHEDULE_UPDATE)
+                    .isChecked(Boolean.FALSE)
+                    .build();
+                notificationRepository.save(notification);
+            });
 
         scheduleRepository.save(schedule);
         study.addSchedule(schedule);
@@ -670,6 +744,27 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
             throw new StudyHandler(ErrorStatus._STUDY_TODO_NOT_AUTHORIZED);
 
         toDoList.check();
+
+        // 스터디 회원의 To-Do List 중 하나가 완료 되면, 해당 스터디의 모든 회원에게 알림 전송
+        if (toDoList.isDone()){
+            List<Member> members = memberStudyRepository.findByStudyId(studyId).stream()
+                .map(MemberStudy::getMember)
+                .toList();
+
+            if (members.isEmpty())
+                throw new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND);
+
+            members.forEach(studyMember -> {
+                Notification notification = Notification.builder()
+                    .member(studyMember)
+                    .notifierName(toDoList.getMember().getName()) // To-Do 완료한 회원 이름
+                    .study(toDoList.getStudy())
+                    .type(NotifyType.TO_DO_UPDATE)
+                    .isChecked(Boolean.FALSE)
+                    .build();
+                notificationRepository.save(notification);
+            });
+        }
 
         toDoListRepository.save(toDoList);
 

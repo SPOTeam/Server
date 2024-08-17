@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface StudyLikedPostRepository extends JpaRepository<StudyLikedPost, Long> {
 
     Optional<StudyLikedPost> findByMemberIdAndStudyPostId(Long memberId, Long postId);
+
+    boolean existsByMemberIdAndStudyPostId(Long memberId, Long id);
 }

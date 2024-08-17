@@ -4,7 +4,9 @@ import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.api.exception.handler.StudyHandler;
 import com.example.spot.domain.Member;
+import com.example.spot.domain.Notification;
 import com.example.spot.domain.enums.ApplicationStatus;
+import com.example.spot.domain.enums.NotifyType;
 import com.example.spot.domain.mapping.MemberStudy;
 import com.example.spot.domain.mapping.StudyLikedComment;
 import com.example.spot.domain.mapping.StudyLikedPost;
@@ -44,6 +46,7 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
     private final StudyPostCommentRepository studyPostCommentRepository;
     private final StudyLikedPostRepository studyLikedPostRepository;
     private final StudyLikedCommentRepository studyLikedCommentRepository;
+    private final NotificationRepository notificationRepository;
 
     // S3 Service
     private final S3ImageService s3ImageService;
@@ -100,6 +103,30 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
                 studyPost.addImage(studyPostImage); // image id가 저장되지 않음
                 studyPostImage = studyPostImageRepository.save(studyPostImage);
                 studyPost.updateImage(studyPostImage); // image id 저장
+            }
+        }
+
+        if (studyPost.getIsAnnouncement()){
+
+            // 스터디에 참여중인 회원들에게 알림 전송 위해 회원 조회
+            List<Member> members = memberStudyRepository.findAllByStudyIdAndStatus(
+                studyPost.getStudy().getId(), ApplicationStatus.APPROVED).stream()
+                    .map(MemberStudy::getMember)
+                        .toList();
+
+            if (members.isEmpty())
+                throw new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND);
+
+            // 알림 생성
+            for (Member studyMember : members) {
+                Notification notification = Notification.builder()
+                    .study(studyPost.getStudy())
+                    .member(studyMember)
+                    .notifierName(member.getName()) // 글을 작성한 회원 이름
+                    .type(NotifyType.ANNOUNCEMENT)
+                    .isChecked(false)
+                    .build();
+                notificationRepository.save(notification);
             }
         }
 

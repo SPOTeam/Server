@@ -102,7 +102,7 @@ public class MemberStudyController {
     @Tag(name = "모집중인 스터디")
     @Operation(summary = "[모집중인 스터디] 스터디 신청 처리하기", description = """ 
         ## [모집중인 스터디] 마이페이지 > 모집중 > 스터디 > 신청 회원 > 거절 클릭, 로그인한 회원이 모집중인 스터디에 신청한 회원을 처리합니다.
-        isAccept가 true인 경우 member_study에서 application_status를 APPROVE로 수정합니다.
+        isAccept가 true인 경우 member_study에서 application_status를 AWAITING_SELF_APPROVAL 수정합니다. -> 참가 희망하는 회원이 알림을 통해 스스로 승인 해야 스터디 참여가 완료됩니다.
         isAccept가 false인 경우 member_study에서 application_status를 REJECTED로 수정합니다.
         스터디 신청 처리 결과를 응답으로 반환합니다. 
         """)
@@ -115,6 +115,29 @@ public class MemberStudyController {
         @RequestParam boolean isAccept) {
         return ApiResponse.onSuccess(SuccessStatus._STUDY_APPLICANT_UPDATED,
             memberStudyCommandService.acceptAndRejectStudyApply(applicantId, studyId, isAccept));
+    }
+
+    @Tag(name = "테스트 용 API", description = "테스트 용 API")
+    @Operation(summary = "!테스트 용! [모집중인 스터디] 스터디 신청 처리하기", description = """ 
+        ## [모집중인 스터디] 빠른 API 적용를 위해 스터디 신청 처리를 즉시 수행합니다.
+        위 API와 동일한 기능을 수행하지만, 실제 알림이 발송되지 않습니다. 
+        또한 스터디 신청 승인 시,  회원의 상태가 AWAITING_SELF_APPROVAL가 아닌 APPROVED로 변경됩니다.
+       
+        즉, 바로 스터디 참여가 완료됩니다. 스터디 회원 조회 시, 바로 승인된 회원으로 조회됩니다.
+        
+        isAccept가 true인 경우 member_study에서 application_status를 APPROVED로 수정합니다.
+        isAccept가 false인 경우 member_study에서 application_status를 REJECTED로 수정합니다.
+        스터디 신청 처리 결과를 응답으로 반환합니다.
+        """)
+    @PostMapping("/studies/{studyId}/applicants/{applicantId}/test")
+    @Parameter(name = "studyId", description = "모집중인 스터디의 ID를 입력 받습니다.", required = true)
+    @Parameter(name = "applicantId", description = "신청자의 ID를 입력 받습니다.", required = true)
+    public ApiResponse<StudyApplyResponseDTO> rejectApplicantForTest(
+        @PathVariable @ExistStudy Long studyId,
+        @PathVariable @ExistMember Long applicantId,
+        @RequestParam boolean isAccept) {
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_APPLICANT_UPDATED,
+            memberStudyCommandService.acceptAndRejectStudyApplyForTest(applicantId, studyId, isAccept));
     }
 
 

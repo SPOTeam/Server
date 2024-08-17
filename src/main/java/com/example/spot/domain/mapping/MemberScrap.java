@@ -23,4 +23,9 @@ public class MemberScrap extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
+    public MemberScrap(Post post, Member member) {
+        this.post = post;
+        this.member = member;
+    }
 }

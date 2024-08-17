@@ -20,7 +20,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -29,6 +28,7 @@ import java.util.List;
 public class StudyPostQueryServiceImpl implements StudyPostQueryService {
 
     private final StudyPostCommentRepository studyPostCommentRepository;
+    private final StudyLikedPostRepository studyLikedPostRepository;
     @Value("${cloud.aws.default-image}")
     private String defaultImage;
 
@@ -67,7 +67,13 @@ public class StudyPostQueryServiceImpl implements StudyPostQueryService {
         }
 
         return StudyPostResDTO.PostListDTO.toDTO(study, studyPosts.stream()
-                .map(StudyPostResDTO.PostDTO::toDTO)
+                .map(studyPost -> {
+                    if (studyLikedPostRepository.existsByMemberIdAndStudyPostId(memberId, studyPost.getId())) {
+                        return StudyPostResDTO.PostDTO.toDTO(studyPost, true);
+                    } else {
+                        return StudyPostResDTO.PostDTO.toDTO(studyPost, false);
+                    }
+                })
                 .toList());
 
     }
@@ -101,7 +107,8 @@ public class StudyPostQueryServiceImpl implements StudyPostQueryService {
         memberRepository.save(member);
         studyRepository.save(study);
 
-        return StudyPostResDTO.PostDetailDTO.toDTO(studyPost);
+        boolean isLiked = studyLikedPostRepository.existsByMemberIdAndStudyPostId(memberId, studyPost.getId());
+        return StudyPostResDTO.PostDetailDTO.toDTO(studyPost, isLiked);
     }
 
 /* ----------------------------- 스터디 게시글 댓글 관련 API ------------------------------------- */
@@ -113,7 +120,7 @@ public class StudyPostQueryServiceImpl implements StudyPostQueryService {
         Long memberId = SecurityUtils.getCurrentUserId();
         SecurityUtils.verifyUserId(memberId);
 
-        memberRepository.findById(memberId)
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
         studyRepository.findById(studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
@@ -134,7 +141,7 @@ public class StudyPostQueryServiceImpl implements StudyPostQueryService {
                 .sorted(Comparator.comparing(StudyPostComment::getCreatedAt))
                 .toList();
 
-        return StudyPostCommentResponseDTO.CommentReplyListDTO.toDTO(studyPost.getId(), studyPostComments, defaultImage);
+        return StudyPostCommentResponseDTO.CommentReplyListDTO.toDTO(studyPost.getId(), studyPostComments, member, defaultImage);
     }
 
 }

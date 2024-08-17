@@ -35,7 +35,7 @@ public class PostPagingDetailResponse {
             description = "스크랩 수입니다.",
             format = "int"
     )
-    private int scrapCount;
+    private Long scrapCount;
 
     @Schema(description = "게시글 제목입니다.",
             format = "string")
@@ -68,6 +68,11 @@ public class PostPagingDetailResponse {
     )
     private boolean likedByCurrentUser;
 
+    @Schema(
+            description = "현재 사용자의 해당 게시글 스크랩 여부입니다."
+    )
+    private boolean scrapedByCurrentUser;
+
     public static String judgeAnonymous(Boolean isAnonymous, String writer) {
 
         if (isAnonymous) {
@@ -75,7 +80,7 @@ public class PostPagingDetailResponse {
         }
         return writer;
     }
-    public static PostPagingDetailResponse toDTO(Post post, long likeCount, boolean likedByCurrentUser) {
+    public static PostPagingDetailResponse toDTO(Post post, long likeCount, long scrapCount, boolean likedByCurrentUser, boolean scrapedByCurrentUser) {
         // 작성자가 익명인지 확인하여 작성자 이름 설정
         String writerName = judgeAnonymous(post.isAnonymous(), post.getMember().getName());
 
@@ -83,7 +88,8 @@ public class PostPagingDetailResponse {
                 .postId(post.getId())
                 .writer(writerName)
                 .writtenTime(post.getCreatedAt())
-                .scrapCount(post.getScrapNum())
+                .scrapCount(scrapCount)
+                .scrapedByCurrentUser(scrapedByCurrentUser)
                 .title(post.getTitle())
                 .content(post.getContent())
                 .likeCount(likeCount)

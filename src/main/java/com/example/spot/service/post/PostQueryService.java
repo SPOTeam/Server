@@ -16,4 +16,6 @@ public interface PostQueryService {
 
     CommentResponse getCommentsByPostId(Long postId);
 
+    //스크랩 게시글 조회
+    PostPagingResponse getScrapPagingPost(String type, Pageable pageable);
 }
