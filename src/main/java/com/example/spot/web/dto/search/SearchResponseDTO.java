@@ -72,6 +72,7 @@ public class SearchResponseDTO {
             this.imageUrl = study.getProfileImage();
             this.title = study.getTitle();
             this.introduction = study.getIntroduction();
+            this.goal = study.getGoal();
             this.memberCount = (long) study.getMemberStudies().size();
             this.heartCount = (long) study.getHeartCount();
             this.hitNum = study.getHitNum();
@@ -87,6 +88,7 @@ public class SearchResponseDTO {
         String imageUrl;
         String title;
         String introduction;
+        String goal;
         Long memberCount;
         Long heartCount;
         Long hitNum;
