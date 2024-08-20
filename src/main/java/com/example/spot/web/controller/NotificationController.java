@@ -31,8 +31,7 @@ public class NotificationController {
 
     //알림 전체 조회
     @Operation(summary = "[내 알림 전체 조회] 내게 생성된 알림을 전체 조회합니다.", description = """
-            ## [내 알림 전체 조회] 
-            내게 생성된 알림을 전체 조회합니다.
+            ## [내 알림 전체 조회] 내게 생성된 알림을 전체 조회합니다.
             
             알림의 내용, 생성 시간, 알림의 종류, 알림을 생성한 스터디의 이름을 반환합니다.
             
@@ -52,13 +51,13 @@ public class NotificationController {
 
 
     @Operation(summary = "[참가 신청한 스터디 알림 조회] 참가 신청한 스터디에 대한 알림 조회", description = """
+        
             ## [참가 신청한 스터디 알림 조회] 회원이 참가 신청한 스터디에 대한 알림을 조회합니다.
+            
             참가 신청 했던 스터디의 제목과 프로필 이미지를 반환합니다.
-            
             해당 알림은 본인의 스터디 신청을 스터디 소유자가 승인 처리 했을 경우 생성됩니다. 
-            
-            [참가 신청한 스터디 알람 처리] API를 통해 참여 버튼을 누르면 스터디에 참여할 수 있습니다.
-    """)
+            *참가 신청한 스터디 알람 처리* API를 통해 참여 버튼을 누르면 스터디에 참여할 수 있습니다.
+            """)
     @GetMapping("/notifications/applied-study")
     public ApiResponse<StduyNotificationListDTO> getAppliedStudyNotification(
         @RequestParam @Min(0) Integer page,
