@@ -2,6 +2,7 @@ package com.example.spot.service.study;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
@@ -31,6 +32,7 @@ import com.example.spot.repository.RegionStudyRepository;
 import com.example.spot.repository.StudyRepository;
 import com.example.spot.repository.StudyThemeRepository;
 import com.example.spot.repository.ThemeRepository;
+import com.example.spot.security.utils.SecurityUtils;
 import com.example.spot.web.dto.search.SearchRequestDTO.SearchRequestStudyDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.StudyPreviewDTO;
 import java.util.HashMap;
@@ -49,6 +51,9 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.parameters.P;
 
 @ExtendWith(MockitoExtension.class)
@@ -531,6 +536,16 @@ class StudyQueryServiceTest {
         when(studyRepository.countStudyByConditions(searchConditions, sortBy))
             .thenReturn(2L);
 
+        // SecurityContext와 Authentication을 모킹
+        Authentication authentication = mock(Authentication.class);
+        SecurityContext securityContext = mock(SecurityContext.class);
+
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.isAuthenticated()).thenReturn(true);
+        when(authentication.getName()).thenReturn("1"); // 현재 사용자 ID를 1로 가정
+
+        SecurityContextHolder.setContext(securityContext);
+
         // when
         StudyPreviewDTO result = studyQueryService.findRecruitingStudiesByConditions(pageable, request, sortBy);
 
@@ -590,8 +605,20 @@ class StudyQueryServiceTest {
         when(studyRepository.countAllByTitleContaining(keyword, sortBy))
             .thenReturn(1L);
 
+        // SecurityContext와 Authentication을 모킹
+        Authentication authentication = mock(Authentication.class);
+        SecurityContext securityContext = mock(SecurityContext.class);
+
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.isAuthenticated()).thenReturn(true);
+        when(authentication.getName()).thenReturn("1"); // 현재 사용자 ID를 1로 가정
+
+        SecurityContextHolder.setContext(securityContext);
+
         // when
         StudyPreviewDTO result = studyQueryService.findStudiesByKeyword(pageable, keyword, sortBy);
+
+
 
         // then
         assertNotNull(result);
@@ -619,6 +646,15 @@ class StudyQueryServiceTest {
             .thenReturn(List.of(study1));
         when(studyRepository.countStudyByStudyTheme(List.of(studyTheme), sortBy))
             .thenReturn(1L);
+        // SecurityContext와 Authentication을 모킹
+        Authentication authentication = mock(Authentication.class);
+        SecurityContext securityContext = mock(SecurityContext.class);
+
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.isAuthenticated()).thenReturn(true);
+        when(authentication.getName()).thenReturn("1"); // 현재 사용자 ID를 1로 가정
+
+        SecurityContextHolder.setContext(securityContext);
 
         // when
         StudyPreviewDTO result = studyQueryService.findStudiesByTheme(pageable, themeType, sortBy);
