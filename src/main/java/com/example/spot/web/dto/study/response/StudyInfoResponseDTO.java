@@ -1,6 +1,7 @@
 package com.example.spot.web.dto.study.response;
 
 import com.example.spot.domain.Member;
+import com.example.spot.domain.enums.ApplicationStatus;
 import com.example.spot.domain.enums.Gender;
 import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.domain.study.Study;
@@ -62,7 +63,11 @@ public class StudyInfoResponseDTO {
                     .studyOwner(StudyOwnerDTO.toDTO(member))
                     .hitNum(study.getHitNum())
                     .heartCount(study.getHeartCount())
-                    .memberCount(study.getMemberStudies().size())
+                    .memberCount(
+                        study.getMemberStudies().stream()
+                            .filter(memberStudy -> memberStudy.getStatus().equals(ApplicationStatus.APPROVED))
+                            .toList()
+                            .size())
                     .maxPeople(study.getMaxPeople())
                     .gender(study.getGender())
                     .minAge(study.getMinAge())

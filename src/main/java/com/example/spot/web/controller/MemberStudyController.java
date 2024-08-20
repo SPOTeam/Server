@@ -16,6 +16,7 @@ import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListResponseDTO.ToD
 import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListResponseDTO.ToDoListUpdateResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.*;
 import com.example.spot.web.dto.study.response.*;
+import com.example.spot.web.dto.study.response.StudyMemberResponseDTO.StudyApplicantDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -73,6 +74,19 @@ public class MemberStudyController {
 
 /* ----------------------------- 모집중인 스터디 관련 API ------------------------------------- */
 
+    @Tag(name = "모집중인 스터디")
+    @Operation(summary = "[모집중인 스터디] 스터디 별 신청 여부 조회하기", description = """ 
+        ## [모집중인 스터디] 로그인한 회원이 모집중인 스터디에 대해 신청 여부를 조회합니다.
+        로그인한 회원이 참여하는 특정 스터디에 대해 member_study의 application_status가 APPLIED인지 확인합니다.
+        반환 값은 boolean으로, 신청 여부를 나타냅니다.
+        true: 신청한 상태, false: 신청하지 않은 상태
+        """)
+    @GetMapping("/studies/{studyId}/is-applied")
+    @Parameter(name = "studyId", description = "모집중인 스터디의 ID를 입력 받습니다.", required = true)
+    public ApiResponse<StudyApplicantDTO> getIsApplied(@PathVariable @ExistStudy Long studyId) {
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_APPLICANT_FOUND,
+            memberStudyQueryService.isApplied(studyId));
+    }
 
     @Tag(name = "모집중인 스터디")
     @Operation(summary = "[모집중인 스터디] 스터디별 신청 회원 목록 불러오기", description = """ 

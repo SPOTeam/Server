@@ -15,6 +15,7 @@ import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListResponseDTO.ToD
 import com.example.spot.web.dto.memberstudy.response.*;
 
 import com.example.spot.web.dto.study.response.*;
+import com.example.spot.web.dto.study.response.StudyMemberResponseDTO.StudyApplicantDTO;
 import lombok.RequiredArgsConstructor;
 import com.example.spot.api.exception.GeneralException;
 import com.example.spot.domain.enums.ApplicationStatus;
@@ -148,7 +149,21 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
             .build();
     }
 
-/* ----------------------------- 스터디 출석 관련 API ------------------------------------- */
+    @Override
+    public StudyApplicantDTO isApplied(Long studyId) {
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+
+        if (isMember(currentUserId, studyId))
+            throw new GeneralException(ErrorStatus._ALREADY_STUDY_MEMBER);
+
+        return StudyApplicantDTO.builder()
+            .isApplied(memberStudyRepository.existsByMemberIdAndStudyId(currentUserId, studyId))
+            .studyId(studyId)
+            .build();
+
+    }
+
+    /* ----------------------------- 스터디 출석 관련 API ------------------------------------- */
 
     @Override
     public StudyQuizResponseDTO.AttendanceListDTO getAllAttendances(Long studyId, Long quizId) {
