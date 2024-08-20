@@ -95,9 +95,9 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 
     @Override
     public StudyMemberResponseDTO findStudyMembers(Long studyId) {
-
-        if (!isMember(SecurityUtils.getCurrentUserId(), studyId))
-            throw new GeneralException(ErrorStatus._ONLY_STUDY_MEMBER_CAN_ACCESS_MEMBERS);
+//
+//        if (!isMember(SecurityUtils.getCurrentUserId(), studyId))
+//            throw new GeneralException(ErrorStatus._ONLY_STUDY_MEMBER_CAN_ACCESS_MEMBERS);
 
         List<MemberStudy> memberStudies = memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED);
         if (memberStudies.isEmpty())
