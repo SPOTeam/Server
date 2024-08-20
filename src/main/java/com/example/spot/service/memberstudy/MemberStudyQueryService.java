@@ -5,6 +5,7 @@ import com.example.spot.web.dto.memberstudy.response.*;
 
 import com.example.spot.web.dto.study.response.*;
 
+import com.example.spot.web.dto.study.response.StudyMemberResponseDTO.StudyApplicantDTO;
 import java.time.LocalDate;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +30,9 @@ public interface MemberStudyQueryService {
 
     // 스터디 신청 정보 가져오기
     StudyMemberResponseDTO.StudyApplyMemberDTO findStudyApplication(Long studyId, Long memberId);
+
+    // 스터디 신청 여부 확인
+    StudyApplicantDTO isApplied(Long studyId);
 
     // 금일 회원 출석 여부 불러오기
     StudyQuizResponseDTO.AttendanceListDTO getAllAttendances(Long studyId, Long quizId);
