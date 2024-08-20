@@ -324,7 +324,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
 
         long totalElements = studyRepository.countStudyByStudyTheme(studyThemes, sortBy);
-        return getDTOs(studies, pageable, totalElements, null);
+        return getDTOs(studies, pageable, totalElements, SecurityUtils.getCurrentUserId());
     }
 
     @Override
