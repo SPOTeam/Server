@@ -30,6 +30,7 @@ import com.example.spot.repository.StudyPostRepository;
 import com.example.spot.repository.StudyRepository;
 import com.example.spot.repository.StudyThemeRepository;
 import com.example.spot.repository.ThemeRepository;
+import com.example.spot.security.utils.SecurityUtils;
 import com.example.spot.web.dto.search.SearchRequestDTO.SearchRequestStudyDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.MyPageDTO;
@@ -88,8 +89,10 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             throw new StudyHandler(ErrorStatus._STUDY_OWNER_NOT_FOUND);
         }
 
-        Member owner = memberStudyList.get(0).getMember();
-        return StudyInfoResponseDTO.StudyInfoDTO.toDTO(study, owner);
+        Member member = memberRepository.findById(SecurityUtils.getCurrentUserId())
+            .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
+
+        return StudyInfoResponseDTO.StudyInfoDTO.toDTO(study, member);
     }
 
     @Override
@@ -278,7 +281,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
 
 
-        return getDTOs(studies, pageable, totalElements, null);
+        return getDTOs(studies, pageable, totalElements, SecurityUtils.getCurrentUserId());
     }
 
     @Override
@@ -304,7 +307,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
 
         long totalElements = studyRepository.countAllByTitleContaining(keyword, sortBy);
-        return getDTOs(studies, pageable, totalElements, null);
+        return getDTOs(studies, pageable, totalElements, SecurityUtils.getCurrentUserId());
     }
 
     @Override
@@ -321,7 +324,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
 
         long totalElements = studyRepository.countStudyByStudyTheme(studyThemes, sortBy);
-        return getDTOs(studies, pageable, totalElements, null);
+        return getDTOs(studies, pageable, totalElements, SecurityUtils.getCurrentUserId());
     }
 
     @Override
