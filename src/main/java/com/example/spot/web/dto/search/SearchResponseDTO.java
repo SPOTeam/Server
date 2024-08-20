@@ -2,6 +2,7 @@ package com.example.spot.web.dto.search;
 
 import com.example.spot.domain.Region;
 import com.example.spot.domain.Theme;
+import com.example.spot.domain.enums.ApplicationStatus;
 import com.example.spot.domain.enums.StudyState;
 import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.domain.mapping.PreferredStudy;
@@ -73,7 +74,10 @@ public class SearchResponseDTO {
             this.title = study.getTitle();
             this.introduction = study.getIntroduction();
             this.goal = study.getGoal();
-            this.memberCount = (long) study.getMemberStudies().size();
+            this.memberCount = (long) study.getMemberStudies().stream()
+                    .filter(memberStudy -> memberStudy.getStatus().equals(ApplicationStatus.APPROVED))
+                    .toList()
+                    .size();
             this.heartCount = (long) study.getHeartCount();
             this.hitNum = study.getHitNum();
             this.maxPeople = study.getMaxPeople();
