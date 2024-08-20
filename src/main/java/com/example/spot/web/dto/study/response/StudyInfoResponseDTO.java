@@ -4,6 +4,7 @@ import com.example.spot.domain.Member;
 import com.example.spot.domain.enums.ApplicationStatus;
 import com.example.spot.domain.enums.Gender;
 import com.example.spot.domain.enums.ThemeType;
+import com.example.spot.domain.mapping.PreferredStudy;
 import com.example.spot.domain.study.Study;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -36,7 +37,7 @@ public class StudyInfoResponseDTO {
 
         @Builder(access = AccessLevel.PRIVATE)
         private StudyInfoDTO(Long studyId, String studyName, StudyOwnerDTO studyOwner,
-                             Long hitNum, Integer heartCount, Integer memberCount, Long maxPeople, Gender gender,
+                             Long hitNum, Integer heartCount, Integer memberCount, Boolean isLiked, Long maxPeople, Gender gender,
                              Integer minAge, Integer maxAge, Integer fee, Boolean isOnline,
                              List<ThemeType> themes, String goal, String introduction) {
             this.studyId = studyId;
