@@ -3,6 +3,7 @@ package com.example.spot.web.dto.search;
 import com.example.spot.domain.Region;
 import com.example.spot.domain.Theme;
 import com.example.spot.domain.enums.ApplicationStatus;
+import com.example.spot.domain.enums.StudyLikeStatus;
 import com.example.spot.domain.enums.StudyState;
 import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.domain.mapping.PreferredStudy;
@@ -61,8 +62,10 @@ public class SearchResponseDTO {
     public static class SearchStudyDTO {
         public SearchStudyDTO(Study study, long memberId){
             getInstructor(study);
-            this.isLiked = study.getPreferredStudies().stream().map(PreferredStudy::getMember).anyMatch(s -> s.getId().equals(
-                memberId));
+            this.isLiked = study.getPreferredStudies().stream()
+                .filter(preferredStudy -> preferredStudy.getStudyLikeStatus() == StudyLikeStatus.LIKE) // status가 LIKED인 경우만 필터링
+                .map(PreferredStudy::getMember)
+                .anyMatch(member -> member.getId().equals(memberId));
         }
         public SearchStudyDTO(Study study){
             getInstructor(study);
