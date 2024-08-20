@@ -33,4 +33,6 @@ public interface MemberStudyRepository extends JpaRepository<MemberStudy, Long> 
     long countByMemberIdAndIsOwned(Long memberId, Boolean isOwned);
 
     boolean existsByMemberIdAndStudyIdAndStatus(Long memberId, Long studyId, ApplicationStatus applicationStatus);
+
+    boolean existsByMemberIdAndStudyId(Long memberId, Long studyId);
 }

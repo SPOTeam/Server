@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 
+
+
+
 @Builder
 @Getter
 @NoArgsConstructor
@@ -40,5 +43,14 @@ public class StudyMemberResponseDTO {
         private String nickname;
         private String profileImage;
         private String introduction;
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class StudyApplicantDTO{
+        private boolean isApplied;
+        private Long studyId;
     }
 }
