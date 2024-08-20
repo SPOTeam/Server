@@ -25,7 +25,6 @@ public class StudyInfoResponseDTO {
         private final Long hitNum;
         private final Integer heartCount;
         private final Integer memberCount;
-        private final Boolean isLiked;
         private final Long maxPeople;
         private final Gender gender;
         private final Integer minAge;
@@ -47,7 +46,6 @@ public class StudyInfoResponseDTO {
             this.hitNum = hitNum;
             this.heartCount = heartCount;
             this.memberCount = memberCount;
-            this.isLiked = isLiked;
             this.maxPeople = maxPeople;
             this.gender = gender;
             this.minAge = minAge;
@@ -71,9 +69,6 @@ public class StudyInfoResponseDTO {
                             .filter(memberStudy -> memberStudy.getStatus().equals(ApplicationStatus.APPROVED))
                             .toList()
                             .size())
-                    .isLiked(study.getPreferredStudies().stream()
-                            .map(PreferredStudy::getMember)
-                            .anyMatch(s -> s.getId().equals(member.getId())))
                     .maxPeople(study.getMaxPeople())
                     .gender(study.getGender())
                     .minAge(study.getMinAge())
