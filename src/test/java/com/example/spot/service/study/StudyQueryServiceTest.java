@@ -576,7 +576,7 @@ class StudyQueryServiceTest {
             .studyLikeStatus(StudyLikeStatus.LIKE)
             .build();
 
-        when(preferredStudyRepository.findByMemberIdOrderByCreatedAtDesc(member.getId()))
+        when(preferredStudyRepository.findByMemberIdAndStudyLikeStatusOrderByCreatedAtDesc(member.getId(), StudyLikeStatus.LIKE))
             .thenReturn(List.of(preferredStudy1, preferredStudy2));
         when(preferredStudyRepository.countByMemberId(member.getId()))
             .thenReturn(2L);
@@ -587,7 +587,7 @@ class StudyQueryServiceTest {
         // then
         assertNotNull(result);
         assertEquals(2, result.getTotalElements());
-        verify(preferredStudyRepository).findByMemberIdOrderByCreatedAtDesc(member.getId());
+        verify(preferredStudyRepository).findByMemberIdAndStudyLikeStatusOrderByCreatedAtDesc(member.getId(), StudyLikeStatus.LIKE);
 
     }
 
