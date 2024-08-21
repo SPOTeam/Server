@@ -23,6 +23,11 @@ public class PostSingleResponse {
     private String writer;
 
     @Schema(
+            description = "댓글 작성자 프로필 사진"
+    )
+    private String profileImage;
+
+    @Schema(
             description = "작성 시간입니다.",
             type = "string",
             format = "date-time",
@@ -103,6 +108,7 @@ public class PostSingleResponse {
         return PostSingleResponse.builder()
                 .type(post.getBoard().name())
                 .writer(writerName)
+                .profileImage(post.getMember().getProfileImage())
                 .writtenTime(post.getCreatedAt())
                 .scrapCount(scrapCount)
                 .scrapedByCurrentUser(scrapedByCurrentUser)
