@@ -74,7 +74,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
 
-        MemberStudy memberStudy = memberStudyRepository.findByMemberIdAndStudyId(memberId, studyId)
+        MemberStudy memberStudy = memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
 
         // 참여가 승인되지 않은 스터디는 탈퇴할 수 없음
@@ -110,7 +110,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         if (!isOwner(SecurityUtils.getCurrentUserId(), studyId))
             throw new GeneralException(ErrorStatus._ONLY_STUDY_OWNER_CAN_ACCESS_APPLICANTS);
 
-        MemberStudy memberStudy = memberStudyRepository.findByMemberIdAndStudyId(memberId, studyId)
+        MemberStudy memberStudy = memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPLIED)
             .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_APPLICANT_NOT_FOUND));
 
         if (memberStudy.getIsOwned())
@@ -155,7 +155,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         if (!isOwner(SecurityUtils.getCurrentUserId(), studyId))
             throw new GeneralException(ErrorStatus._ONLY_STUDY_OWNER_CAN_ACCESS_APPLICANTS);
 
-        MemberStudy memberStudy = memberStudyRepository.findByMemberIdAndStudyId(memberId, studyId)
+        MemberStudy memberStudy = memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPLIED)
             .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_APPLICANT_NOT_FOUND));
 
         if (memberStudy.getIsOwned())
@@ -214,7 +214,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         // 알림 생성
 
         // 스터디에 참여중인 회원들에게 알림 전송 위해 회원 조회
-        List<Member> members = memberStudyRepository.findByStudyId(studyId).stream()
+        List<Member> members = memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED).stream()
             .map(MemberStudy::getMember)
             .toList();
 
@@ -747,7 +747,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
 
         // 스터디 회원의 To-Do List 중 하나가 완료 되면, 해당 스터디의 모든 회원에게 알림 전송
         if (toDoList.isDone()){
-            List<Member> members = memberStudyRepository.findByStudyId(studyId).stream()
+            List<Member> members = memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED).stream()
                 .map(MemberStudy::getMember)
                 .toList();
 

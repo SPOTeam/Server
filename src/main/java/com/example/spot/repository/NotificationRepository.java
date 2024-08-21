@@ -13,9 +13,9 @@ import java.util.List;
 
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
-    Optional<Notification> findByMemberIdAndStudyIdAndType(Long memberId, Long studyId, NotifyType type);
+    Optional<Notification> findByMemberIdAndStudyIdAndTypeAndIsChecked(Long memberId, Long studyId, NotifyType type, boolean isChecked);
     List<Notification> findByMemberIdAndTypeNot(Long memberId, Pageable pageable, NotifyType type);
-    List<Notification> findByMemberIdAndType(Long memberId, Pageable pageable, NotifyType type);
+    List<Notification> findByMemberIdAndTypeAndIsChecked(Long memberId, Pageable pageable, NotifyType type, boolean isChecked);
 
     List<Notification> findByType(NotifyType type);
 }

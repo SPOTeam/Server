@@ -128,6 +128,8 @@ public class MemberServiceImpl implements MemberService {
     }
 
     private void saveRefreshToken(Member member, TokenDTO token) {
+        if (refreshTokenRepository.existsByMemberId(member.getId()))
+            refreshTokenRepository.deleteAllByMemberId(member.getId());
         RefreshToken refreshToken = RefreshToken.builder()
             .memberId(member.getId())
             .token(token.getRefreshToken())
