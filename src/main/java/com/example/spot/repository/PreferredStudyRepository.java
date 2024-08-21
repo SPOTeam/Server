@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 // 찜한 스터디
 public interface PreferredStudyRepository extends JpaRepository<PreferredStudy, Long> {
 
-    List<PreferredStudy> findByMemberIdOrderByCreatedAtDesc(Long memberId);
+    List<PreferredStudy> findByMemberIdAndStudyLikeStatusOrderByCreatedAtDesc(Long memberId, StudyLikeStatus studyLikeStatus);
     Optional<PreferredStudy> findByMemberIdAndStudyId(Long memberId, Long studyId);
 
     long countByMemberId(Long memberId);

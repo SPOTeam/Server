@@ -7,6 +7,7 @@ import com.example.spot.domain.Member;
 import com.example.spot.domain.Region;
 import com.example.spot.domain.Theme;
 import com.example.spot.domain.enums.ApplicationStatus;
+import com.example.spot.domain.enums.StudyLikeStatus;
 import com.example.spot.domain.enums.StudySortBy;
 import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.domain.mapping.MemberStudy;
@@ -286,7 +287,8 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
     @Override
     public StudyPreviewDTO findLikedStudies(Long memberId) {
-        List<PreferredStudy> preferredStudyList = preferredStudyRepository.findByMemberIdOrderByCreatedAtDesc(memberId);
+        List<PreferredStudy> preferredStudyList = preferredStudyRepository.findByMemberIdAndStudyLikeStatusOrderByCreatedAtDesc(
+            memberId, StudyLikeStatus.LIKE);
         List<Study> studies = preferredStudyList.stream()
             .map(PreferredStudy::getStudy)
             .toList();
