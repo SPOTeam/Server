@@ -36,6 +36,11 @@ public class CommentDetailResponse {
     private String writer;
 
     @Schema(
+            description = "댓글 작성자 프로필 사진"
+    )
+    private String profileImage;
+
+    @Schema(
             description = "작성 시간입니다.",
             type = "string",
             format = "date-time",
@@ -71,6 +76,7 @@ public class CommentDetailResponse {
 
         return CommentDetailResponse.builder()
                 .commentId(comment.getId())
+                .profileImage(comment.getMember().getProfileImage())
                 .commentContent(comment.getContent())
                 .parentCommentId(comment.getParentComment() != null ? comment.getParentComment().getId() : null)
                 .writer(writerName)
