@@ -7,7 +7,6 @@ public enum ApplicationStatus {
     AWAITING_SELF_APPROVAL, // 본인 승인 대기
 
     REJECTED, // 신청 거절
-    CANCELED, // 신청 취소
     ONGOING,  // 스터디 진행 중
 
 }

@@ -63,7 +63,7 @@ public class StudyCommandServiceImpl implements StudyCommandService {
 
 
         // 이미 신청한 스터디에 다시 신청할 수 없음
-        List<MemberStudy> memberStudyList = memberStudyRepository.findByMemberId(memberId).stream()
+        List<MemberStudy> memberStudyList = memberStudyRepository.findByMemberIdAndStatusNot(memberId, ApplicationStatus.REJECTED).stream()
                 .filter(memberStudy -> study.equals(memberStudy.getStudy()))
                 .toList();
 
