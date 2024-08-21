@@ -100,7 +100,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
         long appliedStudies = memberStudyRepository.countByMemberIdAndStatus(memberId, ApplicationStatus.APPLIED);
-        long ongoingStudies = memberStudyRepository.countByMemberIdAndStatus(memberId, ApplicationStatus.ONGOING);
+        long ongoingStudies = memberStudyRepository.countByMemberIdAndStatus(memberId, ApplicationStatus.APPROVED);
         long myRecruitingStudies = memberStudyRepository.countByMemberIdAndIsOwned(memberId, true);
         return MyPageDTO.builder()
             .name(member.getName())

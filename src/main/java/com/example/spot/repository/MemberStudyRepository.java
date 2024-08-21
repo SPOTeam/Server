@@ -12,10 +12,7 @@ import java.util.Optional;
 @Repository
 public interface MemberStudyRepository extends JpaRepository<MemberStudy, Long> {
 
-    List<MemberStudy> findByMemberId(Long memberId);
     List<MemberStudy> findByMemberIdAndStatusNot(Long memberId, ApplicationStatus status);
-
-    List<MemberStudy> findByStudyId(Long studyId);
 
     List<MemberStudy> findAllByMemberIdAndStatus(Long memberId, ApplicationStatus status);
 
@@ -25,8 +22,6 @@ public interface MemberStudyRepository extends JpaRepository<MemberStudy, Long> 
 
     Optional<MemberStudy> findByMemberIdAndStudyIdAndStatus(Long memberId, Long studyId, ApplicationStatus status);
 
-    Optional<MemberStudy> findByMemberIdAndStudyId(Long memberId, Long studyId);
-
     Optional<MemberStudy> findByMemberIdAndStudyIdAndIsOwned(Long memberId, Long studyId, Boolean isOwned);
 
     long countByStatusAndStudyId(ApplicationStatus status, Long studyId);
@@ -35,5 +30,4 @@ public interface MemberStudyRepository extends JpaRepository<MemberStudy, Long> 
 
     boolean existsByMemberIdAndStudyIdAndStatus(Long memberId, Long studyId, ApplicationStatus applicationStatus);
 
-    boolean existsByMemberIdAndStudyId(Long memberId, Long studyId);
 }

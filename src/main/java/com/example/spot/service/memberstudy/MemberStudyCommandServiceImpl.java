@@ -214,7 +214,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         // 알림 생성
 
         // 스터디에 참여중인 회원들에게 알림 전송 위해 회원 조회
-        List<Member> members = memberStudyRepository.findByStudyId(studyId).stream()
+        List<Member> members = memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED).stream()
             .map(MemberStudy::getMember)
             .toList();
 
@@ -747,7 +747,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
 
         // 스터디 회원의 To-Do List 중 하나가 완료 되면, 해당 스터디의 모든 회원에게 알림 전송
         if (toDoList.isDone()){
-            List<Member> members = memberStudyRepository.findByStudyId(studyId).stream()
+            List<Member> members = memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED).stream()
                 .map(MemberStudy::getMember)
                 .toList();
 
