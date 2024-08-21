@@ -101,14 +101,26 @@ public class PostSingleResponse {
         return writer;
     }
 
+    public static String anonymousProfileImage(Boolean isAnonymous, String profileImage) {
+
+        if (isAnonymous) {
+            return "https://spot-bucket-01.s3.ap-northeast-2.amazonaws.com/6f12ba3a-7Component%2017.png";
+        }
+
+        return profileImage;
+    }
+
     public static PostSingleResponse toDTO(Post post, long likeCount, long scrapCount, CommentResponse commentResponse, boolean likedByCurrentUser, boolean scrapedByCurrentUser) {
         // 작성자가 익명인지 확인하여 작성자 이름 설정
         String writerName = judgeAnonymous(post.isAnonymous(), post.getMember().getName());
+        // 작성자가 익명인지 확인하여 프로필 반환
+        String writerImage = anonymousProfileImage(post.isAnonymous(), post.getMember().getProfileImage());
+
 
         return PostSingleResponse.builder()
                 .type(post.getBoard().name())
                 .writer(writerName)
-                .profileImage(post.getMember().getProfileImage())
+                .profileImage(writerImage)
                 .writtenTime(post.getCreatedAt())
                 .scrapCount(scrapCount)
                 .scrapedByCurrentUser(scrapedByCurrentUser)
