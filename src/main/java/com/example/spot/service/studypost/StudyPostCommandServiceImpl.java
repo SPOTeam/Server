@@ -72,7 +72,7 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
 
         // 스터디장만 공지 가능
-        MemberStudy memberStudy = memberStudyRepository.findByMemberIdAndStudyId(member.getId(), studyId)
+        MemberStudy memberStudy = memberStudyRepository.findByMemberIdAndStudyIdAndStatus(member.getId(), studyId, ApplicationStatus.APPROVED)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
         if (!memberStudy.getIsOwned() && postRequestDTO.getIsAnnouncement()) {
             throw new StudyHandler(ErrorStatus._STUDY_POST_ANNOUNCEMENT_INVALID);

@@ -47,8 +47,8 @@ public class NotificationCommandServiceImpl implements NotificationCommandServic
     @Override
     public NotificationProcessDTO joinAppliedStudy(Long studyId, Long memberId, boolean isAccept) {
 
-        Notification notification = notificationRepository.findByMemberIdAndStudyIdAndType(
-            memberId, studyId, NotifyType.STUDY_APPLY).orElseThrow(() -> new GeneralException(ErrorStatus._NOTIFICATION_NOT_FOUND));
+        Notification notification = notificationRepository.findByMemberIdAndStudyIdAndTypeAndIsChecked(
+            memberId, studyId, NotifyType.STUDY_APPLY, false).orElseThrow(() -> new GeneralException(ErrorStatus._NOTIFICATION_NOT_FOUND));
 
         if (notification.getIsChecked())
             throw new GeneralException(ErrorStatus._NOTIFICATION_ALREADY_READ);

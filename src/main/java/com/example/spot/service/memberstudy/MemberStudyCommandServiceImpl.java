@@ -74,7 +74,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
 
-        MemberStudy memberStudy = memberStudyRepository.findByMemberIdAndStudyId(memberId, studyId)
+        MemberStudy memberStudy = memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
 
         // 참여가 승인되지 않은 스터디는 탈퇴할 수 없음
@@ -110,7 +110,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         if (!isOwner(SecurityUtils.getCurrentUserId(), studyId))
             throw new GeneralException(ErrorStatus._ONLY_STUDY_OWNER_CAN_ACCESS_APPLICANTS);
 
-        MemberStudy memberStudy = memberStudyRepository.findByMemberIdAndStudyId(memberId, studyId)
+        MemberStudy memberStudy = memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPLIED)
             .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_APPLICANT_NOT_FOUND));
 
         if (memberStudy.getIsOwned())
@@ -155,7 +155,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         if (!isOwner(SecurityUtils.getCurrentUserId(), studyId))
             throw new GeneralException(ErrorStatus._ONLY_STUDY_OWNER_CAN_ACCESS_APPLICANTS);
 
-        MemberStudy memberStudy = memberStudyRepository.findByMemberIdAndStudyId(memberId, studyId)
+        MemberStudy memberStudy = memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPLIED)
             .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_APPLICANT_NOT_FOUND));
 
         if (memberStudy.getIsOwned())
