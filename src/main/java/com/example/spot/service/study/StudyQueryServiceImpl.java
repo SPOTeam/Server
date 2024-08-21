@@ -90,10 +90,9 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             throw new StudyHandler(ErrorStatus._STUDY_OWNER_NOT_FOUND);
         }
 
-        Member member = memberRepository.findById(SecurityUtils.getCurrentUserId())
-            .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
+        Member owner = memberStudyList.get(0).getMember();
 
-        return StudyInfoResponseDTO.StudyInfoDTO.toDTO(study, member);
+        return StudyInfoResponseDTO.StudyInfoDTO.toDTO(study, owner);
     }
 
     @Override
@@ -101,7 +100,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
         long appliedStudies = memberStudyRepository.countByMemberIdAndStatus(memberId, ApplicationStatus.APPLIED);
-        long ongoingStudies = memberStudyRepository.countByMemberIdAndStatus(memberId, ApplicationStatus.ONGOING);
+        long ongoingStudies = memberStudyRepository.countByMemberIdAndStatus(memberId, ApplicationStatus.APPROVED);
         long myRecruitingStudies = memberStudyRepository.countByMemberIdAndIsOwned(memberId, true);
         return MyPageDTO.builder()
             .name(member.getName())

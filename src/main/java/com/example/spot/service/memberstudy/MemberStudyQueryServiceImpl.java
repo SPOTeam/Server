@@ -157,7 +157,7 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
             throw new GeneralException(ErrorStatus._ALREADY_STUDY_MEMBER);
 
         return StudyApplicantDTO.builder()
-            .isApplied(memberStudyRepository.existsByMemberIdAndStudyId(currentUserId, studyId))
+            .isApplied(memberStudyRepository.existsByMemberIdAndStudyIdAndStatus(currentUserId, studyId, ApplicationStatus.APPLIED))
             .studyId(studyId)
             .build();
 
@@ -188,7 +188,7 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_QUIZ_NOT_FOUND));
 
         //=== Feature ===//
-        List<StudyQuizResponseDTO.StudyMemberDTO> studyMembers = memberStudyRepository.findByStudyId(studyId).stream()
+        List<StudyQuizResponseDTO.StudyMemberDTO> studyMembers = memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED).stream()
                 .map(memberStudy -> {
                     List<MemberAttendance> attendanceList = memberAttendanceRepository.findByQuizIdAndMemberId(quizId, memberStudy.getMember().getId());
                     for (MemberAttendance attendance : attendanceList) {

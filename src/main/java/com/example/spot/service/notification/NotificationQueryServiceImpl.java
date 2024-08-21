@@ -32,8 +32,8 @@ public class NotificationQueryServiceImpl implements NotificationQueryService {
     // 신청한 스터디 알림 전체 조회
     @Override
     public StduyNotificationListDTO getAllAppliedStudyNotification(Long memberId, Pageable pageable) {
-        List<Notification> notifications = notificationRepository.findByMemberIdAndType(
-            memberId, pageable, NotifyType.STUDY_APPLY);
+        List<Notification> notifications = notificationRepository.findByMemberIdAndTypeAndIsChecked(
+            memberId, pageable, NotifyType.STUDY_APPLY, false);
 
         if (notifications.isEmpty())
             throw new GeneralException(ErrorStatus._NOTIFICATION_NOT_FOUND);
