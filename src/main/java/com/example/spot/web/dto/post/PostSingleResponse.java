@@ -23,7 +23,12 @@ public class PostSingleResponse {
     private String writer;
 
     @Schema(
-            description = "댓글 작성자 프로필 사진"
+            description = "게시글 작성자 익명 여부입니다."
+    )
+    private boolean anonymous;
+
+    @Schema(
+            description = "댓글 작성자 프로필 사진입니다."
     )
     private String profileImage;
 
@@ -120,6 +125,7 @@ public class PostSingleResponse {
         return PostSingleResponse.builder()
                 .type(post.getBoard().name())
                 .writer(writerName)
+                .anonymous(post.isAnonymous())
                 .profileImage(writerImage)
                 .writtenTime(post.getCreatedAt())
                 .scrapCount(scrapCount)

@@ -36,6 +36,11 @@ public class CommentDetailResponse {
     private String writer;
 
     @Schema(
+            description = "댓글 작성자 익명 여부입니다."
+    )
+    private boolean anonymous;
+
+    @Schema(
             description = "댓글 작성자 프로필 사진"
     )
     private String profileImage;
@@ -82,6 +87,7 @@ public class CommentDetailResponse {
                 .commentContent(comment.getContent())
                 .parentCommentId(comment.getParentComment() != null ? comment.getParentComment().getId() : null)
                 .writer(writerName)
+                .anonymous(comment.isAnonymous())
                 .writtenTime(comment.getCreatedAt().toString())
                 .likeCount(likeCount)
                 .likedByCurrentUser(likedByCurrentUser)
