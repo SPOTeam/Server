@@ -57,11 +57,11 @@ public class StudyInfoResponseDTO {
             this.introduction = introduction;
         }
 
-        public static StudyInfoDTO toDTO(Study study, Member member) {
+        public static StudyInfoDTO toDTO(Study study, Member owner) {
             return StudyInfoDTO.builder()
                     .studyId(study.getId())
                     .studyName(study.getTitle())
-                    .studyOwner(StudyOwnerDTO.toDTO(member))
+                    .studyOwner(StudyOwnerDTO.toDTO(owner))
                     .hitNum(study.getHitNum())
                     .heartCount(study.getHeartCount())
                     .memberCount(

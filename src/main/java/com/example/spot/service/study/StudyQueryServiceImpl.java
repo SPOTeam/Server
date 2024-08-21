@@ -90,10 +90,9 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             throw new StudyHandler(ErrorStatus._STUDY_OWNER_NOT_FOUND);
         }
 
-        Member member = memberRepository.findById(SecurityUtils.getCurrentUserId())
-            .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
+        Member owner = memberStudyList.get(0).getMember();
 
-        return StudyInfoResponseDTO.StudyInfoDTO.toDTO(study, member);
+        return StudyInfoResponseDTO.StudyInfoDTO.toDTO(study, owner);
     }
 
     @Override
