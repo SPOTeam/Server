@@ -77,6 +77,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     private final PreferredRegionRepository preferredRegionRepository;
     private final RegionStudyRepository regionStudyRepository;
 
+    @Transactional
     public StudyInfoResponseDTO.StudyInfoDTO getStudyInfo(Long studyId) {
 
         Study study = studyRepository.findById(studyId)
@@ -91,7 +92,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         }
 
         Member owner = memberStudyList.get(0).getMember();
-
+        study.increaseHit();
         return StudyInfoResponseDTO.StudyInfoDTO.toDTO(study, owner);
     }
 
