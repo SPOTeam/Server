@@ -25,12 +25,14 @@ import com.example.spot.web.dto.util.response.ImageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class StudyPostCommandServiceImpl implements StudyPostCommandService {
 
@@ -46,6 +48,7 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
     private final StudyPostCommentRepository studyPostCommentRepository;
     private final StudyLikedPostRepository studyLikedPostRepository;
     private final StudyLikedCommentRepository studyLikedCommentRepository;
+    private final StudyPostReportRepository studyPostReportRepository;
     private final NotificationRepository notificationRepository;
 
     // S3 Service
@@ -163,22 +166,16 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_DELETION_INVALID));
 
         //=== Feature ===//
-        List<StudyPostImage> imagesCopy = new ArrayList<>(studyPost.getImages());
-        imagesCopy.forEach(image -> {
-            studyPost.deleteImage(image);
-            s3ImageService.deleteImageFromS3(image.getUrl());
-            studyPostImageRepository.delete(image);
-        });
-        List<StudyPostComment> commentsCopy = new ArrayList<>(studyPost.getComments());
-        commentsCopy.forEach(comment -> {
-            studyPost.deleteComment(comment);
-            studyPostCommentRepository.delete(comment);
-        });
-        List<StudyLikedPost> likedPostsCopy = new ArrayList<>(studyPost.getLikedPosts());
-        likedPostsCopy.forEach(likedPost -> {
-            studyPost.deleteLikedPost(likedPost);
-            studyLikedPostRepository.delete(likedPost);
-        });
+        studyPostImageRepository.deleteAllByStudyPostId(postId);
+        studyPostCommentRepository.deleteAllByStudyPostId(postId);
+        studyLikedPostRepository.deleteAllByStudyPostId(postId);
+        studyPostReportRepository.deleteAllByStudyPostId(postId);
+
+        //List<StudyLikedPost> likedPosts = new ArrayList<>(studyPost.getLikedPosts());
+        //likedPosts.forEach(likedPost -> {
+        //    studyPost.deleteLikedPost(likedPost);
+        //    studyLikedPostRepository.delete(likedPost);
+        //});
 
         member.deleteStudyPost(studyPost);
         study.deleteStudyPost(studyPost);
@@ -302,6 +299,10 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
                 .build();
 
         studyPostCommentRepository.save(studyPostComment);
+
+        studyPost.plusCommentNum();
+        studyPostRepository.save(studyPost);
+
         studyPost.addComment(studyPostComment);
         member.addComment(studyPostComment);
 
@@ -347,6 +348,10 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
                 .build();
 
         studyPostCommentRepository.save(studyPostComment);
+
+        studyPost.plusCommentNum();
+        studyPostRepository.save(studyPost);
+
         studyPost.addComment(studyPostComment);
         member.addComment(studyPostComment);
         parentComment.addChildrenComment(studyPostComment);
@@ -357,8 +362,8 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
     private Integer getAnonymousNum(Long postId, StudyPostCommentRequestDTO.CommentDTO commentRequestDTO, Member member) {
         Integer anonymousNum = null;
 
-        List<StudyPostComment> studyPostComments = studyPostCommentRepository.findByStudyPostId(postId);
-        List<StudyPostComment> myStudyPostComments = studyPostCommentRepository.findByMemberIdAndStudyPostId(member.getId(), postId);
+        List<StudyPostComment> studyPostComments = studyPostCommentRepository.findAllByStudyPostId(postId);
+        List<StudyPostComment> myStudyPostComments = studyPostCommentRepository.findAllByMemberIdAndStudyPostId(member.getId(), postId);
 
         // 회원이 익명 댓글을 요청할 경우 anonymousNum 부여
         if (commentRequestDTO.getIsAnonymous()) {
