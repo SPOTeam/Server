@@ -14,6 +14,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class PostSingleResponse {
 
+    @Schema(
+            description = "게시글 타입입니다."
+    )
     private String type;
 
     @Schema(
@@ -106,20 +109,20 @@ public class PostSingleResponse {
         return writer;
     }
 
-    public static String anonymousProfileImage(Boolean isAnonymous, String profileImage) {
+    public static String anonymousProfileImage(Boolean isAnonymous, String profileImage, String defaultProfileImageUrl) {
 
         if (isAnonymous) {
-            return "https://spot-bucket-01.s3.ap-northeast-2.amazonaws.com/6f12ba3a-7Component%2017.png";
+            return defaultProfileImageUrl;
         }
 
         return profileImage;
     }
 
-    public static PostSingleResponse toDTO(Post post, long likeCount, long scrapCount, CommentResponse commentResponse, boolean likedByCurrentUser, boolean scrapedByCurrentUser) {
+    public static PostSingleResponse toDTO(Post post, long likeCount, long scrapCount, CommentResponse commentResponse, boolean likedByCurrentUser, boolean scrapedByCurrentUser, String defaultProfileImageUrl) {
         // 작성자가 익명인지 확인하여 작성자 이름 설정
         String writerName = judgeAnonymous(post.isAnonymous(), post.getMember().getName());
         // 작성자가 익명인지 확인하여 프로필 반환
-        String writerImage = anonymousProfileImage(post.isAnonymous(), post.getMember().getProfileImage());
+        String writerImage = anonymousProfileImage(post.isAnonymous(), post.getMember().getProfileImage(), defaultProfileImageUrl);
 
 
         return PostSingleResponse.builder()

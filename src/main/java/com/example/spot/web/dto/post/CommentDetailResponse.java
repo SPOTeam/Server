@@ -75,11 +75,11 @@ public class CommentDetailResponse {
 //    )
 //    private int disLikeCount;
 
-    public static CommentDetailResponse toDTO(PostComment comment, long likeCount, boolean likedByCurrentUser, boolean dislikedByCurrentUser) {
+    public static CommentDetailResponse toDTO(PostComment comment, long likeCount, boolean likedByCurrentUser, boolean dislikedByCurrentUser, String defaultProfileImageUrl) {
         // 작성자가 익명인지 확인하여 작성자 이름 설정
         String writerName = judgeAnonymous(comment.isAnonymous(), comment.getMember().getName());
         // 작성자가 익명인지 확인하여 프로필 반환
-        String writerImage = anonymousProfileImage(comment.isAnonymous(), comment.getMember().getProfileImage());
+        String writerImage = anonymousProfileImage(comment.isAnonymous(), comment.getMember().getProfileImage(), defaultProfileImageUrl);
 
         return CommentDetailResponse.builder()
                 .commentId(comment.getId())
@@ -104,10 +104,9 @@ public class CommentDetailResponse {
         return writer;
     }
 
-    public static String anonymousProfileImage(Boolean isAnonymous, String profileImage) {
-
+    public static String anonymousProfileImage(Boolean isAnonymous, String profileImage, String defaultProfileImageUrl) {
         if (isAnonymous) {
-            return "https://spot-bucket-01.s3.ap-northeast-2.amazonaws.com/6f12ba3a-7Component%2017.png";
+            return defaultProfileImageUrl;
         }
 
         return profileImage;

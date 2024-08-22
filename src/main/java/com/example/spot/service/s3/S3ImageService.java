@@ -102,7 +102,7 @@ public class S3ImageService {
         String originalFilename = image.getOriginalFilename(); //원본 파일 명
         String extention = "";
         if (originalFilename != null && !originalFilename.isEmpty()) {
-             extention = originalFilename.substring(originalFilename.lastIndexOf(".")); //확장자 명
+             extention = originalFilename.substring(originalFilename.lastIndexOf(".") + 1); //확장자 명
         }
 
         String s3FileName = UUID.randomUUID().toString().substring(0, 10) + originalFilename; //변경된 파일 명
