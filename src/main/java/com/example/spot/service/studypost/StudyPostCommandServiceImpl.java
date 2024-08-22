@@ -21,10 +21,10 @@ import com.example.spot.web.dto.memberstudy.request.StudyPostCommentRequestDTO;
 import com.example.spot.web.dto.memberstudy.request.StudyPostRequestDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyPostCommentResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyPostResDTO;
+import com.example.spot.web.dto.util.response.ImageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -95,10 +95,10 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
         study.addStudyPost(studyPost);
         studyPost = studyPostRepository.save(studyPost);
 
-        List<MultipartFile> images = postRequestDTO.getImages();
-        if (images != null && !images.isEmpty()) {
-            for (MultipartFile image : images) {
-                String imageUrl = s3ImageService.upload(image);
+        if (postRequestDTO.getImages() != null && !postRequestDTO.getImages().isEmpty()) {
+            ImageResponse.ImageUploadResponse imageUploadResponse = s3ImageService.uploadImages(postRequestDTO.getImages());
+            for (ImageResponse.Images imageDTO : imageUploadResponse.getImageUrls()) {
+                String imageUrl = imageDTO.getImageUrl();
                 StudyPostImage studyPostImage = new StudyPostImage(imageUrl);
                 studyPost.addImage(studyPostImage); // image id가 저장되지 않음
                 studyPostImage = studyPostImageRepository.save(studyPostImage);
