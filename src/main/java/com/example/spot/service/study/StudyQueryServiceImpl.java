@@ -112,6 +112,18 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     }
 
     @Override
+    public StudyPreviewDTO findStudiesByConditions(Pageable pageable, SearchRequestStudyDTO request,
+        StudySortBy sortBy) {
+        Map<String, Object> conditions = getSearchConditions(request);
+        List<Study> studies = studyRepository.findAllStudyByConditions(conditions, sortBy, pageable);
+
+        if (studies.isEmpty())
+            throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
+        long totalElements = studyRepository.countStudyByConditions(conditions, sortBy);
+        return getDTOs(studies, pageable, totalElements, SecurityUtils.getCurrentUserId());
+    }
+
+    @Override
     public StudyPreviewDTO findRecommendStudies(Long memberId) {
         List<Long> memberOngoingStudyIds = getOngoingStudyIds(memberId);
 
@@ -279,8 +291,6 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
 
         long totalElements = studyRepository.countStudyByConditions(conditions, sortBy);
-
-
 
         return getDTOs(studies, pageable, totalElements, SecurityUtils.getCurrentUserId());
     }
