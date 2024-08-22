@@ -64,6 +64,26 @@ public class SearchController {
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND,  myPageStudyCount);
     }
 
+    // 전체 스터디 조회
+    @Tag(name = "전체 스터디 조회", description = "전체 스터디 조회 API")
+    @GetMapping("/search/studies/all")
+    @Operation(
+        summary = "[전체 스터디 조회] 전체 스터디 조회",
+        description = """
+            ## [전체 스터디 조회] 입력한 조건에 맞는 전체 스터디를 조회 합니다.
+            조건에 맞게 검색된 스터디 목록이 반환 됩니다."""
+    )
+    public ApiResponse<StudyPreviewDTO> allStudiesByConditions(
+        @ModelAttribute @Valid SearchRequestStudyDTO searchRequestStudyDTO,
+        @RequestParam @Min(0) Integer page,
+        @RequestParam @Min(1) Integer size,
+        @RequestParam StudySortBy sortBy) {
+        // 메소드 구현
+        StudyPreviewDTO studies = studyQueryService.findStudiesByConditions(PageRequest.of(page, size),
+            searchRequestStudyDTO, sortBy);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
+    }
+
 
     /* ----------------------------- 내 관심 분야 별 스터디 조회  ------------------------------------- */
 
@@ -266,10 +286,12 @@ public class SearchController {
     )
     @Parameter(name = "memberId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
     public ApiResponse<StudyPreviewDTO> likedStudies(
-        @PathVariable @ExistMember long memberId) {
+        @PathVariable @ExistMember long memberId,
+        @RequestParam @Min(0) Integer page,
+        @RequestParam @Min(1) Integer size) {
         SecurityUtils.verifyUserId(memberId);
         // 메소드 구현
-        StudyPreviewDTO studies = studyQueryService.findLikedStudies(memberId);
+        StudyPreviewDTO studies = studyQueryService.findLikedStudies(memberId, PageRequest.of(page, size));
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
     }
     /* ----------------------------- 스터디 검색  ------------------------------------- */

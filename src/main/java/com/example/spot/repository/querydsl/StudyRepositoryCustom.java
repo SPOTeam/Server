@@ -16,6 +16,8 @@ import org.springframework.data.repository.query.Param;
 
 public interface StudyRepositoryCustom {
 
+    List<Study> findAllStudyByConditions(Map<String, Object> search, StudySortBy sortBy, Pageable pageable);
+
     List<Study> findByStudyTheme(List<StudyTheme> studyThemes);
 
     List<Study> findByStudyThemeAndNotInIds(List<StudyTheme> studyThemes, List<Long> studyIds);

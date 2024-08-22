@@ -69,4 +69,27 @@ public class MemberRequestDTO {
         }
     }
 
+    @Getter
+    @Setter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class MemberUpdateDTO {
+
+        private String name;
+        private Gender gender;
+        private String email;
+        private LocalDate birth;
+        private Carrier carrier;
+        private String profileImage;
+        private String phone;
+        private boolean idInfo;
+        private boolean personalInfo;
+
+        @AssertTrue(message = "휴대폰 번호는 11자리 이하로 입력해주세요.")
+        private boolean isPhoneNumValid() {
+            return phone.length() <= 11;
+        }
+    }
+
 }

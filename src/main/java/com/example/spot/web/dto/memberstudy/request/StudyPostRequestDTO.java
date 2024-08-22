@@ -14,30 +14,35 @@ import java.util.List;
 public class StudyPostRequestDTO {
 
     @Getter
-    @RequiredArgsConstructor
+    @Setter
     @Schema(name = "StudyPostDTO")
+    @AllArgsConstructor
     public static class PostDTO {
 
         @NotNull
         @Schema(description = "공지 여부", example = "false")
-        private final Boolean isAnnouncement;
+        private Boolean isAnnouncement;
 
         @NotNull
         @Schema(description = "테마", example = "WELCOME")
-        private final Theme theme;
+        private Theme theme;
 
         @NotNull
         @TextLength(min = 1, max = 255)
         @Schema(description = "제목", example = "title")
-        private final String title;
+        private String title;
 
         @NotNull
         @TextLength(min = 1, max = 255)
         @Schema(description = "내용", example = "content")
-        private final String content;
+        private String content;
 
-        @NotNull
         @Schema(description = "이미지")
-        private final List<MultipartFile> images = new ArrayList<>();
+        private List<MultipartFile> images;
+
+        public void initImages() {
+            this.images = new ArrayList<>();
+        }
+
     }
 }

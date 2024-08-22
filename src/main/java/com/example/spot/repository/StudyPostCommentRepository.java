@@ -9,7 +9,9 @@ import java.util.List;
 @Repository
 public interface StudyPostCommentRepository extends JpaRepository<StudyPostComment, Long> {
 
-    List<StudyPostComment> findByMemberIdAndStudyPostId(Long id, Long postId);
+    List<StudyPostComment> findAllByMemberIdAndStudyPostId(Long id, Long postId);
 
-    List<StudyPostComment> findByStudyPostId(Long postId);
+    List<StudyPostComment> findAllByStudyPostId(Long postId);
+
+    void deleteAllByStudyPostId(Long postId);
 }
