@@ -51,6 +51,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -137,6 +138,18 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             .flatMap(theme -> studyThemeRepository.findAllByTheme(theme).stream())
             .toList();
         List<Study> studies = studyRepository.findByStudyThemeAndNotInIds(studyThemes, memberOngoingStudyIds);
+
+        if (studies.isEmpty())
+            throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
+
+        return getDTOs(studies, Pageable.unpaged(), studies.size(), memberId);
+    }
+
+    @Override
+    public StudyPreviewDTO findInterestedStudies(Long memberId) {
+        List<Study> studies = studyRepository.findAllStudyByConditions(new HashMap<>(),
+            StudySortBy.LIKED,
+            PageRequest.of(0, 3));
 
         if (studies.isEmpty())
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
