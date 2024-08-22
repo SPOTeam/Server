@@ -36,6 +36,16 @@ public class CommentDetailResponse {
     private String writer;
 
     @Schema(
+            description = "댓글 작성자 익명 여부입니다."
+    )
+    private boolean anonymous;
+
+    @Schema(
+            description = "댓글 작성자 프로필 사진"
+    )
+    private String profileImage;
+
+    @Schema(
             description = "작성 시간입니다.",
             type = "string",
             format = "date-time",
@@ -65,15 +75,19 @@ public class CommentDetailResponse {
 //    )
 //    private int disLikeCount;
 
-    public static CommentDetailResponse toDTO(PostComment comment, long likeCount, boolean likedByCurrentUser, boolean dislikedByCurrentUser) {
+    public static CommentDetailResponse toDTO(PostComment comment, long likeCount, boolean likedByCurrentUser, boolean dislikedByCurrentUser, String defaultProfileImageUrl) {
         // 작성자가 익명인지 확인하여 작성자 이름 설정
         String writerName = judgeAnonymous(comment.isAnonymous(), comment.getMember().getName());
+        // 작성자가 익명인지 확인하여 프로필 반환
+        String writerImage = anonymousProfileImage(comment.isAnonymous(), comment.getMember().getProfileImage(), defaultProfileImageUrl);
 
         return CommentDetailResponse.builder()
                 .commentId(comment.getId())
+                .profileImage(writerImage)
                 .commentContent(comment.getContent())
                 .parentCommentId(comment.getParentComment() != null ? comment.getParentComment().getId() : null)
                 .writer(writerName)
+                .anonymous(comment.isAnonymous())
                 .writtenTime(comment.getCreatedAt().toString())
                 .likeCount(likeCount)
                 .likedByCurrentUser(likedByCurrentUser)
@@ -88,5 +102,13 @@ public class CommentDetailResponse {
         }
 
         return writer;
+    }
+
+    public static String anonymousProfileImage(Boolean isAnonymous, String profileImage, String defaultProfileImageUrl) {
+        if (isAnonymous) {
+            return defaultProfileImageUrl;
+        }
+
+        return profileImage;
     }
 }
