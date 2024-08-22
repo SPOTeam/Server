@@ -19,6 +19,8 @@ public interface StudyQueryService {
     // 마이페이지 용 스터디 갯수 조회
     MyPageDTO getMyPageStudyCount(Long memberId);
 
+    StudyPreviewDTO findStudiesByConditions(Pageable pageable, SearchRequestStudyDTO request, StudySortBy sortBy);
+
     // 내 추천 스터디 조회
     StudyPreviewDTO findRecommendStudies(Long memberId);
 
@@ -43,7 +45,7 @@ public interface StudyQueryService {
         SearchRequestStudyDTO request, StudySortBy sortBy);
 
     // 찜한 스터디 조회
-    StudyPreviewDTO findLikedStudies(Long memberId);
+    StudyPreviewDTO findLikedStudies(Long memberId, Pageable pageable);
 
     // 스터디 키워드 검색
     StudyPreviewDTO findStudiesByKeyword(Pageable pageable, String keyword, StudySortBy sortBy);

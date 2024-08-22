@@ -112,6 +112,18 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     }
 
     @Override
+    public StudyPreviewDTO findStudiesByConditions(Pageable pageable, SearchRequestStudyDTO request,
+        StudySortBy sortBy) {
+        Map<String, Object> conditions = getSearchConditions(request);
+        List<Study> studies = studyRepository.findAllStudyByConditions(conditions, sortBy, pageable);
+
+        if (studies.isEmpty())
+            throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
+        long totalElements = studyRepository.countStudyByConditions(conditions, sortBy);
+        return getDTOs(studies, pageable, totalElements, SecurityUtils.getCurrentUserId());
+    }
+
+    @Override
     public StudyPreviewDTO findRecommendStudies(Long memberId) {
         List<Long> memberOngoingStudyIds = getOngoingStudyIds(memberId);
 
@@ -280,15 +292,14 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
         long totalElements = studyRepository.countStudyByConditions(conditions, sortBy);
 
-
-
         return getDTOs(studies, pageable, totalElements, SecurityUtils.getCurrentUserId());
     }
 
     @Override
-    public StudyPreviewDTO findLikedStudies(Long memberId) {
+    public StudyPreviewDTO findLikedStudies(Long memberId, Pageable pageable) {
         List<PreferredStudy> preferredStudyList = preferredStudyRepository.findByMemberIdAndStudyLikeStatusOrderByCreatedAtDesc(
-            memberId, StudyLikeStatus.LIKE);
+            memberId, StudyLikeStatus.LIKE, pageable);
+
         List<Study> studies = preferredStudyList.stream()
             .map(PreferredStudy::getStudy)
             .toList();
@@ -297,7 +308,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
 
         long totalElements = preferredStudyRepository.countByMemberId(memberId);
-        return getDTOs(studies, Pageable.unpaged(), totalElements, memberId);
+        return getDTOs(studies, pageable, totalElements, memberId);
     }
 
     @Override

@@ -11,6 +11,7 @@ import com.example.spot.domain.study.StudyPostComment;
 import com.example.spot.domain.study.ToDoList;
 import com.example.spot.domain.study.Vote;
 import com.example.spot.web.dto.member.MemberRequestDTO.MemberInfoListDTO;
+import com.example.spot.web.dto.member.MemberRequestDTO.MemberUpdateDTO;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import lombok.AccessLevel;
@@ -252,13 +253,14 @@ public class Member extends BaseEntity {
         this.studyReasonList.addAll(studyReasons);
     }
 
-    public void updateInfo(MemberInfoListDTO req) {
+    public void updateInfo(MemberUpdateDTO req) {
         this.name = req.getName();
         this.phone = req.getPhone();
         this.birth = req.getBirth();
         this.carrier = req.getCarrier();
         this.idInfo = req.isIdInfo();
         this.personalInfo = req.isPersonalInfo();
+        this.profileImage = req.getProfileImage();
     }
 
     public void addStudyPost(StudyPost studyPost) {

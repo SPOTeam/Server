@@ -6,6 +6,7 @@ import com.example.spot.web.dto.member.MemberRequestDTO.MemberInfoListDTO;
 import com.example.spot.web.dto.member.MemberRequestDTO.MemberReasonDTO;
 import com.example.spot.web.dto.member.MemberRequestDTO.MemberRegionDTO;
 import com.example.spot.web.dto.member.MemberRequestDTO.MemberThemeDTO;
+import com.example.spot.web.dto.member.MemberRequestDTO.MemberUpdateDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.IOException;
@@ -28,7 +29,7 @@ public interface MemberService extends UserDetailsService {
 
     MemberResponseDTO.MemberUpdateDTO updateTheme(Long memberId, MemberThemeDTO requestDTO);
     MemberResponseDTO.MemberUpdateDTO updateRegion(Long memberId, MemberRegionDTO requestDTO);
-    MemberResponseDTO.MemberUpdateDTO updateProfile(Long memberId, MemberInfoListDTO requestDTO);
+    MemberResponseDTO.MemberUpdateDTO updateProfile(Long memberId, MemberUpdateDTO requestDTO);
     MemberResponseDTO.MemberUpdateDTO updateStudyReason(Long memberId, MemberReasonDTO requestDTO);
 
     MemberResponseDTO.MemberThemeDTO getThemes(Long memberId);
