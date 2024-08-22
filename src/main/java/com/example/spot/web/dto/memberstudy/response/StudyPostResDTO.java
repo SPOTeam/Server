@@ -101,7 +101,7 @@ public class StudyPostResDTO {
         private final Boolean isLiked;
         private final List<ImageDTO> studyPostImages;
 
-        public static PostDetailDTO toDTO(StudyPost studyPost, boolean isLiked) {
+        public static PostDetailDTO toDTO(StudyPost studyPost, Integer commentNum, boolean isLiked) {
             return PostDetailDTO.builder()
                     .member(PostMemberDTO.toDTO(studyPost.getMember()))
                     .postId(studyPost.getId())
@@ -112,7 +112,7 @@ public class StudyPostResDTO {
                     .createdAt(studyPost.getCreatedAt())
                     .likeNum(studyPost.getLikeNum())
                     .hitNum(studyPost.getHitNum())
-                    .commentNum(studyPost.getCommentNum())
+                    .commentNum(commentNum)
                     .isLiked(isLiked)
                     .studyPostImages(studyPost.getImages().stream()
                             .map(ImageDTO::toDTO)
