@@ -36,7 +36,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StudyPostCommandServiceImpl implements StudyPostCommandService {
 
-    @Value("${cloud.aws.default-image}")
+    @Value("${image.post.anonymous.profile}")
     private String defaultImage;
 
     private final MemberRepository memberRepository;
