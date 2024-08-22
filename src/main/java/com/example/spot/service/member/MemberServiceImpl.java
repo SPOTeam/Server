@@ -12,6 +12,7 @@ import com.example.spot.repository.StudyReasonRepository;
 import com.example.spot.security.utils.JwtTokenProvider;
 import com.example.spot.domain.Member;
 import com.example.spot.repository.MemberRepository;
+import com.example.spot.web.dto.member.MemberRequestDTO;
 import com.example.spot.web.dto.member.MemberRequestDTO.MemberReasonDTO;
 import com.example.spot.domain.auth.CustomUserDetails;
 import com.example.spot.domain.auth.RefreshToken;
@@ -285,7 +286,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public MemberUpdateDTO updateProfile(Long memberId, MemberInfoListDTO requestDTO) {
+    public MemberUpdateDTO updateProfile(Long memberId, MemberRequestDTO.MemberUpdateDTO requestDTO) {
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
         member.updateInfo(requestDTO);

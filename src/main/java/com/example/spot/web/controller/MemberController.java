@@ -166,7 +166,7 @@ public class MemberController {
     @Parameter(name = "memberId", description = "업데이트할 유저의 ID를 입력 받습니다.", required = true)
     public ApiResponse<MemberUpdateDTO> updateMemberInfo(
         @PathVariable @ExistMember Long memberId,
-        @RequestBody @Valid MemberInfoListDTO requestDTO){
+        @RequestBody @Valid MemberRequestDTO.MemberUpdateDTO requestDTO){
         SecurityUtils.verifyUserId(memberId);
         MemberUpdateDTO memberUpdateDTO = memberService.updateProfile(memberId, requestDTO);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_INFO_UPDATE, memberUpdateDTO);
