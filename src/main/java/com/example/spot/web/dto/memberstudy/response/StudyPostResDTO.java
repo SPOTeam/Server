@@ -1,5 +1,6 @@
 package com.example.spot.web.dto.memberstudy.response;
 
+import com.example.spot.domain.Member;
 import com.example.spot.domain.enums.Theme;
 import com.example.spot.domain.mapping.StudyPostImage;
 import com.example.spot.domain.study.Study;
@@ -87,8 +88,7 @@ public class StudyPostResDTO {
     @Builder(access = AccessLevel.PRIVATE)
     public static class PostDetailDTO {
 
-        private final Long memberId;
-        private final String name;
+        private final PostMemberDTO member;
         private final Long postId;
         private final String title;
         private final String content;
@@ -101,10 +101,9 @@ public class StudyPostResDTO {
         private final Boolean isLiked;
         private final List<ImageDTO> studyPostImages;
 
-        public static PostDetailDTO toDTO(StudyPost studyPost, boolean isLiked) {
+        public static PostDetailDTO toDTO(StudyPost studyPost, Integer commentNum, boolean isLiked) {
             return PostDetailDTO.builder()
-                    .memberId(studyPost.getMember().getId())
-                    .name(studyPost.getMember().getName())
+                    .member(PostMemberDTO.toDTO(studyPost.getMember()))
                     .postId(studyPost.getId())
                     .title(studyPost.getTitle())
                     .content(studyPost.getContent())
@@ -113,11 +112,29 @@ public class StudyPostResDTO {
                     .createdAt(studyPost.getCreatedAt())
                     .likeNum(studyPost.getLikeNum())
                     .hitNum(studyPost.getHitNum())
-                    .commentNum(studyPost.getCommentNum())
+                    .commentNum(commentNum)
                     .isLiked(isLiked)
                     .studyPostImages(studyPost.getImages().stream()
                             .map(ImageDTO::toDTO)
                             .toList())
+                    .build();
+        }
+    }
+
+    @Getter
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    @Builder(access = AccessLevel.PRIVATE)
+    private static class PostMemberDTO {
+
+        private final Long memberId;
+        private final String name;
+        private final String profileImage;
+
+        public static PostMemberDTO toDTO(Member member) {
+            return PostMemberDTO.builder()
+                    .memberId(member.getId())
+                    .name(member.getName())
+                    .profileImage(member.getProfileImage())
                     .build();
         }
     }

@@ -108,8 +108,10 @@ public class StudyPostQueryServiceImpl implements StudyPostQueryService {
         memberRepository.save(member);
         studyRepository.save(study);
 
+        Integer commentNum = studyPostCommentRepository.findAllByStudyPostId(postId).size();
         boolean isLiked = studyLikedPostRepository.existsByMemberIdAndStudyPostId(memberId, studyPost.getId());
-        return StudyPostResDTO.PostDetailDTO.toDTO(studyPost, isLiked);
+
+        return StudyPostResDTO.PostDetailDTO.toDTO(studyPost, commentNum, isLiked);
     }
 
 /* ----------------------------- 스터디 게시글 댓글 관련 API ------------------------------------- */
