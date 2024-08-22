@@ -45,7 +45,7 @@ public interface StudyQueryService {
         SearchRequestStudyDTO request, StudySortBy sortBy);
 
     // 찜한 스터디 조회
-    StudyPreviewDTO findLikedStudies(Long memberId);
+    StudyPreviewDTO findLikedStudies(Long memberId, Pageable pageable);
 
     // 스터디 키워드 검색
     StudyPreviewDTO findStudiesByKeyword(Pageable pageable, String keyword, StudySortBy sortBy);

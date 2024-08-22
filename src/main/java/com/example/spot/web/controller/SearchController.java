@@ -286,10 +286,12 @@ public class SearchController {
     )
     @Parameter(name = "memberId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
     public ApiResponse<StudyPreviewDTO> likedStudies(
-        @PathVariable @ExistMember long memberId) {
+        @PathVariable @ExistMember long memberId,
+        @RequestParam @Min(0) Integer page,
+        @RequestParam @Min(1) Integer size) {
         SecurityUtils.verifyUserId(memberId);
         // 메소드 구현
-        StudyPreviewDTO studies = studyQueryService.findLikedStudies(memberId);
+        StudyPreviewDTO studies = studyQueryService.findLikedStudies(memberId, PageRequest.of(page, size));
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
     }
     /* ----------------------------- 스터디 검색  ------------------------------------- */

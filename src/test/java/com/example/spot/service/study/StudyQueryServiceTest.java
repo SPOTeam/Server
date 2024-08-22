@@ -576,18 +576,18 @@ class StudyQueryServiceTest {
             .studyLikeStatus(StudyLikeStatus.LIKE)
             .build();
 
-        when(preferredStudyRepository.findByMemberIdAndStudyLikeStatusOrderByCreatedAtDesc(member.getId(), StudyLikeStatus.LIKE))
+        when(preferredStudyRepository.findByMemberIdAndStudyLikeStatusOrderByCreatedAtDesc(member.getId(), StudyLikeStatus.LIKE, PageRequest.of(0, 10)))
             .thenReturn(List.of(preferredStudy1, preferredStudy2));
         when(preferredStudyRepository.countByMemberId(member.getId()))
             .thenReturn(2L);
 
         // when
-        StudyPreviewDTO result = studyQueryService.findLikedStudies(member.getId());
+        StudyPreviewDTO result = studyQueryService.findLikedStudies(member.getId(), PageRequest.of(0, 10));
 
         // then
         assertNotNull(result);
         assertEquals(2, result.getTotalElements());
-        verify(preferredStudyRepository).findByMemberIdAndStudyLikeStatusOrderByCreatedAtDesc(member.getId(), StudyLikeStatus.LIKE);
+        verify(preferredStudyRepository).findByMemberIdAndStudyLikeStatusOrderByCreatedAtDesc(member.getId(), StudyLikeStatus.LIKE, PageRequest.of(0, 10));
 
     }
 

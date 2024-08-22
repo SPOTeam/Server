@@ -296,9 +296,10 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     }
 
     @Override
-    public StudyPreviewDTO findLikedStudies(Long memberId) {
+    public StudyPreviewDTO findLikedStudies(Long memberId, Pageable pageable) {
         List<PreferredStudy> preferredStudyList = preferredStudyRepository.findByMemberIdAndStudyLikeStatusOrderByCreatedAtDesc(
-            memberId, StudyLikeStatus.LIKE);
+            memberId, StudyLikeStatus.LIKE, pageable);
+
         List<Study> studies = preferredStudyList.stream()
             .map(PreferredStudy::getStudy)
             .toList();
@@ -307,7 +308,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
 
         long totalElements = preferredStudyRepository.countByMemberId(memberId);
-        return getDTOs(studies, Pageable.unpaged(), totalElements, memberId);
+        return getDTOs(studies, pageable, totalElements, memberId);
     }
 
     @Override
