@@ -15,7 +15,6 @@ import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface StudyRepositoryCustom {
-
     List<Study> findAllStudyByConditions(Map<String, Object> search, StudySortBy sortBy, Pageable pageable);
 
     List<Study> findByStudyTheme(List<StudyTheme> studyThemes);

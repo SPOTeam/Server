@@ -50,6 +50,18 @@ public class SearchController {
         StudyPreviewDTO recommendStudies = studyQueryService.findRecommendStudies(memberId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, recommendStudies);
     }
+    @Tag(name = "메인 화면", description = "메인 화면 API")
+    @GetMapping("/search/studies/interested/main/")
+    @Operation(summary = "[메인 화면] 회원 별 관심 Best 스터디 3개 조회",
+        description = """
+            ## [메인 화면] 관심 Best 스터디 3개를 조회 합니다.
+            조회된 스터디 3개의 정보가 반환 됩니다.""",
+        security = @SecurityRequirement(name = "accessToken"))
+    public ApiResponse<StudyPreviewDTO> interestedStudiesForMain() {
+        StudyPreviewDTO recommendStudies = studyQueryService.findInterestedStudies(SecurityUtils.getCurrentUserId());
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, recommendStudies);
+    }
+
     @Tag(name = "마이 페이지", description = "마이 페이지 API")
     @GetMapping("/search/studies/my-page/members/{memberId}")
     @Operation(summary = "[마이 페이지] 마이 페이지 내 스터디 정보 조회",

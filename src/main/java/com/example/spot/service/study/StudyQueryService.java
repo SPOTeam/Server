@@ -24,6 +24,8 @@ public interface StudyQueryService {
     // 내 추천 스터디 조회
     StudyPreviewDTO findRecommendStudies(Long memberId);
 
+    StudyPreviewDTO findInterestedStudies(Long memberId);
+
     // 내 관심사 스터디 페이징 조회
     StudyPreviewDTO findInterestStudiesByConditionsAll(Pageable pageable, Long memberId,
         SearchRequestStudyDTO request, StudySortBy sortBy);
