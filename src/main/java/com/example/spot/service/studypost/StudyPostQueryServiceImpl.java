@@ -24,6 +24,7 @@ import java.util.Comparator;
 import java.util.List;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class StudyPostQueryServiceImpl implements StudyPostQueryService {
 
@@ -136,7 +137,7 @@ public class StudyPostQueryServiceImpl implements StudyPostQueryService {
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
 
         //=== Feature ===//
-        List<StudyPostComment> studyPostComments = studyPostCommentRepository.findByStudyPostId(studyPost.getId()).stream()
+        List<StudyPostComment> studyPostComments = studyPostCommentRepository.findAllByStudyPostId(studyPost.getId()).stream()
                 .filter(studyPostComment -> studyPostComment.getParentComment() == null)
                 .sorted(Comparator.comparing(StudyPostComment::getCreatedAt))
                 .toList();

@@ -145,6 +145,12 @@ public class StudyPost extends BaseEntity {
         study.updateStudyPost(this);
     }
 
+    public void plusCommentNum() {
+        commentNum++;
+        member.updateStudyPost(this);
+        study.updateStudyPost(this);
+    }
+
     public void addStudyPostReport(StudyPostReport studyPostReport) {
         studyPostReports.add(studyPostReport);
     }

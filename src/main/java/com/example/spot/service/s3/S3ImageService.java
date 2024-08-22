@@ -8,7 +8,6 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.util.IOUtils;
 import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.handler.S3Handler;
-import com.example.spot.web.dto.util.response.ImageResponse;
 import com.example.spot.web.dto.util.response.ImageResponse.ImageUploadResponse;
 import com.example.spot.web.dto.util.response.ImageResponse.Images;
 import java.time.LocalDateTime;

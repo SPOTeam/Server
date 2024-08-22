@@ -4,6 +4,7 @@ import com.example.spot.api.ApiResponse;
 import com.example.spot.api.code.status.SuccessStatus;
 import com.example.spot.domain.enums.Theme;
 import com.example.spot.domain.enums.ThemeQuery;
+import com.example.spot.service.s3.S3ImageService;
 import com.example.spot.service.studypost.StudyPostCommandService;
 import com.example.spot.service.studypost.StudyPostQueryService;
 import com.example.spot.validation.annotation.ExistStudy;
@@ -14,16 +15,22 @@ import com.example.spot.web.dto.memberstudy.request.StudyPostCommentRequestDTO;
 import com.example.spot.web.dto.memberstudy.request.StudyPostRequestDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyPostCommentResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyPostResDTO;
+import com.example.spot.web.dto.util.response.ImageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,8 +40,9 @@ public class StudyPostController {
 
     private final StudyPostQueryService studyPostQueryService;
     private final StudyPostCommandService studyPostCommandService;
+    private final S3ImageService s3ImageService;
 
-/* ----------------------------- 스터디 게시글 관련 API ------------------------------------- */
+    /* ----------------------------- 스터디 게시글 관련 API ------------------------------------- */
 
     @Tag(name = "스터디 게시글")
     @Operation(summary = "[스터디 게시글] 게시글 작성하기", description = """
@@ -42,10 +50,13 @@ public class StudyPostController {
         스터디에 참여하는 회원이 작성한 게시글을 `study_post`에 저장합니다.
         """)
     @Parameter(name = "studyId", description = "게시글을 작성할 스터디의 id를 입력합니다.", required = true)
-    @PostMapping(value = "/studies/{studyId}/posts", consumes = "multipart/form-data")
+    @PostMapping(value = "/studies/{studyId}/posts", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<StudyPostResDTO.PostPreviewDTO> createPost(
             @PathVariable @ExistStudy Long studyId,
-            @ModelAttribute(value = "post") @Parameter(content = @Content(mediaType = "multipart/form-data")) @Valid StudyPostRequestDTO.PostDTO postRequestDTO) {
+            @ModelAttribute(name = "post") @Valid StudyPostRequestDTO.PostDTO postRequestDTO) {
+        if (postRequestDTO.getImages() == null) {
+            postRequestDTO.initImages();
+        }
         StudyPostResDTO.PostPreviewDTO postPreviewDTO = studyPostCommandService.createPost(studyId, postRequestDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_CREATED, postPreviewDTO);
     }

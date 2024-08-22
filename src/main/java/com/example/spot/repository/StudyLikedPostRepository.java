@@ -12,4 +12,6 @@ public interface StudyLikedPostRepository extends JpaRepository<StudyLikedPost, 
     Optional<StudyLikedPost> findByMemberIdAndStudyPostId(Long memberId, Long postId);
 
     boolean existsByMemberIdAndStudyPostId(Long memberId, Long id);
+
+    void deleteAllByStudyPostId(Long postId);
 }
