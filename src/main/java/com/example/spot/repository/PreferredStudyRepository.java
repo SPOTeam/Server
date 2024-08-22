@@ -14,5 +14,5 @@ public interface PreferredStudyRepository extends JpaRepository<PreferredStudy, 
         Long memberId, StudyLikeStatus studyLikeStatus, Pageable pageable);
     Optional<PreferredStudy> findByMemberIdAndStudyId(Long memberId, Long studyId);
 
-    long countByMemberId(Long memberId);
+    long countByMemberIdAndStudyLikeStatus(Long memberId, StudyLikeStatus studyLikeStatus);
 }

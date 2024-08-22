@@ -578,7 +578,7 @@ class StudyQueryServiceTest {
 
         when(preferredStudyRepository.findByMemberIdAndStudyLikeStatusOrderByCreatedAtDesc(member.getId(), StudyLikeStatus.LIKE, PageRequest.of(0, 10)))
             .thenReturn(List.of(preferredStudy1, preferredStudy2));
-        when(preferredStudyRepository.countByMemberId(member.getId()))
+        when(preferredStudyRepository.countByMemberIdAndStudyLikeStatus(member.getId(), StudyLikeStatus.LIKE))
             .thenReturn(2L);
 
         // when
