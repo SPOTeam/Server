@@ -6,12 +6,12 @@ import com.example.spot.domain.Post;
 import com.example.spot.domain.PostComment;
 import com.example.spot.domain.enums.Board;
 import com.example.spot.domain.mapping.MemberScrap;
-import com.example.spot.repository.MemberRepository;
 import com.example.spot.repository.MemberScrapRepository;
 import com.example.spot.repository.PostCommentRepository;
 import com.example.spot.repository.PostRepository;
 import com.example.spot.web.dto.post.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,6 +26,9 @@ import static com.example.spot.security.utils.SecurityUtils.getCurrentUserId;
 @Service
 @RequiredArgsConstructor
 public class PostQueryServiceImpl implements PostQueryService {
+
+    @Value("${image.post.anonymous.profile}")
+    private String DEFAULT_PROFILE_IMAGE_URL;
 
     private final PostRepository postRepository;
     private final LikedPostQueryService likedPostQueryService;
@@ -66,7 +69,7 @@ public class PostQueryServiceImpl implements PostQueryService {
         CommentResponse commentResponse = getCommentsByPostId(post.getId());
 
         // 조회된 게시글을 PostSingleResponse로 변환하여 반환
-        return PostSingleResponse.toDTO(post, likeCount, scrapCount, commentResponse, likedByCurrentUser, scrapedByCurrentUser);
+        return PostSingleResponse.toDTO(post, likeCount, scrapCount, commentResponse, likedByCurrentUser, scrapedByCurrentUser, DEFAULT_PROFILE_IMAGE_URL);
     }
 
     @Transactional(readOnly = true)
@@ -220,7 +223,7 @@ public class PostQueryServiceImpl implements PostQueryService {
                     boolean likedByCurrentUser = likedPostCommentQueryService.existsByMemberIdAndPostCommentIdAndIsLikedTrue(comment.getId());
                     //현재 사용자 댓글 싫어요 여부
                     boolean dislikedByCurrentUser = likedPostCommentQueryService.existsByMemberIdAndPostCommentIdAndIsLikedFalse(comment.getId());
-                    return CommentDetailResponse.toDTO(comment, likeCount, likedByCurrentUser, dislikedByCurrentUser);
+                    return CommentDetailResponse.toDTO(comment, likeCount, likedByCurrentUser, dislikedByCurrentUser, DEFAULT_PROFILE_IMAGE_URL);
                 })
                 .toList();
 
@@ -241,7 +244,7 @@ public class PostQueryServiceImpl implements PostQueryService {
 
         if (boardType == Board.ALL) {
             // ALL 타입일 경우 모든 게시글 조회
-            postScrapPage = memberScrapRepository.findByMemberId(currentUserId,pageable);
+            postScrapPage = memberScrapRepository.findByMemberId(currentUserId, pageable);
         } else {
             // 특정 게시판 타입의 게시글 조회
             postScrapPage = memberScrapRepository.findByMemberIdAndPost_Board(currentUserId, boardType, pageable);

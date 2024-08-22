@@ -88,6 +88,7 @@ public class StudyPostResDTO {
     public static class PostDetailDTO {
 
         private final Long memberId;
+        private final String name;
         private final Long postId;
         private final String title;
         private final String content;
@@ -103,6 +104,7 @@ public class StudyPostResDTO {
         public static PostDetailDTO toDTO(StudyPost studyPost, boolean isLiked) {
             return PostDetailDTO.builder()
                     .memberId(studyPost.getMember().getId())
+                    .name(studyPost.getMember().getName())
                     .postId(studyPost.getId())
                     .title(studyPost.getTitle())
                     .content(studyPost.getContent())

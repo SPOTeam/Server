@@ -300,7 +300,7 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
 
         studyPostCommentRepository.save(studyPostComment);
 
-        studyPost.plusCommentNum();
+        studyPost.setCommentNum(studyPostCommentRepository.findAllByStudyPostId(postId).size());
         studyPostRepository.save(studyPost);
 
         studyPost.addComment(studyPostComment);
@@ -349,7 +349,7 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
 
         studyPostCommentRepository.save(studyPostComment);
 
-        studyPost.plusCommentNum();
+        studyPost.setCommentNum(studyPostCommentRepository.findAllByStudyPostId(postId).size());
         studyPostRepository.save(studyPost);
 
         studyPost.addComment(studyPostComment);

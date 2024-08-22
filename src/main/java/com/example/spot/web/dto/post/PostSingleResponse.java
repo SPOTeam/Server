@@ -14,6 +14,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class PostSingleResponse {
 
+    @Schema(
+            description = "게시글 타입입니다."
+    )
     private String type;
 
     @Schema(
@@ -21,6 +24,16 @@ public class PostSingleResponse {
             format = "string"
     )
     private String writer;
+
+    @Schema(
+            description = "게시글 작성자 익명 여부입니다."
+    )
+    private boolean anonymous;
+
+    @Schema(
+            description = "댓글 작성자 프로필 사진입니다."
+    )
+    private String profileImage;
 
     @Schema(
             description = "작성 시간입니다.",
@@ -96,13 +109,27 @@ public class PostSingleResponse {
         return writer;
     }
 
-    public static PostSingleResponse toDTO(Post post, long likeCount, long scrapCount, CommentResponse commentResponse, boolean likedByCurrentUser, boolean scrapedByCurrentUser) {
+    public static String anonymousProfileImage(Boolean isAnonymous, String profileImage, String defaultProfileImageUrl) {
+
+        if (isAnonymous) {
+            return defaultProfileImageUrl;
+        }
+
+        return profileImage;
+    }
+
+    public static PostSingleResponse toDTO(Post post, long likeCount, long scrapCount, CommentResponse commentResponse, boolean likedByCurrentUser, boolean scrapedByCurrentUser, String defaultProfileImageUrl) {
         // 작성자가 익명인지 확인하여 작성자 이름 설정
         String writerName = judgeAnonymous(post.isAnonymous(), post.getMember().getName());
+        // 작성자가 익명인지 확인하여 프로필 반환
+        String writerImage = anonymousProfileImage(post.isAnonymous(), post.getMember().getProfileImage(), defaultProfileImageUrl);
+
 
         return PostSingleResponse.builder()
                 .type(post.getBoard().name())
                 .writer(writerName)
+                .anonymous(post.isAnonymous())
+                .profileImage(writerImage)
                 .writtenTime(post.getCreatedAt())
                 .scrapCount(scrapCount)
                 .scrapedByCurrentUser(scrapedByCurrentUser)

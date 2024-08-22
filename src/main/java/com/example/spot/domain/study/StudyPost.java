@@ -59,6 +59,7 @@ public class StudyPost extends BaseEntity {
     @Column(nullable = false)
     private Integer hitNum;
 
+    @Setter
     @Column(nullable = false)
     private Integer commentNum;
 
@@ -141,12 +142,6 @@ public class StudyPost extends BaseEntity {
 
     public void minusLikeNum() {
         likeNum--;
-        member.updateStudyPost(this);
-        study.updateStudyPost(this);
-    }
-
-    public void plusCommentNum() {
-        commentNum++;
         member.updateStudyPost(this);
         study.updateStudyPost(this);
     }

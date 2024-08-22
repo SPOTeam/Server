@@ -307,7 +307,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         if (studies.isEmpty())
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
 
-        long totalElements = preferredStudyRepository.countByMemberId(memberId);
+        long totalElements = preferredStudyRepository.countByMemberIdAndStudyLikeStatus(memberId, StudyLikeStatus.LIKE);
         return getDTOs(studies, pageable, totalElements, memberId);
     }
 
