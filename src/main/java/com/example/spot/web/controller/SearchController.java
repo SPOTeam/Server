@@ -96,6 +96,23 @@ public class SearchController {
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
     }
 
+    @Tag(name = "전체 스터디 조회", description = "전체 스터디 조회 API")
+    @GetMapping("/search/studies/all/no-conditions")
+    @Operation(
+        summary = "[전체 스터디 조회] 전체 스터디 조회 (조건 X)",
+        description = """
+            ## [전체 스터디 조회] 전체 스터디를 조회 합니다.
+            조건에 맞게 검색된 스터디 목록이 반환 됩니다."""
+    )
+    public ApiResponse<StudyPreviewDTO> allStudiesByConditions(
+        @RequestParam @Min(0) Integer page,
+        @RequestParam @Min(1) Integer size,
+        @RequestParam StudySortBy sortBy) {
+        // 메소드 구현
+        StudyPreviewDTO studies = studyQueryService.findStudies(PageRequest.of(page, size), sortBy);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
+    }
+
 
     /* ----------------------------- 내 관심 분야 별 스터디 조회  ------------------------------------- */
 

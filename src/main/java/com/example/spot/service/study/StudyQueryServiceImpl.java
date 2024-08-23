@@ -113,6 +113,15 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     }
 
     @Override
+    public StudyPreviewDTO findStudies(Pageable pageable, StudySortBy sortBy) {
+        List<Study> studies = studyRepository.findAllStudy(sortBy, pageable);
+        if (studies.isEmpty())
+            throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
+        long totalElements = studyRepository.count();
+        return getDTOs(studies, pageable, totalElements, SecurityUtils.getCurrentUserId());
+    }
+
+    @Override
     public StudyPreviewDTO findStudiesByConditions(Pageable pageable, SearchRequestStudyDTO request,
         StudySortBy sortBy) {
         Map<String, Object> conditions = getSearchConditions(request);
