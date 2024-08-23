@@ -30,7 +30,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     public List<Post> findTopByOrderByCommentCountDesc() {
         return jpaQueryFactory
                 .selectFrom(post)
-                .leftJoin(post.postCommentList, comment)
+                .leftJoin(post.postCommentList, comment).fetchJoin()
                 //.groupBy(post)
                 .orderBy(post.postCommentList.size().desc())
                 //.orderBy(comment.count().desc(), post.id.desc())//댓글 수가 같을 경우 게시글 최신순(게시글 아이디 큰 순)
