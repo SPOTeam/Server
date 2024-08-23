@@ -45,6 +45,22 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
     }
 
     @Override
+    public List<Study> findAllStudy(StudySortBy sortBy, Pageable pageable) {
+        QStudy study = QStudy.study;
+        BooleanBuilder builder = new BooleanBuilder();
+        getStudyState(sortBy, builder, study);
+
+        JPAQuery<Study> query = queryFactory.selectFrom(study)
+            .where(builder)
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize());
+
+        getSortBy(sortBy, query, study);
+
+        return query.fetch();
+    }
+
+    @Override
     public List<Study> findByStudyTheme(List<StudyTheme> studyThemes) {
         return queryFactory.selectFrom(study)
             .where(study.studyThemes.any().in(studyThemes))
