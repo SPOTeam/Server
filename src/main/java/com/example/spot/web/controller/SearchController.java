@@ -97,7 +97,7 @@ public class SearchController {
     }
 
     @Tag(name = "전체 스터디 조회", description = "전체 스터디 조회 API")
-    @GetMapping("/search/studies/all-no-conditions")
+    @GetMapping("/search/studies/all/no-conditions")
     @Operation(
         summary = "[전체 스터디 조회] 전체 스터디 조회 (조건 X)",
         description = """
