@@ -30,7 +30,7 @@ public class StudyPostQueryServiceImpl implements StudyPostQueryService {
 
     private final StudyPostCommentRepository studyPostCommentRepository;
     private final StudyLikedPostRepository studyLikedPostRepository;
-    @Value("${cloud.aws.default-image}")
+    @Value("${image.post.anonymous.profile}")
     private String defaultImage;
 
     private final MemberRepository memberRepository;

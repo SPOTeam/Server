@@ -45,7 +45,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 
-    @Value("${cloud.aws.default-image}")
+    @Value("${image.post.anonymous.profile}")
     private String defaultImage;
 
     private final MemberRepository memberRepository;

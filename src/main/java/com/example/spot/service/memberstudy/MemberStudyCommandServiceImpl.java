@@ -41,7 +41,7 @@ import java.util.List;
 @Transactional
 public class MemberStudyCommandServiceImpl implements MemberStudyCommandService {
 
-    @Value("${cloud.aws.default-image}")
+    @Value("${image.post.anonymous.profile}")
     private String defaultImage;
 
     private final MemberRepository memberRepository;
