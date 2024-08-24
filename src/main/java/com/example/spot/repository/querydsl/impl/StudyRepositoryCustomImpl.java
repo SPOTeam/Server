@@ -107,6 +107,7 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
                 query.orderBy(study.createdAt.desc());
                 break;
             case COMPLETED:
+                query.where(study.studyState.eq(StudyState.COMPLETED));
                 query.orderBy(study.createdAt.desc());
                 break;
             default:
