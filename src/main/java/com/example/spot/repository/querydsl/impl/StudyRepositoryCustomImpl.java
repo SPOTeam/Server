@@ -106,6 +106,9 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
             case RECRUITING:
                 query.orderBy(study.createdAt.desc());
                 break;
+            case COMPLETED:
+                query.orderBy(study.createdAt.desc());
+                break;
             default:
                 query.orderBy(study.createdAt.desc());
                 break;
