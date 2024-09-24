@@ -149,6 +149,8 @@ class StudyQueryServiceTest {
         // Mocking the studyRepository to return studies based on the study themes
         when(studyRepository.findByStudyThemeAndNotInIds(anyList(), anyList())).thenReturn(List.of(study1, study2));
 
+        when(memberRepository.existsById(member.getId())).thenReturn(true);
+
         // when
         StudyPreviewDTO result = studyQueryService.findRecommendStudies(memberId);
 
@@ -187,6 +189,8 @@ class StudyQueryServiceTest {
 
         // Mocking the studyRepository to return studies based on the study themes
         when(studyRepository.findByStudyThemeAndNotInIds(anyList(), anyList())).thenReturn(List.of());
+
+        when(memberRepository.existsById(member.getId())).thenReturn(true);
 
         // when & then
         assertThrows(StudyHandler.class, () -> {
@@ -269,6 +273,7 @@ class StudyQueryServiceTest {
             searchConditions, List.of(studyTheme1, studyTheme2), sortBy, studyIds))
             .thenReturn(2L);
 
+        when(memberRepository.existsById(member.getId())).thenReturn(true);
         when(studyRepository.findStudyByConditionsAndThemeTypesAndNotInIds(
             searchConditions, sortBy, pageable, List.of(studyTheme1, studyTheme2), studyIds))
             .thenReturn(List.of());
@@ -327,6 +332,8 @@ class StudyQueryServiceTest {
             searchConditions, sortBy, pageable, List.of(studyTheme1, studyTheme2), studyIds))
             .thenReturn(List.of(study1, study2));
 
+        when(memberRepository.existsById(member.getId())).thenReturn(true);
+
         // when
         StudyPreviewDTO result = studyQueryService.findInterestStudiesByConditionsAll(pageable, member.getId(), request, sortBy);
 
@@ -378,6 +385,7 @@ class StudyQueryServiceTest {
         when(studyRepository.countStudyByConditionsAndThemeTypesAndNotInIds(
             searchConditions, List.of(studyTheme1), sortBy, studyIds))
             .thenReturn(1L);
+        when(memberRepository.existsById(member.getId())).thenReturn(true);
 
         // Adjusting the mock to match the specific test data
         when(studyRepository.findStudyByConditionsAndThemeTypesAndNotInIds(
@@ -436,6 +444,8 @@ class StudyQueryServiceTest {
             searchConditions, sortBy, pageable, List.of(studyTheme1), studyIds))
             .thenReturn(List.of());
 
+        when(memberRepository.existsById(member.getId())).thenReturn(true);
+
         // when & then
         assertThrows(StudyHandler.class, () -> {
             studyQueryService.findInterestStudiesByConditionsSpecific(pageable, member.getId(), request, themeType, sortBy);
@@ -488,6 +498,8 @@ class StudyQueryServiceTest {
             searchConditions, sortBy, pageable, List.of(regionStudy1, regionStudy2), studyIds))
             .thenReturn(List.of(study1, study2));
 
+        when(memberRepository.existsById(member.getId())).thenReturn(true);
+
         // when
         StudyPreviewDTO result = studyQueryService.findInterestRegionStudiesByConditionsAll(pageable, member.getId(), request, sortBy);
 
@@ -539,6 +551,8 @@ class StudyQueryServiceTest {
         when(studyRepository.findStudyByConditionsAndRegionStudiesAndNotInIds(
             searchConditions, sortBy, pageable, List.of(regionStudy1), studyIds))
             .thenReturn(List.of(study1));
+
+        when(memberRepository.existsById(member.getId())).thenReturn(true);
 
         // when
         StudyPreviewDTO result = studyQueryService.findInterestRegionStudiesByConditionsSpecific(pageable, member.getId(), request, regionCode, sortBy);
