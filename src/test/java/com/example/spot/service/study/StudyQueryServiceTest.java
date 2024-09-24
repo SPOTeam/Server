@@ -215,6 +215,23 @@ class StudyQueryServiceTest {
         });
     }
 
+    // 사용자의 관심사가 없는 경우
+    @Test
+    @DisplayName("추천 스터디 조회 - 사용자의 관심사가 없는 경우")
+    void findRecommendStudiesOnNoInterest() {
+        // given
+        Member member = getMember();
+        Long memberId = member.getId();
+
+        // Mock the memberThemeRepository to return an empty list
+        when(memberThemeRepository.findAllByMemberId(memberId)).thenReturn(List.of());
+
+        // when & then
+        assertThrows(MemberHandler.class, () -> {
+            studyQueryService.findRecommendStudies(memberId);
+        });
+    }
+
     /* -------------------------------------------------------- 내 관심사 스터디 조회 ------------------------------------------------------------------------*/
     @Test
     @DisplayName("내 전체 관심사 스터디 조회 - 내 전체 관심사에 해당하는 스터디가 없는 경우")

@@ -138,8 +138,12 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     public StudyPreviewDTO findRecommendStudies(Long memberId) {
         List<Long> memberOngoingStudyIds = getOngoingStudyIds(memberId);
 
+        List<MemberTheme> memberThemes = memberThemeRepository.findAllByMemberId(memberId);
+        if (memberThemes.isEmpty())
+            throw new MemberHandler(ErrorStatus._STUDY_THEME_IS_INVALID);
+
         // MemberId로 회원 관심사 전체 조회
-        List<Theme> themes = memberThemeRepository.findAllByMemberId(memberId).stream()
+        List<Theme> themes = memberThemes.stream()
             .map(MemberTheme::getTheme)
             .toList();
 
@@ -147,6 +151,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         List<StudyTheme> studyThemes = themes.stream()
             .flatMap(theme -> studyThemeRepository.findAllByTheme(theme).stream())
             .toList();
+
         List<Study> studies = studyRepository.findByStudyThemeAndNotInIds(studyThemes, memberOngoingStudyIds);
 
         if (studies.isEmpty())
