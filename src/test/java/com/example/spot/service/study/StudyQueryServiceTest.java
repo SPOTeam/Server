@@ -472,6 +472,74 @@ class StudyQueryServiceTest {
         verify(studyRepository).findStudyByConditionsAndThemeTypesAndNotInIds(searchConditions, sortBy, pageable, List.of(studyTheme1),studyIds);
     }
 
+    @Test
+    @DisplayName("내 특정 관심사 스터디 조회 - 내 특정 관심사에 해당하는 스터디가 있는 경우")
+    void findInterestStudiesByConditionsSpecificOnFail() {
+        // given
+        Member member = Member.builder()
+            .id(1L)
+            .build();
+
+        Pageable pageable = PageRequest.of(0, 10);
+
+        ThemeType themeType = ThemeType.어학;
+
+        Theme theme1 = Theme.builder()
+            .id(1L)
+            .studyTheme(ThemeType.어학)
+            .build();
+
+        StudySortBy sortBy = StudySortBy.ALL;
+
+        List<Long> studyIds = List.of();
+
+        SearchRequestStudyDTO request = SearchRequestStudyDTO.builder()
+            .gender(Gender.MALE)
+            .minAge(20)
+            .maxAge(40)
+            .fee(10000)
+            .isOnline(true)
+            .hasFee(true)
+            .build();
+
+        MemberTheme memberTheme1 = MemberTheme.builder().member(member).theme(theme1).build();
+
+        StudyTheme studyTheme1 = new StudyTheme(theme1, study1);
+
+        // Mock conditions
+        Map<String, Object> searchConditions = new HashMap<>();
+        searchConditions.put("gender", Gender.MALE);
+        searchConditions.put("minAge", 20);
+        searchConditions.put("maxAge", 40);
+        searchConditions.put("isOnline", true);
+        searchConditions.put("hasFee", true);
+        searchConditions.put("fee", 10000);
+
+        when(memberThemeRepository.findAllByMemberId(member.getId()))
+            .thenReturn(List.of(memberTheme1));
+        when(studyThemeRepository.findAllByTheme(theme1))
+            .thenReturn(List.of(studyTheme1));
+
+        // Only studyTheme1 should match
+        when(studyRepository.countStudyByConditionsAndThemeTypesAndNotInIds(
+            searchConditions, List.of(studyTheme1), sortBy, studyIds))
+            .thenReturn(0L);
+
+        // Adjusting the mock to match the specific test data
+        when(studyRepository.findStudyByConditionsAndThemeTypesAndNotInIds(
+            searchConditions, sortBy, pageable, List.of(studyTheme1), studyIds))
+            .thenReturn(List.of());
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.findInterestStudiesByConditionsSpecific(pageable, member.getId(), request, themeType, sortBy);
+        });
+        verify(memberThemeRepository).findAllByMemberId(member.getId());
+        verify(studyThemeRepository).findAllByTheme(theme1);  // Ensure the correct theme is queried
+        verify(studyRepository).countStudyByConditionsAndThemeTypesAndNotInIds(searchConditions, List.of(studyTheme1), sortBy, studyIds);
+        verify(studyRepository).findStudyByConditionsAndThemeTypesAndNotInIds(searchConditions, sortBy, pageable, List.of(studyTheme1),studyIds);
+    }
+
     /* -------------------------------------------------------- 내 전체 관심 지역 스터디 조회 ------------------------------------------------------------------------*/
     @Test
     @DisplayName("내 전체 관심 지역 스터디 조회 - 내 전체 관심 지역에 해당하는 스터디가 있는 경우")
