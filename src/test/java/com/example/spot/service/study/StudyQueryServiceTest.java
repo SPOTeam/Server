@@ -2,11 +2,14 @@ package com.example.spot.service.study;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
+import com.example.spot.api.code.status.ErrorStatus;
+import com.example.spot.api.exception.handler.StudyHandler;
 import com.example.spot.domain.Member;
 import com.example.spot.domain.Region;
 import com.example.spot.domain.Theme;
@@ -141,6 +144,8 @@ class StudyQueryServiceTest {
     void getMyPageStudyCount() {
     }
 
+    /* -------------------------------------------------------- 추천 스터디 조회 ------------------------------------------------------------------------*/
+
     @Test
     @DisplayName("추천 스터디 조회 - 추천 스터디가 있는 경우")
     void findRecommendStudies() {
@@ -191,6 +196,52 @@ class StudyQueryServiceTest {
         verify(studyRepository).findByStudyThemeAndNotInIds(anyList(), anyList());
     }
 
+    @Test
+    @DisplayName("추천 스터디 조회 - 추천 스터디가 없는 경우")
+    void findRecommendStudiesOnFail() {
+        // given
+        Member member = Member.builder()
+            .id(1L)
+            .build();
+        Long memberId = 1L;
+
+        Theme theme1 = Theme.builder()
+            .id(1L)
+            .studyTheme(ThemeType.어학)
+            .build();
+
+        Theme theme2 = Theme.builder()
+            .id(2L)
+            .studyTheme(ThemeType.공모전)
+            .build();
+
+        MemberTheme memberTheme1 = MemberTheme.builder().member(member).theme(theme1).build();
+        MemberTheme memberTheme2 = MemberTheme.builder().member(member).theme(theme2).build();
+
+        // Mock the memberThemeRepository to return a list of MemberTheme
+        when(memberThemeRepository.findAllByMemberId(memberId)).thenReturn(List.of(memberTheme1, memberTheme2));
+
+        StudyTheme studyTheme1 = new StudyTheme(theme1, study1);
+        StudyTheme studyTheme2 = new StudyTheme(theme2, study2);
+
+        when(studyThemeRepository.findAllByTheme(theme1)).thenReturn(List.of(studyTheme1));
+        when(studyThemeRepository.findAllByTheme(theme2)).thenReturn(List.of(studyTheme2));
+
+        // Mocking the studyRepository to return studies based on the study themes
+        when(studyRepository.findByStudyThemeAndNotInIds(anyList(), anyList())).thenReturn(List.of());
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.findRecommendStudies(memberId);
+        });
+        verify(memberThemeRepository).findAllByMemberId(memberId);
+        verify(studyThemeRepository, times(1)).findAllByTheme(theme1);
+        verify(studyThemeRepository, times(1)).findAllByTheme(theme2);
+        verify(studyRepository).findByStudyThemeAndNotInIds(anyList(), anyList());
+
+    }
+
+    /* -------------------------------------------------------- 내 관심사 스터디 조회 ------------------------------------------------------------------------*/
     @Test
     @DisplayName("내 전체 관심사 스터디 조회 - 내 전체 관심사에 해당하는 스터디가 있는 경우")
     void findInterestStudiesByConditionsAll() {
