@@ -393,7 +393,7 @@ class StudyQueryServiceTest {
 
     }
 
-    /* -------------------------------------------------------- 내 관심사 스터디 조회 ------------------------------------------------------------------------*/
+    /* -------------------------------------------------------- 내 특정 관심사 스터디 조회 ------------------------------------------------------------------------*/
 
     @Test
     @DisplayName("내 특정 관심사 스터디 조회 - 내 특정 관심사에 해당하는 스터디가 있는 경우")
@@ -472,6 +472,7 @@ class StudyQueryServiceTest {
         verify(studyRepository).findStudyByConditionsAndThemeTypesAndNotInIds(searchConditions, sortBy, pageable, List.of(studyTheme1),studyIds);
     }
 
+    /* -------------------------------------------------------- 내 전체 관심 지역 스터디 조회 ------------------------------------------------------------------------*/
     @Test
     @DisplayName("내 전체 관심 지역 스터디 조회 - 내 전체 관심 지역에 해당하는 스터디가 있는 경우")
     void findInterestRegionStudiesByConditionsAll() {
@@ -551,6 +552,8 @@ class StudyQueryServiceTest {
         verify(studyRepository).countStudyByConditionsAndRegionStudiesAndNotInIds(searchConditions, List.of(regionStudy1, regionStudy2), sortBy, studyIds);
         verify(studyRepository).findStudyByConditionsAndRegionStudiesAndNotInIds(searchConditions, sortBy, pageable, List.of(regionStudy1, regionStudy2), studyIds);
     }
+
+    /* -------------------------------------------------------- 내 특정 관심 지역 스터디 조회 ------------------------------------------------------------------------*/
 
     @Test
     @DisplayName("내 특정 관심 지역 스터디 조회 - 내 특정 관심 지역에 해당하는 스터디가 있는 경우")
@@ -683,6 +686,7 @@ class StudyQueryServiceTest {
         verify(studyRepository).countStudyByConditions(searchConditions, sortBy);
     }
 
+    /* -------------------------------------------------------- 찜한 스터디 조회 ------------------------------------------------------------------------*/
     @Test
     @DisplayName("찜한 스터디 조회 - 찜한 스터디가 있는 경우")
     void findLikedStudies() {
@@ -717,7 +721,7 @@ class StudyQueryServiceTest {
         verify(preferredStudyRepository).findByMemberIdAndStudyLikeStatusOrderByCreatedAtDesc(member.getId(), StudyLikeStatus.LIKE, PageRequest.of(0, 10));
 
     }
-
+    /* -------------------------------------------------------- 키워드를 통한 스터디 검색 ------------------------------------------------------------------------*/
     @Test
     @DisplayName("키워드로 스터디 검색 - 해당 키워드에 해당하는 스터디가 있는 경우")
     void findStudiesByKeyword() {
@@ -752,7 +756,7 @@ class StudyQueryServiceTest {
         assertEquals(1, result.getTotalElements());
         verify(studyRepository).findAllByTitleContaining(keyword, sortBy, pageable);
     }
-
+    /* -------------------------------------------------------- 테마 별 스터디 검색 ------------------------------------------------------------------------*/
     @Test
     @DisplayName("테마 별 스터디 검색 - 해당 테마에 해당하는 스터디가 있는 경우")
     void findStudiesByTheme() {
@@ -796,6 +800,7 @@ class StudyQueryServiceTest {
 
     }
 
+    /* -------------------------------------------------------- 내가 참여하는 스터디 조회 ------------------------------------------------------------------------*/
     @Test
     @DisplayName("내가 참여하고 있는 스터디 조회 - 참여하고 있는 스터디가 있는 경우")
     void findOngoingStudiesByMemberId() {
@@ -832,6 +837,7 @@ class StudyQueryServiceTest {
 
     }
 
+    /* -------------------------------------------------------- 내가 신청한 스터디 조회 ------------------------------------------------------------------------*/
     @Test
     @DisplayName("내가 신청한 스터디 조회 - 신청한 스터디가 있는 경우")
     void findAppliedStudies() {
@@ -868,7 +874,7 @@ class StudyQueryServiceTest {
         verify(studyRepository).findByMemberStudy(List.of(memberStudy1, memberStudy2), pageable);
 
     }
-
+    /* -------------------------------------------------------- 내가 모집 중인 스터디 조회 ------------------------------------------------------------------------*/
     @Test
     @DisplayName("내가 모집중인 스터디 조회 - 모집중인 스터디가 있는 경우")
     void findMyRecruitingStudies() {
