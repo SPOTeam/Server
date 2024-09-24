@@ -840,31 +840,28 @@ class StudyQueryServiceTest {
     }
 
 
-    private static Region getRegion(String 송산면, String number) {
-        Region region1 = Region.builder()
+    private static Region getRegion(String neighborhood, String number) {
+        return Region.builder()
             .province("경기도")
-            .neighborhood(송산면)
+            .neighborhood(neighborhood)
             .district("화성시")
             .code(number)
             .build();
-        return region1;
     }
 
     private static PreferredStudy getPreferredStudy(Member member, Study study) {
-        PreferredStudy preferredStudy2 = PreferredStudy.builder()
+        return PreferredStudy.builder()
             .member(member)
-            .study(study2)
+            .study(study)
             .studyLikeStatus(StudyLikeStatus.LIKE)
             .build();
-        return preferredStudy2;
     }
 
     private static MemberStudy getMemberStudy(Member member, Study study) {
-        MemberStudy memberStudy1 = MemberStudy.builder()
+        return MemberStudy.builder()
             .member(member)
-            .study(study1)
+            .study(study)
             .build();
-        return memberStudy1;
     }
 
     private static Map<String, Object> getStringObjectMap() {
@@ -880,7 +877,7 @@ class StudyQueryServiceTest {
     }
 
     private static SearchRequestStudyDTO getSearchRequestStudyDTO() {
-        SearchRequestStudyDTO request = SearchRequestStudyDTO.builder()
+        return SearchRequestStudyDTO.builder()
             .gender(Gender.MALE)
             .minAge(20)
             .maxAge(40)
@@ -888,7 +885,6 @@ class StudyQueryServiceTest {
             .isOnline(true)
             .hasFee(true)
             .build();
-        return request;
     }
 
 }
