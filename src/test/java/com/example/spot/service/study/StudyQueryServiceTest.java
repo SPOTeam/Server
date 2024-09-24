@@ -341,10 +341,8 @@ class StudyQueryServiceTest {
         SearchRequestStudyDTO request = getSearchRequestStudyDTO();
 
         MemberTheme memberTheme1 = MemberTheme.builder().member(member).theme(theme1).build();
-        MemberTheme memberTheme2 = MemberTheme.builder().member(member).theme(theme2).build();
 
         StudyTheme studyTheme1 = new StudyTheme(theme1, study1);
-        StudyTheme studyTheme2 = new StudyTheme(theme2, study2);
 
         // Mock conditions
         Map<String, Object> searchConditions = getStringObjectMap();
@@ -436,7 +434,6 @@ class StudyQueryServiceTest {
         Pageable pageable = PageRequest.of(0, 10);
 
         Region region1 = getRegion("송산면", "4159034000");
-
         Region region2 = getRegion("봉담읍", "4159025300");
 
         StudySortBy sortBy = StudySortBy.ALL;
@@ -542,23 +539,9 @@ class StudyQueryServiceTest {
 
         StudySortBy sortBy = StudySortBy.ALL;
 
-        SearchRequestStudyDTO request = SearchRequestStudyDTO.builder()
-            .gender(Gender.FEMALE)
-            .minAge(18)
-            .maxAge(35)
-            .fee(5000)
-            .isOnline(true)
-            .hasFee(true)
-            .build();
-
+        SearchRequestStudyDTO request = getSearchRequestStudyDTO();
         // Mock conditions
-        Map<String, Object> searchConditions = new HashMap<>();
-        searchConditions.put("gender", Gender.FEMALE);
-        searchConditions.put("minAge", 18);
-        searchConditions.put("maxAge", 35);
-        searchConditions.put("isOnline", true);
-        searchConditions.put("hasFee", true);
-        searchConditions.put("fee", 5000);
+        Map<String, Object> searchConditions = getStringObjectMap();
 
         when(studyRepository.findStudyByConditions(searchConditions, sortBy, pageable))
             .thenReturn(List.of(study1, study2));
