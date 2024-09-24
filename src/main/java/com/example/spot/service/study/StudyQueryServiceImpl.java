@@ -2,6 +2,7 @@ package com.example.spot.service.study;
 
 import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.GeneralException;
+import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.api.exception.handler.StudyHandler;
 import com.example.spot.domain.Member;
 import com.example.spot.domain.Region;
@@ -401,6 +402,8 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
     // 회원이 참가하고 있는 스터디 ID 가져오기
     private List<Long> getOngoingStudyIds(Long memberId) {
+        if (!memberRepository.existsById(memberId))
+            throw new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND);
         List<MemberStudy> memberStudies = memberStudyRepository.findAllByMemberIdAndStatus(memberId, ApplicationStatus.APPROVED);
         return memberStudies.stream()
             .filter(memberStudy -> memberStudy.getStatus().equals(ApplicationStatus.APPROVED))

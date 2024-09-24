@@ -9,6 +9,8 @@ import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 import com.example.spot.api.code.status.ErrorStatus;
+import com.example.spot.api.exception.GeneralException;
+import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.api.exception.handler.StudyHandler;
 import com.example.spot.domain.Member;
 import com.example.spot.domain.Region;
@@ -99,7 +101,6 @@ class StudyQueryServiceTest {
         // 모든 테스트에서 사용할 Study 객체를 미리 생성
         initStudy();
     }
-
 
     @BeforeEach
     void initMocks() {
@@ -199,16 +200,20 @@ class StudyQueryServiceTest {
 
 
 
-//    // 유효하지 않은 사용자인 경우
-//    @Test
-//    @DisplayName("추천 스터디 조회 - 유효하지 않은 사용자인 경우")
-//    void findRecommendStudiesOnInvalidUser() {
-//        // given
-//        Long memberId = 1L;
-//
-//        // Mocking the memberRepository to return null
-//        when(memberRepository.findById(memberId))
-//    }
+    // 유효하지 않은 사용자인 경우
+    @Test
+    @DisplayName("추천 스터디 조회 - 유효하지 않은 사용자인 경우")
+    void findRecommendStudiesOnInvalidUser() {
+        // given
+        Member member = getMember();
+
+        // when & then
+        when(memberRepository.findById(member.getId())).thenReturn(Optional.empty());
+
+        assertThrows(MemberHandler.class, () -> {
+            studyQueryService.findRecommendStudies(member.getId());
+        });
+    }
 
     /* -------------------------------------------------------- 내 관심사 스터디 조회 ------------------------------------------------------------------------*/
     @Test
