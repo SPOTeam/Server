@@ -2,6 +2,7 @@ package com.example.spot.service.study;
 
 import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.GeneralException;
+import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.api.exception.handler.StudyHandler;
 import com.example.spot.domain.Member;
 import com.example.spot.domain.Region;
@@ -137,8 +138,12 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     public StudyPreviewDTO findRecommendStudies(Long memberId) {
         List<Long> memberOngoingStudyIds = getOngoingStudyIds(memberId);
 
+        List<MemberTheme> memberThemes = memberThemeRepository.findAllByMemberId(memberId);
+        if (memberThemes.isEmpty())
+            throw new MemberHandler(ErrorStatus._STUDY_THEME_IS_INVALID);
+
         // MemberId로 회원 관심사 전체 조회
-        List<Theme> themes = memberThemeRepository.findAllByMemberId(memberId).stream()
+        List<Theme> themes = memberThemes.stream()
             .map(MemberTheme::getTheme)
             .toList();
 
@@ -146,6 +151,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         List<StudyTheme> studyThemes = themes.stream()
             .flatMap(theme -> studyThemeRepository.findAllByTheme(theme).stream())
             .toList();
+
         List<Study> studies = studyRepository.findByStudyThemeAndNotInIds(studyThemes, memberOngoingStudyIds);
 
         if (studies.isEmpty())
@@ -401,6 +407,8 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
     // 회원이 참가하고 있는 스터디 ID 가져오기
     private List<Long> getOngoingStudyIds(Long memberId) {
+        if (!memberRepository.existsById(memberId))
+            throw new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND);
         List<MemberStudy> memberStudies = memberStudyRepository.findAllByMemberIdAndStatus(memberId, ApplicationStatus.APPROVED);
         return memberStudies.stream()
             .filter(memberStudy -> memberStudy.getStatus().equals(ApplicationStatus.APPROVED))
