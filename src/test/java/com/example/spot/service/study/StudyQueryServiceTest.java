@@ -380,6 +380,32 @@ class StudyQueryServiceTest {
         Member member = getMember();
         Pageable pageable = PageRequest.of(0, 10);
 
+        Theme theme1 = getTheme(1L, ThemeType.어학);
+        Theme theme2 = getTheme(2L, ThemeType.공모전);
+
+        MemberTheme memberTheme1 = MemberTheme.builder().member(member).theme(theme1).build();
+        MemberTheme memberTheme2 = MemberTheme.builder().member(member).theme(theme2).build();
+
+        StudyTheme studyTheme1 = new StudyTheme(theme1, study1);
+        StudyTheme studyTheme2 = new StudyTheme(theme2, study2);
+
+        when(memberRepository.existsById(member.getId())).thenReturn(true);
+        when(memberThemeRepository.findAllByMemberId(member.getId())).thenReturn(List.of(memberTheme1, memberTheme2));
+        when(studyThemeRepository.findAllByTheme(any())).thenReturn(List.of(studyTheme1, studyTheme2));
+        when(studyRepository.countStudyByConditionsAndThemeTypesAndNotInIds(any(), any(), any(), any()))
+            .thenReturn(1L);
+        when(studyRepository.findStudyByConditionsAndThemeTypesAndNotInIds(any(), any(), any(), any(), any()))
+            .thenReturn(List.of(study1));
+
+        // when
+        // 검색 조건이 안맞는 경우, 검색 조건에 맞는 스터디가 조회 되면 안됨.
+        StudyPreviewDTO result = studyQueryService.findInterestStudiesByConditionsAll(
+            pageable, member.getId(), getSearchRequestStudyDTO(), StudySortBy.ALL);
+
+        // then
+        assertEquals(1, result.getTotalElements());
+        assertEquals(study1.getTitle(), result.getContent().get(0).getTitle());
+
     }
 
     @Test
@@ -948,8 +974,8 @@ class StudyQueryServiceTest {
 
         study2 = Study.builder()
             .gender(Gender.FEMALE)
-            .minAge(18)
-            .maxAge(35)
+            .minAge(25)
+            .maxAge(30)
             .fee(2000)
             .profileImage("profile2.jpg")
             .hasFee(true)
