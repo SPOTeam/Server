@@ -383,6 +383,76 @@ class StudyQueryServiceTest {
     }
 
     @Test
+    @DisplayName("내 전체 관심사 스터디 조회 - 정렬 조건에 따른 스터디 필터링 테스트(조회수 순)")
+    void shouldFilterStudiesBasedOnSortConditionsByHit(){
+        // given
+        Member member = getMember();
+        Pageable pageable = PageRequest.of(0, 10);
+        StudySortBy sortBy = StudySortBy.HIT;
+
+        Theme theme1 = getTheme(1L, ThemeType.어학);
+        Theme theme2 = getTheme(2L, ThemeType.공모전);
+        MemberTheme memberTheme1 = MemberTheme.builder().member(member).theme(theme1).build();
+        MemberTheme memberTheme2 = MemberTheme.builder().member(member).theme(theme2).build();
+
+        StudyTheme studyTheme1 = new StudyTheme(theme1, study1);
+        StudyTheme studyTheme2 = new StudyTheme(theme2, study2);
+
+        when(memberRepository.existsById(member.getId())).thenReturn(true);
+        when(memberThemeRepository.findAllByMemberId(member.getId())).thenReturn(List.of(memberTheme1, memberTheme2));
+        when(studyThemeRepository.findAllByTheme(any())).thenReturn(List.of(studyTheme1, studyTheme2));
+        when(studyRepository.countStudyByConditionsAndThemeTypesAndNotInIds(any(), any(), any(), any()))
+            .thenReturn(2L);
+        when(studyRepository.findStudyByConditionsAndThemeTypesAndNotInIds(any(), any(), any(), any(), any()))
+            .thenReturn(List.of(study1, study2));
+
+        // when
+        StudyPreviewDTO result = studyQueryService.findInterestStudiesByConditionsAll(
+            pageable, member.getId(), getSearchRequestStudyDTO(), sortBy);
+
+        // then
+        assertEquals(2, result.getTotalElements());
+        assertEquals(study1.getTitle(), result.getContent().get(0).getTitle());
+        assertEquals(study2.getTitle(), result.getContent().get(1).getTitle());
+
+    }
+
+    @Test
+    @DisplayName("내 전체 관심사 스터디 조회 - 정렬 조건에 따른 스터디 필터링 테스트(좋아요 순)")
+    void shouldFilterStudiesBasedOnSortConditionsByLiked(){
+        // given
+        Member member = getMember();
+        Pageable pageable = PageRequest.of(0, 10);
+        StudySortBy sortBy = StudySortBy.LIKED;
+
+        Theme theme1 = getTheme(1L, ThemeType.어학);
+        Theme theme2 = getTheme(2L, ThemeType.공모전);
+        MemberTheme memberTheme1 = MemberTheme.builder().member(member).theme(theme1).build();
+        MemberTheme memberTheme2 = MemberTheme.builder().member(member).theme(theme2).build();
+
+        StudyTheme studyTheme1 = new StudyTheme(theme1, study1);
+        StudyTheme studyTheme2 = new StudyTheme(theme2, study2);
+
+        when(memberRepository.existsById(member.getId())).thenReturn(true);
+        when(memberThemeRepository.findAllByMemberId(member.getId())).thenReturn(List.of(memberTheme1, memberTheme2));
+        when(studyThemeRepository.findAllByTheme(any())).thenReturn(List.of(studyTheme1, studyTheme2));
+        when(studyRepository.countStudyByConditionsAndThemeTypesAndNotInIds(any(), any(), any(), any()))
+            .thenReturn(2L);
+        when(studyRepository.findStudyByConditionsAndThemeTypesAndNotInIds(any(), any(), any(), any(), any()))
+            .thenReturn(List.of(study2, study1));
+
+        // when
+        StudyPreviewDTO result = studyQueryService.findInterestStudiesByConditionsAll(
+            pageable, member.getId(), getSearchRequestStudyDTO(), sortBy);
+
+        // then
+        assertEquals(2, result.getTotalElements());
+        assertEquals(study2.getTitle(), result.getContent().get(0).getTitle());
+        assertEquals(study1.getTitle(), result.getContent().get(1).getTitle());
+
+    }
+
+    @Test
     @DisplayName("내 전체 관심사 스터디 조회 - 회원의 관심 분야가 없는 경우")
     void findInterestStudiesByConditionsAllOnNoInterest() {
         // given
@@ -889,6 +959,9 @@ class StudyQueryServiceTest {
             .title("Competition Study Group")
             .maxPeople(15L)
             .build();
+
+        study1.increaseHit();
+        study2.addPreferredStudy(getPreferredStudy(getMember(), study2));
     }
 
     private static Theme getTheme(Long id, ThemeType themeType) {
