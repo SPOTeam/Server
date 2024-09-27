@@ -214,7 +214,7 @@ class StudyQueryServiceTest {
         // when & then
         when(memberRepository.findById(member.getId())).thenReturn(Optional.empty());
 
-        assertThrows(MemberHandler.class, () -> {
+        assertThrows(StudyHandler.class, () -> {
             studyQueryService.findRecommendStudies(member.getId());
         });
     }
