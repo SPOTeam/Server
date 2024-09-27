@@ -97,18 +97,41 @@ class StudyQueryServiceTest {
     private static Study study1;
     private static Study study2;
     private static Study study3;
-
-    @BeforeAll
-    static void setup() {
-        // 모든 테스트에서 사용할 Study 객체를 미리 생성
-        initStudy();
-    }
+    private static Member member;
+    private static Pageable pageable;
+    private static Theme theme1;
+    private static Theme theme2;
+    private static MemberTheme memberTheme1;
+    private static MemberTheme memberTheme2;
+    private static StudyTheme studyTheme1;
+    private static StudyTheme studyTheme2;
+    private static SearchRequestStudyDTO request;
 
     @BeforeEach
-    void initMocks() {
-        // 각 테스트 메서드에서 사용할 mock 설정
+    void setUp() {
+        initStudy();
+        member = getMember();
+        pageable = PageRequest.of(0, 10);
+
+        theme1 = getTheme(1L, ThemeType.어학);
+        theme2 = getTheme(2L, ThemeType.공모전);
+        memberTheme1 = MemberTheme.builder().member(member).theme(theme1).build();
+        memberTheme2 = MemberTheme.builder().member(member).theme(theme2).build();
+        studyTheme1 = new StudyTheme(theme1, study1);
+        studyTheme2 = new StudyTheme(theme2, study2);
+
+        request = getSearchRequestStudyDTO();
+
+        when(memberRepository.existsById(member.getId())).thenReturn(true);
+        when(memberThemeRepository.findAllByMemberId(member.getId())).thenReturn(List.of(memberTheme1, memberTheme2));
+        when(studyThemeRepository.findAllByTheme(any())).thenReturn(List.of(studyTheme1, studyTheme2));
+        when(studyRepository.countStudyByConditionsAndThemeTypesAndNotInIds(any(), any(), any(), any()))
+            .thenReturn(2L);
+
         when(studyRepository.findByStudyTheme(anyList())).thenReturn(List.of(study1, study2));
     }
+
+
     @Test
     void getStudyInfo() {
         // given
@@ -128,22 +151,9 @@ class StudyQueryServiceTest {
     @DisplayName("추천 스터디 조회 - 추천 스터디가 있는 경우")
     void findRecommendStudies() {
         // given
-        Member member = getMember();
-        Long memberId = member.getId();
-
-        List<Long> studyIds = List.of();
-
-        Theme theme1 = getTheme(1L, ThemeType.어학);
-        Theme theme2 = getTheme(2L, ThemeType.공모전);
-
-        MemberTheme memberTheme1 = MemberTheme.builder().member(member).theme(theme1).build();
-        MemberTheme memberTheme2 = MemberTheme.builder().member(member).theme(theme2).build();
 
         // Mock the memberThemeRepository to return a list of MemberTheme
-        when(memberThemeRepository.findAllByMemberId(memberId)).thenReturn(List.of(memberTheme1, memberTheme2));
-
-        StudyTheme studyTheme1 = new StudyTheme(theme1, study1);
-        StudyTheme studyTheme2 = new StudyTheme(theme2, study2);
+        when(memberThemeRepository.findAllByMemberId(member.getId())).thenReturn(List.of(memberTheme1, memberTheme2));
 
         when(studyThemeRepository.findAllByTheme(theme1)).thenReturn(List.of(studyTheme1));
         when(studyThemeRepository.findAllByTheme(theme2)).thenReturn(List.of(studyTheme2));
@@ -154,12 +164,12 @@ class StudyQueryServiceTest {
         when(memberRepository.existsById(member.getId())).thenReturn(true);
 
         // when
-        StudyPreviewDTO result = studyQueryService.findRecommendStudies(memberId);
+        StudyPreviewDTO result = studyQueryService.findRecommendStudies(member.getId());
 
         // then
         assertNotNull(result);
         assertEquals(2, result.getSize());  // Assuming StudyPreviewDTO has a getStudies method
-        verify(memberThemeRepository).findAllByMemberId(memberId);
+        verify(memberThemeRepository).findAllByMemberId(member.getId());
         verify(studyThemeRepository, times(1)).findAllByTheme(theme1);
         verify(studyThemeRepository, times(1)).findAllByTheme(theme2);
         verify(studyRepository).findByStudyThemeAndNotInIds(anyList(), anyList());
@@ -170,21 +180,9 @@ class StudyQueryServiceTest {
     @DisplayName("추천 스터디 조회 - 추천 스터디가 없는 경우")
     void findRecommendStudiesOnFail() {
         // given
-        Member member = getMember();
-        Long memberId = 1L;
 
-        Theme theme1 = getTheme(1L, ThemeType.어학);
-        Theme theme2 = getTheme(2L, ThemeType.공모전);
-        
+        when(memberThemeRepository.findAllByMemberId(member.getId())).thenReturn(List.of(memberTheme1, memberTheme2));
 
-        MemberTheme memberTheme1 = MemberTheme.builder().member(member).theme(theme1).build();
-        MemberTheme memberTheme2 = MemberTheme.builder().member(member).theme(theme2).build();
-
-        // Mock the memberThemeRepository to return a list of MemberTheme
-        when(memberThemeRepository.findAllByMemberId(memberId)).thenReturn(List.of(memberTheme1, memberTheme2));
-
-        StudyTheme studyTheme1 = new StudyTheme(theme1, study1);
-        StudyTheme studyTheme2 = new StudyTheme(theme2, study2);
 
         when(studyThemeRepository.findAllByTheme(theme1)).thenReturn(List.of(studyTheme1));
         when(studyThemeRepository.findAllByTheme(theme2)).thenReturn(List.of(studyTheme2));
@@ -196,9 +194,9 @@ class StudyQueryServiceTest {
 
         // when & then
         assertThrows(StudyHandler.class, () -> {
-            studyQueryService.findRecommendStudies(memberId);
+            studyQueryService.findRecommendStudies(member.getId());
         });
-        verify(memberThemeRepository).findAllByMemberId(memberId);
+        verify(memberThemeRepository).findAllByMemberId(member.getId());
         verify(studyThemeRepository, times(1)).findAllByTheme(theme1);
         verify(studyThemeRepository, times(1)).findAllByTheme(theme2);
         verify(studyRepository).findByStudyThemeAndNotInIds(anyList(), anyList());
@@ -243,24 +241,10 @@ class StudyQueryServiceTest {
     @DisplayName("내 전체 관심사 스터디 조회 - 내 전체 관심사에 해당하는 스터디가 없는 경우")
     void findInterestStudiesByConditionsAllOnFail() {
         // given
-        Member member = getMember();
-
-        Pageable pageable = PageRequest.of(0, 10);
-
-        Theme theme1 = getTheme(1L, ThemeType.어학);
-        Theme theme2 = getTheme(2L, ThemeType.공모전);
 
         StudySortBy sortBy = StudySortBy.ALL;
 
-        SearchRequestStudyDTO request = getSearchRequestStudyDTO();
-
         List<Long> studyIds = List.of();
-
-        MemberTheme memberTheme1 = MemberTheme.builder().member(member).theme(theme1).build();
-        MemberTheme memberTheme2 = MemberTheme.builder().member(member).theme(theme2).build();
-
-        StudyTheme studyTheme1 = new StudyTheme(theme1, study1);
-        StudyTheme studyTheme2 = new StudyTheme(theme2, study2);
 
         Map<String, Object> searchConditions = getStringObjectMap();
 
@@ -297,24 +281,9 @@ class StudyQueryServiceTest {
     @DisplayName("내 전체 관심사 스터디 조회 - 내 전체 관심사에 해당하는 스터디가 있는 경우")
     void findInterestStudiesByConditionsAll() {
         // given
-        Member member = getMember();
-
-        Pageable pageable = PageRequest.of(0, 10);
-
-        Theme theme1 = getTheme(1L, ThemeType.어학);
-        Theme theme2 = getTheme(2L, ThemeType.공모전);
-
-        StudySortBy sortBy = StudySortBy.ALL;
-
-        SearchRequestStudyDTO request = getSearchRequestStudyDTO();
 
         List<Long> studyIds = List.of();
-
-        MemberTheme memberTheme1 = MemberTheme.builder().member(member).theme(theme1).build();
-        MemberTheme memberTheme2 = MemberTheme.builder().member(member).theme(theme2).build();
-
-        StudyTheme studyTheme1 = new StudyTheme(theme1, study1);
-        StudyTheme studyTheme2 = new StudyTheme(theme2, study2);
+        StudySortBy sortBy = StudySortBy.ALL;
 
         // Mock conditions
         Map<String, Object> searchConditions = getStringObjectMap();
@@ -355,13 +324,7 @@ class StudyQueryServiceTest {
     void shouldReturnPagedStudies(){
         //given
         List<Study> studies = List.of(study1, study2);
-        Member member = getMember();
 
-        Theme theme1 = getTheme(1L, ThemeType.어학);
-        Theme theme2 = getTheme(2L, ThemeType.공모전);
-
-        MemberTheme memberTheme1 = MemberTheme.builder().member(member).theme(theme1).build();
-        MemberTheme memberTheme2 = MemberTheme.builder().member(member).theme(theme2).build();
         when(memberThemeRepository.findAllByMemberId(any())).thenReturn(List.of(memberTheme1, memberTheme2));
         when(studyRepository.findStudyByConditionsAndThemeTypesAndNotInIds(any(), any(), any(), any(), any()))
             .thenReturn(studies);
@@ -385,17 +348,7 @@ class StudyQueryServiceTest {
     @DisplayName("내 전체 관심사 스터디 조회 - 검색 조건에 따른 스터디 필터링 테스트")
     void shouldFilterStudiesBasedOnSearchConditions(){
         // given
-        Member member = getMember();
-        Pageable pageable = PageRequest.of(0, 10);
 
-        Theme theme1 = getTheme(1L, ThemeType.어학);
-        Theme theme2 = getTheme(2L, ThemeType.공모전);
-
-        MemberTheme memberTheme1 = MemberTheme.builder().member(member).theme(theme1).build();
-        MemberTheme memberTheme2 = MemberTheme.builder().member(member).theme(theme2).build();
-
-        StudyTheme studyTheme1 = new StudyTheme(theme1, study1);
-        StudyTheme studyTheme2 = new StudyTheme(theme2, study2);
 
         when(memberRepository.existsById(member.getId())).thenReturn(true);
         when(memberThemeRepository.findAllByMemberId(member.getId())).thenReturn(List.of(memberTheme1, memberTheme2));
@@ -420,17 +373,8 @@ class StudyQueryServiceTest {
     @DisplayName("내 전체 관심사 스터디 조회 - 정렬 조건에 따른 스터디 필터링 테스트(조회수 순)")
     void shouldFilterStudiesBasedOnSortConditionsByHit(){
         // given
-        Member member = getMember();
-        Pageable pageable = PageRequest.of(0, 10);
+
         StudySortBy sortBy = StudySortBy.HIT;
-
-        Theme theme1 = getTheme(1L, ThemeType.어학);
-        Theme theme2 = getTheme(2L, ThemeType.공모전);
-        MemberTheme memberTheme1 = MemberTheme.builder().member(member).theme(theme1).build();
-        MemberTheme memberTheme2 = MemberTheme.builder().member(member).theme(theme2).build();
-
-        StudyTheme studyTheme1 = new StudyTheme(theme1, study1);
-        StudyTheme studyTheme2 = new StudyTheme(theme2, study2);
 
         when(memberRepository.existsById(member.getId())).thenReturn(true);
         when(memberThemeRepository.findAllByMemberId(member.getId())).thenReturn(List.of(memberTheme1, memberTheme2));
@@ -455,17 +399,7 @@ class StudyQueryServiceTest {
     @DisplayName("내 전체 관심사 스터디 조회 - 정렬 조건에 따른 스터디 필터링 테스트(좋아요 순)")
     void shouldFilterStudiesBasedOnSortConditionsByLiked(){
         // given
-        Member member = getMember();
-        Pageable pageable = PageRequest.of(0, 10);
         StudySortBy sortBy = StudySortBy.LIKED;
-
-        Theme theme1 = getTheme(1L, ThemeType.어학);
-        Theme theme2 = getTheme(2L, ThemeType.공모전);
-        MemberTheme memberTheme1 = MemberTheme.builder().member(member).theme(theme1).build();
-        MemberTheme memberTheme2 = MemberTheme.builder().member(member).theme(theme2).build();
-
-        StudyTheme studyTheme1 = new StudyTheme(theme1, study1);
-        StudyTheme studyTheme2 = new StudyTheme(theme2, study2);
 
         when(memberRepository.existsById(member.getId())).thenReturn(true);
         when(memberThemeRepository.findAllByMemberId(member.getId())).thenReturn(List.of(memberTheme1, memberTheme2));
@@ -490,13 +424,8 @@ class StudyQueryServiceTest {
     @DisplayName("내 전체 관심사 스터디 조회 - 회원의 관심 분야가 없는 경우")
     void findInterestStudiesByConditionsAllOnNoInterest() {
         // given
-        Member member = getMember();
-
-        Pageable pageable = PageRequest.of(0, 10);
 
         StudySortBy sortBy = StudySortBy.ALL;
-
-        SearchRequestStudyDTO request = getSearchRequestStudyDTO();
 
         when(memberRepository.existsById(member.getId())).thenReturn(true);
         when(memberThemeRepository.findAllByMemberId(member.getId())).thenReturn(List.of());
@@ -514,24 +443,10 @@ class StudyQueryServiceTest {
     @DisplayName("내 특정 관심사 스터디 조회 - 내 특정 관심사에 해당하는 스터디가 있는 경우")
     void findInterestStudiesByConditionsSpecific() {
         // given
-        Member member = getMember();
-
-        Pageable pageable = PageRequest.of(0, 10);
 
         ThemeType themeType = ThemeType.어학;
-
-        Theme theme1 = getTheme(1L, ThemeType.어학);
-        Theme theme2 = getTheme(2L, ThemeType.공모전);
-
         StudySortBy sortBy = StudySortBy.ALL;
-
         List<Long> studyIds = List.of();
-
-        SearchRequestStudyDTO request = getSearchRequestStudyDTO();
-
-        MemberTheme memberTheme1 = MemberTheme.builder().member(member).theme(theme1).build();
-
-        StudyTheme studyTheme1 = new StudyTheme(theme1, study1);
 
         // Mock conditions
         Map<String, Object> searchConditions = getStringObjectMap();
@@ -569,22 +484,11 @@ class StudyQueryServiceTest {
     @DisplayName("내 특정 관심사 스터디 조회 - 내 특정 관심사에 해당하는 스터디가 없는 경우")
     void findInterestStudiesByConditionsSpecificOnFail() {
         // given
-        Member member = getMember();
-
-        Pageable pageable = PageRequest.of(0, 10);
-
-        ThemeType themeType = ThemeType.어학;
-        Theme theme1 = getTheme(1L, ThemeType.어학);
 
         StudySortBy sortBy = StudySortBy.ALL;
+        ThemeType themeType = ThemeType.어학;
 
         List<Long> studyIds = List.of();
-
-        SearchRequestStudyDTO request = getSearchRequestStudyDTO();
-
-        MemberTheme memberTheme1 = MemberTheme.builder().member(member).theme(theme1).build();
-
-        StudyTheme studyTheme1 = new StudyTheme(theme1, study1);
 
         // Mock conditions
         Map<String, Object> searchConditions = getStringObjectMap();
@@ -622,10 +526,6 @@ class StudyQueryServiceTest {
         //given
         List<Study> studies = List.of(study1, study3);
 
-        Member member = getMember();
-        Theme theme1 = getTheme(1L, ThemeType.어학);
-
-        MemberTheme memberTheme1 = MemberTheme.builder().member(member).theme(theme1).build();
 
         when(memberThemeRepository.findAllByMemberId(any())).thenReturn(List.of(memberTheme1));
         when(studyRepository.findStudyByConditionsAndThemeTypesAndNotInIds(any(), any(), any(), any(), any()))
@@ -650,14 +550,6 @@ class StudyQueryServiceTest {
     @DisplayName("내 특정 관심사 스터디 조회 - 검색 조건에 따른 스터디 필터링 테스트")
     void shouldFilterStudiesBasedOnSearchConditionsInSpecificTheme(){
         // given
-        Member member = getMember();
-        Pageable pageable = PageRequest.of(0, 10);
-
-        Theme theme1 = getTheme(1L, ThemeType.어학);
-
-        MemberTheme memberTheme1 = MemberTheme.builder().member(member).theme(theme1).build();
-
-        StudyTheme studyTheme1 = new StudyTheme(theme1, study1);
 
         when(memberRepository.existsById(member.getId())).thenReturn(true);
         when(memberThemeRepository.findAllByMemberId(member.getId())).thenReturn(List.of(memberTheme1));
@@ -683,17 +575,8 @@ class StudyQueryServiceTest {
     @DisplayName("내 특정 관심사 스터디 조회 - 정렬 조건에 따른 스터디 필터링 테스트(조회수 순)")
     void shouldFilterStudiesInSpecificThemeBasedOnSortConditionsByHit(){
         // given
-        Member member = getMember();
-        Pageable pageable = PageRequest.of(0, 10);
         StudySortBy sortBy = StudySortBy.HIT;
 
-        Theme theme1 = getTheme(1L, ThemeType.어학);
-        Theme theme2 = getTheme(2L, ThemeType.공모전);
-        MemberTheme memberTheme1 = MemberTheme.builder().member(member).theme(theme1).build();
-        MemberTheme memberTheme2 = MemberTheme.builder().member(member).theme(theme2).build();
-
-        StudyTheme studyTheme1 = new StudyTheme(theme1, study1);
-        StudyTheme studyTheme2 = new StudyTheme(theme2, study2);
 
         when(memberRepository.existsById(member.getId())).thenReturn(true);
         when(memberThemeRepository.findAllByMemberId(member.getId())).thenReturn(List.of(memberTheme1, memberTheme2));
@@ -719,17 +602,8 @@ class StudyQueryServiceTest {
     @DisplayName("내 특정 관심사 스터디 조회 - 정렬 조건에 따른 스터디 필터링 테스트(좋아요 순)")
     void shouldFilterStudiesInSpecificThemeBasedOnSortConditionsByLiked(){
         // given
-        Member member = getMember();
-        Pageable pageable = PageRequest.of(0, 10);
         StudySortBy sortBy = StudySortBy.LIKED;
 
-        Theme theme1 = getTheme(1L, ThemeType.어학);
-        Theme theme2 = getTheme(2L, ThemeType.공모전);
-        MemberTheme memberTheme1 = MemberTheme.builder().member(member).theme(theme1).build();
-        MemberTheme memberTheme2 = MemberTheme.builder().member(member).theme(theme2).build();
-
-        StudyTheme studyTheme1 = new StudyTheme(theme1, study1);
-        StudyTheme studyTheme2 = new StudyTheme(theme2, study2);
 
         when(memberRepository.existsById(member.getId())).thenReturn(true);
         when(memberThemeRepository.findAllByMemberId(member.getId())).thenReturn(List.of(memberTheme1, memberTheme2));
@@ -756,8 +630,6 @@ class StudyQueryServiceTest {
     @DisplayName("내 특정 관심사 스터디 조회 - 회원의 관심사에 해당하는 테마가 없는 경우")
     void noThemeInMemberInterest() {
         // given
-        Member member = getMember();
-        Pageable pageable = PageRequest.of(0, 10);
         ThemeType themeType = ThemeType.어학;
         StudySortBy sortBy = StudySortBy.ALL;
 
