@@ -355,7 +355,14 @@ class StudyQueryServiceTest {
     void shouldReturnPagedStudies(){
         //given
         List<Study> studies = List.of(study1, study2);
+        Member member = getMember();
 
+        Theme theme1 = getTheme(1L, ThemeType.어학);
+        Theme theme2 = getTheme(2L, ThemeType.공모전);
+
+        MemberTheme memberTheme1 = MemberTheme.builder().member(member).theme(theme1).build();
+        MemberTheme memberTheme2 = MemberTheme.builder().member(member).theme(theme2).build();
+        when(memberThemeRepository.findAllByMemberId(any())).thenReturn(List.of(memberTheme1, memberTheme2));
         when(studyRepository.findStudyByConditionsAndThemeTypesAndNotInIds(any(), any(), any(), any(), any()))
             .thenReturn(studies);
         when(studyRepository.countStudyByConditionsAndThemeTypesAndNotInIds(any(), any(), any(), any()))
