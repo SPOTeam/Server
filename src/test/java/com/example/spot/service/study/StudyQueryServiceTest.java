@@ -106,6 +106,16 @@ class StudyQueryServiceTest {
     private static StudyTheme studyTheme1;
     private static StudyTheme studyTheme2;
     private static SearchRequestStudyDTO request;
+    private static Region region1;
+    private static Region region2;
+    private static PreferredRegion preferredRegion1;
+    private static PreferredRegion preferredRegion2;
+    private static RegionStudy regionStudy1;
+    private static RegionStudy regionStudy2;
+    private static PreferredStudy preferredStudy1;
+    private static PreferredStudy preferredStudy2;
+    private static MemberStudy memberStudy1;
+    private static MemberStudy memberStudy2;
 
     @BeforeEach
     void setUp() {
@@ -115,10 +125,28 @@ class StudyQueryServiceTest {
 
         theme1 = getTheme(1L, ThemeType.어학);
         theme2 = getTheme(2L, ThemeType.공모전);
+
         memberTheme1 = MemberTheme.builder().member(member).theme(theme1).build();
         memberTheme2 = MemberTheme.builder().member(member).theme(theme2).build();
+
         studyTheme1 = new StudyTheme(theme1, study1);
         studyTheme2 = new StudyTheme(theme2, study2);
+
+        region1 = getRegion("송산면", "4159034000");
+        region2 = getRegion("봉담읍", "4159025300");
+
+        preferredRegion1 = PreferredRegion.builder().member(member).region(region1).build();
+        preferredRegion2 = PreferredRegion.builder().member(member).region(region2).build();
+
+        regionStudy1 = RegionStudy.builder().region(region1).study(study1).build();
+        regionStudy2 = RegionStudy.builder().region(region2).study(study2).build();
+
+        preferredStudy1 = getPreferredStudy(member, study1);
+        preferredStudy2 = getPreferredStudy(member, study2);
+
+
+        memberStudy1 = getMemberStudy(member, study1);
+        memberStudy2 = getMemberStudy(member, study2);
 
         request = getSearchRequestStudyDTO();
 
@@ -127,7 +155,6 @@ class StudyQueryServiceTest {
         when(studyThemeRepository.findAllByTheme(any())).thenReturn(List.of(studyTheme1, studyTheme2));
         when(studyRepository.countStudyByConditionsAndThemeTypesAndNotInIds(any(), any(), any(), any()))
             .thenReturn(2L);
-
         when(studyRepository.findByStudyTheme(anyList())).thenReturn(List.of(study1, study2));
     }
 
@@ -649,24 +676,9 @@ class StudyQueryServiceTest {
     @DisplayName("내 전체 관심 지역 스터디 조회 - 내 전체 관심 지역에 해당하는 스터디가 있는 경우")
     void findInterestRegionStudiesByConditionsAll() {
         // given
-        Member member = getMember();
-
-        Pageable pageable = PageRequest.of(0, 10);
-
-        Region region1 = getRegion("송산면", "4159034000");
-        Region region2 = getRegion("봉담읍", "4159025300");
-
         StudySortBy sortBy = StudySortBy.ALL;
 
         List<Long> studyIds = List.of();
-
-        SearchRequestStudyDTO request = getSearchRequestStudyDTO();
-
-        PreferredRegion preferredRegion1 = PreferredRegion.builder().member(member).region(region1).build();
-        PreferredRegion preferredRegion2 = PreferredRegion.builder().member(member).region(region2).build();
-
-        RegionStudy regionStudy1 = RegionStudy.builder().region(region1).study(study1).build();
-        RegionStudy regionStudy2 = RegionStudy.builder().region(region2).study(study2).build();
 
         // Mock conditions
         Map<String, Object> searchConditions = getStringObjectMap();
@@ -707,20 +719,12 @@ class StudyQueryServiceTest {
     @DisplayName("내 특정 관심 지역 스터디 조회 - 내 특정 관심 지역에 해당하는 스터디가 있는 경우")
     void findInterestRegionStudiesByConditionsSpecific() {
         // given
-        Member member = getMember();
 
         String regionCode = "4159034000";
-
-        Pageable pageable = PageRequest.of(0, 10);
-        Region region1 = getRegion("송산면", "4159034000");
-        Region region2 = getRegion("봉담읍", "4159025300");
         StudySortBy sortBy = StudySortBy.ALL;
         List<Long> studyIds = List.of();
 
         SearchRequestStudyDTO request = getSearchRequestStudyDTO();
-        PreferredRegion preferredRegion1 = PreferredRegion.builder().member(member).region(region1).build();
-
-        RegionStudy regionStudy1 = RegionStudy.builder().region(region1).study(study1).build();
 
         // Mock conditions
         Map<String, Object> searchConditions = getStringObjectMap();
@@ -759,12 +763,8 @@ class StudyQueryServiceTest {
     @DisplayName("모집 중 스터디 조회 - 모집 중인 스터디가 있는 경우")
     void findRecruitingStudiesByConditions() {
         // given
-        Pageable pageable = PageRequest.of(0, 10);
 
         StudySortBy sortBy = StudySortBy.ALL;
-
-        SearchRequestStudyDTO request = getSearchRequestStudyDTO();
-        // Mock conditions
         Map<String, Object> searchConditions = getStringObjectMap();
 
         when(studyRepository.findRecruitingStudyByConditions(searchConditions, sortBy, pageable))
@@ -799,9 +799,6 @@ class StudyQueryServiceTest {
         // given
         Member member = getMember();
 
-        PreferredStudy preferredStudy1 = getPreferredStudy(member, study1);
-        PreferredStudy preferredStudy2 = getPreferredStudy(member, study2);
-
         when(preferredStudyRepository.findByMemberIdAndStudyLikeStatusOrderByCreatedAtDesc(member.getId(), StudyLikeStatus.LIKE, PageRequest.of(0, 10)))
             .thenReturn(List.of(preferredStudy1, preferredStudy2));
         when(preferredStudyRepository.countByMemberIdAndStudyLikeStatus(member.getId(), StudyLikeStatus.LIKE))
@@ -824,7 +821,6 @@ class StudyQueryServiceTest {
     void findStudiesByKeyword() {
 
         // given
-        Pageable pageable = PageRequest.of(0, 10);
         String keyword = "English";
         StudySortBy sortBy = StudySortBy.ALL;
 
@@ -900,10 +896,6 @@ class StudyQueryServiceTest {
     void findOngoingStudiesByMemberId() {
 
         // given
-        Member member = getMember();
-        Pageable pageable = PageRequest.of(0, 10);
-        MemberStudy memberStudy1 = getMemberStudy(member, study1);
-        MemberStudy memberStudy2 = getMemberStudy(member, study2);
 
         when(memberStudyRepository.findAllByMemberIdAndStatus(member.getId(), ApplicationStatus.APPROVED))
             .thenReturn(List.of(memberStudy1, memberStudy2));
@@ -928,12 +920,6 @@ class StudyQueryServiceTest {
     @DisplayName("내가 신청한 스터디 조회 - 신청한 스터디가 있는 경우")
     void findAppliedStudies() {
         // given
-        Member member = getMember();
-
-        Pageable pageable = PageRequest.of(0, 10);
-
-        MemberStudy memberStudy1 = getMemberStudy(member, study1);
-        MemberStudy memberStudy2 = getMemberStudy(member, study2);
 
         when(memberStudyRepository.findAllByMemberIdAndStatus(member.getId(), ApplicationStatus.APPLIED))
             .thenReturn(List.of(memberStudy1, memberStudy2));
@@ -961,8 +947,6 @@ class StudyQueryServiceTest {
 
         Pageable pageable = PageRequest.of(0, 10);
 
-        MemberStudy memberStudy1 = getMemberStudy(member, study1);
-        MemberStudy memberStudy2 = getMemberStudy(member, study2);
 
         when(memberStudyRepository.findAllByMemberIdAndIsOwned(member.getId(), true))
             .thenReturn(List.of(memberStudy1, memberStudy2));
