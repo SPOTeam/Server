@@ -4,6 +4,7 @@ package com.example.spot.config;
 import com.example.spot.security.filters.JwtAuthenticationFilter;
 import com.example.spot.security.utils.JwtTokenProvider;
 import com.example.spot.service.member.MemberService;
+import com.example.spot.service.member.UserDetailsServiceCustom;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.context.annotation.Bean;
@@ -21,6 +22,7 @@ public class WebSecurity {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final MemberService memberService;
+    private final UserDetailsServiceCustom userDetailsService;
     @Bean
     protected SecurityFilterChain configure(HttpSecurity http) throws Exception {
 
@@ -30,6 +32,8 @@ public class WebSecurity {
         http.authorizeHttpRequests((authz) -> authz
                 .requestMatchers(new AntPathRequestMatcher("/api/**")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/actuator/**")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/spot/sign-up/send-verification-code")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/spot/sign-up/verify")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/spot/reissue")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/spot/login/kakao", "GET")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/spot/members/sign-in/kakao", "GET")).permitAll()
@@ -49,6 +53,6 @@ public class WebSecurity {
     }
 
     private JwtAuthenticationFilter getJwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtTokenProvider, memberService);
+        return new JwtAuthenticationFilter(jwtTokenProvider, memberService, userDetailsService);
     }
 }
