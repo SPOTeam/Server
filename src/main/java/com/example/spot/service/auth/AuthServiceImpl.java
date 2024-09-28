@@ -6,6 +6,7 @@ import com.example.spot.api.exception.GeneralException;
 import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.domain.Member;
 import com.example.spot.domain.auth.RefreshToken;
+import com.example.spot.domain.auth.VerificationCode;
 import com.example.spot.domain.enums.LoginType;
 import com.example.spot.domain.enums.Status;
 import com.example.spot.repository.MemberRepository;
@@ -92,6 +93,11 @@ public class AuthServiceImpl implements AuthService{
     @Override
     public void sendVerificationCode(MemberRequestDTO.PhoneDTO phoneDTO) {
 
+        // 이미 해당 전화번호로 가입된 회원이 존재하면 에러 반환
+        if (memberRepository.existsByPhone(phoneDTO.getPhone())) {
+            throw new MemberHandler(ErrorStatus._MEMBER_PHONE_ALREADY_EXISTS);
+        }
+
         // 인증 코드 생성
         String verificationCode = createCode();
 
@@ -109,15 +115,23 @@ public class AuthServiceImpl implements AuthService{
     }
 
     @Override
-    public TokenResponseDTO.TempTokenDTO verifyPhone(String verificationCode, MemberRequestDTO.PhoneDTO phoneDTO) {
+    public TokenResponseDTO.TempTokenDTO verifyPhone(String code, MemberRequestDTO.PhoneDTO phoneDTO) {
 
         // 인증 코드 확인
-        if (!verificationCode.equals(verificationCodeRepository.getVerificationCode(phoneDTO.getPhone()))) {
+        VerificationCode verificationCode = verificationCodeRepository.getVerificationCode(phoneDTO.getPhone());
+        if (!code.equals(verificationCode.getCode())) {
             throw new MemberHandler(ErrorStatus._MEMBER_NOT_VERIFIED);
         }
 
         // 임시 토큰 생성
-        return jwtTokenProvider.createTempToken(phoneDTO.getPhone());
+        TokenResponseDTO.TempTokenDTO tempTokenDTO = jwtTokenProvider.createTempToken(phoneDTO.getPhone());
+        verificationCode.setTempToken(tempTokenDTO.getTempToken());
+
+        // VerificationCode에 tempToken 정보 저장
+        // addVerificationCode 호출 시 tempToken 만료 기간이 지난 VerificationCode 자동 삭제
+        verificationCodeRepository.setTempToken(tempTokenDTO, verificationCode);
+
+        return tempTokenDTO;
     }
 
     @Override

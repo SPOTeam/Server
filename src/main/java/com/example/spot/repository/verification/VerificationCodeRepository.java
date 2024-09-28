@@ -1,10 +1,13 @@
 package com.example.spot.repository.verification;
 
+import com.example.spot.domain.auth.VerificationCode;
+import com.example.spot.web.dto.token.TokenResponseDTO;
+
 public interface VerificationCodeRepository {
 
-    public void addVerificationCode(String phone, String code);
+    void addVerificationCode(String phone, String code);
 
-    public String getVerificationCode(String phone);
+    VerificationCode getVerificationCode(String phone);
 
-    public String addTempToken(String tempToken);
+    void setTempToken(TokenResponseDTO.TempTokenDTO tempTokenDTO, VerificationCode existingCode);
 }

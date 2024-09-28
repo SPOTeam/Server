@@ -3,6 +3,7 @@ package com.example.spot.repository.verification;
 import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.domain.auth.VerificationCode;
+import com.example.spot.web.dto.token.TokenResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
@@ -29,7 +30,7 @@ public class VerificationCodeRepositoryImpl implements VerificationCodeRepositor
 
             // 동일한 임시 토큰으로 생성한 코드가 이미 존재하는지 확인
             VerificationCode existingCode = verificationCodes.stream()
-                    .filter(verificationCode -> verificationCode.getPhone().equals(phone))
+                    .filter(vc -> vc.getPhone().equals(phone))
                     .findFirst()
                     .orElse(null);
 
@@ -37,29 +38,32 @@ public class VerificationCodeRepositoryImpl implements VerificationCodeRepositor
                 VerificationCode verificationCode = VerificationCode.builder()
                         .phone(phone)
                         .code(code)
-                        .expiredAt(LocalDateTime.now().plus(Duration.ofMillis(TEMP_TOKEN_EXPIRATION_TIME)))
                         .build();
                 this.verificationCodes.add(verificationCode);
             } else {
-                existingCode.resetVerificationCode(code, LocalDateTime.now().plus(Duration.ofMillis(TEMP_TOKEN_EXPIRATION_TIME)));
+                existingCode.setCode(code);
             }
 
         }
     }
 
     @Override
-    public String getVerificationCode(String phone) {
-
-        VerificationCode code = verificationCodes.stream()
+    public VerificationCode getVerificationCode(String phone) {
+        return verificationCodes.stream()
                 .filter(vc -> vc.getPhone().equals(phone))
                 .findFirst()
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_VERIFIED));
-
-        return code.getCode();
     }
 
     @Override
-    public String addTempToken(String tempToken) {
-        return "";
+    public void setTempToken(TokenResponseDTO.TempTokenDTO tempTokenDTO, VerificationCode existingCode) {
+        verificationCodes.stream()
+                .filter(verificationCode -> verificationCode.getPhone().equals(existingCode.getPhone()))
+                .findFirst()
+                .ifPresent(verificationCode -> {
+                    verificationCode.setExpiredAt(LocalDateTime.now().plusSeconds(TEMP_TOKEN_EXPIRATION_TIME));
+                    verificationCode.setCode(tempTokenDTO.getTempToken());
+                });
     }
+
 }

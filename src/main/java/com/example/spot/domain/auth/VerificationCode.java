@@ -2,6 +2,7 @@ package com.example.spot.domain.auth;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -9,23 +10,19 @@ import java.time.LocalDateTime;
 public class VerificationCode {
 
     private final String phone;
-    private String tempToken;
+
+    @Setter
     private String code;
+
+    @Setter
+    private String tempToken;
+
+    @Setter
     private LocalDateTime expiredAt;
 
     @Builder
     public VerificationCode(String phone, String code, LocalDateTime expiredAt) {
         this.phone = phone;
         this.code = code;
-        this.expiredAt = expiredAt;
-    }
-
-    public void resetVerificationCode(String code, LocalDateTime expiredAt) {
-        this.code = code;
-        this.expiredAt = expiredAt;
-    }
-
-    public void addTempToken(String tempToken) {
-        this.tempToken = tempToken;
     }
 }
