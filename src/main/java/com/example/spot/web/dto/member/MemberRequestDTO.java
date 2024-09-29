@@ -4,17 +4,26 @@ import com.example.spot.domain.enums.Carrier;
 import com.example.spot.domain.enums.Gender;
 import com.example.spot.domain.enums.Theme;
 import com.example.spot.domain.enums.ThemeType;
+import com.example.spot.validation.annotation.TextLength;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Max;
 import java.time.LocalDate;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+
+import lombok.*;
 
 public class MemberRequestDTO {
+
+    @Getter
+    @RequiredArgsConstructor
+    public static class SignInDTO {
+
+        @TextLength(max = 50)
+        private final String email;
+
+        @TextLength(max = 100)
+        private final String password;
+    }
 
     @Getter
     @Setter

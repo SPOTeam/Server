@@ -3,11 +3,14 @@ package com.example.spot.service.auth;
 
 import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.GeneralException;
+import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.domain.Member;
 import com.example.spot.domain.auth.RefreshToken;
 import com.example.spot.repository.MemberRepository;
 import com.example.spot.repository.RefreshTokenRepository;
 import com.example.spot.security.utils.JwtTokenProvider;
+import com.example.spot.web.dto.member.MemberRequestDTO;
+import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.web.dto.token.TokenResponseDTO.TokenDTO;
 import java.time.Instant;
 import java.util.Objects;
@@ -65,6 +68,41 @@ public class AuthServiceImpl implements AuthService{
 
         // 토큰 재발급
         return tokenDTO;
+    }
+
+    @Override
+    public MemberResponseDTO.MemberSignInDTO signIn(MemberRequestDTO.SignInDTO signInDTO) {
+
+        // 이메일이 일치하는 유저가 있는지 확인
+        Member member = memberRepository.findByEmail(signInDTO.getEmail())
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        // 비밀번호 확인
+        if (!signInDTO.getPassword().equals(member.getPassword())) {
+            throw new MemberHandler(ErrorStatus._MEMBER_PASSWORD_NOT_MATCH);
+        }
+
+        // 토큰 발급
+        TokenDTO tokenDTO = jwtTokenProvider.createToken(member.getId());
+        saveRefreshToken(member, tokenDTO);
+
+        return MemberResponseDTO.MemberSignInDTO.builder()
+                .tokens(tokenDTO)
+                .memberId(member.getId())
+                .email(member.getEmail())
+                .build();
+    }
+
+    private void saveRefreshToken(Member member, TokenDTO token) {
+        if (refreshTokenRepository.existsByMemberId(member.getId()))
+            refreshTokenRepository.deleteAllByMemberId(member.getId());
+        RefreshToken refreshToken = RefreshToken.builder()
+                .memberId(member.getId())
+                .token(token.getRefreshToken())
+                .build();
+
+        // 리프레시 토큰 저장
+        refreshTokenRepository.save(refreshToken);
     }
 
 }

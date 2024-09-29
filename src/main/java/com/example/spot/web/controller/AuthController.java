@@ -3,16 +3,16 @@ package com.example.spot.web.controller;
 import com.example.spot.api.ApiResponse;
 import com.example.spot.api.code.status.SuccessStatus;
 import com.example.spot.service.auth.AuthService;
+import com.example.spot.web.dto.member.MemberRequestDTO;
+import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.web.dto.token.TokenResponseDTO.TokenDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 @Slf4j
@@ -60,8 +60,10 @@ public class AuthController {
             액세스 토큰이 만료된 경우, 유효한 상태의 리프레시 토큰을 통해 액세스 토큰을 재발급 받을 수 있습니다.
             """)
     @PostMapping("/login")
-    public ApiResponse<TokenDTO> login() {
-        return null;
+    public ApiResponse<MemberResponseDTO.MemberSignInDTO> login(
+            @RequestBody @Valid MemberRequestDTO.SignInDTO signInDTO) {
+        MemberResponseDTO.MemberSignInDTO memberSignInDTO = authService.signIn(signInDTO);
+        return ApiResponse.onSuccess(SuccessStatus._MEMBER_SIGNED_IN, memberSignInDTO);
     }
 
     @Tag(name = "회원 관리 API - 개발 중", description = "회원 관리 API")
