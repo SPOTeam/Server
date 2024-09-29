@@ -37,6 +37,7 @@ public enum ErrorStatus implements BaseErrorCode {
     _MEMBER_THEME_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER4009", "해당하는 회원의 관심 테마를 찾을 수 없습니다."),
     _MEMBER_REGION_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER4010", "해당하는 회원의 관심 지역을 찾을 수 없습니다."),
     _MEMBER_STUDY_REASON_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER4011", "해당하는 회원의 스터디 이유를 찾을 수 없습니다."),
+    _MEMBER_PASSWORD_NOT_MATCH(HttpStatus.BAD_REQUEST, "MEMBER4012", "비밀번호가 일치하지 않습니다."),
 
     //스터디 관련 에러
     _STUDY_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY4001", "스터디를 찾을 수 없습니다."),
