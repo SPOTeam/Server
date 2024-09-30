@@ -422,13 +422,20 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         List<PreferredStudy> preferredStudyList = preferredStudyRepository.findByMemberIdAndStudyLikeStatusOrderByCreatedAtDesc(
             memberId, StudyLikeStatus.LIKE, pageable);
 
+        // 좋아요한 스터디가 없을 경우
+        if (preferredStudyList.isEmpty())
+            throw new StudyHandler(ErrorStatus._STUDY_LIKED_NOT_FOUND);
+
+        // 좋아요한 스터디 목록
         List<Study> studies = preferredStudyList.stream()
             .map(PreferredStudy::getStudy)
             .toList();
 
+        // 전체 스터디 수
         if (studies.isEmpty())
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
 
+        //
         long totalElements = preferredStudyRepository.countByMemberIdAndStudyLikeStatus(memberId, StudyLikeStatus.LIKE);
         return getDTOs(studies, pageable, totalElements, memberId);
     }
