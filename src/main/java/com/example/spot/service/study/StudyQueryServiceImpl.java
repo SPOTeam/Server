@@ -525,12 +525,21 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
     @Override
     public StudyPreviewDTO findMyRecruitingStudies(Pageable pageable, Long memberId) {
+        // 회원이 모집중인 스터디 조회
         List<MemberStudy> memberStudies = memberStudyRepository.findAllByMemberIdAndIsOwned(memberId, true);
 
+        // 회원이 모집중인 스터디가 없을 경우
+        if (memberStudies.isEmpty())
+            throw new StudyHandler(ErrorStatus._RECRUITING_STUDY_IS_NOT_EXIST);
+
+        // 회원이 모집중인 스터디 조회
         List<Study> studies = studyRepository.findRecruitingStudiesByMemberStudy(memberStudies, pageable);
 
+        // 조회된 스터디가 없을 경우
         if (studies.isEmpty())
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
+
+        // 전체 스터디 수
         long totalElements = memberStudyRepository.countByMemberIdAndIsOwned(memberId, true);
 
         return getDTOs(studies, pageable, totalElements, memberId);
