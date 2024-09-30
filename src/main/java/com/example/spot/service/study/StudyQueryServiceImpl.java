@@ -187,6 +187,10 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             .flatMap(theme -> studyThemeRepository.findAllByTheme(theme).stream())
             .toList();
 
+        if (studyThemes.isEmpty())
+            throw new StudyHandler(ErrorStatus._STUDY_THEME_NOT_EXIST);
+
+
         Map<String, Object> conditions = getSearchConditions(request);
 
         long totalElements = studyRepository.countStudyByConditionsAndThemeTypesAndNotInIds(
@@ -225,6 +229,9 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         List<StudyTheme> studyThemes = themes.stream()
             .flatMap(studytheme -> studyThemeRepository.findAllByTheme(theme).stream())
             .toList();
+
+        if (studyThemes.isEmpty())
+            throw new StudyHandler(ErrorStatus._STUDY_THEME_NOT_EXIST);
 
         Map<String, Object> conditions = getSearchConditions(request);
 
