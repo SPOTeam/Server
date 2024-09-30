@@ -174,6 +174,10 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             .flatMap(theme -> studyThemeRepository.findAllByTheme(theme).stream())
             .toList();
 
+        // 해당 관심사에 해당하는 스터디가 존재하지 않을 경우
+        if (studyThemes.isEmpty())
+            throw new StudyHandler(ErrorStatus._STUDY_THEME_NOT_EXIST);
+
         // 회원 관심사로 추천 스터디 조회
         List<Study> studies = studyRepository.findByStudyThemeAndNotInIds(studyThemes, memberOngoingStudyIds);
 
