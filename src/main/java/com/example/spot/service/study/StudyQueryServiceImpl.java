@@ -183,6 +183,10 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             .map(MemberTheme::getTheme)
             .toList();
 
+        // 회원의 관심사가 없을 경우
+        if (themes.isEmpty())
+            throw new StudyHandler(ErrorStatus._STUDY_THEME_IS_INVALID);
+
         List<StudyTheme> studyThemes = themes.stream()
             .flatMap(theme -> studyThemeRepository.findAllByTheme(theme).stream())
             .toList();
@@ -219,6 +223,10 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             .stream()
             .map(MemberTheme::getTheme)
             .collect(Collectors.toList());
+
+        // 회원의 관심사가 없을 경우
+        if (themes.isEmpty())
+            throw new StudyHandler(ErrorStatus._STUDY_THEME_IS_INVALID);
 
         if (themes.stream().noneMatch(theme -> theme.getStudyTheme().equals(themeType))) {
             throw new StudyHandler(ErrorStatus._BAD_REQUEST);
