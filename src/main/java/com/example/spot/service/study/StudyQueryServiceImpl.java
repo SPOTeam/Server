@@ -263,6 +263,9 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             .flatMap(region -> regionStudyRepository.findAllByRegion(region).stream())
             .toList();
 
+        if (regionStudies.isEmpty())
+            throw new StudyHandler(ErrorStatus._STUDY_REGION_NOT_EXIST);
+
         Map<String, Object> conditions = getSearchConditions(request);
 
         long totalElements = studyRepository.countStudyByConditionsAndRegionStudiesAndNotInIds(
@@ -299,6 +302,9 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         List<RegionStudy> regionStudies = regions.stream()
             .flatMap(regionStudy -> regionStudyRepository.findAllByRegion(region).stream())
             .toList();
+
+        if (regionStudies.isEmpty())
+            throw new StudyHandler(ErrorStatus._STUDY_REGION_NOT_EXIST);
 
         Map<String, Object> conditions = getSearchConditions(request);
 
