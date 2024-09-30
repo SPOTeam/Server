@@ -435,7 +435,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         if (studies.isEmpty())
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
 
-        //
+        // 전체 스터디 수
         long totalElements = preferredStudyRepository.countByMemberIdAndStudyLikeStatus(memberId, StudyLikeStatus.LIKE);
         return getDTOs(studies, pageable, totalElements, memberId);
     }
@@ -443,28 +443,39 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     @Override
     public StudyPreviewDTO findStudiesByKeyword(Pageable pageable,
         String keyword, StudySortBy sortBy) {
+        // 키워드로 스터디 조회
         List<Study> studies = studyRepository.findAllByTitleContaining(keyword, sortBy, pageable);
 
+        // 조회된 스터디가 없을 경우
         if (studies.isEmpty())
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
 
+        // 전체 스터디 수
         long totalElements = studyRepository.countAllByTitleContaining(keyword, sortBy);
         return getDTOs(studies, pageable, totalElements, SecurityUtils.getCurrentUserId());
     }
 
     @Override
     public StudyPreviewDTO findStudiesByTheme(Pageable pageable, ThemeType theme, StudySortBy sortBy) {
+        // 테마로 스터디 조회
         Theme themeEntity = themeRepository.findByStudyTheme(theme)
             .orElseThrow(() -> new StudyHandler(ErrorStatus._BAD_REQUEST));
 
+        // 테마에 해당하는 스터디 테마 조회
         List<StudyTheme> studyThemes = studyThemeRepository.findAllByTheme(themeEntity);
 
+        // 해당 테마에 해당하는 스터디가 존재하지 않을 경우
+        if (studyThemes.isEmpty())
+            throw new StudyHandler(ErrorStatus._STUDY_THEME_NOT_EXIST);
+
+        // 테마에 해당하는 스터디 조회
         List<Study> studies = studyRepository.findByStudyTheme(studyThemes, sortBy, pageable);
 
+        // 조회된 스터디가 없을 경우
         if (studies.isEmpty())
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
 
-
+        // 전체 스터디 수
         long totalElements = studyRepository.countStudyByStudyTheme(studyThemes, sortBy);
         return getDTOs(studies, pageable, totalElements, SecurityUtils.getCurrentUserId());
     }
