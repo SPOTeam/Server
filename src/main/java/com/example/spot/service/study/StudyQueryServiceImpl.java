@@ -98,6 +98,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return StudyInfoResponseDTO.StudyInfoDTO.toDTO(study, owner);
     }
 
+    // 마이페이지 스터디 갯수 조회
     @Override
     public MyPageDTO getMyPageStudyCount(Long memberId) {
         // 회원 조회
@@ -119,6 +120,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             .build();
     }
 
+    // 스터디 전체 조회
     @Override
     public StudyPreviewDTO findStudies(Pageable pageable, StudySortBy sortBy) {
         // 스터디 전체 조회
@@ -133,6 +135,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return getDTOs(studies, pageable, totalElements, SecurityUtils.getCurrentUserId());
     }
 
+    // 스터디 조건 별 조회
     @Override
     public StudyPreviewDTO findStudiesByConditions(Pageable pageable, SearchRequestStudyDTO request,
         StudySortBy sortBy) {
@@ -151,6 +154,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return getDTOs(studies, pageable, totalElements, SecurityUtils.getCurrentUserId());
     }
 
+    // 추천 스터디 조회
     @Override
     public StudyPreviewDTO findRecommendStudies(Long memberId) {
 
@@ -188,6 +192,8 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return getDTOs(studies, Pageable.unpaged(), studies.size(), memberId);
     }
 
+
+    // 관심 Best 스터디 3개 조회
     @Override
     public StudyPreviewDTO findInterestedStudies(Long memberId) {
         // 회원의 관심 Best 스터디 ID 가져오기
@@ -202,6 +208,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return getDTOs(studies, Pageable.unpaged(), studies.size(), memberId);
     }
 
+    // 전체 관심 분야 스터디 조회
     @Override
     public StudyPreviewDTO findInterestStudiesByConditionsAll(Pageable pageable, Long memberId,
         SearchRequestStudyDTO request, StudySortBy sortBy) {
@@ -246,6 +253,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     }
 
 
+    // 내 특정 관심 분야 스터디 조회
     @Override
     public StudyPreviewDTO findInterestStudiesByConditionsSpecific(Pageable pageable,
         Long memberId, SearchRequestStudyDTO request, ThemeType themeType, StudySortBy sortBy) {
@@ -299,6 +307,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     }
 
 
+    // 전체 관심 지역 스터디 조회
     @Override
     public StudyPreviewDTO findInterestRegionStudiesByConditionsAll(Pageable pageable,
         Long memberId, SearchRequestStudyDTO request, StudySortBy sortBy) {
@@ -345,6 +354,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return getDTOs(studies, pageable, totalElements, memberId);
     }
 
+    // 내 특정 관심 지역 스터디 조회
     @Override
     public StudyPreviewDTO findInterestRegionStudiesByConditionsSpecific(Pageable pageable,
         Long memberId, SearchRequestStudyDTO request, String regionCode, StudySortBy sortBy) {
@@ -396,6 +406,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return getDTOs(studies, pageable, totalElements, memberId);
     }
 
+    // 모집 중 스터디 조회
     @Override
     public StudyPreviewDTO findRecruitingStudiesByConditions(Pageable pageable,
         SearchRequestStudyDTO request, StudySortBy sortBy) {
@@ -416,6 +427,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return getDTOs(studies, pageable, totalElements, SecurityUtils.getCurrentUserId());
     }
 
+    // 회원이 좋아요 한 스터디 조회
     @Override
     public StudyPreviewDTO findLikedStudies(Long memberId, Pageable pageable) {
         // 회원이 좋아요한 스터디 조회
@@ -440,6 +452,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return getDTOs(studies, pageable, totalElements, memberId);
     }
 
+    // 키워드 기반 스터디 검색
     @Override
     public StudyPreviewDTO findStudiesByKeyword(Pageable pageable,
         String keyword, StudySortBy sortBy) {
@@ -455,6 +468,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return getDTOs(studies, pageable, totalElements, SecurityUtils.getCurrentUserId());
     }
 
+    // 테마 별 스터디 조회
     @Override
     public StudyPreviewDTO findStudiesByTheme(Pageable pageable, ThemeType theme, StudySortBy sortBy) {
         // 테마로 스터디 조회
@@ -480,6 +494,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return getDTOs(studies, pageable, totalElements, SecurityUtils.getCurrentUserId());
     }
 
+    // 진행중인 스터디 조회
     @Override
     public StudyPreviewDTO findOngoingStudiesByMemberId(Pageable pageable, Long memberId) {
         // 회원이 참가하고 있는 스터디 ID 가져오기
@@ -501,6 +516,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return getDTOs(studies, pageable, totalElements, memberId);
     }
 
+    // 회원이 신청한 스터디 조회
     @Override
     public StudyPreviewDTO findAppliedStudies(Pageable pageable, Long memberId) {
         // 회원이 신청한 스터디 조회
@@ -523,6 +539,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return getDTOs(studies, pageable, totalElements, memberId);
     }
 
+    // 내가 모집중인 스터디 조회
     @Override
     public StudyPreviewDTO findMyRecruitingStudies(Pageable pageable, Long memberId) {
         // 회원이 모집중인 스터디 조회
@@ -560,6 +577,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             .toList();
     }
 
+    // 검색 조건 맵 생성
     private static Map<String, Object> getSearchConditions(SearchRequestStudyDTO request) {
         log.info("request: {}", request.getIsOnline());
         // 검색 조건 맵 생성
@@ -579,6 +597,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return search;
     }
 
+    // DTO 변환
     private static SearchResponseDTO.StudyPreviewDTO getDTOs(List<Study> studies, Pageable pageable, long totalElements,
         Long memberId) {
         // memberId == null 이면, 다른 생성자 사용
@@ -589,6 +608,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return new StudyPreviewDTO(page, stream, totalElements);
     }
 
+    // 테마 타입으로 테마 조회
     private Theme findThemeByType(List<Theme> themes, ThemeType themeType) {
         return themes.stream()
             .filter(t -> t.getStudyTheme().equals(themeType))
@@ -596,6 +616,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             .orElseThrow(() -> new StudyHandler(ErrorStatus._BAD_REQUEST));
     }
 
+    // 지역 코드로 지역 조회
     private Region findRegionByCode(List<Region> regions, String regionCode) {
         return regions.stream()
             .filter(r -> r.getCode().equals(regionCode))
