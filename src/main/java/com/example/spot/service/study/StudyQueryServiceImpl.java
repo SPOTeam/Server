@@ -259,6 +259,9 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             .map(PreferredRegion::getRegion)
             .toList();
 
+        if (regions.isEmpty())
+            throw new StudyHandler(ErrorStatus._STUDY_REGION_IS_INVALID);
+
         List<RegionStudy> regionStudies = regions.stream()
             .flatMap(region -> regionStudyRepository.findAllByRegion(region).stream())
             .toList();
@@ -288,11 +291,13 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
         List<Long> memberOngoingStudyIds = getOngoingStudyIds(memberId);
 
-
         List<Region> regions = preferredRegionRepository.findAllByMemberId(memberId)
             .stream()
             .map(PreferredRegion::getRegion)
             .toList();
+
+        if (regions.isEmpty())
+            throw new StudyHandler(ErrorStatus._STUDY_REGION_IS_INVALID);
 
         if (regions.stream().noneMatch(region -> region.getCode().equals(regionCode)))
             throw new StudyHandler(ErrorStatus._STUDY_REGION_IS_NOT_MATCH);
