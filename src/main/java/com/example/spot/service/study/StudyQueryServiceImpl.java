@@ -100,11 +100,17 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
     @Override
     public MyPageDTO getMyPageStudyCount(Long memberId) {
+        // 회원 조회
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
+
+        // 내가 신청한 스터디 수
         long appliedStudies = memberStudyRepository.countByMemberIdAndStatus(memberId, ApplicationStatus.APPLIED);
+        // 내가 참여중인 스터디 수
         long ongoingStudies = memberStudyRepository.countByMemberIdAndStatus(memberId, ApplicationStatus.APPROVED);
+        // 내가 모집중인 스터디 수
         long myRecruitingStudies = memberStudyRepository.countByMemberIdAndIsOwned(memberId, true);
+
         return MyPageDTO.builder()
             .name(member.getName())
             .appliedStudies(appliedStudies)
@@ -115,9 +121,14 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
     @Override
     public StudyPreviewDTO findStudies(Pageable pageable, StudySortBy sortBy) {
+        // 스터디 전체 조회
         List<Study> studies = studyRepository.findAllStudy(sortBy, pageable);
+
+        // 조회된 스터디가 없을 경우
         if (studies.isEmpty())
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
+
+        // 전체 스터디 수
         long totalElements = studyRepository.count();
         return getDTOs(studies, pageable, totalElements, SecurityUtils.getCurrentUserId());
     }
@@ -125,20 +136,31 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     @Override
     public StudyPreviewDTO findStudiesByConditions(Pageable pageable, SearchRequestStudyDTO request,
         StudySortBy sortBy) {
+        // 검색 조건 맵 생성
         Map<String, Object> conditions = getSearchConditions(request);
+
+        // 검색 조건에 맞는 스터디 조회
         List<Study> studies = studyRepository.findAllStudyByConditions(conditions, sortBy, pageable);
 
+        // 조회된 스터디가 없을 경우
         if (studies.isEmpty())
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
+
+        // 전체 스터디 수
         long totalElements = studyRepository.countStudyByConditions(conditions, sortBy);
         return getDTOs(studies, pageable, totalElements, SecurityUtils.getCurrentUserId());
     }
 
     @Override
     public StudyPreviewDTO findRecommendStudies(Long memberId) {
+
+        // 회원이 참가하고 있는 스터디 ID 가져오기
         List<Long> memberOngoingStudyIds = getOngoingStudyIds(memberId);
 
+        // 회원 관심사 조회
         List<MemberTheme> memberThemes = memberThemeRepository.findAllByMemberId(memberId);
+
+        // 회원 관심사가 없을 경우
         if (memberThemes.isEmpty())
             throw new MemberHandler(ErrorStatus._STUDY_THEME_IS_INVALID);
 
@@ -152,8 +174,10 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             .flatMap(theme -> studyThemeRepository.findAllByTheme(theme).stream())
             .toList();
 
+        // 회원 관심사로 추천 스터디 조회
         List<Study> studies = studyRepository.findByStudyThemeAndNotInIds(studyThemes, memberOngoingStudyIds);
 
+        // 추천 스터디가 없을 경우
         if (studies.isEmpty())
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
 
