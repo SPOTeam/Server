@@ -554,10 +554,6 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         // 회원이 참가하고 있는 스터디 ID 가져오기
         List<MemberStudy> memberStudies = memberStudyRepository.findAllByMemberIdAndStatus(memberId, ApplicationStatus.APPROVED);
 
-        // 회원이 참가하고 있는 스터디가 없을 경우
-        if (memberStudies.isEmpty())
-            throw new StudyHandler(ErrorStatus._STUDY_NOT_PARTICIPATED);
-
         return memberStudies.stream()
             .filter(memberStudy -> memberStudy.getStatus().equals(ApplicationStatus.APPROVED))
             .map(memberStudy -> memberStudy.getStudy().getId())
