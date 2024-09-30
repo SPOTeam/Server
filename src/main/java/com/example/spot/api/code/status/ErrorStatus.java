@@ -110,6 +110,7 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_REGION_IS_INVALID(HttpStatus.BAD_REQUEST, "STUDY6014", "해당 회원의 유효한 스터디 관심 지역이 존재하지 않습니다."),
     _STUDY_LIKED_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY6015", "좋아요를 누른 스터디가 없습니다."),
     _STUDY_NOT_PARTICIPATED(HttpStatus.NOT_FOUND, "STUDY6016", "참가하는 스터디가 없습니다."),
+    _STUDY_NOT_APPLIED(HttpStatus.NOT_FOUND, "STUDY6017", "신청한 스터디가 없습니다."),
 
     // 스터디 출석 관련 에러
     _STUDY_QUIZ_NOT_FOUND(HttpStatus.NOT_FOUND, "QUIZ4001", "출석 퀴즈를 찾을 수 없습니다."),

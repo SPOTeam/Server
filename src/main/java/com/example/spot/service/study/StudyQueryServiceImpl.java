@@ -503,12 +503,22 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
     @Override
     public StudyPreviewDTO findAppliedStudies(Pageable pageable, Long memberId) {
+        // 회원이 신청한 스터디 조회
         List<MemberStudy> memberStudies = memberStudyRepository.findAllByMemberIdAndStatus(
             memberId, ApplicationStatus.APPLIED);
+
+        // 회원이 신청한 스터디가 없을 경우
+        if (memberStudies.isEmpty())
+            throw new StudyHandler(ErrorStatus._STUDY_NOT_APPLIED);
+
+        // 회원이 신청한 스터디 조회
         List<Study> studies = studyRepository.findByMemberStudy(memberStudies, pageable);
 
+        // 조회된 스터디가 없을 경우
         if (studies.isEmpty())
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
+
+        // 전체 스터디 수
         long totalElements = memberStudyRepository.countByMemberIdAndStatus(memberId, ApplicationStatus.APPLIED);
         return getDTOs(studies, pageable, totalElements, memberId);
     }
