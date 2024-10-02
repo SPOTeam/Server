@@ -96,6 +96,7 @@ class StudyQueryServiceTest {
 
     private static Study study1;
     private static Study study2;
+    private static Study study3;
 
     @BeforeAll
     static void setup() {
@@ -500,9 +501,6 @@ class StudyQueryServiceTest {
     }
 
 
-
-
-
     /* -------------------------------------------------------- 내 특정 관심사 스터디 조회 ------------------------------------------------------------------------*/
 
     @Test
@@ -610,6 +608,71 @@ class StudyQueryServiceTest {
         verify(studyRepository).countStudyByConditionsAndThemeTypesAndNotInIds(searchConditions, List.of(studyTheme1), sortBy, studyIds);
         verify(studyRepository).findStudyByConditionsAndThemeTypesAndNotInIds(searchConditions, sortBy, pageable, List.of(studyTheme1),studyIds);
     }
+
+    @Test
+    @DisplayName("내 특정 관심사 스터디 조회 - 페이징 테스트")
+    void shouldReturnPagedStudiesInSpecificTheme(){
+        //given
+        List<Study> studies = List.of(study1, study3);
+
+        Member member = getMember();
+        Theme theme1 = getTheme(1L, ThemeType.어학);
+
+        MemberTheme memberTheme1 = MemberTheme.builder().member(member).theme(theme1).build();
+
+        when(memberThemeRepository.findAllByMemberId(any())).thenReturn(List.of(memberTheme1));
+        when(studyRepository.findStudyByConditionsAndThemeTypesAndNotInIds(any(), any(), any(), any(), any()))
+            .thenReturn(studies);
+        when(studyRepository.countStudyByConditionsAndThemeTypesAndNotInIds(any(), any(), any(), any()))
+            .thenReturn(2L);
+        when(memberRepository.existsById(any())).thenReturn(true);
+
+
+        // when
+        StudyPreviewDTO result = studyQueryService.findInterestStudiesByConditionsSpecific(
+            PageRequest.of(0, 10), 1L, getSearchRequestStudyDTO(), ThemeType.어학, StudySortBy.ALL);
+
+        // then
+        assertEquals(10, result.getSize());
+        assertEquals(2, result.getTotalElements());
+        assertEquals(2, result.getContent().size());
+
+    }
+
+    @Test
+    @DisplayName("내 특정 관심사 스터디 조회 - 검색 조건에 따른 스터디 필터링 테스트")
+    void shouldFilterStudiesBasedOnSearchConditionsInSpecificTheme(){
+        // given
+        Member member = getMember();
+        Pageable pageable = PageRequest.of(0, 10);
+
+        Theme theme1 = getTheme(1L, ThemeType.어학);
+
+        MemberTheme memberTheme1 = MemberTheme.builder().member(member).theme(theme1).build();
+
+        StudyTheme studyTheme1 = new StudyTheme(theme1, study1);
+
+        when(memberRepository.existsById(member.getId())).thenReturn(true);
+        when(memberThemeRepository.findAllByMemberId(member.getId())).thenReturn(List.of(memberTheme1));
+        when(studyThemeRepository.findAllByTheme(any())).thenReturn(List.of(studyTheme1));
+        when(studyRepository.countStudyByConditionsAndThemeTypesAndNotInIds(any(), any(), any(), any()))
+            .thenReturn(2L);
+        when(studyRepository.findStudyByConditionsAndThemeTypesAndNotInIds(any(), any(), any(), any(), any()))
+            .thenReturn(List.of(study1, study3));
+
+        // when
+        // 검색 조건이 안맞는 경우, 검색 조건에 맞는 스터디가 조회 되면 안됨.
+        StudyPreviewDTO result = studyQueryService.findInterestStudiesByConditionsSpecific(
+            pageable, member.getId(), getSearchRequestStudyDTO(), ThemeType.어학, StudySortBy.ALL);
+
+        // then
+        assertEquals(2, result.getTotalElements());
+        assertEquals(study1.getTitle(), result.getContent().get(0).getTitle());
+        assertEquals(study3.getTitle(), result.getContent().get(1).getTitle());
+
+    }
+
+
 
     /* -------------------------------------------------------- 내 전체 관심 지역 스터디 조회 ------------------------------------------------------------------------*/
     @Test
@@ -985,8 +1048,22 @@ class StudyQueryServiceTest {
             .title("Competition Study Group")
             .maxPeople(15L)
             .build();
+        study3 = Study.builder()
+                .gender(Gender.MALE)
+                .minAge(18)
+                .maxAge(35)
+                .fee(1000)
+                .profileImage("profile1.jpg")
+                .hasFee(true)
+                .isOnline(true)
+                .goal("Learn Korean")
+                .introduction("This is an Korean study group")
+                .title("Korean Study Group")
+                .maxPeople(10L)
+                .build();
 
-        study1.increaseHit();
+        study1.increaseHit(); study1.increaseHit();
+        study3.increaseHit();
         study2.addPreferredStudy(getPreferredStudy(getMember(), study2));
     }
 
