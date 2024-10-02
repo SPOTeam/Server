@@ -579,7 +579,7 @@ class StudyQueryServiceTest {
         // Mock conditions
         Map<String, Object> searchConditions = getStringObjectMap();
 
-        when(studyRepository.findStudyByConditions(searchConditions, sortBy, pageable))
+        when(studyRepository.findRecruitingStudyByConditions(searchConditions, sortBy, pageable))
             .thenReturn(List.of(study1, study2));
         when(studyRepository.countStudyByConditions(searchConditions, sortBy))
             .thenReturn(2L);
@@ -600,7 +600,7 @@ class StudyQueryServiceTest {
         // then
         assertNotNull(result);
         assertEquals(2, result.getTotalElements());  // Verify the count of elements
-        verify(studyRepository).findStudyByConditions(searchConditions, sortBy, pageable);
+        verify(studyRepository).findRecruitingStudyByConditions(searchConditions, sortBy, pageable);
         verify(studyRepository).countStudyByConditions(searchConditions, sortBy);
     }
 

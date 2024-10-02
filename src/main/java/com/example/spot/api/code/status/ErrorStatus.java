@@ -105,6 +105,13 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_REGION_IS_NOT_MATCH(HttpStatus.BAD_REQUEST, "STUDY6009", "입력한 회원의 관심 스터디 지역을 입력하세요."),
     _STUDY_IS_NOT_MATCH(HttpStatus.BAD_REQUEST, "STUDY6010", "입력한 조건에 맞는 스터디가 존재하지 않습니다."),
     _STUDY_THEME_IS_INVALID(HttpStatus.BAD_REQUEST, "STUDY6011", "해당 회원의 유효한 스터디 관심사가 존재하지 않습니다."),
+    _STUDY_THEME_NOT_EXIST(HttpStatus.NOT_FOUND, "STUDY6012", "해당 관심사에 해당하는 스터디가 존재하지 않습니다."),
+    _STUDY_REGION_NOT_EXIST(HttpStatus.NOT_FOUND, "STUDY6013", "해당 지역에 해당하는 스터디가 존재하지 않습니다."),
+    _STUDY_REGION_IS_INVALID(HttpStatus.BAD_REQUEST, "STUDY6014", "해당 회원의 유효한 스터디 관심 지역이 존재하지 않습니다."),
+    _STUDY_LIKED_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY6015", "좋아요를 누른 스터디가 없습니다."),
+    _STUDY_NOT_PARTICIPATED(HttpStatus.NOT_FOUND, "STUDY6016", "참가하는 스터디가 없습니다."),
+    _STUDY_NOT_APPLIED(HttpStatus.NOT_FOUND, "STUDY6017", "신청한 스터디가 없습니다."),
+    _RECRUITING_STUDY_IS_NOT_EXIST(HttpStatus.NOT_FOUND, "STUDY6018", "현재 회원이 모집중인 스터디가 없습니다."),
 
     // 스터디 출석 관련 에러
     _STUDY_QUIZ_NOT_FOUND(HttpStatus.NOT_FOUND, "QUIZ4001", "출석 퀴즈를 찾을 수 없습니다."),

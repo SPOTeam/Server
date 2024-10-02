@@ -23,7 +23,7 @@ public interface StudyRepositoryCustom {
     List<Study> findByStudyThemeAndNotInIds(List<StudyTheme> studyThemes, List<Long> studyIds);
 
     // 모집중 스터디 조회
-    List<Study> findStudyByConditions(Map<String, Object> search, StudySortBy sortBy, Pageable pageable);
+    List<Study> findRecruitingStudyByConditions(Map<String, Object> search, StudySortBy sortBy, Pageable pageable);
 
     List<Study> findStudyByConditionsAndThemeTypesAndNotInIds(Map<String, Object> search,
         StudySortBy sortBy, Pageable pageable, List<StudyTheme> themeTypes, List<Long> studyIds);
