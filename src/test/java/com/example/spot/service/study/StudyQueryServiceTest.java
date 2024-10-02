@@ -1,6 +1,7 @@
 package com.example.spot.service.study;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -347,6 +348,64 @@ class StudyQueryServiceTest {
         verify(studyRepository).findStudyByConditionsAndThemeTypesAndNotInIds(searchConditions, sortBy, pageable, List.of(studyTheme1, studyTheme2), studyIds);
 
     }
+
+    @Test
+    @DisplayName("내 전체 관심사 스터디 조회 - 페이징 테스트")
+    void shouldReturnPagedStudies(){
+        //given
+        List<Study> studies = List.of(study1, study2);
+
+        when(studyRepository.findStudyByConditionsAndThemeTypesAndNotInIds(any(), any(), any(), any(), any()))
+            .thenReturn(studies);
+        when(studyRepository.countStudyByConditionsAndThemeTypesAndNotInIds(any(), any(), any(), any()))
+            .thenReturn(2L);
+        when(memberRepository.existsById(any())).thenReturn(true);
+
+
+        // when
+        StudyPreviewDTO result = studyQueryService.findInterestStudiesByConditionsAll(
+            PageRequest.of(0, 10), 1L, getSearchRequestStudyDTO(), StudySortBy.ALL);
+
+        // then
+        assertEquals(10, result.getSize());
+        assertEquals(2, result.getTotalElements());
+        assertEquals(2, result.getContent().size());
+
+    }
+
+    @Test
+    @DisplayName("내 전체 관심사 스터디 조회 - 검색 조건에 따른 스터디 필터링 테스트")
+    void shouldFilterStudiesBasedOnSearchConditions(){
+        // given
+        Member member = getMember();
+        Pageable pageable = PageRequest.of(0, 10);
+
+    }
+
+    @Test
+    @DisplayName("내 전체 관심사 스터디 조회 - 회원의 관심 분야가 없는 경우")
+    void findInterestStudiesByConditionsAllOnNoInterest() {
+        // given
+        Member member = getMember();
+
+        Pageable pageable = PageRequest.of(0, 10);
+
+        StudySortBy sortBy = StudySortBy.ALL;
+
+        SearchRequestStudyDTO request = getSearchRequestStudyDTO();
+
+        when(memberRepository.existsById(member.getId())).thenReturn(true);
+        when(memberThemeRepository.findAllByMemberId(member.getId())).thenReturn(List.of());
+
+        // when & then
+        assertThrows(MemberHandler.class, () -> {
+            studyQueryService.findInterestStudiesByConditionsAll(pageable, member.getId(), request, sortBy);
+        });
+    }
+
+
+
+
 
     /* -------------------------------------------------------- 내 특정 관심사 스터디 조회 ------------------------------------------------------------------------*/
 

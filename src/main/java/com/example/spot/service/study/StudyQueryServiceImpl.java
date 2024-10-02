@@ -335,7 +335,6 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         if (themes.isEmpty())
             throw new MemberHandler(ErrorStatus._STUDY_THEME_IS_INVALID);
 
-        // 회원 관심사로 스터디 테마 조회
         List<StudyTheme> studyThemes = themes.stream()
             .flatMap(theme -> studyThemeRepository.findAllByTheme(theme).stream())
             .toList();
