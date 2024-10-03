@@ -458,7 +458,7 @@ class StudyQueryServiceTest {
         when(memberThemeRepository.findAllByMemberId(member.getId())).thenReturn(List.of());
 
         // when & then
-        assertThrows(MemberHandler.class, () -> {
+        assertThrows(StudyHandler.class, () -> {
             studyQueryService.findInterestStudiesByConditionsAll(pageable, member.getId(), request, sortBy);
         });
     }
