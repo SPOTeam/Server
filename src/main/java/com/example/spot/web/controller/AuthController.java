@@ -104,7 +104,7 @@ public class AuthController {
     @Operation(summary = "[로그아웃] 로그아웃 API",
         description = """
             ## [로그아웃] 로그아웃 API입니다.
-            로그아웃을 진행합니다. 
+            로그아웃을 진행합니다.
             로그아웃 시, 사용 하던 액세스 토큰과 리프레시 토큰은 더 이상 사용이 불가능합니다. 
             다시 서비스를 이용하기 위해서는 로그인을 다시 진행해야 합니다.
             """)
@@ -112,5 +112,5 @@ public class AuthController {
     public ApiResponse<TokenDTO> logout() {
         return null;
     }
-    
+
 }
