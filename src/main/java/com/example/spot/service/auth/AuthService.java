@@ -4,6 +4,8 @@ import com.example.spot.web.dto.member.MemberRequestDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.web.dto.token.TokenResponseDTO;
 import com.example.spot.web.dto.token.TokenResponseDTO.TokenDTO;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 public interface AuthService {
 
@@ -12,9 +14,9 @@ public interface AuthService {
 
     MemberResponseDTO.MemberSignInDTO signIn(MemberRequestDTO.SignInDTO signInDTO);
 
-    void sendVerificationCode(MemberRequestDTO.PhoneDTO phoneDTO);
+    void sendVerificationCode(HttpServletRequest request, HttpServletResponse response, String email);
 
-    TokenResponseDTO.TempTokenDTO verifyPhone(String verificationCode, MemberRequestDTO.PhoneDTO phoneDTO);
+    TokenResponseDTO.TempTokenDTO verifyEmail(String verificationCode, String email);
 
     MemberResponseDTO.MemberSignInDTO signUp(MemberRequestDTO.SignUpDTO signUpDTO);
 

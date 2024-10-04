@@ -10,6 +10,7 @@ import com.example.spot.web.dto.token.TokenResponseDTO.TokenDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,8 +47,9 @@ public class AuthController {
             """)
     @PostMapping("/sign-up/send-verification-code")
     public ApiResponse<Void> sendVerificationCode(
-            @RequestBody @Valid MemberRequestDTO.PhoneDTO phoneDTO) {
-        authService.sendVerificationCode(phoneDTO);
+            HttpServletRequest request, HttpServletResponse response,
+            @RequestParam String email) {
+        authService.sendVerificationCode(request, response, email);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_PHONE_VERIFIED);
     }
 
@@ -61,8 +63,8 @@ public class AuthController {
     @PostMapping("/sign-up/verify")
     public ApiResponse<TokenResponseDTO.TempTokenDTO> verifyPhone(
             @RequestParam String verificationCode,
-            @RequestBody @Valid MemberRequestDTO.PhoneDTO phoneDTO) {
-        TokenResponseDTO.TempTokenDTO tempTokenDTO = authService.verifyPhone(verificationCode, phoneDTO);
+            @RequestParam String email) {
+        TokenResponseDTO.TempTokenDTO tempTokenDTO = authService.verifyEmail(verificationCode, email);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_PHONE_VERIFIED, tempTokenDTO);
     }
 
