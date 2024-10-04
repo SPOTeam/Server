@@ -26,6 +26,47 @@ public class MemberRequestDTO {
     }
 
     @Getter
+    @RequiredArgsConstructor
+    public static class PhoneDTO {
+
+        private final Carrier carrier;
+
+        @TextLength(max = 15)
+        private final String phone;
+    }
+
+    @Getter
+    @RequiredArgsConstructor
+    public static class SignUpDTO {
+
+        @TextLength(max = 20)
+        private final String name;
+
+        @TextLength(max = 8)
+        private final String nickname;
+
+        private final LocalDate birth;
+
+        @TextLength(max = 50)
+        private final String email;
+
+        private final Carrier carrier;
+
+        @TextLength(max = 15)
+        private final String phone;
+
+        @TextLength(max = 100)
+        private final String password;
+
+        @TextLength(max = 100)
+        private final String pwCheck;
+
+        private final Boolean personalInfo;
+
+        private final Boolean idInfo;
+    }
+
+    @Getter
     @Setter
     @Builder
     @AllArgsConstructor

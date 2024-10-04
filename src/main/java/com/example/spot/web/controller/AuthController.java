@@ -5,6 +5,7 @@ import com.example.spot.api.code.status.SuccessStatus;
 import com.example.spot.service.auth.AuthService;
 import com.example.spot.web.dto.member.MemberRequestDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO;
+import com.example.spot.web.dto.token.TokenResponseDTO;
 import com.example.spot.web.dto.token.TokenResponseDTO.TokenDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -37,18 +38,49 @@ public class AuthController {
         return ApiResponse.onSuccess(SuccessStatus._CREATED, authService.reissueToken(refreshToken));
     }
 
-    @Tag(name = "회원 관리 API - 개발 중", description = "회원 관리 API")
+    @Tag(name = "회원 관리 API - 개발 완료", description = "회원 관리 API")
+    @Operation(summary = "[회원 가입] 일반 회원 가입 인증번호 전송 API",
+            description = """
+            ## [회원 가입] 일반 회원 가입 인증번호 전송 API입니다.
+            입력받은 전화번호로 인증번호가 전송됩니다.
+            """)
+    @PostMapping("/sign-up/send-verification-code")
+    public ApiResponse<Void> sendVerificationCode(
+            @RequestBody @Valid MemberRequestDTO.PhoneDTO phoneDTO) {
+        authService.sendVerificationCode(phoneDTO);
+        return ApiResponse.onSuccess(SuccessStatus._MEMBER_PHONE_VERIFIED);
+    }
+
+    @Tag(name = "회원 관리 API - 개발 완료", description = "회원 관리 API")
+    @Operation(summary = "[회원 가입] 일반 회원 가입 전화번호 인증 API",
+            description = """
+            ## [회원 가입] 일반 회원 가입 전화번호 인증 API입니다.
+            사용자로부터 인증코드와 전화번호를 받아 검증 작업을 수행한 후, 임시 토큰을 반환합니다.
+            임시 토큰은 최대 3분간 유효합니다. 임시 토큰이 만료된 경우 전화번호 재인증이 필요합니다.
+            """)
+    @PostMapping("/sign-up/verify")
+    public ApiResponse<TokenResponseDTO.TempTokenDTO> verifyPhone(
+            @RequestParam String verificationCode,
+            @RequestBody @Valid MemberRequestDTO.PhoneDTO phoneDTO) {
+        TokenResponseDTO.TempTokenDTO tempTokenDTO = authService.verifyPhone(verificationCode, phoneDTO);
+        return ApiResponse.onSuccess(SuccessStatus._MEMBER_PHONE_VERIFIED, tempTokenDTO);
+    }
+
+    @Tag(name = "회원 관리 API - 개발 완료", description = "회원 관리 API")
     @Operation(summary = "[회원 가입] 일반 회원 가입 API",
         description = """
             ## [회원 가입] 일반 회원 가입 API입니다.
-            회원 가입 시, 아이디(이메일)과 비밀번호를 입력하여 회원 가입을 진행합니다.
+            아이디(이메일)과 비밀번호를 입력하여 회원 가입을 진행합니다.
+            전화번호 인증 API로부터 발급 받은 임시 토큰이 Authorization 헤더에 포함되어야 합니다.
             회원 가입에 성공하면, 액세스 토큰과 리프레시 토큰이 발급됩니다.
             액세스 토큰은 사용자의 정보를 인증하는데 사용되며, 리프레시 토큰은 액세스 토큰이 만료된 경우, 액세스 토큰을 재발급 하는데 사용됩니다.
             액세스 토큰이 만료된 경우, 유효한 상태의 리프레시 토큰을 통해 액세스 토큰을 재발급 받을 수 있습니다.
             """)
     @PostMapping("/sign-up")
-    public ApiResponse<TokenDTO> signUp() {
-        return null;
+    public ApiResponse<MemberResponseDTO.MemberSignInDTO> signUp(
+            @RequestBody @Valid MemberRequestDTO.SignUpDTO signUpDTO) {
+        MemberResponseDTO.MemberSignInDTO memberSignUpDTO = authService.signUp(signUpDTO);
+        return ApiResponse.onSuccess(SuccessStatus._MEMBER_CREATED, memberSignUpDTO);
     }
 
     @Tag(name = "회원 관리 API - 개발 중", description = "회원 관리 API")
