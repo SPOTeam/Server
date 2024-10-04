@@ -42,7 +42,10 @@ public enum ErrorStatus implements BaseErrorCode {
     _MEMBER_NOT_VERIFIED(HttpStatus.UNAUTHORIZED, "MEMBER4013", "전화번호 인증에 실패하였습니다."),
     _MEMBER_PHONE_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "MEMBER4014", "해당 전화번호로 가입된 회원이 이미 존재합니다."),
     _MEMBER_PW_AND_PW_CHECK_DO_NOT_MATCH(HttpStatus.BAD_REQUEST, "MEMBER4015", "비밀번호와 비밀번호 확인이 일치하지 않습니다."),
-    _MEMBER_PHONE_NOT_VERIFIED(HttpStatus.UNAUTHORIZED, "MEMBER4016", "인증되지 않은 전화번호입니다."),
+    _MEMBER_EMAIL_NOT_VERIFIED(HttpStatus.UNAUTHORIZED, "MEMBER4016", "인증되지 않은 이메일입니다."),
+    _UNABLE_TO_SEND_VERIFICATION_CODE(HttpStatus.BAD_REQUEST, "AA4017", "인증 코드를 전송할 수 없습니다."),
+    _UNABLE_TO_SEND_EMAIL(HttpStatus.BAD_REQUEST, "AA4018", "이메일을 전송할 수 없습니다."),
+    _UNABLE_TO_LOAD_MAIL_FORM(HttpStatus.INTERNAL_SERVER_ERROR, "AA4019", "이메일 인증 폼을 불러올 수 없습니다."),
 
     //스터디 관련 에러
     _STUDY_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY4001", "스터디를 찾을 수 없습니다."),
