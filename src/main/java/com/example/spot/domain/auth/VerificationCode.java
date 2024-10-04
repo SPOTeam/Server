@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 public class VerificationCode {
 
-    private final String phone;
+    private final String email;
 
     @Setter
     private String code;
@@ -21,8 +21,8 @@ public class VerificationCode {
     private LocalDateTime expiredAt;
 
     @Builder
-    public VerificationCode(String phone, String code, LocalDateTime expiredAt) {
-        this.phone = phone;
+    public VerificationCode(String email, String code, LocalDateTime expiredAt) {
+        this.email = email;
         this.code = code;
     }
 }

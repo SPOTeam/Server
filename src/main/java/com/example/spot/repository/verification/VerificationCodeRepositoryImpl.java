@@ -22,21 +22,21 @@ public class VerificationCodeRepositoryImpl implements VerificationCodeRepositor
     private final List<VerificationCode> verificationCodes = new ArrayList<>();
 
     @Override
-    public void addVerificationCode(String phone, String code) {
-        if (phone != null && code != null) {
+    public void addVerificationCode(String email, String code) {
+        if (email != null && code != null) {
 
             // 만료기간이 지난 VerificationCode 삭제
             verificationCodes.removeIf(verificationCode -> verificationCode.getExpiredAt().isBefore(LocalDateTime.now()));
 
             // 동일한 임시 토큰으로 생성한 코드가 이미 존재하는지 확인
             VerificationCode existingCode = verificationCodes.stream()
-                    .filter(vc -> vc.getPhone().equals(phone))
+                    .filter(vc -> vc.getEmail().equals(email))
                     .findFirst()
                     .orElse(null);
 
             if (existingCode == null) {
                 VerificationCode verificationCode = VerificationCode.builder()
-                        .phone(phone)
+                        .email(email)
                         .code(code)
                         .build();
                 this.verificationCodes.add(verificationCode);
@@ -50,7 +50,7 @@ public class VerificationCodeRepositoryImpl implements VerificationCodeRepositor
     @Override
     public VerificationCode getVerificationCode(String phone) {
         return verificationCodes.stream()
-                .filter(vc -> vc.getPhone().equals(phone))
+                .filter(vc -> vc.getEmail().equals(phone))
                 .findFirst()
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_VERIFIED));
     }
@@ -58,7 +58,7 @@ public class VerificationCodeRepositoryImpl implements VerificationCodeRepositor
     @Override
     public void setTempToken(TokenResponseDTO.TempTokenDTO tempTokenDTO, VerificationCode existingCode) {
         verificationCodes.stream()
-                .filter(verificationCode -> verificationCode.getPhone().equals(existingCode.getPhone()))
+                .filter(verificationCode -> verificationCode.getEmail().equals(existingCode.getEmail()))
                 .findFirst()
                 .ifPresent(verificationCode -> {
                     verificationCode.setExpiredAt(LocalDateTime.now().plusSeconds(TEMP_TOKEN_EXPIRATION_TIME));

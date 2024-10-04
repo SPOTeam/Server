@@ -50,10 +50,8 @@ public class MemberRequestDTO {
         @TextLength(max = 50)
         private final String email;
 
-        private final Carrier carrier;
-
-        @TextLength(max = 15)
-        private final String phone;
+        @TextLength(min=6, max = 100)
+        private final String loginId;
 
         @TextLength(max = 100)
         private final String password;

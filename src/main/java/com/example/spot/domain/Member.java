@@ -43,6 +43,9 @@ public class Member extends BaseEntity {
     @Column(nullable = false, length = 20)
     private String name;
 
+    @Column(length = 100)
+    private String loginId;
+
     @Column(nullable = false, length = 100)
     private String password;
 
@@ -52,11 +55,13 @@ public class Member extends BaseEntity {
     @Column(nullable = false, length = 50, unique = true)
     private String email;
 
+    // 안 쓰면 지워도 될 것 같은데 사이드 이펙트 생길까봐 일단 놔둡니다..!
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 5)
+    @Column
     private Carrier carrier;
 
-    @Column(nullable = false, length = 15, unique = true)
+    // 안 쓰면 지워도 될 것 같은데 사이드 이펙트 생길까봐 일단 놔둡니다..!
+    @Column(length = 15, unique = true)
     private String phone;
 
     @Column(nullable = false)
