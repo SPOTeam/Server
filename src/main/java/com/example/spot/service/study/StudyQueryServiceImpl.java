@@ -79,6 +79,12 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     private final PreferredRegionRepository preferredRegionRepository;
     private final RegionStudyRepository regionStudyRepository;
 
+    /**
+     * 스터디의 상세 정보를 조회하는 메서드입니다
+     * @param studyId 스터디의 아이디를 입력 받습니다.
+     * @return 스터디의 상세 정보를 반환합니다.
+     * @throws StudyHandler 스터디가 존재하지 않을 경우 Exception을 발생시킵니다.
+     */
     @Transactional
     public StudyInfoResponseDTO.StudyInfoDTO getStudyInfo(Long studyId) {
 
@@ -98,12 +104,17 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return StudyInfoResponseDTO.StudyInfoDTO.toDTO(study, owner);
     }
 
-    // 마이페이지 스터디 갯수 조회
+    /**
+     * 마이페이지에 들어갈 스터디 갯수 관련 정보를 조회 하는 메서드입니다.
+     * @param memberId  회원의 아이디를 입력 받습니다.
+     * @return 지원한 스터디, 참여중인 스터디, 모집중인 스터디 갯수를 반환합니다.
+     * @throws MemberHandler 회원이 존재하지 않을 경우 Exception을 발생시킵니다.
+     */
     @Override
     public MyPageDTO getMyPageStudyCount(Long memberId) {
         // 회원 조회
         Member member = memberRepository.findById(memberId)
-            .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
+            .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
 
         // 내가 신청한 스터디 수
         long appliedStudies = memberStudyRepository.countByMemberIdAndStatus(memberId, ApplicationStatus.APPLIED);
@@ -120,7 +131,16 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             .build();
     }
 
-    // 스터디 전체 조회
+    /**
+     * 검색 조건 없이 전체 스터디를 조회하는 메서드입니다.
+     *
+     * @param pageable 페이지 정보를 입력 받습니다.
+     * @param sortBy  정렬 기준을 입력 받습니다.
+     *
+     * @return 입력한 조건에 맞는 스터디 목록과 조회된 스터디 갯수를 함께 반환합니다.
+     *
+     * @throws StudyHandler 조회된 스터디가 없을 경우 Exception을 발생시킵니다.
+     */
     @Override
     public StudyPreviewDTO findStudies(Pageable pageable, StudySortBy sortBy) {
         // 스터디 전체 조회
@@ -135,7 +155,15 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return getDTOs(studies, pageable, totalElements, SecurityUtils.getCurrentUserId());
     }
 
-    // 스터디 조건 별 조회
+    /**
+     * 검색 조건을 통해 전체 스터디를 조회하는 메서드입니다.
+     *
+     * @param pageable 페이지 정보를 입력 받습니다.
+     * @param sortBy  정렬 기준을 입력 받습니다.
+     * @param request 검색 조건을 입력 받습니다.
+     * @return 입력한 조건에 맞는 스터디 목록과 조회된 스터디 갯수를 함께 반환합니다.
+     * @throws StudyHandler 조회된 스터디가 없을 경우 Exception을 발생시킵니다.
+     */
     @Override
     public StudyPreviewDTO findStudiesByConditions(Pageable pageable, SearchRequestStudyDTO request,
         StudySortBy sortBy) {
@@ -154,7 +182,15 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return getDTOs(studies, pageable, totalElements, SecurityUtils.getCurrentUserId());
     }
 
-    // 추천 스터디 조회
+    /**
+     * 추천 스터디를 조회하는 메서드입니다.
+     *
+     * @param memberId 회원의 아이디를 입력 받습니다.
+     * @return 입력한 조건에 맞는 스터디 목록과 조회된 스터디 갯수를 함께 반환합니다.
+     * @throws MemberHandler 회원의 관심사가 존재하지 않는 경우 Exception을 발생시킵니다.
+     * @throws StudyHandler 조회된 스터디가 없을 경우 Exception을 발생시킵니다.
+     * @throws StudyHandler 회원의 관심사에 해당하는 스터디가 존재하지 않을 경우 Exception을 발생시킵니다.
+     */
     @Override
     public StudyPreviewDTO findRecommendStudies(Long memberId) {
 
@@ -193,7 +229,13 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     }
 
 
-    // 관심 Best 스터디 3개 조회
+    /**
+     * 관심 Best 스터디를 조회하는 메서드입니다.
+     *
+     * @param memberId 회원의 아이디를 입력 받습니다.
+     * @return 입력한 조건에 맞는 스터디 목록과 조회된 스터디 갯수를 함께 반환합니다.
+     * @throws StudyHandler 조회된 추천 스터디가 없을 경우 Exception을 발생시킵니다.
+     */
     @Override
     public StudyPreviewDTO findInterestedStudies(Long memberId) {
         // 회원의 관심 Best 스터디 ID 가져오기
@@ -208,7 +250,21 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return getDTOs(studies, Pageable.unpaged(), studies.size(), memberId);
     }
 
-    // 전체 관심 분야 스터디 조회
+    /**
+     * 회원의 관심 분야에 해당 되는 모든 스터디를 조회 합니다. 회원이 현재 진행중인 스터디는 제외합니다.
+     *
+     * @param pageable 페이지 정보를 입력 받습니다.
+     * @param memberId 회원의 아이디를 입력 받습니다.
+     * @param sortBy  정렬 기준을 입력 받습니다.
+     * @param request 검색 조건을 입력 받습니다.
+     *
+     * @return 입력한 조건에 맞는 스터디 목록과 조회된 스터디 갯수를 함께 반환합니다.
+     *
+     * @throws MemberHandler 회원의 관심사가 존재하지 않는 경우 Exception을 발생시킵니다.
+     * @throws StudyHandler 조회된 스터디가 없을 경우 Exception을 발생시킵니다.
+     * @throws StudyHandler 회원의 관심사에 해당하는 스터디가 존재하지 않을 경우 Exception을 발생시킵니다.
+     *
+     */
     @Override
     public StudyPreviewDTO findInterestStudiesByConditionsAll(Pageable pageable, Long memberId,
         SearchRequestStudyDTO request, StudySortBy sortBy) {
@@ -222,7 +278,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
         // 회원의 관심사가 없을 경우
         if (themes.isEmpty())
-            throw new StudyHandler(ErrorStatus._STUDY_THEME_IS_INVALID);
+            throw new MemberHandler(ErrorStatus._STUDY_THEME_IS_INVALID);
 
         // 회원 관심사로 스터디 테마 조회
         List<StudyTheme> studyThemes = themes.stream()
@@ -253,7 +309,23 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     }
 
 
-    // 내 특정 관심 분야 스터디 조회
+    /**
+     * 회원의 특정 관심 분야에 해당 되는 모든 스터디를 조회 합니다. 회원이 현재 진행중인 스터디는 제외합니다.
+     *
+     * @param pageable 페이지 정보를 입력 받습니다.
+     * @param memberId 회원의 아이디를 입력 받습니다.
+     * @param request 검색 조건을 입력 받습니다.
+     * @param themeType 관심 분야를 입력 받습니다.
+     * @param sortBy  정렬 기준을 입력 받습니다.
+     *
+     * @return 입력한 조건에 맞는 스터디 목록과 조회된 스터디 갯수를 함께 반환합니다.
+     *
+     * @throws MemberHandler 회원의 관심사가 존재하지 않는 경우 Exception을 발생시킵니다.
+     * @throws MemberHandler 회원이 조회하려는 관심사가 서비스에 등록된 관심사와 일치하지 않는 경우 Exception을 발생시킵니다.
+     * @throws StudyHandler 회원의 관심사에 해당하는 스터디가 존재하지 않을 경우 Exception을 발생시킵니다.
+     * @throws StudyHandler 조회된 스터디가 없을 경우 Exception을 발생시킵니다.
+     *
+     */
     @Override
     public StudyPreviewDTO findInterestStudiesByConditionsSpecific(Pageable pageable,
         Long memberId, SearchRequestStudyDTO request, ThemeType themeType, StudySortBy sortBy) {
@@ -269,11 +341,11 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
         // 회원의 관심사가 없을 경우
         if (themes.isEmpty())
-            throw new StudyHandler(ErrorStatus._STUDY_THEME_IS_INVALID);
+            throw new MemberHandler(ErrorStatus._STUDY_THEME_IS_INVALID);
 
         // 회원이 입력한 관심사가 등록된 관심사와 다른 경우
         if (themes.stream().noneMatch(theme -> theme.getStudyTheme().equals(themeType)))
-            throw new StudyHandler(ErrorStatus._BAD_REQUEST);
+            throw new MemberHandler(ErrorStatus._BAD_REQUEST);
 
 
         // 회원 관심사로 스터디 테마 조회
@@ -307,7 +379,21 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     }
 
 
-    // 전체 관심 지역 스터디 조회
+    /**
+     * 회원의 관심 지역에 해당 되는 모든 스터디를 조회 합니다. 회원이 현재 진행중인 스터디는 제외합니다.
+     *
+     * @param pageable 페이지 정보를 입력 받습니다.
+     * @param memberId 회원의 아이디를 입력 받습니다.
+     * @param sortBy  정렬 기준을 입력 받습니다.
+     * @param request 검색 조건을 입력 받습니다.
+     *
+     * @return 입력한 조건에 맞는 스터디 목록과 조회된 스터디 갯수를 함께 반환합니다.
+     *
+     * @throws MemberHandler 회원의 관심 지역이 존재하지 않는 경우 Exception을 발생시킵니다.
+     * @throws StudyHandler 회원의 관심 지역에 해당하는 스터디가 존재하지 않을 경우 Exception을 발생시킵니다.
+     * @throws StudyHandler 조회된 스터디가 없을 경우 Exception을 발생시킵니다.
+     *
+     */
     @Override
     public StudyPreviewDTO findInterestRegionStudiesByConditionsAll(Pageable pageable,
         Long memberId, SearchRequestStudyDTO request, StudySortBy sortBy) {
@@ -323,7 +409,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
         // 회원의 관심 지역이 없을 경우
         if (regions.isEmpty())
-            throw new StudyHandler(ErrorStatus._STUDY_REGION_IS_INVALID);
+            throw new MemberHandler(ErrorStatus._STUDY_REGION_IS_INVALID);
 
         // 회원 관심 지역으로 스터디 지역 조회
         List<RegionStudy> regionStudies = regions.stream()
@@ -354,7 +440,23 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return getDTOs(studies, pageable, totalElements, memberId);
     }
 
-    // 내 특정 관심 지역 스터디 조회
+    /**
+     * 회원의 특정 관심 지역에 해당 되는 모든 스터디를 조회 합니다. 회원이 현재 진행중인 스터디는 제외합니다.
+     *
+     * @param pageable 페이지 정보를 입력 받습니다.
+     * @param memberId 회원의 아이디를 입력 받습니다.
+     * @param request 검색 조건을 입력 받습니다.
+     * @param regionCode 관심 지역 코드를 입력 받습니다.
+     * @param sortBy  정렬 기준을 입력 받습니다.
+     *
+     * @return 입력한 조건에 맞는 스터디 목록과 조회된 스터디 갯수를 함께 반환합니다.
+     *
+     * @throws MemberHandler 회원의 관심 지역이 존재하지 않는 경우 Exception을 발생시킵니다.
+     * @throws MemberHandler 회원이 조회하려는 관심 지역이 서비스에 등록된 관심 지역과 일치하지 않는 경우 Exception을 발생시킵니다.
+     * @throws StudyHandler 회원의 관심 지역에 해당하는 스터디가 존재하지 않을 경우 Exception을 발생시킵니다.
+     * @throws StudyHandler 조회된 스터디가 없을 경우 Exception을 발생시킵니다.
+     *
+     */
     @Override
     public StudyPreviewDTO findInterestRegionStudiesByConditionsSpecific(Pageable pageable,
         Long memberId, SearchRequestStudyDTO request, String regionCode, StudySortBy sortBy) {
@@ -406,7 +508,18 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return getDTOs(studies, pageable, totalElements, memberId);
     }
 
-    // 모집 중 스터디 조회
+    /**
+     * 모집중인 스터디를 조회합니다.
+     *
+     * @param pageable 페이지 정보를 입력 받습니다.
+     * @param request 검색 조건을 입력 받습니다.
+     * @param sortBy  정렬 기준을 입력 받습니다.
+     *
+     * @return 입력한 조건에 맞는 스터디 목록과 조회된 스터디 갯수를 함께 반환합니다.
+     *
+     * @throws StudyHandler 조회된 스터디가 없을 경우 Exception을 발생시킵니다.
+     *
+     */
     @Override
     public StudyPreviewDTO findRecruitingStudiesByConditions(Pageable pageable,
         SearchRequestStudyDTO request, StudySortBy sortBy) {
@@ -427,7 +540,18 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return getDTOs(studies, pageable, totalElements, SecurityUtils.getCurrentUserId());
     }
 
-    // 회원이 좋아요 한 스터디 조회
+    /**
+     * 특정 회원이 좋아요 한 스터디를 조회합니다.
+     *
+     * @param memberId 회원의 아이디를 입력 받습니다.
+     * @param pageable 페이지 정보를 입력 받습니다.
+     *
+     * @return 입력한 조건에 맞는 스터디 목록과 조회된 스터디 갯수를 함께 반환합니다.
+     *
+     * @throws StudyHandler 좋아요 한 스터디가 없는 경우 Exception을 발생시킵니다.
+     * @throws StudyHandler 조회된 스터디가 없을 경우 Exception을 발생시킵니다.
+     *
+     */
     @Override
     public StudyPreviewDTO findLikedStudies(Long memberId, Pageable pageable) {
         // 회원이 좋아요한 스터디 조회
@@ -452,7 +576,18 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return getDTOs(studies, pageable, totalElements, memberId);
     }
 
-    // 키워드 기반 스터디 검색
+    /**
+     * 입력 받은 키워드가 제목에 포함된 스터디를 조회 합니다.
+     *
+     * @param pageable 페이지 정보를 입력 받습니다.
+     * @param keyword  검색 키워드를 입력 받습니다.
+     * @param sortBy  정렬 기준을 입력 받습니다.
+     *
+     * @return 입력한 조건에 맞는 스터디 목록과 조회된 스터디 갯수를 함께 반환합니다.
+     *
+     * @throws StudyHandler 조회된 스터디가 없을 경우 Exception을 발생시킵니다.
+     *
+     */
     @Override
     public StudyPreviewDTO findStudiesByKeyword(Pageable pageable,
         String keyword, StudySortBy sortBy) {
@@ -468,7 +603,19 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return getDTOs(studies, pageable, totalElements, SecurityUtils.getCurrentUserId());
     }
 
-    // 테마 별 스터디 조회
+    /**
+     * 입력 받은 테마에 해당하는 스터디를 조회 합니다.
+     *
+     * @param pageable 페이지 정보를 입력 받습니다.
+     * @param theme    테마를 입력 받습니다.
+     * @param sortBy   정렬 기준을 입력 받습니다.
+     *
+     * @return 입력한 조건에 맞는 스터디 목록과 조회된 스터디 갯수를 함께 반환합니다.
+     *
+     * @throws StudyHandler 해당 테마에 해당하는 스터디가 존재하지 않을 경우 Exception을 발생시킵니다.
+     * @throws StudyHandler 조회된 스터디가 없을 경우 Exception을 발생시킵니다.
+     *
+     */
     @Override
     public StudyPreviewDTO findStudiesByTheme(Pageable pageable, ThemeType theme, StudySortBy sortBy) {
         // 테마로 스터디 조회
@@ -494,7 +641,18 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return getDTOs(studies, pageable, totalElements, SecurityUtils.getCurrentUserId());
     }
 
-    // 진행중인 스터디 조회
+    /**
+     * 입력 받은 회원이 참가하고 있는 스터디를 조회 합니다.
+     *
+     * @param pageable 페이지 정보를 입력 받습니다.
+     * @param memberId 회원의 아이디를 입력 받습니다.
+     *
+     * @return 입력한 조건에 맞는 스터디 목록과 조회된 스터디 갯수를 함께 반환합니다.
+     *
+     * @throws StudyHandler 회원이 참가하고 있는 스터디가 없을 경우 Exception을 발생시킵니다.
+     * @throws StudyHandler 조회된 스터디가 없을 경우 Exception을 발생시킵니다.
+     *
+     */
     @Override
     public StudyPreviewDTO findOngoingStudiesByMemberId(Pageable pageable, Long memberId) {
         // 회원이 참가하고 있는 스터디 ID 가져오기
@@ -516,7 +674,18 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return getDTOs(studies, pageable, totalElements, memberId);
     }
 
-    // 회원이 신청한 스터디 조회
+    /**
+     * 특정 회원이 신청한 스터디를 조회합니다.
+     *
+     * @param pageable 페이지 정보를 입력 받습니다.
+     * @param memberId 회원의 아이디를 입력 받습니다.
+     *
+     * @return 입력한 조건에 맞는 스터디 목록과 조회된 스터디 갯수를 함께 반환합니다.
+     *
+     * @throws StudyHandler 회원이 신청한 스터디가 존재하지 않을 경우 Exception을 발생시킵니다.
+     * @throws StudyHandler 조회된 스터디가 없을 경우 Exception을 발생시킵니다.
+     *
+     */
     @Override
     public StudyPreviewDTO findAppliedStudies(Pageable pageable, Long memberId) {
         // 회원이 신청한 스터디 조회
@@ -539,7 +708,18 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return getDTOs(studies, pageable, totalElements, memberId);
     }
 
-    // 내가 모집중인 스터디 조회
+    /**
+     * 특정 회원이 모집 중인 스터디를 조회합니다.
+     *
+     * @param pageable 페이지 정보를 입력 받습니다.
+     * @param memberId 회원의 아이디를 입력 받습니다.
+     *
+     * @return 입력한 조건에 맞는 스터디 목록과 조회된 스터디 갯수를 함께 반환합니다.
+     *
+     * @throws StudyHandler 회원이 모집 중인 스터디가 존재하지 않을 경우 Exception을 발생시킵니다.
+     * @throws StudyHandler 조회된 스터디가 없을 경우 Exception을 발생시킵니다.
+     *
+     */
     @Override
     public StudyPreviewDTO findMyRecruitingStudies(Pageable pageable, Long memberId) {
         // 회원이 모집중인 스터디 조회
@@ -562,7 +742,16 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return getDTOs(studies, pageable, totalElements, memberId);
     }
 
-    // 회원이 참가하고 있는 스터디 ID 가져오기
+    /**
+     * 특정 회원이 참가하고 있는 스터디를 조회합니다.
+     *
+     * @param memberId 회원의 아이디를 입력 받습니다.
+     *
+     * @return 입력한 조건에 맞는 스터디 목록과 조회된 스터디 갯수를 함께 반환합니다.
+     *
+     * @throws MemberHandler 회원이 존재하지 않을 경우 Exception을 발생시킵니다.
+     *
+     */
     private List<Long> getOngoingStudyIds(Long memberId) {
         // 회원 조회
         if (!memberRepository.existsById(memberId))
@@ -577,7 +766,15 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             .toList();
     }
 
-    // 검색 조건 맵 생성
+
+    /**
+     * 검색 조건을 입력 받아 검색 조건 맵을 생성하는 메서드입니다.
+     *
+     * @param request 검색 조건을 입력 받습니다.
+     *
+     * @return 검색 조건 맵을 반환합니다.
+     *
+     */
     private static Map<String, Object> getSearchConditions(SearchRequestStudyDTO request) {
         log.info("request: {}", request.getIsOnline());
         // 검색 조건 맵 생성
@@ -597,7 +794,16 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return search;
     }
 
-    // DTO 변환
+    /**
+     * 스터디 목록을 DTO로 변환하는 메서드입니다.
+     *
+     * @param studies  스터디 목록을 입력 받습니다.
+     * @param pageable 페이지 정보를 입력 받습니다.
+     * @param totalElements 전체 스터디 수를 입력 받습니다.
+     * @param memberId 회원의 아이디를 입력 받습니다.
+     *
+     * @return 스터디 목록을 DTO로 변환하여 반환합니다.
+     */
     private static SearchResponseDTO.StudyPreviewDTO getDTOs(List<Study> studies, Pageable pageable, long totalElements,
         Long memberId) {
         // memberId == null 이면, 다른 생성자 사용
@@ -608,7 +814,14 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         return new StudyPreviewDTO(page, stream, totalElements);
     }
 
-    // 테마 타입으로 테마 조회
+    /**
+     * 테마 타입으로 저장된 테마를 조회합니다.
+     *
+     * @param themes 테마 목록을 입력 받습니다.
+     * @param themeType 테마 타입을 입력 받습니다.
+     *
+     * @return 테마 타입에 해당하는 테마를 반환합니다.
+     */
     private Theme findThemeByType(List<Theme> themes, ThemeType themeType) {
         return themes.stream()
             .filter(t -> t.getStudyTheme().equals(themeType))
@@ -616,7 +829,14 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             .orElseThrow(() -> new StudyHandler(ErrorStatus._BAD_REQUEST));
     }
 
-    // 지역 코드로 지역 조회
+    /**
+     * 지역 코드로 저장된 지역을 조회합니다.
+     *
+     * @param regions 지역 목록을 입력 받습니다.
+     * @param regionCode 지역 코드를 입력 받습니다.
+     *
+     * @return 지역 코드에 해당하는 지역을 반환합니다.
+     */
     private Region findRegionByCode(List<Region> regions, String regionCode) {
         return regions.stream()
             .filter(r -> r.getCode().equals(regionCode))
