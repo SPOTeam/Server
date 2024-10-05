@@ -48,9 +48,9 @@ public class VerificationCodeRepositoryImpl implements VerificationCodeRepositor
     }
 
     @Override
-    public VerificationCode getVerificationCode(String phone) {
+    public VerificationCode getVerificationCode(String email) {
         return verificationCodes.stream()
-                .filter(vc -> vc.getEmail().equals(phone))
+                .filter(vc -> vc.getEmail().equals(email))
                 .findFirst()
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_VERIFIED));
     }

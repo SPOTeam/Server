@@ -37,7 +37,7 @@ public class SecurityUtils {
     }
 
     // 임시 토큰을 발급받은 유저 검증
-    public static String getVerifiedTempUserPhone() {
+    public static String getVerifiedTempUserEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new GeneralException(ErrorStatus._UNAUTHORIZED);

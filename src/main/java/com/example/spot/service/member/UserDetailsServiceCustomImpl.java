@@ -20,7 +20,7 @@ public class UserDetailsServiceCustomImpl implements UserDetailsServiceCustom {
         );
 
         return TempUserDetails.builder()
-                .phone(username)
+                .email(username)
                 .authorities(authorities)
                 .build();
     }

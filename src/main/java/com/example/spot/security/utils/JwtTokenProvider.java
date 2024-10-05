@@ -53,9 +53,9 @@ public class JwtTokenProvider {
     }
 
     // 전화번호 인증을 위한 임시 토큰 생성
-    public TokenResponseDTO.TempTokenDTO createTempToken(String phone) {
+    public TokenResponseDTO.TempTokenDTO createTempToken(String email) {
         Date now = new Date();
-        String tempToken = generateTempToken(phone, now);
+        String tempToken = generateTempToken(email, now);
 
         return TokenResponseDTO.TempTokenDTO.builder()
                 .tempToken(tempToken)
@@ -75,9 +75,9 @@ public class JwtTokenProvider {
     }
 
     // JWT 임시 토큰 생성 -> 위 createTempToken 메서드에서 호출
-    private String generateTempToken(String phone, Date now) {
+    private String generateTempToken(String email, Date now) {
         return Jwts.builder()
-                .claim("phone", phone)
+                .claim("email", email)
                 .claim("tokenType", "temp")
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + TEMP_TOKEN_EXPIRATION_TIME))
@@ -149,9 +149,9 @@ public class JwtTokenProvider {
         return claims.get("memberId", Long.class);
     }
 
-    public String getPhoneByToken(String tempToken) {
+    public String getEmailByToken(String tempToken) {
         Claims claims = getClaims(tempToken);
-        return claims.get("phone", String.class);
+        return claims.get("email", String.class);
     }
 
     private Claims getClaims(String token) {

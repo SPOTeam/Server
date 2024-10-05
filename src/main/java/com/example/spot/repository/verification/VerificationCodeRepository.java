@@ -5,9 +5,9 @@ import com.example.spot.web.dto.token.TokenResponseDTO;
 
 public interface VerificationCodeRepository {
 
-    void addVerificationCode(String phone, String code);
+    void addVerificationCode(String email, String code);
 
-    VerificationCode getVerificationCode(String phone);
+    VerificationCode getVerificationCode(String email);
 
     void setTempToken(TokenResponseDTO.TempTokenDTO tempTokenDTO, VerificationCode existingCode);
 }

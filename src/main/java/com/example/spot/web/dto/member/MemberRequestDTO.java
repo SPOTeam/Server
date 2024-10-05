@@ -27,16 +27,6 @@ public class MemberRequestDTO {
 
     @Getter
     @RequiredArgsConstructor
-    public static class PhoneDTO {
-
-        private final Carrier carrier;
-
-        @TextLength(max = 15)
-        private final String phone;
-    }
-
-    @Getter
-    @RequiredArgsConstructor
     public static class SignUpDTO {
 
         @TextLength(max = 20)

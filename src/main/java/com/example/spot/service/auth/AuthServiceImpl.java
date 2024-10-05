@@ -155,7 +155,7 @@ public class AuthServiceImpl implements AuthService{
     public MemberResponseDTO.MemberSignInDTO signUp(MemberRequestDTO.SignUpDTO signUpDTO) {
 
         // 임시 토큰 검증
-        String phone = SecurityUtils.getVerifiedTempUserPhone();
+        String email = SecurityUtils.getVerifiedTempUserEmail();
 
         // 회원 생성
         if (memberRepository.existsByEmail(signUpDTO.getEmail())) {
@@ -167,7 +167,7 @@ public class AuthServiceImpl implements AuthService{
         if (!signUpDTO.getPassword().equals(signUpDTO.getPwCheck())) {
             throw new MemberHandler(ErrorStatus._MEMBER_PW_AND_PW_CHECK_DO_NOT_MATCH);
         }
-        if (!phone.equals(signUpDTO.getEmail())) {
+        if (!email.equals(signUpDTO.getEmail())) {
             throw new MemberHandler(ErrorStatus._MEMBER_EMAIL_NOT_VERIFIED);
         }
 

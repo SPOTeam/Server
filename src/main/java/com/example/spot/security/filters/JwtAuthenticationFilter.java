@@ -74,8 +74,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private void tempAuthenticateUser(String tempToken) {
-        String phone = jwtTokenProvider.getPhoneByToken(tempToken);
-        authenticate(phone);
+        String email = jwtTokenProvider.getEmailByToken(tempToken);
+        authenticate(email);
     }
 
     private void authenticateUser(String token) {

@@ -12,7 +12,7 @@ import java.util.Collection;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TempUserDetails implements UserDetails {
 
-    private String phone; // 사용자 이름
+    private String email; // 사용자 이름
     private Collection<? extends GrantedAuthority> authorities; // 사용자 권한
 
     @Override
@@ -27,7 +27,7 @@ public class TempUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return phone;
+        return email;
     }
 
     @Override

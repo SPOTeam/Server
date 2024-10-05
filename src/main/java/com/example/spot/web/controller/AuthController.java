@@ -43,29 +43,29 @@ public class AuthController {
     @Operation(summary = "[회원 가입] 일반 회원 가입 인증번호 전송 API",
             description = """
             ## [회원 가입] 일반 회원 가입 인증번호 전송 API입니다.
-            입력받은 전화번호로 인증번호가 전송됩니다.
+            입력받은 이메일로 인증번호가 전송됩니다.
             """)
     @PostMapping("/sign-up/send-verification-code")
     public ApiResponse<Void> sendVerificationCode(
             HttpServletRequest request, HttpServletResponse response,
             @RequestParam String email) {
         authService.sendVerificationCode(request, response, email);
-        return ApiResponse.onSuccess(SuccessStatus._MEMBER_PHONE_VERIFIED);
+        return ApiResponse.onSuccess(SuccessStatus._VERIFICATION_EMAIL_SENT);
     }
 
     @Tag(name = "회원 관리 API - 개발 완료", description = "회원 관리 API")
-    @Operation(summary = "[회원 가입] 일반 회원 가입 전화번호 인증 API",
+    @Operation(summary = "[회원 가입] 일반 회원 가입 이메일 인증 API",
             description = """
-            ## [회원 가입] 일반 회원 가입 전화번호 인증 API입니다.
-            사용자로부터 인증코드와 전화번호를 받아 검증 작업을 수행한 후, 임시 토큰을 반환합니다.
-            임시 토큰은 최대 3분간 유효합니다. 임시 토큰이 만료된 경우 전화번호 재인증이 필요합니다.
+            ## [회원 가입] 일반 회원 가입 이메일 인증 API입니다.
+            사용자로부터 인증코드와 이메일을 받아 검증 작업을 수행한 후, 임시 토큰을 반환합니다.
+            임시 토큰은 최대 3분간 유효합니다. 임시 토큰이 만료된 경우 이메일 재인증이 필요합니다.
             """)
     @PostMapping("/sign-up/verify")
-    public ApiResponse<TokenResponseDTO.TempTokenDTO> verifyPhone(
+    public ApiResponse<TokenResponseDTO.TempTokenDTO> verifyEmail(
             @RequestParam String verificationCode,
             @RequestParam String email) {
         TokenResponseDTO.TempTokenDTO tempTokenDTO = authService.verifyEmail(verificationCode, email);
-        return ApiResponse.onSuccess(SuccessStatus._MEMBER_PHONE_VERIFIED, tempTokenDTO);
+        return ApiResponse.onSuccess(SuccessStatus._MEMBER_EMAIL_VERIFIED, tempTokenDTO);
     }
 
     @Tag(name = "회원 관리 API - 개발 완료", description = "회원 관리 API")
@@ -73,7 +73,7 @@ public class AuthController {
         description = """
             ## [회원 가입] 일반 회원 가입 API입니다.
             아이디(이메일)과 비밀번호를 입력하여 회원 가입을 진행합니다.
-            전화번호 인증 API로부터 발급 받은 임시 토큰이 Authorization 헤더에 포함되어야 합니다.
+            이메일 인증 API로부터 발급 받은 임시 토큰이 Authorization 헤더에 포함되어야 합니다.
             회원 가입에 성공하면, 액세스 토큰과 리프레시 토큰이 발급됩니다.
             액세스 토큰은 사용자의 정보를 인증하는데 사용되며, 리프레시 토큰은 액세스 토큰이 만료된 경우, 액세스 토큰을 재발급 하는데 사용됩니다.
             액세스 토큰이 만료된 경우, 유효한 상태의 리프레시 토큰을 통해 액세스 토큰을 재발급 받을 수 있습니다.
