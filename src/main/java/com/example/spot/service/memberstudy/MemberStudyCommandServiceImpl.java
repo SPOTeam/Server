@@ -103,25 +103,44 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         return StudyTerminationResponseDTO.TerminationDTO.toDTO(study);
     }
 
+    /**
+     * 스터디 신청을 처리합니다. isAccept가 true이면 승인, false이면 거절합니다.
+     * 이후 관련 알림을 생성합니다. 알림을 통해 최종 참여 승인을 해야 스터디에 참여할 수 있습니다.
+     * @param memberId 스터디에 신청한 회원 ID
+     * @param studyId 스터디 ID
+     * @param isAccept 승인 여부
+     * @return 스터디 신청 처리 결과 및 처리 시간
+     * @throws GeneralException 스터디 신청을 처리하는 회원이 스터디 소유자가 아닐 때
+     * @throws GeneralException 스터디 소유자가 신청한 경우
+     * @throws StudyHandler 스터디 신청자를 찾을 수 없을 때
+     * @throws StudyHandler 스터디 신청이 이미 처리되었을 때
+     * @throws MemberHandler 스터디 장을 찾을 수 없을 때
+     */
     @Override
     public StudyApplyResponseDTO acceptAndRejectStudyApply(Long memberId, Long studyId,
         boolean isAccept) {
 
+        // 신청을 처리하는 회원이 스터디 소유자인지 확인
         if (!isOwner(SecurityUtils.getCurrentUserId(), studyId))
             throw new GeneralException(ErrorStatus._ONLY_STUDY_OWNER_CAN_ACCESS_APPLICANTS);
 
+        // 스터디 신청자 조회
         MemberStudy memberStudy = memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPLIED)
             .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_APPLICANT_NOT_FOUND));
 
+        // 스터디 소유자가 스터디 신청한 경우
         if (memberStudy.getIsOwned())
             throw new GeneralException(ErrorStatus._STUDY_OWNER_CANNOT_APPLY);
 
+        // 스터디 신청이 이미 처리되었을 때
         if (memberStudy.getStatus() != ApplicationStatus.APPLIED)
             throw new GeneralException(ErrorStatus._STUDY_APPLY_ALREADY_PROCESSED);
 
+        // 스터디 장 조회
         Member owner = memberRepository.findById(SecurityUtils.getCurrentUserId())
             .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
 
+        // 승인인 경우
         if (isAccept) {
             // 스터디 참여 승인 최종 대기
             memberStudy.setStatus(ApplicationStatus.AWAITING_SELF_APPROVAL);
@@ -137,36 +156,57 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
 
             notificationRepository.save(notification);
         }
-        else {
+        else { // 거절인 경우
             memberStudy.setStatus(ApplicationStatus.REJECTED);
             memberStudyRepository.delete(memberStudy);
         }
 
+        // 스터디 신청 처리 결과 반환
         return StudyApplyResponseDTO.builder()
             .status(memberStudy.getStatus())
             .updatedAt(memberStudy.getUpdatedAt())
             .build();
     }
 
+    /**
+     * 스터디 신청을 처리합니다. isAccept가 true이면 승인, false이면 거절합니다.
+     * 이 메서드를 사용하면 알림 처리 없이 바로 스터디에 참여할 수 있습니다.
+     * @param memberId 스터디에 신청한 회원 ID
+     * @param studyId 스터디 ID
+     * @param isAccept 승인 여부
+     * @return 스터디 신청 처리 결과 및 처리 시간
+     * @throws GeneralException 스터디 신청을 처리하는 회원이 스터디 소유자가 아닐 때
+     * @throws GeneralException 스터디 소유자가 신청한 경우
+     * @throws StudyHandler 스터디 신청자를 찾을 수 없을 때
+     * @throws StudyHandler 스터디 신청이 이미 처리되었을 때
+     * @throws MemberHandler 스터디 장을 찾을 수 없을 때
+     *
+     */
     @Override
     public StudyApplyResponseDTO acceptAndRejectStudyApplyForTest(Long memberId, Long studyId,
         boolean isAccept) {
 
+        // 스터디 신청을 처리하는 회원이 스터디 소유자인지 확인
         if (!isOwner(SecurityUtils.getCurrentUserId(), studyId))
             throw new GeneralException(ErrorStatus._ONLY_STUDY_OWNER_CAN_ACCESS_APPLICANTS);
 
+        // 스터디 신청자 조회
         MemberStudy memberStudy = memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPLIED)
             .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_APPLICANT_NOT_FOUND));
 
+        // 스터디 소유자가 스터디 신청한 경우
         if (memberStudy.getIsOwned())
             throw new GeneralException(ErrorStatus._STUDY_OWNER_CANNOT_APPLY);
 
+        // 스터디 신청이 이미 처리되었을 때
         if (memberStudy.getStatus() != ApplicationStatus.APPLIED)
             throw new GeneralException(ErrorStatus._STUDY_APPLY_ALREADY_PROCESSED);
 
+        // 스터디 장 조회
         Member owner = memberRepository.findById(SecurityUtils.getCurrentUserId())
             .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
 
+        // 승인인 경우
         if (isAccept) {
             memberStudy.setStatus(ApplicationStatus.APPROVED);
         }
@@ -175,6 +215,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
             memberStudyRepository.delete(memberStudy);
         }
 
+        // 스터디 신청 처리 결과 반환
         return StudyApplyResponseDTO.builder()
             .status(memberStudy.getStatus())
             .updatedAt(memberStudy.getUpdatedAt())
@@ -612,12 +653,22 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         });
     }
 
-    // 로그인 한 회원이 해당 스터디 장인지 확인
+    /**
+     * 회원이 스터디 장인지 확인합니다.
+     * @param memberId 확인 하려는 회원 ID
+     * @param studyId 확인 하려는 스터디 ID
+     * @return 스터디 장 여부를 반환합니다.
+     */
     private boolean isOwner(Long memberId, Long studyId) {
         return memberStudyRepository.findByMemberIdAndStudyIdAndIsOwned(memberId, studyId, true).isPresent();
     }
 
-    // 로그인 한 회원이 해당 스터디 원인지 확인
+    /**
+     * 회원이 스터디 구성원인지 확인합니다.
+     * @param memberId 확인 하려는 회원 ID
+     * @param studyId 확인 하려는 스터디 ID
+     * @return 스터디 참여 여부를 반환합니다.
+     */
     private boolean isMember(Long memberId, Long studyId) {
         return memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED).isPresent();
     }
@@ -695,21 +746,37 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         return StudyPostResDTO.PostPreviewDTO.toDTO(studyPost);
     }
 
+   // * ----------------------------- 스터디 To-Do List 관련 API ------------------------------------- */
+
+    /**
+     * To-Do List를 생성합니다.
+     * @param studyId 생성할 To-Do List가 속한 스터디 ID
+     * @param toDoListCreateDTO 생성할 To-Do List 정보
+     * @return 생성된 To-Do List 정보
+     * @throws StudyHandler 스터디를 찾을 수 없을 때
+     * @throws StudyHandler To-Do List를 생성하는 회원이 스터디 회원이 아닐 때
+     * @throws StudyHandler 해당 회원을 찾을 수 없을 때
+     */
     @Override
     public ToDoListCreateResponseDTO createToDoList(Long studyId,
         ToDoListCreateDTO toDoListCreateDTO) {
 
+        // 스터디 조회
         Study study = studyRepository.findById(studyId)
             .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
 
+        // To-Do List를 생성하는 회원 ID 조회
         Long currentUserId = SecurityUtils.getCurrentUserId();
 
+        // To-Do List를 생성하는 회원이 스터디 회원인지 확인
         if (!isMember(currentUserId, studyId))
             throw new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND);
 
+        // 회원 조회
         Member member = memberRepository.findById(currentUserId)
             .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
 
+        // To-Do List 생성
         ToDoList toDoList = ToDoList.builder()
             .study(study)
             .member(member)
@@ -718,9 +785,11 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
             .content(toDoListCreateDTO.getContent())
             .build();
 
+        // To-Do List 저장
         toDoList.setToDoList();
         toDoListRepository.save(toDoList);
 
+        // To-Do List 생성 DTO 반환
         return ToDoListCreateResponseDTO.builder()
             .id(toDoList.getId())
             .content(toDoList.getContent())
@@ -729,20 +798,34 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
     }
 
     // studyId가 필요할까?
+
+    /**
+     * To-Do List에 작성한 할 일의 체크 상태를 변경 합니다. 체크 상태를 변경 하면 해당 스터디에 참여하고 있는 모든 회원에게 알림이 전송됩니다.
+     * @param studyId 스터디 ID
+     * @param toDoListId 변경할 To-Do List ID
+     * @return To-Do List 변경 여부와 변경 시간
+     * @throws StudyHandler To-Do List를 찾을 수 없을 때
+     * @throws StudyHandler To-Do List가 스터디에 속하지 않을 때
+     * @throws StudyHandler To-Do List를 변경하는 회원이 스터디 회원이 아닐 때
+     * @throws StudyHandler 알림 생성 할 스터디 회원을 찾을 수 없을 때
+     */
     @Override
     public ToDoListUpdateResponseDTO checkToDoList(Long studyId, Long toDoListId) {
 
+        // To-Do List 조회
         ToDoList toDoList = toDoListRepository.findById(toDoListId)
             .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_TODO_NOT_FOUND));
 
+        // To-Do List가 속한 스터디가 아니면 예외 처리
         if (!Objects.equals(toDoList.getStudy().getId(), studyId))
             throw new StudyHandler(ErrorStatus._STUDY_TODO_IS_NOT_BELONG_TO_STUDY);
 
+        // To-Do List를 변경하는 회원이 스터디 회원이 아니면 예외 처리
         Long currentUserId = SecurityUtils.getCurrentUserId();
-
         if (!toDoList.getMember().getId().equals(currentUserId))
             throw new StudyHandler(ErrorStatus._STUDY_TODO_NOT_AUTHORIZED);
 
+        // To-Do List 체크 상태 변경
         toDoList.check();
 
         // 스터디 회원의 To-Do List 중 하나가 완료 되면, 해당 스터디의 모든 회원에게 알림 전송
@@ -751,9 +834,16 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
                 .map(MemberStudy::getMember)
                 .toList();
 
-            if (members.isEmpty())
-                throw new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND);
+            // 알림을 생성할 회원이 없으면 알림 생성하지 않음
+            if (members.isEmpty()){
+                return ToDoListUpdateResponseDTO.builder()
+                    .id(toDoList.getId())
+                    .isDone(toDoList.isDone())
+                    .updatedAt(toDoList.getUpdatedAt())
+                    .build();
+            }
 
+            // 알림 생성
             members.forEach(studyMember -> {
                 Notification notification = Notification.builder()
                     .member(studyMember)
@@ -766,8 +856,10 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
             });
         }
 
+        // To-Do List 저장
         toDoListRepository.save(toDoList);
 
+        // To-Do List 변경 DTO 반환
         return ToDoListUpdateResponseDTO.builder()
             .id(toDoList.getId())
             .isDone(toDoList.isDone())
@@ -775,25 +867,41 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
             .build();
     }
 
+
+    /**
+     * To-Do List 내용을 수정합니다.
+     * @param studyId 수정할 To-Do List가 속한 스터디 ID
+     * @param toDoListId 수정할 To-Do List ID
+     * @param toDoListCreateDTO 수정할 To-Do List 정보
+     * @return 수정된 To-Do List 정보
+     * @throws StudyHandler To-Do List를 찾을 수 없을 때
+     * @throws StudyHandler To-Do List가 스터디에 속하지 않을 때
+     * @throws StudyHandler To-Do List를 수정하는 회원이 스터디 회원이 아닐 때
+     */
     @Override
     public ToDoListUpdateResponseDTO updateToDoList(Long studyId, Long toDoListId,
         ToDoListCreateDTO toDoListCreateDTO) {
 
+        // To-Do List 조회
         ToDoList toDoList = toDoListRepository.findById(toDoListId)
             .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_TODO_NOT_FOUND));
 
+        // To-Do List가 속한 스터디가 아니면 예외 처리
         if (!Objects.equals(toDoList.getStudy().getId(), studyId))
             throw new StudyHandler(ErrorStatus._STUDY_TODO_IS_NOT_BELONG_TO_STUDY);
 
+        // To-Do List를 수정하는 회원이 스터디 회원이 아니면 예외 처리
         Long currentUserId = SecurityUtils.getCurrentUserId();
-
         if (!toDoList.getMember().getId().equals(currentUserId))
             throw new StudyHandler(ErrorStatus._STUDY_TODO_NOT_AUTHORIZED);
 
+        // To-Do List 수정
         toDoList.update(toDoListCreateDTO.getContent(), toDoListCreateDTO.getDate());
 
+        // To-Do List 저장
         toDoListRepository.save(toDoList);
 
+        // To-Do List 변경 DTO 반환
         return ToDoListUpdateResponseDTO.builder()
             .id(toDoList.getId())
             .isDone(toDoList.isDone())
@@ -801,25 +909,41 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
             .build();
     }
 
+    /**
+     * To-Do List를 삭제합니다.
+     * @param studyId 삭제할 To-Do List가 속한 스터디 ID
+     * @param toDoListId 삭제할 To-Do List ID
+     * @return 삭제된 To-Do List 정보
+     * @throws StudyHandler To-Do List를 찾을 수 없을 때
+     * @throws StudyHandler To-Do List가 스터디에 속하지 않을 때
+     * @throws StudyHandler To-Do List를 삭제하는 회원이 스터디 회원이 아닐 때
+     */
     @Override
     public ToDoListUpdateResponseDTO deleteToDoList(Long studyId, Long toDoListId) {
 
+        // 로그인 중인 회원 ID 조회
         Long currentUserId = SecurityUtils.getCurrentUserId();
 
+        // To-Do List를 삭제하는 회원이 스터디 회원인지 확인
         if (!isMember(currentUserId, studyId))
             throw new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND);
 
+        // To-Do List 조회
         ToDoList toDoList = toDoListRepository.findById(toDoListId)
             .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_TODO_NOT_FOUND));
 
+        // To-Do List가 속한 스터디가 아니면 예외 처리
         if (!Objects.equals(toDoList.getStudy().getId(), studyId))
             throw new StudyHandler(ErrorStatus._STUDY_TODO_IS_NOT_BELONG_TO_STUDY);
 
+        // To-Do List를 삭제하는 회원의 ID와 To-Do List를 생성한 회원의 ID가 다르면 예외 처리
         if (!toDoList.getMember().getId().equals(currentUserId))
             throw new StudyHandler(ErrorStatus._STUDY_TODO_NOT_AUTHORIZED);
 
+        // To-Do List 삭제
         toDoListRepository.deleteById(toDoListId);
 
+        // To-Do List 삭제 DTO 반환
         return ToDoListUpdateResponseDTO.builder()
             .id(toDoList.getId())
             .isDone(toDoList.isDone())
