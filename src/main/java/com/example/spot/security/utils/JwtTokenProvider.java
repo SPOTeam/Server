@@ -2,6 +2,7 @@ package com.example.spot.security.utils;
 
 import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.GeneralException;
+import com.example.spot.web.dto.token.TokenResponseDTO;
 import com.example.spot.web.dto.token.TokenResponseDTO.TokenDTO;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -30,6 +31,8 @@ public class JwtTokenProvider {
     private Long ACCESS_TOKEN_EXPIRATION_TIME;
     @Value("${token.refresh_token_expiration_time}")
     private Long REFRESH_TOKEN_EXPIRATION_TIME;
+    @Value("${token.temp_token_expiration_time}")
+    private Long TEMP_TOKEN_EXPIRATION_TIME;
 
     @PostConstruct
     protected void init() {
@@ -49,6 +52,17 @@ public class JwtTokenProvider {
             .build();
     }
 
+    // 전화번호 인증을 위한 임시 토큰 생성
+    public TokenResponseDTO.TempTokenDTO createTempToken(String email) {
+        Date now = new Date();
+        String tempToken = generateTempToken(email, now);
+
+        return TokenResponseDTO.TempTokenDTO.builder()
+                .tempToken(tempToken)
+                .tempTokenExpiresIn(TEMP_TOKEN_EXPIRATION_TIME)
+                .build();
+    }
+
     // JWT 토큰 생성 -> 위 createToken 메서드에서 호출
     private String generateToken(Long memberId, Date now, long expirationTime, String tokenType) {
         return Jwts.builder()
@@ -58,6 +72,17 @@ public class JwtTokenProvider {
             .setExpiration(new Date(now.getTime() + expirationTime))
             .signWith(Keys.hmacShaKeyFor(JWT_SECRET_KEY.getBytes()), SignatureAlgorithm.HS256)
             .compact();
+    }
+
+    // JWT 임시 토큰 생성 -> 위 createTempToken 메서드에서 호출
+    private String generateTempToken(String email, Date now) {
+        return Jwts.builder()
+                .claim("email", email)
+                .claim("tokenType", "temp")
+                .setIssuedAt(now)
+                .setExpiration(new Date(now.getTime() + TEMP_TOKEN_EXPIRATION_TIME))
+                .signWith(Keys.hmacShaKeyFor(JWT_SECRET_KEY.getBytes()), SignatureAlgorithm.HS256)
+                .compact();
     }
 
     // 토큰 유효성 검사 -> 유효기간 만료 여부 확인
@@ -120,11 +145,20 @@ public class JwtTokenProvider {
     }
 
     public Long getMemberIdByToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-            .setSigningKey(Keys.hmacShaKeyFor(JWT_SECRET_KEY.getBytes()))
-            .build()
-            .parseClaimsJws(token)
-            .getBody();
+        Claims claims = getClaims(token);
         return claims.get("memberId", Long.class);
+    }
+
+    public String getEmailByToken(String tempToken) {
+        Claims claims = getClaims(tempToken);
+        return claims.get("email", String.class);
+    }
+
+    private Claims getClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(Keys.hmacShaKeyFor(JWT_SECRET_KEY.getBytes()))
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 }

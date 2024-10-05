@@ -1,11 +1,16 @@
 package com.example.spot.web.dto.token;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 public class TokenResponseDTO {
+
+    @Getter
+    @RequiredArgsConstructor
+    @Builder
+    public static class TempTokenDTO {
+        private final String tempToken;
+        private final Long tempTokenExpiresIn;
+    }
 
     @Builder
     @Getter

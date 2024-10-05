@@ -36,4 +36,12 @@ public class SecurityUtils {
             .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
     }
 
+    // 임시 토큰을 발급받은 유저 검증
+    public static String getVerifiedTempUserEmail() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new GeneralException(ErrorStatus._UNAUTHORIZED);
+        }
+        return authentication.getName();
+    }
 }
