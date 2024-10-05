@@ -139,7 +139,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
      *
      * @return 입력한 조건에 맞는 스터디 목록과 조회된 스터디 갯수를 함께 반환합니다.
      *
-     * @exception StudyHandler 조회된 스터디가 없을 경우 Exception을 발생시킵니다.
+     * @throws StudyHandler 조회된 스터디가 없을 경우 Exception을 발생시킵니다.
      */
     @Override
     public StudyPreviewDTO findStudies(Pageable pageable, StudySortBy sortBy) {
