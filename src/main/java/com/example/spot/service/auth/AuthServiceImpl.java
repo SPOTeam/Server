@@ -29,6 +29,12 @@ public class AuthServiceImpl implements AuthService{
     private final MemberRepository memberRepository;
     private final RefreshTokenRepository refreshTokenRepository;
 
+    /**
+     * 토큰을 재발급 합니다.
+     * @param refreshToken 리프레시 토큰
+     * @return 새로운 토큰을 생성하여 반환합니다.
+     * @throws GeneralException 토큰이 만료되었거나, 잘못된 토큰일 경우 발생합니다.
+     */
     @Override
     public TokenDTO reissueToken(String refreshToken) {
         // 리프레시 토큰 추출
@@ -38,6 +44,7 @@ public class AuthServiceImpl implements AuthService{
         RefreshToken tokenInDB = refreshTokenRepository.findByToken(refreshToken)
             .orElseThrow(() -> new GeneralException(ErrorStatus._INVALID_REFRESH_TOKEN));
 
+        // 리프레시 토큰 만료 확인
         if (jwtTokenProvider.isTokenExpired(tokenInDB.getToken())) {
             refreshTokenRepository.delete(tokenInDB);
             throw new GeneralException(ErrorStatus._EXPIRED_REFRESH_TOKEN);
@@ -54,16 +61,20 @@ public class AuthServiceImpl implements AuthService{
         if (!Objects.equals(member.getId(), memberIdByToken))
             throw new GeneralException(ErrorStatus._INVALID_JWT);
 
+        // 토큰 재발급
         TokenDTO tokenDTO = jwtTokenProvider.reissueToken(refreshToken);
 
+        // 리프레시 토큰 저장
         RefreshToken token = RefreshToken.builder()
             .memberId(member.getId())
             .token(tokenDTO.getRefreshToken())
             .build();
 
+        // 기존 리프레시 토큰 삭제
         if (refreshTokenRepository.existsByMemberId(member.getId()))
             refreshTokenRepository.deleteByMemberId(member.getId());
 
+        // 새로운 리프레시 토큰 저장
         refreshTokenRepository.save(token);
 
         // 토큰 재발급
