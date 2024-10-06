@@ -83,7 +83,7 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
     }
 
     @Override
-    public List<Study> findStudyByConditions(Map<String, Object> search, StudySortBy sortBy,
+    public List<Study> findRecruitingStudyByConditions(Map<String, Object> search, StudySortBy sortBy,
         Pageable pageable) {
         BooleanBuilder builder = new BooleanBuilder();
         getConditions(search, study, builder);

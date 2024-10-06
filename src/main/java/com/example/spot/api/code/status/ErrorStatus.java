@@ -25,6 +25,7 @@ public enum ErrorStatus implements BaseErrorCode {
     _EXPIRED_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "COMMON4010", "만료된 리프레시 토큰입니다."),
     _NULL_VALUE(HttpStatus.BAD_REQUEST, "COMMON4011", "값이 입력되지 않았습니다."),
     _VALUE_RANGE_EXCEEDED(HttpStatus.BAD_REQUEST, "COMMON4012", "값이 지정된 범위를 초과합니다."),
+    _TERMS_NOT_AGREED(HttpStatus.FORBIDDEN, "COMMON4013", "이용 약관이 동의되지 않았습니다."),
 
     //멤버 관련 에러
     _MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER4001", "회원을 찾을 수 없습니다."),
@@ -37,6 +38,14 @@ public enum ErrorStatus implements BaseErrorCode {
     _MEMBER_THEME_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER4009", "해당하는 회원의 관심 테마를 찾을 수 없습니다."),
     _MEMBER_REGION_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER4010", "해당하는 회원의 관심 지역을 찾을 수 없습니다."),
     _MEMBER_STUDY_REASON_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER4011", "해당하는 회원의 스터디 이유를 찾을 수 없습니다."),
+    _MEMBER_PASSWORD_NOT_MATCH(HttpStatus.BAD_REQUEST, "MEMBER4012", "비밀번호가 일치하지 않습니다."),
+    _MEMBER_NOT_VERIFIED(HttpStatus.UNAUTHORIZED, "MEMBER4013", "전화번호 인증에 실패하였습니다."),
+    _MEMBER_PHONE_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "MEMBER4014", "해당 전화번호로 가입된 회원이 이미 존재합니다."),
+    _MEMBER_PW_AND_PW_CHECK_DO_NOT_MATCH(HttpStatus.BAD_REQUEST, "MEMBER4015", "비밀번호와 비밀번호 확인이 일치하지 않습니다."),
+    _MEMBER_EMAIL_NOT_VERIFIED(HttpStatus.UNAUTHORIZED, "MEMBER4016", "인증되지 않은 이메일입니다."),
+    _UNABLE_TO_SEND_VERIFICATION_CODE(HttpStatus.BAD_REQUEST, "AA4017", "인증 코드를 전송할 수 없습니다."),
+    _UNABLE_TO_SEND_EMAIL(HttpStatus.BAD_REQUEST, "AA4018", "이메일을 전송할 수 없습니다."),
+    _UNABLE_TO_LOAD_MAIL_FORM(HttpStatus.INTERNAL_SERVER_ERROR, "AA4019", "이메일 인증 폼을 불러올 수 없습니다."),
 
     //스터디 관련 에러
     _STUDY_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY4001", "스터디를 찾을 수 없습니다."),
@@ -103,6 +112,14 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_ID_NULL(HttpStatus.BAD_REQUEST, "STUDY6008", "스터디 아이디가 입력되지 않았습니다."),
     _STUDY_REGION_IS_NOT_MATCH(HttpStatus.BAD_REQUEST, "STUDY6009", "입력한 회원의 관심 스터디 지역을 입력하세요."),
     _STUDY_IS_NOT_MATCH(HttpStatus.BAD_REQUEST, "STUDY6010", "입력한 조건에 맞는 스터디가 존재하지 않습니다."),
+    _STUDY_THEME_IS_INVALID(HttpStatus.BAD_REQUEST, "STUDY6011", "해당 회원의 유효한 스터디 관심사가 존재하지 않습니다."),
+    _STUDY_THEME_NOT_EXIST(HttpStatus.NOT_FOUND, "STUDY6012", "해당 관심사에 해당하는 스터디가 존재하지 않습니다."),
+    _STUDY_REGION_NOT_EXIST(HttpStatus.NOT_FOUND, "STUDY6013", "해당 지역에 해당하는 스터디가 존재하지 않습니다."),
+    _STUDY_REGION_IS_INVALID(HttpStatus.BAD_REQUEST, "STUDY6014", "해당 회원의 유효한 스터디 관심 지역이 존재하지 않습니다."),
+    _STUDY_LIKED_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY6015", "좋아요를 누른 스터디가 없습니다."),
+    _STUDY_NOT_PARTICIPATED(HttpStatus.NOT_FOUND, "STUDY6016", "참가하는 스터디가 없습니다."),
+    _STUDY_NOT_APPLIED(HttpStatus.NOT_FOUND, "STUDY6017", "신청한 스터디가 없습니다."),
+    _RECRUITING_STUDY_IS_NOT_EXIST(HttpStatus.NOT_FOUND, "STUDY6018", "현재 회원이 모집중인 스터디가 없습니다."),
 
     // 스터디 출석 관련 에러
     _STUDY_QUIZ_NOT_FOUND(HttpStatus.NOT_FOUND, "QUIZ4001", "출석 퀴즈를 찾을 수 없습니다."),

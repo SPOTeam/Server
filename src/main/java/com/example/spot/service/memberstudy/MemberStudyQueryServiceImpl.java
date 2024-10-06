@@ -61,85 +61,151 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
     private final ToDoListRepository toDoListRepository;
 
 
+    /**
+     * 스터디 최근 공지사항을 1개 조회합니다.
+     * @param studyId 스터디 ID
+     * @return 제목과 내용을 반환합니다.
+     * @throws GeneralException 스터디 공지사항이 존재하지 않는 경우
+     * @throws GeneralException 스터디 멤버가 아닌 경우
+     */
     @Override
     public StudyPostResponseDTO findStudyAnnouncementPost(Long studyId) {
 
+        // 로그인한 회원이 해당 스터디 회원인지 확인
         if (!isMember(SecurityUtils.getCurrentUserId(), studyId))
             throw new GeneralException(ErrorStatus._ONLY_STUDY_MEMBER_CAN_ACCESS_ANNOUNCEMENT_POST);
 
+        // 스터디 공지사항 조회
         StudyPost studyPost = studyPostRepository.findByStudyIdAndIsAnnouncement(
             studyId, true).orElseThrow(() -> new GeneralException(ErrorStatus._STUDY_POST_NOT_FOUND));
 
+        // DTO로 변환하여 반환
         return StudyPostResponseDTO.builder()
             .title(studyPost.getTitle())
             .content(studyPost.getContent()).build();
     }
 
+    /**
+     * 로그인한 회원이 참여하는 특정 스터디의 다가오는 모임 목록을 페이징 조회 합니다.
+     * @param studyId 스터디 ID
+     * @param pageable 페이징 정보
+     * @return 다가오는 모임 목록을 반환합니다.
+     * @throws GeneralException 스터디 일정이 존재하지 않는 경우
+     * @throws GeneralException 스터디 멤버가 아닌 경우
+     */
     @Override
     public StudyScheduleResponseDTO findStudySchedule(Long studyId, Pageable pageable) {
 
+        // 로그인한 회원이 해당 스터디 회원인지 확인
         if (!isMember(SecurityUtils.getCurrentUserId(), studyId))
             throw new GeneralException(ErrorStatus._ONLY_STUDY_MEMBER_CAN_ACCESS_SCHEDULE);
 
+        // 스터디 일정 조회
         List<Schedule> schedules = scheduleRepository.findAllByStudyId(studyId, pageable);
+
+        // 스터디 일정이 존재하지 않는 경우
         if (schedules.isEmpty())
             throw  new GeneralException(ErrorStatus._STUDY_SCHEDULE_NOT_FOUND);
 
+        // DTO로 변환하여 반환
         List<StudyScheduleDTO> scheduleDTOS = schedules.stream().map(schedule -> StudyScheduleDTO.builder()
             .title(schedule.getTitle())
             .location(schedule.getLocation())
             .staredAt(schedule.getStartedAt())
             .build()).toList();
 
+        // 페이징 처리
         return new StudyScheduleResponseDTO(new PageImpl<>(scheduleDTOS, pageable, schedules.size()), scheduleDTOS, schedules.size());
     }
 
+    /**
+     * 특정 스터디의 회원 목록을 전체 조회 합니다. 가입된 스터디가 아니더라도 회원 목록을 조회할 수 있습니다.
+     * @param studyId 스터디 ID
+     * @return 스터디에 참여하는 회원 목록을 반환합니다.
+     * @throws GeneralException 스터디 할 일이 존재하지 않는 경우
+     * @throws GeneralException 스터디 멤버가 아닌 경우
+     */
     @Override
     public StudyMemberResponseDTO findStudyMembers(Long studyId) {
-//
+//       // 스터디에 가입하지 않은 사람도 회원 목록은 볼 수 있어야 함.
 //        if (!isMember(SecurityUtils.getCurrentUserId(), studyId))
 //            throw new GeneralException(ErrorStatus._ONLY_STUDY_MEMBER_CAN_ACCESS_MEMBERS);
 
+        // 스터디 멤버 조회
         List<MemberStudy> memberStudies = memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED);
+
+        // 스터디 멤버가 존재하지 않는 경우
         if (memberStudies.isEmpty())
             throw new GeneralException(ErrorStatus._STUDY_MEMBER_NOT_FOUND);
+
+        // DTO로 변환하여 반환
         List<StudyMemberDTO> memberDTOS = memberStudies.stream().map(memberStudy -> StudyMemberDTO.builder()
             .memberId(memberStudy.getMember().getId())
             .nickname(memberStudy.getMember().getName())
             .profileImage(memberStudy.getMember().getProfileImage())
             .build()).toList();
+        // DTO로 변환하여 반환
         return new StudyMemberResponseDTO(memberDTOS);
     }
 
+
+    /**
+     * 회원이 모집중인 스터디에 신청한 회원 목록을 불러옵니다.
+     * @param studyId 스터디 ID
+     * @return 스터디 신청자 목록을 반환합니다.
+     * @throws GeneralException 스터디 신청자가 존재 하지 않는 경우
+     * @throws GeneralException 조회 하는 회원이 스터디 장이 아닌 경우
+     */
     @Override
     public StudyMemberResponseDTO findStudyApplicants(Long studyId) {
 
+        // 로그인한 회원이 해당 스터디 장인지 확인
         if (!isOwner(SecurityUtils.getCurrentUserId(), studyId))
             throw new GeneralException(ErrorStatus._ONLY_STUDY_OWNER_CAN_ACCESS_APPLICANTS);
 
+        // 스터디 신청자 조회
         List<MemberStudy> memberStudies = memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPLIED);
+
+        // 스터디 신청자가 존재하지 않는 경우
         if (memberStudies.isEmpty())
             throw new GeneralException(ErrorStatus._STUDY_APPLICANT_NOT_FOUND);
+
+        // DTO로 변환하여 반환
         List<StudyMemberDTO> memberDTOS = memberStudies.stream().map(memberStudy -> StudyMemberDTO.builder()
             .memberId(memberStudy.getMember().getId())
             .nickname(memberStudy.getMember().getName())
             .profileImage(memberStudy.getMember().getProfileImage())
             .build()).toList();
+
+        // DTO로 변환하여 반환
         return new StudyMemberResponseDTO(memberDTOS);
     }
 
+    /**
+     * 스터디 신청자의 정보를 조회합니다.
+     * @param studyId 스터디 ID
+     * @param memberId 회원 ID
+     * @return 스터디 신청자 정보를 반환합니다.
+     * @throws GeneralException 스터디 신청자가 존재하지 않는 경우
+     * @throws GeneralException 조회 하는 회원이 스터디 장이 아닌 경우
+     * @throws GeneralException 스터디 장은 스터디에 신청할 수 없음
+     */
     @Override
     public StudyApplyMemberDTO findStudyApplication(Long studyId, Long memberId) {
 
+        // 로그인한 회원이 해당 스터디 장인지 확인
         if (!isOwner(SecurityUtils.getCurrentUserId(), studyId))
             throw new GeneralException(ErrorStatus._ONLY_STUDY_OWNER_CAN_ACCESS_APPLICANTS);
 
+        // 스터디 신청자 조회
         MemberStudy memberStudy = memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPLIED)
             .orElseThrow(() -> new GeneralException(ErrorStatus._STUDY_APPLICANT_NOT_FOUND));
 
+        // 스터디 장은 스터디에 신청할 수 없음
         if (memberStudy.getIsOwned())
             throw new GeneralException(ErrorStatus._STUDY_OWNER_CANNOT_APPLY);
 
+        // DTO로 변환하여 반환
         return StudyApplyMemberDTO.builder()
             .memberId(memberStudy.getMember().getId())
             .studyId(memberStudy.getStudy().getId())
@@ -149,13 +215,22 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
             .build();
     }
 
+    /**
+     * 해당 스터디 신청 여부를 조회합니다. true: 신청, false: 미신청
+     * @param studyId 스터디 ID
+     * @return 신청 여부와 스터디 ID를 반환합니다.
+     * @throws GeneralException 이미 스터디 멤버인 경우
+     */
     @Override
     public StudyApplicantDTO isApplied(Long studyId) {
+        // 로그인한 회원 ID 조회
         Long currentUserId = SecurityUtils.getCurrentUserId();
 
+        // 이미 스터디 멤버인 경우
         if (isMember(currentUserId, studyId))
             throw new GeneralException(ErrorStatus._ALREADY_STUDY_MEMBER);
 
+        // DTO로 변환하여 반환
         return StudyApplicantDTO.builder()
             .isApplied(memberStudyRepository.existsByMemberIdAndStudyIdAndStatus(currentUserId, studyId, ApplicationStatus.APPLIED))
             .studyId(studyId)
@@ -441,12 +516,22 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
         return StudyVoteResponseDTO.CompletedVoteDetailDTO.toDTO(vote);
     }
 
-    // 로그인 한 회원이 해당 스터디 장인지 확인
+    /**
+     * 회원이 스터디 장인지 확인합니다.
+     * @param memberId 확인 하려는 회원 ID
+     * @param studyId 확인 하려는 스터디 ID
+     * @return 스터디 장 여부를 반환합니다.
+     */
     private boolean isOwner(Long memberId, Long studyId) {
         return memberStudyRepository.findByMemberIdAndStudyIdAndIsOwned(memberId, studyId, true).isPresent();
     }
 
-    // 로그인 한 회원이 해당 스터디 원인지 확인
+    /**
+     * 회원이 스터디 구성원인지 확인합니다.
+     * @param memberId 확인 하려는 회원 ID
+     * @param studyId 확인 하려는 스터디 ID
+     * @return 스터디 참여 여부를 반환합니다.
+     */
     private boolean isMember(Long memberId, Long studyId) {
         return memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED).isPresent();
     }
@@ -479,54 +564,88 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 
     }
 
+    /**
+     * 특정 스터디에 저장된 내 To-Do List를 날짜 별로 페이징 조회합니다.
+     * @param studyId 스터디 ID
+     * @param date 조회하려는 날짜
+     * @param pageRequest 페이징 정보
+     * @return To-Do List 목록을 반환합니다.
+     * @throws GeneralException 스터디 멤버가 아닌 경우
+     * @throws GeneralException 스터디 할 일이 존재하지 않는 경우
+     */
     @Override
     public ToDoListSearchResponseDTO getToDoList(Long studyId, LocalDate date, PageRequest pageRequest) {
+        // 로그인 중인 회원 ID 조회
         Long memberId = SecurityUtils.getCurrentUserId();
 
+        // 로그인한 회원이 스터디 회원인지 확인
         if (!isMember(memberId, studyId))
             throw new GeneralException(ErrorStatus._ONLY_STUDY_MEMBER_CAN_ACCESS_TODO_LIST);
 
+        // 페이징 처리
         List<ToDoList> toDoLists = toDoListRepository.findByStudyIdAndMemberIdAndDateOrderByCreatedAtDesc(
             studyId, memberId, date, pageRequest);
 
+        // 스터디 투 두 리스트가 존재하지 않는 경우
         if (toDoLists.isEmpty())
             throw new GeneralException(ErrorStatus._STUDY_TODO_NOT_FOUND);
 
-
+        // 투 두 리스트 갯수 조회
         long totalElements = toDoListRepository.countByStudyIdAndMemberIdAndDate(studyId, memberId, date);
 
-        List<ToDoListDTO> toDoListDTOS = getToDoListDTOS(
-            toDoLists);
+        // DTO로 변환
+        List<ToDoListDTO> toDoListDTOS = getToDoListDTOS(toDoLists);
 
         return new ToDoListSearchResponseDTO(
             new PageImpl<>(toDoListDTOS, pageRequest, totalElements), toDoListDTOS, totalElements);
     }
 
+    /**
+     * 특정 스터디에 저장된 다른 스터디원의 To-Do List를 날짜 별로 페이징 조회합니다.
+     * @param studyId 스터디 ID
+     * @param memberId 조회하려는 회원 ID
+     * @param date 조회하려는 날짜
+     * @param pageRequest 페이징 정보
+     * @return To-Do List 목록을 반환합니다.
+     * @throws GeneralException 스터디 멤버가 아닌 경우
+     * @throws GeneralException 조회하려는 회원이 스터디 멤버가 아닌 경우
+     * @throws GeneralException 스터디 할 일이 존재하지 않는 경우
+     */
     @Override
     public ToDoListSearchResponseDTO getMemberToDoList(Long studyId, Long memberId, LocalDate date,
         PageRequest pageRequest) {
 
+        // 로그인 중인 회원이 스터디 회원인지 확인
         if (!isMember(SecurityUtils.getCurrentUserId(), studyId))
             throw new GeneralException(ErrorStatus._ONLY_STUDY_MEMBER_CAN_ACCESS_TODO_LIST);
 
+        // 조회하려는 회원이 스터디 회원인지 확인
         if (!isMember(memberId, studyId))
             throw new GeneralException(ErrorStatus._TODO_LIST_MEMBER_NOT_FOUND);
 
+        // 조회하려는 회원의 투 두 리스트 조회
         List<ToDoList> toDoLists = toDoListRepository.findByStudyIdAndMemberIdAndDateOrderByCreatedAtDesc(
             studyId, memberId, date, pageRequest);
 
+        // 투 두 리스트가 존재하지 않는 경우
         if (toDoLists.isEmpty())
             throw new GeneralException(ErrorStatus._STUDY_TODO_NOT_FOUND);
 
+        // 투 두 리스트 갯수 조회
         long totalElements = toDoListRepository.countByStudyIdAndMemberIdAndDate(studyId, memberId, date);
 
-        List<ToDoListDTO> toDoListDTOS = getToDoListDTOS(
-            toDoLists);
+        // DTO로 변환
+        List<ToDoListDTO> toDoListDTOS = getToDoListDTOS(toDoLists);
 
         return new ToDoListSearchResponseDTO(
             new PageImpl<>(toDoListDTOS, pageRequest, totalElements), toDoListDTOS, totalElements);
     }
 
+    /**
+     * 투 두 리스트를 DTO로 변환합니다.
+     * @param toDoLists 투 두 리스트
+     * @return 투 두 리스트 DTO 목록을 반환합니다.
+     */
     private static List<ToDoListDTO> getToDoListDTOS(List<ToDoList> toDoLists) {
         List<ToDoListDTO> toDoListDTOS = toDoLists.stream()
             .map(toDoList -> ToDoListDTO.builder()

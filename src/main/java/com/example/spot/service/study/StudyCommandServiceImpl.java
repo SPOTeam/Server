@@ -123,6 +123,15 @@ public class StudyCommandServiceImpl implements StudyCommandService {
         return StudyRegisterResponseDTO.RegisterDTO.toDTO(study);
     }
 
+    /**
+     * 특정 스터디에 좋아요를 누르거나 취소합니다. 이미 좋아요가 눌려있다면 취소하고, 아니라면 좋아요를 누릅니다.
+     * @param memberId 회원 ID
+     * @param studyId 스터디 ID
+     * @return 스터디 제목과 좋아요 상태를 반환합니다.
+     * @throws StudyHandler 스터디가 존재하지 않는 경우
+     * @throws MemberHandler 회원이 존재하지 않는 경우
+     * @see StudyLikeResponseDTO
+     */
     @Override
     public StudyLikeResponseDTO likeStudy(Long memberId, Long studyId) {
 
