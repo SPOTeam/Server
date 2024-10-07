@@ -19,6 +19,16 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 
 public class SearchResponseDTO {
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class HotKeywordDTO {
+        List<String> keyword;
+        Long count;
+    }
+
     @Builder
     @Getter
     @NoArgsConstructor

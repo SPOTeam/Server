@@ -11,6 +11,7 @@ import com.example.spot.service.study.StudyQueryService;
 import com.example.spot.validation.annotation.ExistMember;
 import com.example.spot.validation.validator.MemberValidator;
 import com.example.spot.web.dto.search.SearchRequestDTO.SearchRequestStudyDTO;
+import com.example.spot.web.dto.search.SearchResponseDTO.HotKeywordDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.MyPageDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.StudyPreviewDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -357,7 +358,7 @@ public class SearchController {
             ## [스터디 검색] 현재 스터디 검색에 가장 많이 검색된 검색어를 조회합니다.
             인기 검색어는 13시, 18시에 초기화 됩니다. 초기화 된 시간과 현재 인기 검색어 목록을 반환합니다.
             """)
-    public ApiResponse<String> recommendStudiesForMain() {
+    public ApiResponse<HotKeywordDTO> recommendStudiesForMain() {
         return null;
     }
 
