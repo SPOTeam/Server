@@ -7,6 +7,7 @@ import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
@@ -19,9 +20,12 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class HotKeywordScheduler {
 
-    private static final String KEYWORD = "keywords";
-    private static final String HOT_KEYWORD = "hotKeywords";
-    private static final String LAST_UPDATED = "hotKeywordLastUpdated";
+    @Value("${study.keyword}")
+    private String KEYWORD;
+    @Value("${study.hot-keyword}")
+    private String HOT_KEYWORD;
+    @Value("${study.last-updated}")
+    private String LAST_UPDATED;
 
     private RedisTemplate<String, String> redisTemplate;
 

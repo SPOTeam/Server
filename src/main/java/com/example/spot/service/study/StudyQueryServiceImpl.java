@@ -57,6 +57,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -74,8 +75,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class StudyQueryServiceImpl implements StudyQueryService {
 
 
-    private static final String HOT_KEYWORD = "hotKeywords";
-    private static final String LAST_UPDATED = "hotKeywordLastUpdated";
+    @Value("${study.hot-keyword}")
+    private String HOT_KEYWORD;
+    @Value("${study.last-updated}")
+    private String LAST_UPDATED;
 
     private final MemberRepository memberRepository;
 

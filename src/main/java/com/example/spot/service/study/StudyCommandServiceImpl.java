@@ -22,6 +22,7 @@ import com.example.spot.web.dto.study.response.StudyLikeResponseDTO;
 import com.example.spot.web.dto.study.response.StudyRegisterResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,7 +35,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StudyCommandServiceImpl implements StudyCommandService {
 
-    private static final String KEYWORD = "keywords";
+
+    @Value("${study.keyword}")
+    private String KEYWORD;
 
     private final MemberRepository memberRepository;
     private final StudyRepository studyRepository;
