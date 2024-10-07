@@ -35,6 +35,7 @@ import com.example.spot.repository.ThemeRepository;
 import com.example.spot.security.utils.SecurityUtils;
 import com.example.spot.web.dto.search.SearchRequestDTO.SearchRequestStudyDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO;
+import com.example.spot.web.dto.search.SearchResponseDTO.HotKeywordDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.MyPageDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.SearchStudyDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.StudyPreviewDTO;
@@ -47,6 +48,7 @@ import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO.StudySch
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -54,6 +56,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,6 +66,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 @Slf4j
 public class StudyQueryServiceImpl implements StudyQueryService {
+
+    private static final String KEYWORD = "hotKeyword";
 
     private final MemberRepository memberRepository;
 
@@ -78,6 +84,18 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     // 지역 관련 조회
     private final PreferredRegionRepository preferredRegionRepository;
     private final RegionStudyRepository regionStudyRepository;
+
+    private final RedisTemplate<String, String> redisTemplate;
+
+    @Override
+    public HotKeywordDTO getHotKeyword() {
+        ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
+        Set<String> strings = zSetOperations.reverseRangeByScore(KEYWORD, 0, 4);
+        return HotKeywordDTO.builder()
+            .keyword(strings)
+            .count(zSetOperations.size(KEYWORD))
+            .build();
+    }
 
     /**
      * 스터디의 상세 정보를 조회하는 메서드입니다

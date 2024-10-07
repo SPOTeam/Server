@@ -13,4 +13,6 @@ public interface StudyCommandService {
     StudyRegisterResponseDTO.RegisterDTO registerStudy(Long memberId, StudyRegisterRequestDTO.RegisterDTO studyRegisterRequestDTO);
 
     StudyLikeResponseDTO likeStudy(Long memberId, Long studyId);
+
+    String addHotKeyword(String keyword);
 }

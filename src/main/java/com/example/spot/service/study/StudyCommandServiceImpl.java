@@ -21,6 +21,7 @@ import com.example.spot.web.dto.study.response.StudyJoinResponseDTO;
 import com.example.spot.web.dto.study.response.StudyLikeResponseDTO;
 import com.example.spot.web.dto.study.response.StudyRegisterResponseDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +41,8 @@ public class StudyCommandServiceImpl implements StudyCommandService {
     private final RegionStudyRepository regionStudyRepository;
     private final StudyThemeRepository studyThemeRepository;
     private final PreferredStudyRepository preferredStudyRepository;
+
+    private final RedisTemplate<String, String> redisTemplate;
 
     /* ----------------------------- 스터디 생성/참여 관련 API ------------------------------------- */
 
@@ -163,6 +166,7 @@ public class StudyCommandServiceImpl implements StudyCommandService {
         return new StudyLikeResponseDTO(preferredStudy);
     }
 
+
     private void createMemberStudy(Member member, Study study) {
 
         MemberStudy memberStudy = MemberStudy.builder()
@@ -223,4 +227,14 @@ public class StudyCommandServiceImpl implements StudyCommandService {
                     study.addStudyTheme(studyTheme);
                 });
     }
+
+    /* ---------------------------------- 인기 검색어 --------------------------------------------- */
+
+
+    @Override
+    public String addHotKeyword(String keyword) {
+        Double score = redisTemplate.opsForZSet().incrementScore("hotKeyword", keyword, 1);
+        return score.toString();
+    }
+
 }

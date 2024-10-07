@@ -1,15 +1,13 @@
 package com.example.spot.web.controller;
 
 import com.example.spot.api.ApiResponse;
-import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.code.status.SuccessStatus;
-import com.example.spot.api.exception.GeneralException;
 import com.example.spot.domain.enums.StudySortBy;
 import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.security.utils.SecurityUtils;
+import com.example.spot.service.study.StudyCommandService;
 import com.example.spot.service.study.StudyQueryService;
 import com.example.spot.validation.annotation.ExistMember;
-import com.example.spot.validation.validator.MemberValidator;
 import com.example.spot.web.dto.search.SearchRequestDTO.SearchRequestStudyDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.HotKeywordDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.MyPageDTO;
@@ -20,12 +18,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,6 +32,7 @@ import org.springframework.web.bind.annotation.*;
 public class SearchController {
 
     private final StudyQueryService studyQueryService;
+    private final StudyCommandService studyCommandService;
 
 
     /* ----------------------------- 메인 화면 ------------------------------------- */
@@ -352,15 +348,25 @@ public class SearchController {
     }
 
     @Tag(name = "스터디 검색")
-    @GetMapping("/search/studies/hot-keywords")
+    @GetMapping("/search/studies/set/hot-keywords")
     @Operation(summary = "[스터디 검색] 인기 검색어 조회",
         description = """
             ## [스터디 검색] 현재 스터디 검색에 가장 많이 검색된 검색어를 조회합니다.
             인기 검색어는 13시, 18시에 초기화 됩니다. 초기화 된 시간과 현재 인기 검색어 목록을 반환합니다.
             """)
     public ApiResponse<HotKeywordDTO> getHotKeywords() {
-        return null;
+        return ApiResponse.onSuccess(SuccessStatus._HOT_KEYWORD_FOUND, studyQueryService.getHotKeyword());
     }
+    @Tag(name = "스터디 검색")
+    @GetMapping("/search/studies/hot-keywords")
+    @Operation(summary = "[스터디 검색] 인기 검색어 추가",
+        description = """
+            ## [스터디 검색] 검색어를 추가합니다. 
+            """)
+    public ApiResponse<String> setHotKeywords(@RequestParam String keyword) {
+        return ApiResponse.onSuccess(SuccessStatus._HOT_KEYWORD_FOUND, studyCommandService.addHotKeyword(keyword));
+    }
+
 
     /* ----------------------------- 테마 별 스터디 검색  ------------------------------------- */
     @Tag(name = "스터디 검색")

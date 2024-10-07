@@ -12,6 +12,7 @@ import com.example.spot.domain.mapping.StudyTheme;
 import com.example.spot.domain.study.Study;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,7 +26,7 @@ public class SearchResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class HotKeywordDTO {
-        List<String> keyword;
+        Set<String> keyword;
         Long count;
     }
 
