@@ -344,7 +344,9 @@ public class SearchController {
         @RequestParam StudySortBy sortBy) {
         // 메소드 구현
         StudyPreviewDTO studies = studyQueryService.findStudiesByKeyword(PageRequest.of(page, size), keyword, sortBy);
-        // 검색 키워드 저장
+
+        // 검색 키워드 저장 -> 검색이 성공적으로 이루어졌을 때만 저장.
+        // 만약 키워드 검색 결과가 존재하지 않으면 저장하지 않음.
         studyCommandService.addHotKeyword(keyword);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
     }
