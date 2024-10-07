@@ -37,6 +37,25 @@ public class SearchController {
 
     private final StudyQueryService studyQueryService;
 
+    /* ----------------------------- 인기 검색어 조회 ------------------------------------- */
+    @Tag(name = "검색 화면 ", description = "검색 화면 API")
+    @GetMapping("/search/studies/recommend/main/members/{memberId}")
+    @Operation(summary = "[메인 화면] 회원 별 추천 스터디 3개 조회",
+        description = """
+            ## [메인 화면] 접속한 회원의 추천 스터디 3개를 조회 합니다.
+            조회된 스터디 3개의 정보가 반환 됩니다.""",
+        security = @SecurityRequirement(name = "accessToken"))
+    @Parameter(name = "memberId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
+    public ApiResponse<StudyPreviewDTO> recommendStudiesForMain(@PathVariable @ExistMember long memberId) {
+        SecurityUtils.verifyUserId(memberId);
+        StudyPreviewDTO recommendStudies = studyQueryService.findRecommendStudies(memberId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, recommendStudies);
+    }
+
+
+
+    /* ----------------------------- 메인 화면 ------------------------------------- */
+
     @Tag(name = "메인 화면", description = "메인 화면 API")
     @GetMapping("/search/studies/recommend/main/members/{memberId}")
     @Operation(summary = "[메인 화면] 회원 별 추천 스터디 3개 조회",
@@ -345,6 +364,17 @@ public class SearchController {
         // 메소드 구현
         StudyPreviewDTO studies = studyQueryService.findStudiesByKeyword(PageRequest.of(page, size), keyword, sortBy);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
+    }
+
+    @Tag(name = "스터디 검색")
+    @GetMapping("/search/studies/hot-keyword")
+    @Operation(summary = "[스터디 검색] 인기 검색어 조회",
+        description = """
+            ## [스터디 검색] 현재 스터디 검색에 가장 많이 검색된 검색어를 조회합니다.
+            인기 검색어는 13시, 18시에 초기화 됩니다. 초기화 된 시간과 현재 인기 검색어 목록을 반환합니다.
+            """)
+    public ApiResponse<String> recommendStudiesForMain() {
+        return null;
     }
 
     /* ----------------------------- 테마 별 스터디 검색  ------------------------------------- */
