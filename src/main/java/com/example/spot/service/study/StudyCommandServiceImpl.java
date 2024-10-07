@@ -233,9 +233,13 @@ public class StudyCommandServiceImpl implements StudyCommandService {
     }
 
     /* ---------------------------------- 인기 검색어 --------------------------------------------- */
+
+    /**
+     * 검색어를 인기 검색어(Redis)에 추가합니다. 이미 존재하는 검색어라면 score를 1 증가시킵니다.
+     * @param keyword 검색어
+     */
     @Override
     public void addHotKeyword(String keyword) {
-        Double score = redisTemplate.opsForZSet().incrementScore(KEYWORD, keyword, 1);
-        log.info("keyword: {}, score: {}", keyword, score);
+       redisTemplate.opsForZSet().incrementScore(KEYWORD, keyword, 1);
     }
 }

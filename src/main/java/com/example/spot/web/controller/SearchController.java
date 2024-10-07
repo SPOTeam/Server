@@ -350,7 +350,7 @@ public class SearchController {
     }
 
     @Tag(name = "스터디 검색")
-    @GetMapping("/search/studies/set/hot-keywords")
+    @GetMapping("/search/studies/hot-keywords")
     @Operation(summary = "[스터디 검색] 인기 검색어 조회",
         description = """
             ## [스터디 검색] 현재 스터디 검색에 가장 많이 검색된 검색어를 조회합니다.

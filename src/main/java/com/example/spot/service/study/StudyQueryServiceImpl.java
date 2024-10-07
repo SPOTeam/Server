@@ -95,6 +95,11 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
     private final RedisTemplate<String, String> redisTemplate;
 
+    /**
+     * 인기 검색어를 조회하는 메서드입니다. 인기 검색어는 매일 13시, 18시에 총 2번 업데이트 됩니다.
+     * 인기 검색어는 검색된 횟수 순으로 5개까지 조회 가능합니다.
+     * @return 인기 검색어 목록 및 업데이트 시간을 반환합니다.
+     */
     @Override
     public HotKeywordDTO getHotKeyword() {
         // popular_keywords에서 캐시된 검색어 목록 가져오기

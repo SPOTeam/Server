@@ -30,7 +30,7 @@ public class HotKeywordScheduler {
         this.redisTemplate = redisTemplate;
     }
 
-    // 13시와 18시에 인기 검색어 업데이트
+    // 13시와 18시에 인기 검색어 목록을 업데이트 합니다.
     @Scheduled(cron = "0 0 13,18 * * *")
     public void updateHotKeywords() {
         ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
@@ -50,7 +50,6 @@ public class HotKeywordScheduler {
             // 인기 검색어 업데이트 시점 저장
             redisTemplate.opsForValue().set(LAST_UPDATED, now);
             log.info("Hot keywords updated at {}", now);
-
         }
     }
 }
