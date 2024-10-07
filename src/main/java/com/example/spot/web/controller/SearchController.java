@@ -352,13 +352,13 @@ public class SearchController {
     }
 
     @Tag(name = "스터디 검색")
-    @GetMapping("/search/studies/hot-keyword")
+    @GetMapping("/search/studies/hot-keywords")
     @Operation(summary = "[스터디 검색] 인기 검색어 조회",
         description = """
             ## [스터디 검색] 현재 스터디 검색에 가장 많이 검색된 검색어를 조회합니다.
             인기 검색어는 13시, 18시에 초기화 됩니다. 초기화 된 시간과 현재 인기 검색어 목록을 반환합니다.
             """)
-    public ApiResponse<HotKeywordDTO> recommendStudiesForMain() {
+    public ApiResponse<HotKeywordDTO> getHotKeywords() {
         return null;
     }
 
