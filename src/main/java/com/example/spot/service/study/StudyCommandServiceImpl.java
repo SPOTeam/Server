@@ -229,12 +229,9 @@ public class StudyCommandServiceImpl implements StudyCommandService {
     }
 
     /* ---------------------------------- 인기 검색어 --------------------------------------------- */
-
-
     @Override
     public String addHotKeyword(String keyword) {
         Double score = redisTemplate.opsForZSet().incrementScore("hotKeyword", keyword, 1);
         return score.toString();
     }
-
 }

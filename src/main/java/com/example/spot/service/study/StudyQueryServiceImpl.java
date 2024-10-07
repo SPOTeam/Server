@@ -46,6 +46,9 @@ import com.example.spot.web.dto.study.response.StudyPostResponseDTO;
 import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO;
 import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO.StudyScheduleDTO;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,6 +61,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
+import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -90,9 +94,26 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     @Override
     public HotKeywordDTO getHotKeyword() {
         ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
-        Set<String> strings = zSetOperations.reverseRangeByScore(KEYWORD, 0, 4);
+
+        // 상위 5개의 검색어와 점수를 가져옵니다.
+        Set<TypedTuple<String>> typedTuples = zSetOperations.reverseRangeWithScores(KEYWORD, 0, 4);
+
+        if (typedTuples.isEmpty())
+            throw new GeneralException(ErrorStatus._HOT_KEYWORD_NOT_FOUND);
+
+        // 순서를 보장하는 LinkedHashSet을 사용합니다.
+        Set<HotKeywordDTO.KeywordDTO> keywordDTOS = new LinkedHashSet<>();
+
+        // typedTuples 순서대로 LinkedHashSet에 추가합니다.
+        for (TypedTuple<String> tuple : typedTuples) {
+            keywordDTOS.add(HotKeywordDTO.KeywordDTO.builder()
+                .keyword(tuple.getValue())
+                .point(tuple.getScore())
+                .build());
+        }
+
         return HotKeywordDTO.builder()
-            .keyword(strings)
+            .keyword(keywordDTOS)
             .count(zSetOperations.size(KEYWORD))
             .build();
     }

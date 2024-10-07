@@ -26,8 +26,17 @@ public class SearchResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class HotKeywordDTO {
-        Set<String> keyword;
+        Set<KeywordDTO> keyword;
         Long count;
+
+        @Builder
+        @Getter
+        @NoArgsConstructor
+        @AllArgsConstructor
+        public static class KeywordDTO{
+            String keyword;
+            Double point;
+        }
     }
 
     @Builder
