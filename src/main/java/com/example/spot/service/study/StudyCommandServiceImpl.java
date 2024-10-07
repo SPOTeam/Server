@@ -34,6 +34,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StudyCommandServiceImpl implements StudyCommandService {
 
+    private static final String KEYWORD = "keywords";
+
     private final MemberRepository memberRepository;
     private final StudyRepository studyRepository;
     private final RegionRepository regionRepository;
@@ -233,7 +235,7 @@ public class StudyCommandServiceImpl implements StudyCommandService {
     /* ---------------------------------- 인기 검색어 --------------------------------------------- */
     @Override
     public void addHotKeyword(String keyword) {
-        Double score = redisTemplate.opsForZSet().incrementScore("hotKeyword", keyword, 1);
+        Double score = redisTemplate.opsForZSet().incrementScore(KEYWORD, keyword, 1);
         log.info("keyword: {}, score: {}", keyword, score);
     }
 }

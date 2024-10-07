@@ -72,7 +72,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class StudyQueryServiceImpl implements StudyQueryService {
 
-    private static final String KEYWORD = "hotKeyword";
+
+    private static final String HOT_KEYWORD = "hotKeywords";
+    private static final String LAST_UPDATED = "hotKeywordLastUpdated";
 
     private final MemberRepository memberRepository;
 
@@ -94,18 +96,19 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
     @Override
     public HotKeywordDTO getHotKeyword() {
+        // popular_keywords에서 캐시된 검색어 목록 가져오기
         ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
 
-        // 상위 5개의 검색어와 점수를 가져옵니다.
-        Set<TypedTuple<String>> typedTuples = zSetOperations.reverseRangeWithScores(KEYWORD, 0, 4);
+        Set<TypedTuple<String>> typedTuples = zSetOperations.reverseRangeWithScores(HOT_KEYWORD, 0, 4);
 
+        // 캐시된 검색어가 없을 경우
         if (typedTuples.isEmpty())
             throw new GeneralException(ErrorStatus._HOT_KEYWORD_NOT_FOUND);
 
         // 순서를 보장하는 LinkedHashSet을 사용합니다.
         Set<HotKeywordDTO.KeywordDTO> keywordDTOS = new LinkedHashSet<>();
 
-        // typedTuples 순서대로 LinkedHashSet에 추가합니다.
+        // DTO로 변환
         for (TypedTuple<String> tuple : typedTuples) {
             keywordDTOS.add(HotKeywordDTO.KeywordDTO.builder()
                 .keyword(tuple.getValue())
@@ -113,9 +116,13 @@ public class StudyQueryServiceImpl implements StudyQueryService {
                 .build());
         }
 
+        // 마지막 업데이트 시간 가져오기
+        LocalDateTime updatedAt = LocalDateTime.parse(
+            redisTemplate.opsForValue().get(LAST_UPDATED));
+
         return HotKeywordDTO.builder()
             .keyword(keywordDTOS)
-            .updatedAt(LocalDateTime.now())
+            .updatedAt(updatedAt) // 업데이트 시간 설정
             .build();
     }
 

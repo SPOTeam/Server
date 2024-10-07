@@ -1,0 +1,52 @@
+package com.example.spot.scheduler;
+
+import java.time.LocalDateTime;
+import java.util.Set;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
+import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+@Component
+@Slf4j
+@RequiredArgsConstructor
+public class HotKeywordScheduler {
+
+    private static final String KEYWORD = "keywords";
+    private static final String HOT_KEYWORD = "hotKeywords";
+    private static final String LAST_UPDATED = "hotKeywordLastUpdated";
+
+    private RedisTemplate<String, String> redisTemplate;
+
+    @Autowired
+    public HotKeywordScheduler(RedisTemplate<String, String> redisTemplate) {
+        this.redisTemplate = redisTemplate;
+    }
+
+    // 13시와 18시에 인기 검색어 업데이트
+    @Scheduled(cron = "0 0 13,18 * * *")
+    public void updateHotKeywords() {
+        ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
+
+        // 인기 검색어 5개 가져오기
+        Set<TypedTuple<String>> typedTuples = zSetOperations.reverseRangeWithScores(KEYWORD, 0, 4);
+
+        // HOT_KEYWORD 키에 갱신된 인기 검색어 저장
+        if (typedTuples != null && !typedTuples.isEmpty()) {
+            redisTemplate.delete(HOT_KEYWORD);
+
+            for (TypedTuple<String> tuple : typedTuples)
+                zSetOperations.add(HOT_KEYWORD, tuple.getValue(), tuple.getScore());
+
+            // 인기 검색어 업데이트 시점 저장
+            redisTemplate.opsForValue().set(LAST_UPDATED, LocalDateTime.now().toString());
+            log.info("Hot keywords updated at {}", LocalDateTime.now());
+
+        }
+    }
+}
