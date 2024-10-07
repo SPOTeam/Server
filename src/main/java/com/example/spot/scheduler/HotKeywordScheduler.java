@@ -1,6 +1,8 @@
 package com.example.spot.scheduler;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,9 +45,11 @@ public class HotKeywordScheduler {
             for (TypedTuple<String> tuple : typedTuples)
                 zSetOperations.add(HOT_KEYWORD, tuple.getValue(), tuple.getScore());
 
+            String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+
             // 인기 검색어 업데이트 시점 저장
-            redisTemplate.opsForValue().set(LAST_UPDATED, LocalDateTime.now().toString());
-            log.info("Hot keywords updated at {}", LocalDateTime.now());
+            redisTemplate.opsForValue().set(LAST_UPDATED, now);
+            log.info("Hot keywords updated at {}", now);
 
         }
     }

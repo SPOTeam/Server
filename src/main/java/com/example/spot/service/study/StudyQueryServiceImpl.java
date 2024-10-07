@@ -45,6 +45,7 @@ import com.example.spot.web.dto.study.response.StudyMemberResponseDTO.StudyMembe
 import com.example.spot.web.dto.study.response.StudyPostResponseDTO;
 import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO;
 import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO.StudyScheduleDTO;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -117,8 +118,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         }
 
         // 마지막 업데이트 시간 가져오기
-        LocalDateTime updatedAt = LocalDateTime.parse(
-            redisTemplate.opsForValue().get(LAST_UPDATED));
+        String updatedAt = redisTemplate.opsForValue().get(LAST_UPDATED);
 
         return HotKeywordDTO.builder()
             .keyword(keywordDTOS)

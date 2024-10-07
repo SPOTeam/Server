@@ -10,6 +10,7 @@ import com.example.spot.domain.mapping.PreferredStudy;
 import com.example.spot.domain.mapping.RegionStudy;
 import com.example.spot.domain.mapping.StudyTheme;
 import com.example.spot.domain.study.Study;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -27,7 +28,7 @@ public class SearchResponseDTO {
     @AllArgsConstructor
     public static class HotKeywordDTO {
         Set<KeywordDTO> keyword;
-        LocalDateTime updatedAt;
+        String updatedAt;
 
         @Builder
         @Getter
