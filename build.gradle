@@ -73,6 +73,10 @@ dependencies {
 
     // prometheus
     implementation 'io.micrometer:micrometer-registry-prometheus'
+
+    // redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'io.lettuce:lettuce-core:6.1.5.RELEASE'
 }
 
 sentry {
