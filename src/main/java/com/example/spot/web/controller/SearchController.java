@@ -344,6 +344,8 @@ public class SearchController {
         @RequestParam StudySortBy sortBy) {
         // 메소드 구현
         StudyPreviewDTO studies = studyQueryService.findStudiesByKeyword(PageRequest.of(page, size), keyword, sortBy);
+        // 검색 키워드 저장
+        studyCommandService.addHotKeyword(keyword);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
     }
 
@@ -356,15 +358,6 @@ public class SearchController {
             """)
     public ApiResponse<HotKeywordDTO> getHotKeywords() {
         return ApiResponse.onSuccess(SuccessStatus._HOT_KEYWORD_FOUND, studyQueryService.getHotKeyword());
-    }
-    @Tag(name = "스터디 검색")
-    @GetMapping("/search/studies/hot-keywords")
-    @Operation(summary = "[스터디 검색] 인기 검색어 추가",
-        description = """
-            ## [스터디 검색] 검색어를 추가합니다. 
-            """)
-    public ApiResponse<String> setHotKeywords(@RequestParam String keyword) {
-        return ApiResponse.onSuccess(SuccessStatus._HOT_KEYWORD_FOUND, studyCommandService.addHotKeyword(keyword));
     }
 
 

@@ -45,6 +45,7 @@ import com.example.spot.web.dto.study.response.StudyMemberResponseDTO.StudyMembe
 import com.example.spot.web.dto.study.response.StudyPostResponseDTO;
 import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO;
 import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO.StudyScheduleDTO;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -114,7 +115,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
         return HotKeywordDTO.builder()
             .keyword(keywordDTOS)
-            .count(zSetOperations.size(KEYWORD))
+            .updatedAt(LocalDateTime.now())
             .build();
     }
 

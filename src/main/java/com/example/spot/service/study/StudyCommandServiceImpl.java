@@ -21,6 +21,7 @@ import com.example.spot.web.dto.study.response.StudyJoinResponseDTO;
 import com.example.spot.web.dto.study.response.StudyLikeResponseDTO;
 import com.example.spot.web.dto.study.response.StudyRegisterResponseDTO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
+@Slf4j
 @Transactional
 @RequiredArgsConstructor
 public class StudyCommandServiceImpl implements StudyCommandService {
@@ -230,8 +232,8 @@ public class StudyCommandServiceImpl implements StudyCommandService {
 
     /* ---------------------------------- 인기 검색어 --------------------------------------------- */
     @Override
-    public String addHotKeyword(String keyword) {
+    public void addHotKeyword(String keyword) {
         Double score = redisTemplate.opsForZSet().incrementScore("hotKeyword", keyword, 1);
-        return score.toString();
+        log.info("keyword: {}, score: {}", keyword, score);
     }
 }

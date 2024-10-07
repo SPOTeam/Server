@@ -14,5 +14,5 @@ public interface StudyCommandService {
 
     StudyLikeResponseDTO likeStudy(Long memberId, Long studyId);
 
-    String addHotKeyword(String keyword);
+    void addHotKeyword(String keyword);
 }

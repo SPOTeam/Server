@@ -27,7 +27,7 @@ public class SearchResponseDTO {
     @AllArgsConstructor
     public static class HotKeywordDTO {
         Set<KeywordDTO> keyword;
-        Long count;
+        LocalDateTime updatedAt;
 
         @Builder
         @Getter
