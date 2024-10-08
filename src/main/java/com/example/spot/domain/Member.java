@@ -2,6 +2,7 @@ package com.example.spot.domain;
 
 import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.enums.Carrier;
+import com.example.spot.domain.enums.Gender;
 import com.example.spot.domain.enums.LoginType;
 import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.mapping.*;
@@ -66,6 +67,10 @@ public class Member extends BaseEntity {
 
     @Column(nullable = false)
     private LocalDate birth;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Gender gender;
 
     @Column(nullable = false)
     private String profileImage;
