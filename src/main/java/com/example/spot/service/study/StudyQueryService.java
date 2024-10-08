@@ -3,6 +3,7 @@ package com.example.spot.service.study;
 import com.example.spot.domain.enums.StudySortBy;
 import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.web.dto.search.SearchRequestDTO.SearchRequestStudyDTO;
+import com.example.spot.web.dto.search.SearchResponseDTO.HotKeywordDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.MyPageDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.StudyPreviewDTO;
 import com.example.spot.web.dto.study.response.StudyInfoResponseDTO;
@@ -12,6 +13,9 @@ import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO;
 import org.springframework.data.domain.Pageable;
 
 public interface StudyQueryService {
+
+    // 인기 검색어 조회
+    HotKeywordDTO getHotKeyword();
 
     // 스터디 정보 조회
     StudyInfoResponseDTO.StudyInfoDTO getStudyInfo(Long studyId);

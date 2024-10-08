@@ -64,6 +64,7 @@ public enum SuccessStatus implements BaseCode {
     _STUDY_APPLICANT_FOUND(HttpStatus.OK, "STUDY4010", "스터디 신청자 조회 완료"),
     _STUDY_APPLICANT_UPDATED(HttpStatus.OK, "STUDY4011", "스터디 신청 처리 완료"),
     _STUDY_APPLY_COMPLETED(HttpStatus.OK, "STUDY4012", "스터디 신청 완료"),
+    _HOT_KEYWORD_FOUND(HttpStatus.OK, "SEARCH2001", "인기 검색어 조회 완료"),
 
     //스터디 출석 퀴즈 관련
     _STUDY_QUIZ_CREATED(HttpStatus.CREATED, "QUIZ2001", "스터디 퀴즈 생성 완료"),

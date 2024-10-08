@@ -120,6 +120,7 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_NOT_PARTICIPATED(HttpStatus.NOT_FOUND, "STUDY6016", "참가하는 스터디가 없습니다."),
     _STUDY_NOT_APPLIED(HttpStatus.NOT_FOUND, "STUDY6017", "신청한 스터디가 없습니다."),
     _RECRUITING_STUDY_IS_NOT_EXIST(HttpStatus.NOT_FOUND, "STUDY6018", "현재 회원이 모집중인 스터디가 없습니다."),
+    _HOT_KEYWORD_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY6019", "인기 키워드가 없습니다."),
 
     // 스터디 출석 관련 에러
     _STUDY_QUIZ_NOT_FOUND(HttpStatus.NOT_FOUND, "QUIZ4001", "출석 퀴즈를 찾을 수 없습니다."),
