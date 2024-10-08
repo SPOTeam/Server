@@ -8,6 +8,7 @@ import com.example.spot.domain.Member;
 import com.example.spot.domain.auth.RefreshToken;
 import com.example.spot.domain.auth.VerificationCode;
 import com.example.spot.domain.enums.Carrier;
+import com.example.spot.domain.enums.Gender;
 import com.example.spot.domain.enums.LoginType;
 import com.example.spot.domain.enums.Status;
 import com.example.spot.repository.MemberRepository;
@@ -21,6 +22,8 @@ import com.example.spot.service.message.MailService;
 import com.example.spot.web.dto.token.TokenResponseDTO;
 import com.example.spot.web.dto.token.TokenResponseDTO.TokenDTO;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.Random;
 
@@ -182,10 +185,23 @@ public class AuthServiceImpl implements AuthService{
             throw new MemberHandler(ErrorStatus._MEMBER_EMAIL_NOT_VERIFIED);
         }
 
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMdd");
+        LocalDate birth = LocalDate.parse(signUpDTO.getFrontRID(), formatter);
+
+        Gender gender;
+        if (signUpDTO.getBackRID().equals("1") || signUpDTO.getBackRID().equals("3")) {
+            gender = Gender.MALE;
+        } else if (signUpDTO.getBackRID().equals("2") || signUpDTO.getBackRID().equals("4")) {
+            gender = Gender.FEMALE;
+        } else {
+            gender = Gender.UNKNOWN;
+        }
+
         Member member = Member.builder()
                 .name(signUpDTO.getName())
                 .nickname(signUpDTO.getNickname())
-                .birth(signUpDTO.getBirth())
+                .birth(birth)
+                .gender(gender)
                 .email(signUpDTO.getEmail())
                 .carrier(Carrier.NONE)
                 .phone("")
