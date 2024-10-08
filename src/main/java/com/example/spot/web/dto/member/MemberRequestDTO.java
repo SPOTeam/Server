@@ -89,6 +89,7 @@ public class MemberRequestDTO {
     public static class MemberInfoListDTO{
 
         private String name;
+        private String nickname;
         private Gender gender;
         private String email;
         private LocalDate birth;
