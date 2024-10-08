@@ -50,6 +50,7 @@ public class KaKaoUser {
     public Member toMember(){
         return Member.builder()
             .name(properties.getNickname())
+            .nickname(properties.getNickname())
             .email(kakao_account.getEmail())
             .profileImage(properties.getProfile_image())
             .carrier(Carrier.NONE)

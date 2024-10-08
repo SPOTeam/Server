@@ -573,6 +573,7 @@ public class MemberServiceImpl implements MemberService {
                 .name(memberInfoListDTO.getName())
                 .carrier(memberInfoListDTO.getCarrier())
                 .birth(memberInfoListDTO.getBirth())
+                .nickname(memberInfoListDTO.getNickname())
                 .email(memberInfoListDTO.getEmail())
                 .password(UUID.randomUUID().toString())
                 .phone(memberInfoListDTO.getPhone())
