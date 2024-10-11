@@ -38,6 +38,7 @@ public class VerificationCodeRepositoryImpl implements VerificationCodeRepositor
                 VerificationCode verificationCode = VerificationCode.builder()
                         .email(email)
                         .code(code)
+                        .expiredAt(LocalDateTime.now().plusSeconds(TEMP_TOKEN_EXPIRATION_TIME))
                         .build();
                 this.verificationCodes.add(verificationCode);
             } else {
