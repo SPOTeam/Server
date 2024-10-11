@@ -458,7 +458,7 @@ class StudyQueryServiceTest {
         when(memberThemeRepository.findAllByMemberId(member.getId())).thenReturn(List.of());
 
         // when & then
-        assertThrows(StudyHandler.class, () -> {
+        assertThrows(MemberHandler.class, () -> {
             studyQueryService.findInterestStudiesByConditionsAll(pageable, member.getId(), request, sortBy);
         });
     }
@@ -666,7 +666,7 @@ class StudyQueryServiceTest {
         when(memberThemeRepository.findAllByMemberId(member.getId())).thenReturn(List.of());
 
         // when & then
-        assertThrows(StudyHandler.class, () -> {
+        assertThrows(MemberHandler.class, () -> {
             studyQueryService.findInterestStudiesByConditionsSpecific(pageable, member.getId(), request, themeType, sortBy);
         });
     }
@@ -712,6 +712,160 @@ class StudyQueryServiceTest {
         verify(studyRepository).countStudyByConditionsAndRegionStudiesAndNotInIds(searchConditions, List.of(regionStudy1, regionStudy2), sortBy, studyIds);
         verify(studyRepository).findStudyByConditionsAndRegionStudiesAndNotInIds(searchConditions, sortBy, pageable, List.of(regionStudy1, regionStudy2), studyIds);
     }
+
+    @Test
+    @DisplayName("내 전체 관심 지역 스터디 조회 - 내 전체 관심 지역에 해당하는 스터디가 없는 경우")
+    void findInterestRegionStudiesByConditionsAllOnFail() {
+        // given
+
+        StudySortBy sortBy = StudySortBy.ALL;
+
+        List<Long> studyIds = List.of();
+
+        Map<String, Object> searchConditions = getStringObjectMap();
+
+        when(preferredRegionRepository.findAllByMemberId(member.getId()))
+            .thenReturn(List.of(preferredRegion1, preferredRegion2));
+        when(regionStudyRepository.findAllByRegion(any())).thenReturn(List.of(regionStudy1, regionStudy2));
+        when(studyRepository.countStudyByConditionsAndRegionStudiesAndNotInIds(
+            searchConditions, List.of(regionStudy1, regionStudy2), sortBy, studyIds))
+            .thenReturn(2L);
+
+        when(memberRepository.existsById(member.getId())).thenReturn(true);
+        when(studyRepository.findStudyByConditionsAndRegionStudiesAndNotInIds(
+            searchConditions, sortBy, pageable, List.of(regionStudy1, regionStudy2), studyIds))
+            .thenReturn(List.of());
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.findInterestRegionStudiesByConditionsAll(pageable, member.getId(), request, sortBy);
+        });
+
+        // then
+        verify(regionStudyRepository, times(1)).findAllByRegion(region1);
+        verify(regionStudyRepository, times(1)).findAllByRegion(region1);
+    }
+
+
+
+    @Test
+    @DisplayName("내 전체 관심 지역  스터디 조회 - 페이징 테스트")
+    void shouldReturnPagedStudiesByRegion(){
+        //given
+        List<Study> studies = List.of(study1, study2);
+
+        when(preferredRegionRepository.findAllByMemberId(any())).thenReturn(List.of(preferredRegion1, preferredRegion2));
+        when(regionStudyRepository.findAllByRegion(any())).thenReturn(List.of(regionStudy1, regionStudy2));
+        when(studyRepository.findStudyByConditionsAndRegionStudiesAndNotInIds(any(), any(), any(), any(), any()))
+            .thenReturn(studies);
+        when(studyRepository.countStudyByConditionsAndRegionStudiesAndNotInIds(any(), any(), any(), any()))
+            .thenReturn(2L);
+        when(memberRepository.existsById(any())).thenReturn(true);
+
+
+        // when
+        StudyPreviewDTO result = studyQueryService.findInterestRegionStudiesByConditionsAll(
+            PageRequest.of(0, 10), 1L, getSearchRequestStudyDTO(), StudySortBy.ALL);
+
+        // then
+        assertEquals(10, result.getSize());
+        assertEquals(2, result.getTotalElements());
+        assertEquals(2, result.getContent().size());
+
+    }
+
+    @Test
+    @DisplayName("내 전체 관심 지역 스터디 조회 - 검색 조건에 따른 스터디 필터링 테스트")
+    void shouldFilterStudiesBasedOnSearchConditionsByRegion(){
+        // given
+
+
+        when(memberRepository.existsById(member.getId())).thenReturn(true);
+        when(preferredRegionRepository.findAllByMemberId(member.getId())).thenReturn(List.of(preferredRegion1, preferredRegion2));
+        when(regionStudyRepository.findAllByRegion(any())).thenReturn(List.of(regionStudy1, regionStudy2));
+        when(studyRepository.countStudyByConditionsAndRegionStudiesAndNotInIds(any(), any(), any(), any()))
+            .thenReturn(1L);
+        when(studyRepository.findStudyByConditionsAndRegionStudiesAndNotInIds(any(), any(), any(), any(), any()))
+            .thenReturn(List.of(study1));
+
+        // when
+        // 검색 조건이 안맞는 경우, 검색 조건에 맞는 스터디가 조회 되면 안됨.
+        StudyPreviewDTO result = studyQueryService.findInterestRegionStudiesByConditionsAll(
+            pageable, member.getId(), getSearchRequestStudyDTO(), StudySortBy.ALL);
+
+        // then
+        assertEquals(1, result.getTotalElements());
+        assertEquals(study1.getTitle(), result.getContent().get(0).getTitle());
+
+    }
+
+    @Test
+    @DisplayName("내 전체 관심 지역 스터디 조회 - 정렬 조건에 따른 스터디 필터링 테스트(조회수 순)")
+    void shouldFilterRegionStudiesBasedOnSortConditionsByHit(){
+        // given
+
+        StudySortBy sortBy = StudySortBy.HIT;
+
+        when(memberRepository.existsById(member.getId())).thenReturn(true);
+        when(preferredRegionRepository.findAllByMemberId(member.getId())).thenReturn(List.of(preferredRegion1, preferredRegion2));
+        when(regionStudyRepository.findAllByRegion(any())).thenReturn(List.of(regionStudy1, regionStudy2));
+        when(studyRepository.countStudyByConditionsAndRegionStudiesAndNotInIds(any(), any(), any(), any()))
+            .thenReturn(2L);
+        when(studyRepository.findStudyByConditionsAndRegionStudiesAndNotInIds(any(), any(), any(), any(), any()))
+            .thenReturn(List.of(study1, study2));
+
+        // when
+        StudyPreviewDTO result = studyQueryService.findInterestRegionStudiesByConditionsAll(
+            pageable, member.getId(), getSearchRequestStudyDTO(), sortBy);
+
+        // then
+        assertEquals(2, result.getTotalElements());
+        assertEquals(study1.getTitle(), result.getContent().get(0).getTitle());
+        assertEquals(study2.getTitle(), result.getContent().get(1).getTitle());
+
+    }
+
+    @Test
+    @DisplayName("내 전체 관심 지역 스터디 조회 - 정렬 조건에 따른 스터디 필터링 테스트(좋아요 순)")
+    void shouldFilterRegionStudiesBasedOnSortConditionsByLiked(){
+        // given
+        StudySortBy sortBy = StudySortBy.LIKED;
+
+        when(memberRepository.existsById(member.getId())).thenReturn(true);
+        when(preferredRegionRepository.findAllByMemberId(member.getId())).thenReturn(List.of(preferredRegion1, preferredRegion2));
+        when(regionStudyRepository.findAllByRegion(any())).thenReturn(List.of(regionStudy1, regionStudy2));
+        when(studyRepository.countStudyByConditionsAndRegionStudiesAndNotInIds(any(), any(), any(), any()))
+            .thenReturn(2L);
+        when(studyRepository.findStudyByConditionsAndRegionStudiesAndNotInIds(any(), any(), any(), any(), any()))
+            .thenReturn(List.of(study2, study1));
+
+        // when
+        StudyPreviewDTO result = studyQueryService.findInterestRegionStudiesByConditionsAll(
+            pageable, member.getId(), getSearchRequestStudyDTO(), sortBy);
+
+        // then
+        assertEquals(2, result.getTotalElements());
+        assertEquals(study2.getTitle(), result.getContent().get(0).getTitle());
+        assertEquals(study1.getTitle(), result.getContent().get(1).getTitle());
+
+    }
+
+    @Test
+    @DisplayName("내 전체 관심 지역 스터디 조회 - 회원의 관심 지역 없는 경우")
+    void findInterestRegionStudiesByConditionsAllOnNoInterest() {
+        // given
+
+        StudySortBy sortBy = StudySortBy.ALL;
+
+        when(memberRepository.existsById(member.getId())).thenReturn(true);
+        when(preferredRegionRepository.findAllByMemberId(member.getId())).thenReturn(List.of());
+
+        // when & then
+        assertThrows(MemberHandler.class, () -> {
+            studyQueryService.findInterestRegionStudiesByConditionsAll(pageable, member.getId(), request, sortBy);
+        });
+    }
+
 
     /* -------------------------------------------------------- 내 특정 관심 지역 스터디 조회 ------------------------------------------------------------------------*/
 

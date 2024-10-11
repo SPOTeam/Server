@@ -461,7 +461,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             .map(PreferredRegion::getRegion)
             .toList();
 
-        // 회원의 관심 지역이 없을 경우
+        // 회원의 관심 지역이 없을 경우이
         if (regions.isEmpty())
             throw new MemberHandler(ErrorStatus._STUDY_REGION_IS_INVALID);
 
