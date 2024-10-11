@@ -1,5 +1,6 @@
 package com.example.spot.web.dto.member;
 
+import com.example.spot.domain.enums.LoginType;
 import com.example.spot.domain.enums.Reason;
 import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.domain.Member;
@@ -11,6 +12,43 @@ import java.time.LocalDateTime;
 
 @Getter
 public class MemberResponseDTO {
+
+    @Getter
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    @Builder(access = AccessLevel.PRIVATE)
+    public static class FindPwDTO {
+
+        private final String nickname;
+        private final String loginId;
+        private final String tempPw;
+
+        public static FindPwDTO toDTO(Member member) {
+            return FindPwDTO.builder()
+                    .nickname(member.getNickname())
+                    .loginId(member.getLoginId())
+                    .tempPw(member.getPassword())
+                    .build();
+        }
+    }
+
+    @Getter
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    @Builder(access = AccessLevel.PRIVATE)
+    public static class FindIdDTO {
+
+        private final String account;
+        private final LoginType loginType;
+        private final LocalDateTime createdAt;
+
+        public static FindIdDTO toDTO(Member member) {
+            return FindIdDTO.builder()
+                    .account(member.getLoginType().equals(LoginType.NORMAL) ?
+                                member.getLoginId() : member.getEmail())
+                    .loginType(member.getLoginType())
+                    .createdAt(member.getCreatedAt())
+                    .build();
+        }
+    }
 
     @Builder
     @Getter
