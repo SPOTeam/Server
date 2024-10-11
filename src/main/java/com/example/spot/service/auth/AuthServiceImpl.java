@@ -104,8 +104,8 @@ public class AuthServiceImpl implements AuthService{
     @Override
     public MemberResponseDTO.MemberSignInDTO signIn(MemberRequestDTO.SignInDTO signInDTO) {
 
-        // 이메일이 일치하는 유저가 있는지 확인
-        Member member = memberRepository.findByEmail(signInDTO.getEmail())
+        // 아이디가 일치하는 유저가 있는지 확인
+        Member member = memberRepository.findByLoginId(signInDTO.getLoginId())
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
 
         // 비밀번호 확인

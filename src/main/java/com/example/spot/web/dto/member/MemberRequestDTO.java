@@ -17,8 +17,8 @@ public class MemberRequestDTO {
     @RequiredArgsConstructor
     public static class SignInDTO {
 
-        @TextLength(max = 50)
-        private final String email;
+        @TextLength(max = 100)
+        private final String loginId;
 
         @TextLength(max = 100)
         private final String password;
