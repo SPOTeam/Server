@@ -10,8 +10,10 @@ import com.example.spot.domain.mapping.PreferredStudy;
 import com.example.spot.domain.mapping.RegionStudy;
 import com.example.spot.domain.mapping.StudyTheme;
 import com.example.spot.domain.study.Study;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,6 +21,25 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 
 public class SearchResponseDTO {
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class HotKeywordDTO {
+        Set<KeywordDTO> keyword;
+        String updatedAt;
+
+        @Builder
+        @Getter
+        @NoArgsConstructor
+        @AllArgsConstructor
+        public static class KeywordDTO{
+            String keyword;
+            Double point;
+        }
+    }
+
     @Builder
     @Getter
     @NoArgsConstructor

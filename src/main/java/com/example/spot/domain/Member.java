@@ -2,6 +2,7 @@ package com.example.spot.domain;
 
 import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.enums.Carrier;
+import com.example.spot.domain.enums.Gender;
 import com.example.spot.domain.enums.LoginType;
 import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.mapping.*;
@@ -14,15 +15,13 @@ import com.example.spot.web.dto.member.MemberRequestDTO.MemberInfoListDTO;
 import com.example.spot.web.dto.member.MemberRequestDTO.MemberUpdateDTO;
 import jakarta.persistence.*;
 import java.util.ArrayList;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import lombok.NoArgsConstructor;
+
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -46,6 +45,7 @@ public class Member extends BaseEntity {
     @Column(length = 100)
     private String loginId;
 
+    @Setter
     @Column(nullable = false, length = 100)
     private String password;
 
@@ -66,6 +66,10 @@ public class Member extends BaseEntity {
 
     @Column(nullable = false)
     private LocalDate birth;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Gender gender;
 
     @Column(nullable = false)
     private String profileImage;
@@ -361,4 +365,5 @@ public class Member extends BaseEntity {
     public void addToDoList(ToDoList toDoList) {
         this.toDoLists.add(toDoList);
     }
+
 }

@@ -32,8 +32,8 @@ public class WebSecurity {
         http.authorizeHttpRequests((authz) -> authz
                 .requestMatchers(new AntPathRequestMatcher("/api/**")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/actuator/**")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/spot/sign-up/send-verification-code")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/spot/sign-up/verify")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/spot/send-verification-code")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/spot/verify")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/spot/reissue")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/spot/login", "POST")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/spot/login/kakao", "GET")).permitAll()

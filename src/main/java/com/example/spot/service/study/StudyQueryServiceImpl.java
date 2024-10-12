@@ -35,6 +35,7 @@ import com.example.spot.repository.ThemeRepository;
 import com.example.spot.security.utils.SecurityUtils;
 import com.example.spot.web.dto.search.SearchRequestDTO.SearchRequestStudyDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO;
+import com.example.spot.web.dto.search.SearchResponseDTO.HotKeywordDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.MyPageDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.SearchStudyDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.StudyPreviewDTO;
@@ -44,16 +45,26 @@ import com.example.spot.web.dto.study.response.StudyMemberResponseDTO.StudyMembe
 import com.example.spot.web.dto.study.response.StudyPostResponseDTO;
 import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO;
 import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO.StudyScheduleDTO;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
+import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,6 +73,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 @Slf4j
 public class StudyQueryServiceImpl implements StudyQueryService {
+
+
+    @Value("${study.hot-keyword}")
+    private String HOT_KEYWORD;
+    @Value("${study.last-updated}")
+    private String LAST_UPDATED;
 
     private final MemberRepository memberRepository;
 
@@ -78,6 +95,44 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     // 지역 관련 조회
     private final PreferredRegionRepository preferredRegionRepository;
     private final RegionStudyRepository regionStudyRepository;
+
+    private final RedisTemplate<String, String> redisTemplate;
+
+    /**
+     * 인기 검색어를 조회하는 메서드입니다. 인기 검색어는 매일 13시, 18시에 총 2번 업데이트 됩니다.
+     * 인기 검색어는 검색된 횟수 순으로 5개까지 조회 가능합니다.
+     * @return 인기 검색어 목록 및 업데이트 시간을 반환합니다.
+     */
+    @Override
+    public HotKeywordDTO getHotKeyword() {
+        // popular_keywords에서 캐시된 검색어 목록 가져오기
+        ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
+
+        Set<TypedTuple<String>> typedTuples = zSetOperations.reverseRangeWithScores(HOT_KEYWORD, 0, 4);
+
+        // 캐시된 검색어가 없을 경우
+        if (typedTuples.isEmpty())
+            throw new GeneralException(ErrorStatus._HOT_KEYWORD_NOT_FOUND);
+
+        // 순서를 보장하는 LinkedHashSet을 사용합니다.
+        Set<HotKeywordDTO.KeywordDTO> keywordDTOS = new LinkedHashSet<>();
+
+        // DTO로 변환
+        for (TypedTuple<String> tuple : typedTuples) {
+            keywordDTOS.add(HotKeywordDTO.KeywordDTO.builder()
+                .keyword(tuple.getValue())
+                .point(tuple.getScore())
+                .build());
+        }
+
+        // 마지막 업데이트 시간 가져오기
+        String updatedAt = redisTemplate.opsForValue().get(LAST_UPDATED);
+
+        return HotKeywordDTO.builder()
+            .keyword(keywordDTOS)
+            .updatedAt(updatedAt) // 업데이트 시간 설정
+            .build();
+    }
 
     /**
      * 스터디의 상세 정보를 조회하는 메서드입니다
@@ -280,7 +335,6 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         if (themes.isEmpty())
             throw new MemberHandler(ErrorStatus._STUDY_THEME_IS_INVALID);
 
-        // 회원 관심사로 스터디 테마 조회
         List<StudyTheme> studyThemes = themes.stream()
             .flatMap(theme -> studyThemeRepository.findAllByTheme(theme).stream())
             .toList();
@@ -407,7 +461,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             .map(PreferredRegion::getRegion)
             .toList();
 
-        // 회원의 관심 지역이 없을 경우
+        // 회원의 관심 지역이 없을 경우이
         if (regions.isEmpty())
             throw new MemberHandler(ErrorStatus._STUDY_REGION_IS_INVALID);
 

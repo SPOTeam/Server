@@ -2,11 +2,10 @@ package com.example.spot.web.dto.member;
 
 import com.example.spot.domain.enums.Carrier;
 import com.example.spot.domain.enums.Gender;
-import com.example.spot.domain.enums.Theme;
 import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.validation.annotation.TextLength;
 import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.Max;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -18,8 +17,8 @@ public class MemberRequestDTO {
     @RequiredArgsConstructor
     public static class SignInDTO {
 
-        @TextLength(max = 50)
-        private final String email;
+        @TextLength(max = 100)
+        private final String loginId;
 
         @TextLength(max = 100)
         private final String password;
@@ -35,7 +34,11 @@ public class MemberRequestDTO {
         @TextLength(max = 8)
         private final String nickname;
 
-        private final LocalDate birth;
+        @TextLength(max = 6)
+        private final String frontRID;
+
+        @TextLength(max = 1)
+        private final String backRID;
 
         @TextLength(max = 50)
         private final String email;

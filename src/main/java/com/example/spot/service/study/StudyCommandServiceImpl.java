@@ -21,15 +21,23 @@ import com.example.spot.web.dto.study.response.StudyJoinResponseDTO;
 import com.example.spot.web.dto.study.response.StudyLikeResponseDTO;
 import com.example.spot.web.dto.study.response.StudyRegisterResponseDTO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Slf4j
 @Transactional
 @RequiredArgsConstructor
 public class StudyCommandServiceImpl implements StudyCommandService {
+
+
+    @Value("${study.keyword}")
+    private String KEYWORD;
 
     private final MemberRepository memberRepository;
     private final StudyRepository studyRepository;
@@ -40,6 +48,8 @@ public class StudyCommandServiceImpl implements StudyCommandService {
     private final RegionStudyRepository regionStudyRepository;
     private final StudyThemeRepository studyThemeRepository;
     private final PreferredStudyRepository preferredStudyRepository;
+
+    private final RedisTemplate<String, String> redisTemplate;
 
     /* ----------------------------- 스터디 생성/참여 관련 API ------------------------------------- */
 
@@ -163,6 +173,7 @@ public class StudyCommandServiceImpl implements StudyCommandService {
         return new StudyLikeResponseDTO(preferredStudy);
     }
 
+
     private void createMemberStudy(Member member, Study study) {
 
         MemberStudy memberStudy = MemberStudy.builder()
@@ -222,5 +233,16 @@ public class StudyCommandServiceImpl implements StudyCommandService {
 
                     study.addStudyTheme(studyTheme);
                 });
+    }
+
+    /* ---------------------------------- 인기 검색어 --------------------------------------------- */
+
+    /**
+     * 검색어를 인기 검색어(Redis)에 추가합니다. 이미 존재하는 검색어라면 score를 1 증가시킵니다.
+     * @param keyword 검색어
+     */
+    @Override
+    public void addHotKeyword(String keyword) {
+       redisTemplate.opsForZSet().incrementScore(KEYWORD, keyword, 1);
     }
 }
