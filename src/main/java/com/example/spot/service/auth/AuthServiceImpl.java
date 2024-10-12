@@ -22,10 +22,13 @@ import com.example.spot.service.message.MailService;
 import com.example.spot.web.dto.token.TokenResponseDTO;
 import com.example.spot.web.dto.token.TokenResponseDTO.TokenDTO;
 
+import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -101,8 +104,8 @@ public class AuthServiceImpl implements AuthService{
     @Override
     public MemberResponseDTO.MemberSignInDTO signIn(MemberRequestDTO.SignInDTO signInDTO) {
 
-        // 이메일이 일치하는 유저가 있는지 확인
-        Member member = memberRepository.findByEmail(signInDTO.getEmail())
+        // 아이디가 일치하는 유저가 있는지 확인
+        Member member = memberRepository.findByLoginId(signInDTO.getLoginId())
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
 
         // 비밀번호 확인
@@ -123,11 +126,6 @@ public class AuthServiceImpl implements AuthService{
 
     @Override
     public void sendVerificationCode(HttpServletRequest request, HttpServletResponse response, String email) {
-
-        // 이미 해당 전화번호로 가입된 회원이 존재하면 에러 반환
-        if (memberRepository.existsByEmail(email)) {
-            throw new MemberHandler(ErrorStatus._MEMBER_EMAIL_ALREADY_EXISTS);
-        }
 
         // 인증 코드 생성
         String verificationCode = createCode();
@@ -242,5 +240,60 @@ public class AuthServiceImpl implements AuthService{
 
         refreshTokenRepository.save(refreshToken);
     }
+
+    @Override
+    public MemberResponseDTO.FindIdDTO findId() {
+
+        // 임시 토큰 검증
+        String email = SecurityUtils.getVerifiedTempUserEmail();
+
+        // 이메일로 가입된 회원 정보 확인
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        return MemberResponseDTO.FindIdDTO.toDTO(member);
+    }
+
+    @Override
+    public MemberResponseDTO.FindPwDTO findPw(String loginId) {
+
+        // 임시 토큰 검증
+        String email = SecurityUtils.getVerifiedTempUserEmail();
+
+        // 이메일로 가입된 회원 정보 확인
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        // 인증된 사용자의 아이디와 입력 아이디 일치 여부 확인
+        if (!member.getLoginId().equals(loginId)) {
+            throw new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND);
+        }
+
+        // 임시 비밀번호 발급
+        String tempPw = generateTempPassword();
+        member.setPassword(tempPw);
+        memberRepository.save(member);
+
+        return MemberResponseDTO.FindPwDTO.toDTO(member);
+
+    }
+
+    private String generateTempPassword() {
+
+        // Char Set
+        String UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        String LOWER = "abcdefghijklmnopqrstuvwxyz";
+        String DIGITS = "0123456789";
+        String SPECIALS = "!@#$%^&*()_+";
+
+        String ALL_CHARS = UPPER + LOWER + DIGITS + SPECIALS;
+
+        SecureRandom random = new SecureRandom();
+        return IntStream.range(0, 13)
+                .map(i -> ALL_CHARS.charAt(random.nextInt(ALL_CHARS.length())))
+                .mapToObj(c -> String.valueOf((char) c))
+                .collect(Collectors.joining());
+    }
+
 
 }

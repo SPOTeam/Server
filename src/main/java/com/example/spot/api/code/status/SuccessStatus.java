@@ -27,6 +27,7 @@ public enum SuccessStatus implements BaseCode {
     _MEMBER_SIGNED_IN(HttpStatus.OK, "MEMBER2009", "회원 로그인 완료"),
     _MEMBER_EMAIL_VERIFIED(HttpStatus.OK, "MEMBER2010", "회원 이메일 인증 완료"),
     _VERIFICATION_EMAIL_SENT(HttpStatus.OK, "MEMBER2011", "회원 인증 메일 전송 완료"),
+    _MEMBER_LOGIN_ID_FOUND(HttpStatus.OK, "MEMBER2012", "회원 아이디 조회 완료"),
 
     //스터디 게시글 관련 응답
     _STUDY_POST_CREATED(HttpStatus.CREATED, "STUDYPOST3001", "스터디 게시글 작성 완료"),

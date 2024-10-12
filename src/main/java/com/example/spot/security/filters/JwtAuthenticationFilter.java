@@ -62,7 +62,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private boolean isTempRequest(HttpServletRequest request) {
-        return Objects.equals(request.getRequestURI(), "/spot/sign-up");
+        return request.getRequestURI().equals("/spot/sign-up") ||
+                request.getRequestURI().equals("/spot/find-id") ||
+                request.getRequestURI().equals("/spot/find-pw");
     }
 
     private boolean isReissueRequest(HttpServletRequest request) {

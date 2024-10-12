@@ -15,15 +15,13 @@ import com.example.spot.web.dto.member.MemberRequestDTO.MemberInfoListDTO;
 import com.example.spot.web.dto.member.MemberRequestDTO.MemberUpdateDTO;
 import jakarta.persistence.*;
 import java.util.ArrayList;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import lombok.NoArgsConstructor;
+
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -47,6 +45,7 @@ public class Member extends BaseEntity {
     @Column(length = 100)
     private String loginId;
 
+    @Setter
     @Column(nullable = false, length = 100)
     private String password;
 
@@ -366,4 +365,5 @@ public class Member extends BaseEntity {
     public void addToDoList(ToDoList toDoList) {
         this.toDoLists.add(toDoList);
     }
+
 }

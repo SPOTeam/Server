@@ -20,4 +20,7 @@ public interface AuthService {
 
     MemberResponseDTO.MemberSignInDTO signUp(MemberRequestDTO.SignUpDTO signUpDTO);
 
+    MemberResponseDTO.FindIdDTO findId();
+
+    MemberResponseDTO.FindPwDTO findPw(String loginId);
 }
