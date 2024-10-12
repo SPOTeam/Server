@@ -214,7 +214,7 @@ public class PostQueryServiceImpl implements PostQueryService {
     @Transactional(readOnly = true)
     @Override
     public CommentResponse getCommentsByPostId(Long postId) {
-        List<PostComment> comments = postCommentRepository.findByPostId(postId);
+        List<PostComment> comments = postCommentRepository.findCommentsByPostId(postId);
 
         List<CommentDetailResponse> commentResponses = comments.stream()
                 .map(comment -> {
