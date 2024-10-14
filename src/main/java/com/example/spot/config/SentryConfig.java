@@ -12,12 +12,17 @@ import org.springframework.context.annotation.Profile;
 @Slf4j
 public class SentryConfig {
 
+    // Sentry DSN
     @Value("${sentry.dsn}")
     private String sentryDsn;
 
+    // Sentry Environment
     @Value("${sentry.environment}")
     private String environment;
 
+    /**
+     * Sentry를 초기화합니다.
+     */
     @PostConstruct
     public void init() {
         Sentry.init(options -> {
