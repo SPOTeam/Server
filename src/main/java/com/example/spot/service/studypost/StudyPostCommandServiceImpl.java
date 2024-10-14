@@ -284,6 +284,13 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
 
 /* ----------------------------- 스터디 게시글 댓글 관련 API ------------------------------------- */
 
+    /**
+     * 스터디 게시글에 댓글을 추가하는 메서드입니다. 답글 추가 메서드는 하단에 별도로 구현되어 있습니다.
+     * @param studyId 스터디 게시글이 작성된 타겟 스터디를 입력 받습니다.
+     * @param postId 댓글을 추가할 스터디 게시글의 아이디를 입력 받습니다.
+     * @param commentRequestDTO 추가할 댓글(내용, 익명 여부)을 입력 받습니다.
+     * @return 댓글 아이디와 작성자, 내용, 좋아요와 싫어요 개수를 함께 반환합니다.
+     */
     @Override
     public StudyPostCommentResponseDTO.CommentDTO createComment(Long studyId, Long postId, StudyPostCommentRequestDTO.CommentDTO commentRequestDTO) {
 
@@ -329,6 +336,13 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
         return StudyPostCommentResponseDTO.CommentDTO.toDTO(studyPostComment, "익명"+anonymousNum, defaultImage);
     }
 
+    /**
+     * 스터디 게시글에 답글을 추가하는 메서드입니다. 댓글 추가 메서드는 상단에 별도로 구현되어 있습니다.
+     * @param studyId 스터디 게시글이 작성된 타겟 스터디를 입력 받습니다.
+     * @param postId 댓글을 추가할 스터디 게시글의 아이디를 입력 받습니다.
+     * @param commentRequestDTO 추가할 댓글(내용, 익명 여부)을 입력 받습니다.
+     * @return 댓글 아이디와 작성자, 내용, 좋아요와 싫어요 개수를 함께 반환합니다.
+     */
     @Override
     public StudyPostCommentResponseDTO.CommentDTO createReply(Long studyId, Long postId, Long commentId, StudyPostCommentRequestDTO.CommentDTO commentRequestDTO) {
 
@@ -379,6 +393,15 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
         return StudyPostCommentResponseDTO.CommentDTO.toDTO(studyPostComment, "익명"+anonymousNum, defaultImage);
     }
 
+    /**
+     * 스터디 게시글 댓글마다 익명 번호를 부여하는 메서드입니다.
+     * 회원이 이미 타겟 스터디 게시글에 익명으로 댓글을 작성한 이력이 있는 경우 해당 번호를 반환합니다.
+     * @param postId 댓글을 작성할 타겟 스터디 게시글의 아이디를 입력 받습니다.
+     * @param commentRequestDTO 추가할 댓글(내용, 익명 여부)을 입력 받습니다.
+     * @param member 댓글 작성자를 입력 받습니다.
+     * @return 댓글 작성자의 익명 번호를 반환합니다.
+     *         회원이 이미 타겟 스터디 게시글에 익명으로 댓글을 작성한 이력이 있는 경우 해당 번호를 반환합니다.
+     */
     private Integer getAnonymousNum(Long postId, StudyPostCommentRequestDTO.CommentDTO commentRequestDTO, Member member) {
         Integer anonymousNum = null;
 
@@ -409,6 +432,13 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
         return anonymousNum;
     }
 
+    /**
+     * 스터디 게시글에 작성한 댓글을 삭제하는 메서드입니다. 댓글 삭제와 답글 삭제 모두 해당 메서드를 활용합니다.
+     * @param studyId 스터디 게시글이 작성된 타겟 스터디의 아이디를 입력 받습니다.
+     * @param postId 댓글을 삭제할 타겟 스터디 게시글의 아이디를 입력 받습니다.
+     * @param commentId 삭제할 댓글의 아이디를 입력 받습니다.
+     * @return 삭제한 댓글의 아이디를 반환합니다.
+     */
     @Override
     public StudyPostCommentResponseDTO.CommentIdDTO deleteComment(Long studyId, Long postId, Long commentId) {
 
@@ -451,18 +481,43 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
         return new StudyPostCommentResponseDTO.CommentIdDTO(commentId);
     }
 
+    /**
+     * 댓글에 좋아요를 누르는 메서드입니다. 댓글 좋아요와 답글 좋아요 모두 해당 메서드를 활용합니다.
+     * 댓글에 좋아요를 누른 회원의 정보가 StudyLikedComment에 저장되고 타겟 댓글의 좋아요 개수가 업데이트 됩니다.
+     * @param studyId 스터디 게시글이 작성된 타겟 스터디의 아이디를 입력 받습니다.
+     * @param postId 타겟이 되는 스터디 게시글의 아이디를 입력 받습니다.
+     * @param commentId 좋아요를 누를 타겟 댓글의 아이디를 입력 받습니다.
+     * @return 댓글 아이디와 타겟 댓글의 좋아요 수와 싫어요 수가 반환됩니다.
+     */
     @Override
     public StudyPostCommentResponseDTO.CommentPreviewDTO likeComment(Long studyId, Long postId, Long commentId) {
         StudyPostComment studyPostComment = saveStudyPostComment(studyId, postId, commentId, Boolean.TRUE);
         return StudyPostCommentResponseDTO.CommentPreviewDTO.toDTO(studyPostComment);
     }
 
+    /**
+     * 댓글에 싫어요를 누르는 메서드입니다. 댓글 싫어요와 답글 싫어요 모두 해당 메서드를 활용합니다.
+     * 댓글에 싫어요를 누른 회원의 정보가 StudyLikedComment에 저장되고 타겟 댓글의 싫어요 개수가 업데이트 됩니다.
+     * @param studyId 스터디 게시글이 작성된 타겟 스터디의 아이디를 입력 받습니다.
+     * @param postId 타겟이 되는 스터디 게시글의 아이디를 입력 받습니다.
+     * @param commentId 싫어요를 누를 타겟 댓글의 아이디를 입력 받습니다.
+     * @return 댓글 아이디와 타겟 댓글의 좋아요 수와 싫어요 수가 반환됩니다.
+     */
     @Override
     public StudyPostCommentResponseDTO.CommentPreviewDTO dislikeComment(Long studyId, Long postId, Long commentId) {
         StudyPostComment studyPostComment = saveStudyPostComment(studyId, postId, commentId, Boolean.FALSE);
         return StudyPostCommentResponseDTO.CommentPreviewDTO.toDTO(studyPostComment);
     }
 
+    /**
+     * 댓글 좋아요/싫어요 메서드에서 사용되는 내부 메서드입니다.
+     * isLiked = true면 좋아요 정보를, isLiked = false면 싫어요 정보를 DB에 저장합니다.
+     * @param studyId 스터디 게시글이 작성된 타겟 스터디의 아이디를 입력 받습니다.
+     * @param postId 타겟이 되는 스터디 게시글의 아이디를 입력 받습니다.
+     * @param commentId 좋아요 혹은 싫어요를 누를 타겟 댓글의 아이디를 입력 받습니다.
+     * @param isLiked 좋아요 혹은 싫어요 어부를 입력 받습니다.
+     * @return SavePostComment 객체를 반환합니다.
+     */
     private StudyPostComment saveStudyPostComment(Long studyId, Long postId, Long commentId, Boolean isLiked) {
 
         //=== Exception ===//
@@ -514,6 +569,14 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
         return studyPostComment;
     }
 
+    /**
+     * 댓글 좋아요를 취소하는 메서드입니다. 댓글 좋아요와 답글 좋아요 모두 해당 메서드를 활용합니다.
+     * 댓글 좋아요를 취소한 회원의 정보가 StudyLikedComment에서 삭제되고 타겟 댓글의 싫어요 개수가 업데이트 됩니다.
+     * @param studyId 스터디 게시글이 작성된 타겟 스터디의 아이디를 입력 받습니다.
+     * @param postId 타겟이 되는 스터디 게시글의 아이디를 입력 받습니다.
+     * @param commentId 싫어요를 취소할 타겟 댓글의 아이디를 입력 받습니다.
+     * @return 댓글 아이디와 타겟 댓글의 좋아요 수와 싫어요 수가 반환됩니다.
+     */
     @Override
     public StudyPostCommentResponseDTO.CommentPreviewDTO cancelCommentLike(Long studyId, Long postId, Long commentId) {
 
@@ -527,6 +590,14 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
         return StudyPostCommentResponseDTO.CommentPreviewDTO.toDTO(studyPostComment);
     }
 
+    /**
+     * 댓글 싫어요를 취소하는 메서드입니다. 댓글 싫어요와 답글 싫어요 모두 해당 메서드를 활용합니다.
+     * 댓글 싫어요를 취소한 회원의 정보가 StudyLikedComment에서 삭제되고 타겟 댓글의 싫어요 개수가 업데이트 됩니다.
+     * @param studyId 스터디 게시글이 작성된 타겟 스터디의 아이디를 입력 받습니다.
+     * @param postId 타겟이 되는 스터디 게시글의 아이디를 입력 받습니다.
+     * @param commentId 싫어요를 취소할 타겟 댓글의 아이디를 입력 받습니다.
+     * @return 댓글 아이디와 타겟 댓글의 좋아요 수와 싫어요 수가 반환됩니다.
+     */
     @Override
     public StudyPostCommentResponseDTO.CommentPreviewDTO cancelCommentDislike(Long studyId, Long postId, Long commentId) {
 
@@ -540,6 +611,15 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
         return StudyPostCommentResponseDTO.CommentPreviewDTO.toDTO(studyPostComment);
     }
 
+    /**
+     * 댓글 좋아요/싫어요 취소 메서드에서 사용되는 내부 메서드입니다.
+     * @param studyId 스터디 게시글이 작성된 타겟 스터디의 아이디를 입력 받습니다.
+     * @param postId 타겟이 되는 스터디 게시글의 아이디를 입력 받습니다.
+     * @param commentId 좋아요 혹은 싫어요를 취소할 타겟 댓글의 아이디를 입력 받습니다.
+     * @param memberId 댓글에 좋아요 혹은 싫어요를 누른 회원의 아이디를 입력 받습니다.
+     * @param studyLikedComment DB에서 삭제할 StudyLikedComment 객체를 입력 받습니다.
+     * @return 삭제된 StudyLikedComment 객체를 반환합니다.
+     */
     private StudyPostComment deleteStudyLikedComment(Long studyId, Long postId, Long commentId, Long memberId, StudyLikedComment studyLikedComment) {
 
         //=== Exception ===//
