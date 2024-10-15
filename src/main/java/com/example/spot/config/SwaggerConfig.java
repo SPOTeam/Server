@@ -15,8 +15,13 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SwaggerConfig {
 
+    /**
+     * OpenAPI를 Bean으로 등록합니다.
+     * @return OpenAPI
+     */
     @Bean
     public OpenAPI SpotAPI() {
+        // Define SecurityScheme
         Info info = new Info()
                 .title("SPOT API")
                 .description("SPOT API 명세서");
