@@ -3,6 +3,7 @@ package com.example.spot.web.dto.member.kakao;
 import com.example.spot.domain.Member;
 import com.example.spot.domain.enums.Carrier;
 import com.example.spot.domain.enums.LoginType;
+import com.example.spot.security.utils.MemberUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -55,7 +56,7 @@ public class KaKaoUser {
             .profileImage(properties.getProfile_image())
             .carrier(Carrier.NONE)
             .password("default")
-            .phone("NONE")
+            .phone(MemberUtils.generatePhoneNumber())
             .birth(LocalDate.now())
             .personalInfo(false)
             .idInfo(false)
