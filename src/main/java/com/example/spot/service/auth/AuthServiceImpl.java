@@ -101,6 +101,11 @@ public class AuthServiceImpl implements AuthService{
         return tokenDTO;
     }
 
+    /**
+     * 일반 로그인을 위한 메서드입니다. 아이디와 비밀번호를 확인한 후 토큰을 발급하는 로직을 수행합니다.
+     * @param signInDTO 로그인할 회원의 아이디와 비밀번호를 입력 받습니다.
+     * @return 로그인한 회원의 토큰 정보(액세스 & 리프레시 토큰 & 만료기간), 이메일과 회원 아이디(정수)가 반환됩니다.
+     */
     @Override
     public MemberResponseDTO.MemberSignInDTO signIn(MemberRequestDTO.SignInDTO signInDTO) {
 
@@ -124,6 +129,13 @@ public class AuthServiceImpl implements AuthService{
                 .build();
     }
 
+    /**
+     * 인증 코드를 전송하는 메서드입니다.
+     * 일반 회원가입, 아이디 찾기, 비밀번호 찾기에 공통으로 적용되는 인증 메일 전송 로직입니다.
+     * @param request 클라이언트의 요청 정보 객체를 입력 받습니다.
+     * @param response 서버의 응답 정보 객체를 입력 받습니다.
+     * @param email 인증 코드를 전송할 이메일을 입력 받습니다.
+     */
     @Override
     public void sendVerificationCode(HttpServletRequest request, HttpServletResponse response, String email) {
 
@@ -137,12 +149,23 @@ public class AuthServiceImpl implements AuthService{
         mailService.sendMail(request, response, email, verificationCode);
     }
 
+    /**
+     * 인증 코드를 생성하는 메서드입니다.
+     * @return 1 ~ 9999 사이의 랜덤한 정수를 반환합니다.
+     */
     private String createCode() {
         Random random = new Random();
         int intCode = random.nextInt(10000); // 1 ~ 9999 사이의 정수
         return String.format("%04d", intCode);
     }
 
+    /**
+     * 이메일로 전송된 인증 코드를 메모리에 저장된 인증 코드 객체 정보와 비교 검증하는 메서드입니다.
+     * 인증이 완료되면 일반 회원가입, 아이디 찾기, 비밀번호 찾기에 필요한 임시 토큰을 발급합니다.
+     * @param code 이메일로 전달된 인증 코드를 입력 받습니다.
+     * @param email 인증 코드가 전송된 이메일을 입력 받습니다.
+     * @return 발급한 임시 토큰 정보(토큰 & 만료기간)를 반환합니다.
+     */
     @Override
     public TokenResponseDTO.TempTokenDTO verifyEmail(String code, String email) {
 
@@ -163,6 +186,21 @@ public class AuthServiceImpl implements AuthService{
         return tempTokenDTO;
     }
 
+    /**
+     * 일반 회원가입에 사용되는 메서드입니다.
+     * @param signUpDTO 회원의 기본 정보를 입력 받습니다.
+     *                  name : 이름
+     *                  nickname : 닉네임
+     *                  frontRID : 주민번호 앞자리
+     *                  backRID : 주민번호 뒷자리 첫 글자
+     *                  email : 이메일
+     *                  loginId : 아이디
+     *                  password : 비밀번호
+     *                  pwCheck : 비밀번호 확인
+     *                  personalInfo : 개인정보활용 동의 여부
+     *                  idInfo : 고유식별정보처리 동의 여부
+     * @return 가입한 회원은 자동으로 로그인되며, 회원의 토큰 정보(액세스 & 리프레시 토큰 & 만료기간), 이메일과 회원 아이디(정수)가 반환됩니다.
+     */
     @Override
     public MemberResponseDTO.MemberSignInDTO signUp(MemberRequestDTO.SignUpDTO signUpDTO) {
 
@@ -228,6 +266,11 @@ public class AuthServiceImpl implements AuthService{
                 .build();
     }
 
+    /**
+     * 생성된 리프레시 토큰을 DB에 저장하는 메서드입니다.
+     * @param member 리프레시 토큰을 발급한 회원을 입력 받습니다.
+     * @param token 저장할 토큰 정보(액세스 & 리프레시 토큰, 만료기간)를 입력 받습니다.
+     */
     private void saveRefreshToken(Member member, TokenDTO token) {
 
         if (refreshTokenRepository.existsByMemberId(member.getId()))
@@ -241,6 +284,10 @@ public class AuthServiceImpl implements AuthService{
         refreshTokenRepository.save(refreshToken);
     }
 
+    /**
+     * 아이디 찾기에 사용되는 메서드입니다. 임시 토큰을 검증한 후 이메일로 가입된 회원 정보를 확인합니다.
+     * @return 아이디/이메일, 로그인 타입, 계정 생성일시가 반환합니다.
+     */
     @Override
     public MemberResponseDTO.FindIdDTO findId() {
 
@@ -254,6 +301,11 @@ public class AuthServiceImpl implements AuthService{
         return MemberResponseDTO.FindIdDTO.toDTO(member);
     }
 
+    /**
+     * 비밀번호 찾기에 사용되는 메서드입니다. 임시 토큰을 검증한 후 아이디 & 이메일로 가입된 회원 정보를 확인합니다.
+     * @param loginId 비밀번호를 찾고자 하는 회원의 아이디를 입력 받습니다.
+     * @return 닉네임, 아이디, 발급된 임시 비밀번호를 반환합니다.
+     */
     @Override
     public MemberResponseDTO.FindPwDTO findPw(String loginId) {
 
@@ -278,6 +330,11 @@ public class AuthServiceImpl implements AuthService{
 
     }
 
+    /**
+     * 임시 비밀번호를 발급하는 메서드입니다.
+     * 알파벳 대소문자, 숫자, 특수기호를 혼합하여 13자리 비밀번호를 생성합니다.
+     * @return 생성된 임시 비밀번호를 반환합니다.
+     */
     private String generateTempPassword() {
 
         // Char Set
