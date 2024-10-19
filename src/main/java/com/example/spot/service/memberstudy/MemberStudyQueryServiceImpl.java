@@ -240,6 +240,12 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 
     /* ----------------------------- 스터디 출석 관련 API ------------------------------------- */
 
+    /**
+     * 금일 모든 스터디 회원의 출석 정보를 불러옵니다.
+     * @param studyId 출석 정보를 불러올 스터디의 아이디를 입력 받습니다.
+     * @param quizId 금일 생성된 출석 퀴즈의 아이디를 입력 받습니다.
+     * @return 모든 스터디 회원에 대한 정보와 출석 여부를 담은 리스트를 반환합니다.
+     */
     @Override
     public StudyQuizResponseDTO.AttendanceListDTO getAllAttendances(Long studyId, Long quizId) {
 
@@ -282,6 +288,13 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 
     /* ----------------------------- 스터디 일정 관련 API ------------------------------------- */
 
+    /**
+     * 특정 연/월의 일정을 불러오는 메서드입니다.
+     * @param studyId 일정을 불러올 스터디의 아이디를 입력 받습니다.
+     * @param year 일정을 불러올 기준 연도를 입력 받습니다.
+     * @param month 일정을 불러올 달을 입력 받습니다.
+     * @return 스터디 아이디와 해당 스터디의 월별 일정 목록을 반환합니다.
+     */
     @Override
     public ScheduleResponseDTO.MonthlyScheduleListDTO getMonthlySchedules(Long studyId, int year, int month) {
 
@@ -314,6 +327,12 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
         return ScheduleResponseDTO.MonthlyScheduleListDTO.toDTO(study, monthlyScheduleDTOS);
     }
 
+    /**
+     * 하나의 일정에 대한 상세 정보를 불러오는 메서드입니다.
+     * @param studyId 일정을 불러올 스터디의 아이디를 입력 받습니다.
+     * @param scheduleId 상세 정보를 물러올 일정의 아이디를 입력 받습니다.
+     * @return 일정 아이디, 제목, 위치, 시작 일시, 종료 일시, 매일 진행 여부, 주기를 반환합니다.
+     */
     @Override
     public ScheduleResponseDTO.MonthlyScheduleDTO getSchedule(Long studyId, Long scheduleId) {
 
@@ -343,12 +362,34 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
         return ScheduleResponseDTO.MonthlyScheduleDTO.toDTO(schedule, isStudyMember);
     }
 
+    /**
+     * 월별 일정 리스트에 주기가 정해져 있지 않은 일정을 추가하기 위한 메서드입니다.
+     * 일정의 시작일이 기준 연월과 일치하는 경우 월별 일정 리스트에 추가합니다.
+     * getMonthlySchedules API에서 호출되는 내부 메서드입니다.
+     * @param schedule 리스트에 추가할 일정 정보를 입력 받습니다.
+     * @param year 기준 연도를 입력 받습니다.
+     * @param month 기준 월을 입력 받습니다.
+     * @param monthlyScheduleDTOS 일정을 추가할 월별 일정 리스트를 입력 받습니다.
+     * @param isStudyMember 스터디 회원 여부를 입력 받습니다.
+     */
     private void addSchedule(Schedule schedule, int year, int month, List<ScheduleResponseDTO.MonthlyScheduleDTO> monthlyScheduleDTOS, boolean isStudyMember) {
         if (schedule.getStartedAt().getYear() == year && schedule.getStartedAt().getMonthValue() == month) {
             monthlyScheduleDTOS.add(ScheduleResponseDTO.MonthlyScheduleDTO.toDTO(schedule, isStudyMember));
         }
     }
 
+    /**
+     * 월별 일정 리스트에 반복적인 일정을 추가하기 위한 메서드입니다.
+     * 일정의 시작일이 기준 연월 내에 있는 경우에만 일정을 추가하며, 주기에 따라 하나의 일정이라도 여러 번 추가될 수 있습니다.
+     * 예를 들어 기준 연월이 2024년 8월이고, 2024년 8월 2일부터 시작되는 WEEKLY 일정이 있다고 가정
+     *      1. 이 일정은 기준 연월 내에서 2024년 8월 2일, 8월 9일, 8월 16일, 8월 23일, 8월 30일에 시행
+     *      2. 따라서 monthlyScheduleDTOS에 추가되는 일정은 총 5개
+     * @param schedule 리스트에 추가할 일정 정보를 입력 받습니다.
+     * @param year 기준 연도를 입력 받습니다.
+     * @param month 기준 월을 입력 받습니다.
+     * @param monthlyScheduleDTOS 일정을 추가할 월별 일정 리스트를 입력 받습니다.
+     * @param isStudyMember 스터디 회원 여부를 입력 받습니다.
+     */
     private void addPeriodSchedules(Schedule schedule, int year, int month, List<ScheduleResponseDTO.MonthlyScheduleDTO> monthlyScheduleDTOS, boolean isStudyMember) {
 
         Duration duration = Duration.between(schedule.getStartedAt(), schedule.getFinishedAt()); // 일정 수행 시간
@@ -379,6 +420,11 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 
 /* ----------------------------- 스터디 투표 관련 API ------------------------------------- */
 
+    /**
+     * 스터디에 생성된 모든 투표 목록을 불러옵니다.
+     * @param studyId 투표 목록을 불러올 타겟 스터디의 아이디를 입력 받습니다.
+     * @return 스터디 아이디와 해당 스터디에서 진행중인 투표 목록, 마감된 투표 목록을 반환합니다.
+     */
     @Override
     public StudyVoteResponseDTO.VoteListDTO getAllVotes(Long studyId) {
 
@@ -416,6 +462,13 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
         return StudyVoteResponseDTO.VoteListDTO.toDTO(studyId, votesInProgress, votesInCompletion);
     }
 
+    /**
+     * 스터디 회원의 투표 참여 여부를 확인하는 메서드입니다.
+     * getAllVotes에서 사용되는 내부 메서드입니다.
+     * @param vote 스터디에서 생성한 투표의 아이디를 입력 받습니다.
+     * @param loginMember 로그인한 회원의 정보를 입력 받습니다.
+     * @return 투표 참여 여부를 true or false로 반환합니다.
+     */
     private boolean isParticipated(Vote vote, Member loginMember) {
         // 투표 참여 여부 확인
         boolean isParticipated = false;
@@ -427,11 +480,23 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
         return isParticipated;
     }
 
+    /**
+     * 입력 받은 스터디 투표가 종료되었는지 확인하는 메서드입니다.
+     * (클라이언트에서 투표 불러오기 API를 호출할 때 스터디 종료 여부에 따라 Response DTO가 바뀌어야 하기 때문에 필요한 메서드입니다)
+     * @param voteId 스터디에서 생성한 투표의 아이디를 입력 받습니다.
+     * @return 투표 종료 여부를 true or false로 반환합니다.
+     */
     @Override
     public Boolean getIsCompleted(Long voteId) {
         return voteRepository.existsByIdAndFinishedAtBefore(voteId, LocalDateTime.now());
     }
 
+    /**
+     * 종료된 투표의 정보를 불러오는 메서드입니다.
+     * @param studyId 타겟 스터디의 아이디를 입력 받습니다.
+     * @param voteId 스터디에서 생성한 투표의 아이디를 입력 받습니다.
+     * @return 종료된 투표의 아이디, 생성자, 제목, 항목별 투표 인원수, 전체 참여자 수, 종료 일시를 반환합니다.
+     */
     @Override
     public StudyVoteResponseDTO.CompletedVoteDTO getVoteInCompletion(Long studyId, Long voteId) {
 
@@ -459,6 +524,12 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 
     }
 
+    /**
+     * 진행중인 투표의 정보를 불러오는 메서드입니다.
+     * @param studyId 타겟 스터디의 아이디를 입력 받습니다.
+     * @param voteId 스터디에서 생성한 투표의 아이디를 입력 받습니다.
+     * @return 진행중인 투표의 아이디, 생성자, 제목, 항목 리스트, 복수 선택 가능 여부, 종료 일시, 로그인한 회원의 참여 여부를 반환합니다.
+     */
     @Override
     public StudyVoteResponseDTO.VoteDTO getVoteInProgress(Long studyId, Long voteId) {
 
@@ -485,6 +556,12 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
         return StudyVoteResponseDTO.VoteDTO.toDTO(vote, member);
     }
 
+    /**
+     * 마감된 투표에 대해 항목별 투표 현황을 불러오는 메서드입니다.
+     * @param studyId 타겟 스터디의 아이디를 입력 받습니다.
+     * @param voteId 마감된 스터디 투표의 아이디를 입력 받습니다.
+     * @return 마감된 투표의 아이디와 제목, 항목별 투표 회원 목록을 반환합니다.
+     */
     @Override
     public StudyVoteResponseDTO.CompletedVoteDetailDTO getCompletedVoteDetail(Long studyId, Long voteId) {
 
@@ -537,6 +614,12 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
     }
 /* ----------------------------- 스터디 갤러리 관련 API ------------------------------------- */
 
+    /**
+     * 스터디 게시판에 업로드한 이미지 목록을 불러오는 메서드입니다.
+     * @param studyId 타겟 스터디의 아이디를 입력 받습니다.
+     * @param pageRequest 페이징에 필요한 페이지 번호와 크기를 입력 받습니다.
+     * @return 스터디 아이디와 해당 스터디에 업로드된 이미지 목록을 반환합니다.
+     */
     @Override
     public StudyImageResponseDTO.ImageListDTO getAllStudyImages(Long studyId, PageRequest pageRequest) {
 
@@ -563,6 +646,8 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
         return StudyImageResponseDTO.ImageListDTO.toDTO(studyId, images);
 
     }
+
+/* ----------------------------- To-do list 관련 API ------------------------------------- */
 
     /**
      * 특정 스터디에 저장된 내 To-Do List를 날짜 별로 페이징 조회합니다.

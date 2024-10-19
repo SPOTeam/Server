@@ -341,6 +341,7 @@ public class MemberStudyController {
         ## [스터디 투표] 내 스터디 > 스터디 > 투표 > 특정 투표 클릭, 로그인한 회원이 참여하는 특정 스터디의 투표를 불러옵니다.
         진행중인 투표 : 진행중인 투표에 대한 항목 및 기본 정보가 반환됩니다.
         마감된 투표 : 마감된 투표에 대한 항목과 투표 인원수가 반환됩니다.
+        (진행중인 투표인지 마감된 투표인지에 따라 Response DTO가 서로 다릅니다.)
         """)
     @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
     @Parameter(name = "voteId", description = "불러올 스터디 투표의 id를 입력합니다.")
@@ -384,7 +385,6 @@ public class MemberStudyController {
     public ApiResponse<StudyImageResponseDTO.ImageListDTO> getAllStudyImages(
             @PathVariable @ExistStudy Long studyId,
             @RequestParam @Min(0) Integer offset,
-
             @RequestParam @Min(1) Integer limit) {
         StudyImageResponseDTO.ImageListDTO imageListDTO = memberStudyQueryService.getAllStudyImages(studyId, PageRequest.of(offset, limit));
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_IMAGES_FOUND, imageListDTO);
