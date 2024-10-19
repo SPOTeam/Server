@@ -65,7 +65,13 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
 
 /* ----------------------------- 진행중인 스터디 관련 API ------------------------------------- */
 
-    // [진행중인 스터디] 스터디 탈퇴하기
+    /**
+     * 진행중인 스터디에서 탈퇴하기 위한 메서드입니다.
+     * 스터디장은 스터디를 탈퇴할 수 없으며 스터디를 종료하고자 하는 경우 스터디 terminateStudy API를 호출해야 합니다.
+     * @param memberId 스터디를 탈퇴할 타겟 회원의 아이디(로그인 아이디 X)를 입력 받습니다.
+     * @param studyId 타겟 회원이 탈퇴하고자 하는 스터디의 아이디를 입력 받습니다.
+     * @return 탈퇴한 스터디의 아이디와 이름, 탈퇴한 회원의 아이디와 이름이 반환됩니다.
+     */
     public StudyWithdrawalResponseDTO.WithdrawalDTO withdrawFromStudy(Long memberId, Long studyId) {
 
         Member member = memberRepository.findById(memberId)
@@ -91,11 +97,17 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         return StudyWithdrawalResponseDTO.WithdrawalDTO.toDTO(member, study);
     }
 
-    // [진행중인 스터디] 스터디 끝내기
+    /**
+     * 운영중인 스터디를 종료하는 메서드입니다. 스터디장만 호출 가능합니다.
+     * @param studyId 종료할 스터디의 아이디를 입력 받습니다.
+     * @return 종료된 스터디의 아이디, 이름, 상태를 반환합니다.
+     */
     public StudyTerminationResponseDTO.TerminationDTO terminateStudy(Long studyId) {
 
         Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+
+        // 스터디장 확인 로직 빠짐
 
         study.setStatus(Status.OFF);
         studyRepository.save(study);
@@ -224,6 +236,12 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
 
     /* ----------------------------- 스터디 일정 관련 API ------------------------------------- */
 
+    /**
+     * 스터디 일정을 추가하는 메서드입니다.
+     * @param studyId 타겟 스터디의 아이디를 입력 받습니다.
+     * @param scheduleRequestDTO 생성할 일정의 제목, 위치, 시작 일시, 종료 일시, 종일 진행 여부, 반복 여부를 입력 받습니다.
+     * @return 스터디 아이디와 생성된 일정의 아이디, 제목을 반환합니다.
+     */
     @Override
     public ScheduleResponseDTO.ScheduleDTO addSchedule(Long studyId, ScheduleRequestDTO.ScheduleDTO scheduleRequestDTO) {
 
@@ -281,6 +299,13 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         return ScheduleResponseDTO.ScheduleDTO.toDTO(schedule);
     }
 
+    /**
+     * 스터디 일정을 변경하는 메서드입니다.
+     * @param studyId 타겟 스터디의 아이디를 입력 받습니다.
+     * @param scheduleId 변경할 일정의 아이디를 입력 받습니다.
+     * @param scheduleModDTO 변경된 일정의 제목, 위치, 시작 일시, 종료 일시, 종일 진행 여부, 반복 여부를 입력 받습니다.
+     * @return 스터디 아이디와 변경된 일정의 아이디, 제목을 반환합니다.
+     */
     @Override
     public ScheduleResponseDTO.ScheduleDTO modSchedule(Long studyId, Long scheduleId, ScheduleRequestDTO.ScheduleDTO scheduleModDTO) {
 
@@ -318,7 +343,13 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
     }
 
 /* ----------------------------- 스터디 출석 관련 API ------------------------------------- */
-    // [스터디 출석체크] 출석 퀴즈 생성하기
+
+    /**
+     * 출석 퀴즈를 생성하는 메서드입니다.
+     * @param studyId 타겟 스터디의 아이디를 입력 받습니다.
+     * @param quizRequestDTO 출석 퀴즈에 담길 질문과 정답을 입력 받습니다.
+     * @return 생성된 퀴즈의 아이디와 질문이 반환됩니다.
+     */
     @Override
     public StudyQuizResponseDTO.QuizDTO createAttendanceQuiz(Long studyId, StudyQuizRequestDTO.QuizDTO quizRequestDTO) {
 
@@ -358,7 +389,14 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         return StudyQuizResponseDTO.QuizDTO.toDTO(quiz);
     }
 
-    // [스터디 출석체크] 출석 체크하기
+    /**
+     * 출석 체크에 사용되는 메서드입니다.
+     * 메서드 내에서 퀴즈의 제한 시간과 시도 횟수를 확인하며, 조건을 충족하는 경우 회원 출석 정보를 저장합니다.
+     * @param studyId 타겟 스터디의 아이디를 입력 받습니다.
+     * @param quizId 타겟 퀴즈의 아이디를 입력 받습니다.
+     * @param attendanceRequestDTO 퀴즈에 대한 회원의 답변을 입력 받습니다.
+     * @return 회원 아이디, 퀴즈 아이디, 출석 아이디, 정답 여부, 시도 횟수, 출석 정보 생성 시각을 반환합니다.
+     */
     @Override
     public StudyQuizResponseDTO.AttendanceDTO attendantStudy(Long studyId, Long quizId, StudyQuizRequestDTO.AttendanceDTO attendanceRequestDTO) {
 
@@ -415,7 +453,12 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         return StudyQuizResponseDTO.AttendanceDTO.toDTO(memberAttendance, try_num+1);
     }
 
-    // [스터디 출석체크] 출석 퀴즈 삭제하기
+    /**
+     * 출석 퀴즈를 삭제하는 메서드입니다.
+     * @param studyId 타겟 스터디의 아이디를 입력 받습니다.
+     * @param quizId 삭제할 퀴즈의 아이디를 입력 받습니다.
+     * @return 삭제된 퀴즈의 아이디와 질문을 반환합니다.
+     */
     @Override
     public StudyQuizResponseDTO.QuizDTO deleteAttendanceQuiz(Long studyId, Long quizId) {
 
@@ -456,6 +499,12 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
 
 /* ----------------------------- 스터디 투표 관련 API ------------------------------------- */
 
+    /**
+     * 스터디 투표를 생성하는 메서드입니다.
+     * @param studyId 타겟 스터디의 아이디를 입력 받습니다.
+     * @param voteDTO 생성할 투표의 제목, 항목 목록, 중복 선택 가능 여부, 종료 일시를 입력 받습니다.
+     * @return 생성된 투표의 아이디와 제목을 반환합니다.
+     */
     @Override
     public StudyVoteResponseDTO.VotePreviewDTO createVote(Long studyId, StudyVoteRequestDTO.VoteDTO voteDTO) {
 
@@ -492,6 +541,13 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         return StudyVoteResponseDTO.VotePreviewDTO.toDTO(vote);
     }
 
+    /**
+     * 스터디 투표의 항목을 생성하는 메서드입니다.
+     * createVote 메서드 내부에서 사용되는 메서드입니다.
+     * @param vote 항목을 생성할 타겟 투표를 입력 받습니다.
+     * @param voteDTO 생성할 투표의 제목, 항목 목록, 중복 선택 가능 여부, 종료 일시를 입력 받습니다.
+     * @return 투표 객체를 반환합니다.
+     */
     private Vote createOption(Vote vote, StudyVoteRequestDTO.VoteDTO voteDTO) {
         voteDTO.getOptions()
                 .forEach(stringOption -> {
@@ -505,6 +561,13 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         return voteRepository.save(vote);
     }
 
+    /**
+     * 특정 항목에 투표하기 위한 메서드입니다.
+     * @param studyId 타겟 스터디의 아이디를 입력 받습니다.
+     * @param voteId 타겟 투표의 아이디를 입력 받습니다.
+     * @param votedOptionDTO 회원이 투표한 항목의 아이디 목록을 입력 받습니다.
+     * @return 투표 아이디, 회원 아이디, 투표한 항목 목록을 반환합니다.
+     */
     @Override
     public StudyVoteResponseDTO.VotedOptionDTO vote(Long studyId, Long voteId, StudyVoteRequestDTO.VotedOptionDTO votedOptionDTO) {
 
@@ -562,6 +625,13 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         return StudyVoteResponseDTO.VotedOptionDTO.toDTO(vote, loginMember, memberVotes);
     }
 
+    /**
+     * 투표를 편집하는 메서드입니다.
+     * @param studyId 타겟 스터디의 아이디를 입력 받습니다.
+     * @param voteId 편집할 투표의 아이디를 입력 받습니다.
+     * @param voteDTO 편집된 투표의 제목, 항목 목록, 복수 선택 가능 여부, 종료 일시를 입력 받습니다.
+     * @return 편집된 투표의 아이디와 제목을 반환합니다.
+     */
     @Override
     public StudyVoteResponseDTO.VotePreviewDTO updateVote(Long studyId, Long voteId, StudyVoteRequestDTO.VoteUpdateDTO voteDTO) {
 
@@ -610,6 +680,12 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         return StudyVoteResponseDTO.VotePreviewDTO.toDTO(vote);
     }
 
+    /**
+     * 투표를 삭제하는 메서드입니다.
+     * @param studyId 타겟 스터디의 아이디를 입력 받습니다.
+     * @param voteId 삭제할 투표의 아이디를 입력 받습니다.
+     * @return 삭제된 투표의 아이디와 제목을 반환합니다.
+     */
     @Override
     public StudyVoteResponseDTO.VotePreviewDTO deleteVote(Long studyId, Long voteId) {
 
@@ -644,6 +720,11 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         return StudyVoteResponseDTO.VotePreviewDTO.toDTO(vote);
     }
 
+    /**
+     * 모든 투표 항목을 삭제하는 메서드입니다.
+     * deleteVote 메서드 내부에서 호출되는 메서드입니다.
+     * @param voteId 항목을 삭제할 타겟 투표의 아이디를 입력 받습니다.
+     */
     private void deleteOptions(Long voteId) {
         List<Option> options = optionRepository.findAllByVoteId(voteId);
         options.forEach(option -> {
@@ -673,6 +754,13 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         return memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED).isPresent();
     }
 
+    /**
+     * 스터디원을 신고하고 신고 내역을 저장하는 메서드입니다.
+     * @param studyId 타겟 스터디의 아이디를 입력 받습니다.
+     * @param memberId 신고할 회원의 아이디를 입력 받습니다.
+     * @param studyMemberReportDTO 신고 사유를 입력 받습니다.
+     * @return 신고를 당한 회원의 아이디와 이름을 반환합니다.
+     */
     @Override
     public MemberResponseDTO.ReportedMemberDTO reportStudyMember(Long studyId, Long memberId, StudyMemberReportDTO studyMemberReportDTO) {
 
@@ -713,6 +801,12 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         return MemberResponseDTO.ReportedMemberDTO.toDTO(member);
     }
 
+    /**
+     * 스터디 게시글을 신고하고 신고 내역을 저장하는 메서드입니다.
+     * @param studyId 타겟 스터디의 아이디를 입력합니다.
+     * @param postId 신고할 게시글의 아이디를 입력합니다.
+     * @return 신고를 당한 스터디 게시글의 아이디와 제목을 반환합니다.
+     */
     @Override
     public StudyPostResDTO.PostPreviewDTO reportStudyPost(Long studyId, Long postId) {
 
@@ -746,7 +840,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         return StudyPostResDTO.PostPreviewDTO.toDTO(studyPost);
     }
 
-   // * ----------------------------- 스터디 To-Do List 관련 API ------------------------------------- */
+/* ----------------------------- 스터디 To-Do List 관련 API ------------------------------------- */
 
     /**
      * To-Do List를 생성합니다.
