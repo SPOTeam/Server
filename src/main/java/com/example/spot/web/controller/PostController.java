@@ -58,15 +58,18 @@ public class PostController {
         게시글 ID를 받아 게시글을 조회합니다. 
         
         해당 게시글에 대한 상세 정보를 반환합니다. 
+        
+        좋아요나 스크랩으로 인한 조회 시 그 여부를 받습니다.
         """,
             security = @SecurityRequirement(name = "accessToken")
     )
     @GetMapping("/{postId}")
     public ApiResponse<PostSingleResponse> singlePost(
             @Parameter(description = "조회할 게시글 ID입니다.", schema = @Schema(type = "integer", format = "int64"))
-            @PathVariable @ExistPost Long postId
+            @PathVariable @ExistPost Long postId,
+            @RequestParam(required = false, defaultValue = "false") boolean likeOrScrap
     ) {
-        PostSingleResponse response = postQueryService.getPostById(postId);
+        PostSingleResponse response = postQueryService.getPostById(postId, likeOrScrap);
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 

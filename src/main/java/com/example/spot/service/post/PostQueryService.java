@@ -4,7 +4,7 @@ import com.example.spot.web.dto.post.*;
 import org.springframework.data.domain.Pageable;
 
 public interface PostQueryService {
-    PostSingleResponse getPostById(Long postId);
+    PostSingleResponse getPostById(Long postId, boolean likeOrScrap);
 
     PostPagingResponse getPagingPosts(String type, Pageable pageable);
 

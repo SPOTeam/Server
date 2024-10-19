@@ -45,7 +45,7 @@ public class PostQueryServiceImpl implements PostQueryService {
      */
     @Transactional
     @Override
-    public PostSingleResponse getPostById(Long postId) {
+    public PostSingleResponse getPostById(Long postId, boolean likeOrScrap) {
         // 게시글 단건 조회
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostHandler(ErrorStatus._POST_NOT_FOUND));
@@ -55,8 +55,10 @@ public class PostQueryServiceImpl implements PostQueryService {
 //            throw new PostHandler(ErrorStatus._POST_REPORTED);
 //        }
 
-        // 조회수 증가
-        post.viewHit();
+        // 조회수 증가는 일반 조회시에(likeOrScrap이 false일 때)만 실행
+        if (!likeOrScrap) {
+            post.viewHit();
+        }
 
         // 좋아요 수 조회
         long likeCount = likedPostQueryService.countByPostId(postId);
