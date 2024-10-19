@@ -65,7 +65,13 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
 
 /* ----------------------------- 진행중인 스터디 관련 API ------------------------------------- */
 
-    // [진행중인 스터디] 스터디 탈퇴하기
+    /**
+     * 진행중인 스터디에서 탈퇴하기 위한 메서드입니다.
+     * 스터디장은 스터디를 탈퇴할 수 없으며 스터디를 종료하고자 하는 경우 스터디 terminateStudy API를 호출해야 합니다.
+     * @param memberId 스터디를 탈퇴할 타겟 회원의 아이디(로그인 아이디 X)를 입력 받습니다.
+     * @param studyId 타겟 회원이 탈퇴하고자 하는 스터디의 아이디를 입력 받습니다.
+     * @return 탈퇴한 스터디의 아이디와 이름, 탈퇴한 회원의 아이디와 이름이 반환됩니다.
+     */
     public StudyWithdrawalResponseDTO.WithdrawalDTO withdrawFromStudy(Long memberId, Long studyId) {
 
         Member member = memberRepository.findById(memberId)
@@ -91,11 +97,17 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         return StudyWithdrawalResponseDTO.WithdrawalDTO.toDTO(member, study);
     }
 
-    // [진행중인 스터디] 스터디 끝내기
+    /**
+     * 운영중인 스터디를 종료하는 메서드입니다. 스터디장만 호출 가능합니다.
+     * @param studyId 종료할 스터디의 아이디를 입력 받습니다.
+     * @return 종료된 스터디의 아이디, 이름, 상태를 반환합니다.
+     */
     public StudyTerminationResponseDTO.TerminationDTO terminateStudy(Long studyId) {
 
         Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+
+        // 스터디장 확인 로직 빠짐
 
         study.setStatus(Status.OFF);
         studyRepository.save(study);
