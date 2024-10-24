@@ -2,6 +2,7 @@ package com.example.spot.service.auth;
 
 
 import com.example.spot.api.code.status.ErrorStatus;
+import com.example.spot.api.code.status.SuccessStatus;
 import com.example.spot.api.exception.GeneralException;
 import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.domain.Member;
@@ -27,6 +28,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -328,6 +331,55 @@ public class AuthServiceImpl implements AuthService{
 
         return MemberResponseDTO.FindPwDTO.toDTO(member);
 
+    }
+
+    @Override
+    public MemberResponseDTO.AvailabilityDTO checkLoginIdAvailability(String loginId) {
+
+        // 입력 조건 확인 (영어 대소문자 및 숫자 조합)
+        String inputRegex = "(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]+";
+        Pattern inputPattern = Pattern.compile(inputRegex);
+        Matcher inputRegexMatcher = inputPattern.matcher(loginId);
+
+        if (!inputRegexMatcher.matches()) {
+            return MemberResponseDTO.AvailabilityDTO.toDTO(Boolean.FALSE, "NOT_CONTAIN_MIX_OF_LETTERS_AND_NUMBERS");
+        }
+
+        // 글자수 확인 (6자 이상)
+        String lengthRegex = "[a-zA-Z0-9]{6,}";
+        Pattern lengthPattern = Pattern.compile(lengthRegex);
+        Matcher lengthRegexMatcher = lengthPattern.matcher(loginId);
+
+        if (!lengthRegexMatcher.matches()) {
+            return MemberResponseDTO.AvailabilityDTO.toDTO(Boolean.FALSE, "AT_LEAST_SIX_CHARACTERS_LONG");
+        }
+
+        // 기존 아이디와 중복 여부 확인
+        if (memberRepository.existsByLoginId(loginId)) {
+            return MemberResponseDTO.AvailabilityDTO.toDTO(Boolean.FALSE, "LOGIN_ID_ALREADY_EXISTS");
+        }
+
+        return MemberResponseDTO.AvailabilityDTO.toDTO(Boolean.TRUE, null);
+    }
+
+    @Override
+    public MemberResponseDTO.AvailabilityDTO checkEmailAvailability(String email) {
+
+        // 입력 조건 확인
+        String inputRegex = "[^@+ ]@[^@+ ]+";
+        Pattern inputPattern = Pattern.compile(inputRegex);
+        Matcher inputRegexMatcher = inputPattern.matcher(email);
+
+        if (!inputRegexMatcher.matches()) {
+            return MemberResponseDTO.AvailabilityDTO.toDTO(Boolean.FALSE, "NOT_MATCH_INPUT_CONDITION");
+        }
+
+        // 기존 이메일과 중복 여부 확인
+        if (memberRepository.existsByEmail(email)) {
+            return MemberResponseDTO.AvailabilityDTO.toDTO(Boolean.FALSE, "EMAIL_ALREADY_EXISTS");
+        }
+
+        return MemberResponseDTO.AvailabilityDTO.toDTO(Boolean.TRUE, null);
     }
 
     /**
