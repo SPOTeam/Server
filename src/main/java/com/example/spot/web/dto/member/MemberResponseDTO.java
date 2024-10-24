@@ -14,6 +14,17 @@ import java.time.LocalDateTime;
 public class MemberResponseDTO {
 
     @Getter
+    @RequiredArgsConstructor
+    public static class AvailabilityDTO {
+        private final boolean isAvailable;
+        private final String reason;
+
+        public static AvailabilityDTO toDTO(boolean isAvailable, String reason) {
+            return new AvailabilityDTO(isAvailable, reason);
+        }
+    }
+
+    @Getter
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     @Builder(access = AccessLevel.PRIVATE)
     public static class FindPwDTO {
