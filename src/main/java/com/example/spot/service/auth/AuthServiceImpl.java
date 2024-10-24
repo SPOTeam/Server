@@ -366,7 +366,7 @@ public class AuthServiceImpl implements AuthService{
     public MemberResponseDTO.AvailabilityDTO checkEmailAvailability(String email) {
 
         // 입력 조건 확인
-        String inputRegex = "[^@+ ]@[^@+ ]+";
+        String inputRegex = "[^@+ ]+@[^@+ ]+";
         Pattern inputPattern = Pattern.compile(inputRegex);
         Matcher inputRegexMatcher = inputPattern.matcher(email);
 
