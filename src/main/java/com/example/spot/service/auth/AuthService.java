@@ -23,4 +23,8 @@ public interface AuthService {
     MemberResponseDTO.FindIdDTO findId();
 
     MemberResponseDTO.FindPwDTO findPw(String loginId);
+
+    MemberResponseDTO.AvailabilityDTO checkLoginIdAvailability(String loginId);
+
+    MemberResponseDTO.AvailabilityDTO checkEmailAvailability(String email);
 }

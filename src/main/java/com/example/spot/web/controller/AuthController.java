@@ -3,6 +3,7 @@ package com.example.spot.web.controller;
 import com.example.spot.api.ApiResponse;
 import com.example.spot.api.code.status.SuccessStatus;
 import com.example.spot.service.auth.AuthService;
+import com.example.spot.validation.annotation.TextLength;
 import com.example.spot.web.dto.member.MemberRequestDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.web.dto.token.TokenResponseDTO;
@@ -67,6 +68,33 @@ public class AuthController {
         TokenResponseDTO.TempTokenDTO tempTokenDTO = authService.verifyEmail(verificationCode, email);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_EMAIL_VERIFIED, tempTokenDTO);
     }
+
+    @Tag(name = "회원 관리 API - 개발 완료", description = "회원 관리 API")
+    @Operation(summary = "[회원 가입] 아이디 사용 가능 여부 확인 API",
+            description = """
+            ## [회원 가입] 아이디 사용 가능 여부 확인 API입니다.
+            * 로그인 아이디를 입력 받아 아이디의 사용 가능 여부를 반환합니다.
+            """)
+    @GetMapping("/check/login-id")
+    public ApiResponse<MemberResponseDTO.AvailabilityDTO> checkLoginIdAvailability(
+            @RequestParam String loginId) {
+        MemberResponseDTO.AvailabilityDTO availabilityDTO = authService.checkLoginIdAvailability(loginId);
+        return ApiResponse.onSuccess(SuccessStatus._MEMBER_LOGIN_ID_CHECK_COMPLETED, availabilityDTO);
+    }
+
+    @Tag(name = "회원 관리 API - 개발 완료", description = "회원 관리 API")
+    @Operation(summary = "[회원 가입] 이메일 사용 가능 여부 확인 API",
+            description = """
+            ## [회원 가입] 이메일 사용 가능 여부 확인 API입니다.
+            * 이메일을 입력 받아 이메일의 사용 가능 여부를 반환합니다.
+            """)
+    @GetMapping("/check/email")
+    public ApiResponse<MemberResponseDTO.AvailabilityDTO> checkEmailAvailability(
+            @RequestParam String email) {
+        MemberResponseDTO.AvailabilityDTO availabilityDTO = authService.checkEmailAvailability(email);
+        return ApiResponse.onSuccess(SuccessStatus._MEMBER_EMAIL_CHECK_COMPLETED, availabilityDTO);
+    }
+
 
     @Tag(name = "회원 관리 API - 개발 완료", description = "회원 관리 API")
     @Operation(summary = "[회원 가입] 일반 회원 가입 API",
