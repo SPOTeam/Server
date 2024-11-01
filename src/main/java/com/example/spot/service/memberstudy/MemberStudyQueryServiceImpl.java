@@ -30,10 +30,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.DayOfWeek;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -284,6 +281,35 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 
         return StudyQuizResponseDTO.AttendanceListDTO.toDTO(quiz, studyMembers);
 
+    }
+
+    @Override
+    public StudyQuizResponseDTO.QuizDTO getAttendanceQuiz(Long studyId) {
+
+        // Authorization
+        Long memberId = SecurityUtils.getCurrentUserId();
+        SecurityUtils.verifyUserId(memberId);
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._MEMBER_NOT_FOUND));
+        studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+
+        // 로그인한 회원이 스터디 회원인지 확인
+        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
+
+        // 오늘자 생성된 스터디 퀴즈 조회
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        LocalDateTime endOfDay = LocalDate.now().atTime(LocalTime.MAX);
+        List<Quiz> todayQuizzes = quizRepository.findAllByStudyIdAndCreatedAtBetween(studyId, startOfDay, endOfDay);
+
+        if (todayQuizzes.isEmpty()) {
+            throw new StudyHandler(ErrorStatus._STUDY_QUIZ_NOT_FOUND);
+        }
+
+        Quiz quiz = todayQuizzes.get(0);
+        return StudyQuizResponseDTO.QuizDTO.toDTO(quiz);
     }
 
     /* ----------------------------- 스터디 일정 관련 API ------------------------------------- */
