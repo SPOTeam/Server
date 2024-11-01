@@ -40,6 +40,16 @@ public class StudyPostQueryServiceImpl implements StudyPostQueryService {
 
 /* ----------------------------- 스터디 게시글 관련 API ------------------------------------- */
 
+    /**
+     * 특정 테마(카테고리)에 속한 스터디 게시글 목록을 조회하는 메서드입니다.
+     * 오프셋 기반 페이징이 적용되어 있습니다.
+     * @param pageRequest 페이징에 필요한 페이지 번호와 페이지 사이즈 정보를 입력 받습니다.
+     * @param studyId 게시글 목록을 조회할 타겟 스터디의 아이디를 입력 받습니다.
+     * @param themeQuery 게시글 테마를 입력 받습니다. themeQuery는 null일 수 있습니다.
+     * @return 조건에 맞는 스터디 게시글 목록을 반환합니다.
+     *          1. themeQuery가 있는 경우 해당 테마의 게시글 목록을 반환합니다.
+     *          2. themeQuery가 null인 경우 필터링 없이 게시글 목록을 반환합니다.
+     */
     @Override
     public StudyPostResDTO.PostListDTO getAllPosts(PageRequest pageRequest, Long studyId, ThemeQuery themeQuery) {
 
@@ -79,6 +89,12 @@ public class StudyPostQueryServiceImpl implements StudyPostQueryService {
 
     }
 
+    /**
+     * 스터디 게시판의 특정 게시글을 조회하는 메서드입니다.
+     * @param studyId 게시글을 조회할 타겟 스터디의 아이디를 입력 받습니다.
+     * @param postId 조회할 타겟 게시글의 아이디를 입력 받습니다.
+     * @return 스터디 게시글의 정보를 반환합니다.
+     */
     @Override
     @Transactional(readOnly = false)
     public StudyPostResDTO.PostDetailDTO getPost(Long studyId, Long postId) {
@@ -116,6 +132,12 @@ public class StudyPostQueryServiceImpl implements StudyPostQueryService {
 
 /* ----------------------------- 스터디 게시글 댓글 관련 API ------------------------------------- */
 
+    /**
+     * 특정 스터디 게시글의 모든 댓글을 조회하는 메서드입니다.
+     * @param studyId 게시글이 작성된 타겟 스터디의 아이디를 입력 받습니다.
+     * @param postId 댓글이 작성된 게시글의 아이디를 입력 받습니다.
+     * @return 스터디 게시글에 작성된 댓글의 목록을 반환합니다. 하나의 댓글에는 해당 댓글에 대한 답글 목록이 포함되어 있습니다.
+     */
     @Override
     public StudyPostCommentResponseDTO.CommentReplyListDTO getAllComments(Long studyId, Long postId) {
 

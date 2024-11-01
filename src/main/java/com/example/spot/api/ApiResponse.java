@@ -16,12 +16,12 @@ import org.springframework.http.HttpStatus;
 public class ApiResponse<T>  {
 
     @JsonProperty("isSuccess")
-    private final boolean isSuccess;
-    private final String code;
-    private final String message;
+    private final boolean isSuccess; // 성공 여부
+    private final String code; // 응답 코드
+    private final String message; // 응답 메시지
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private T result;
+    private T result; // 응답 데이터
 
 
     @JsonProperty("isSuccess")

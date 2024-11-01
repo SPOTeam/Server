@@ -3,10 +3,13 @@ package com.example.spot.web.controller;
 import com.example.spot.api.ApiResponse;
 import com.example.spot.api.code.status.SuccessStatus;
 import com.example.spot.service.auth.AuthService;
+import com.example.spot.validation.annotation.TextLength;
 import com.example.spot.web.dto.member.MemberRequestDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO;
+import com.example.spot.web.dto.member.naver.NaverCallback;
 import com.example.spot.web.dto.token.TokenResponseDTO;
 import com.example.spot.web.dto.token.TokenResponseDTO.TokenDTO;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,14 +33,68 @@ public class AuthController {
         description = """
             ## [세션 유지] 액세스 토큰을 재발급 하는 API입니다.
             리프레시 토큰을 통해 액세스 토큰을 재발급 합니다.
-            리프레시 토큰의 만료 기간 이전인 경우에만 재발급이 가능합니다. 
-            액세스 토큰을 재발급 하는 경우, 리프레시 토큰도 재발급 됩니다. 
+            리프레시 토큰의 만료 기간 이전인 경우에만 재발급이 가능합니다.
+            액세스 토큰을 재발급 하는 경우, 리프레시 토큰도 재발급 됩니다.
             """)
     @PostMapping("/reissue")
     public ApiResponse<TokenDTO> reissueToken(HttpServletRequest request,
         @RequestHeader("refreshToken") String refreshToken){
         return ApiResponse.onSuccess(SuccessStatus._CREATED, authService.reissueToken(refreshToken));
     }
+
+/* ----------------------------- 공통 회원 관리 API ------------------------------------- */
+
+    @Tag(name = "회원 관리 API - 개발 완료", description = "회원 관리 API")
+    @Operation(summary = "[공통 회원 관리] 닉네임 생성 및 약관 동의 API",
+            description = """
+            ## [공통 회원 관리] 소셜 회원가입 혹은 일반 회원가입 이후 닉네임 및 약관 동의사항을 업데이트하는 API입니다.
+            * Authorization 헤더에 액세스 토큰을 포함해야 합니다.
+            * Request Params : String nickname, Boolean personalInfo, Boolean idInfo
+            * Response Body : Long memberId, LocalDateTime updatedAt
+            """)
+    @GetMapping("/sign-up/update")
+    public ApiResponse<MemberResponseDTO.MemberUpdateDTO> signUpAndPartialUpdate(
+            @RequestParam @TextLength(max = 8) String nickname,
+            @RequestParam Boolean personalInfo,
+            @RequestParam Boolean idInfo) {
+        MemberResponseDTO.MemberUpdateDTO memberUpdateDTO = authService.signUpAndPartialUpdate(nickname, personalInfo, idInfo);
+        return ApiResponse.onSuccess(SuccessStatus._MEMBER_UPDATED, memberUpdateDTO);
+    }
+
+/* ----------------------------- 네이버 소셜로그인 API ------------------------------------- */
+
+    @Tag(name = "네이버 로그인 API - 개발 완료", description = "네이버 로그인 API")
+    @Operation(summary = "[네이버 로그인] 인증코드 발급 API",
+            description = """
+            ## [네이버 로그인] 네이버 액세스 토큰 발급에 필요한 인증코드를 발급 받는 API입니다.
+            * API를 호출하면 네이버 로그인 페이지로 리디렉션됩니다.
+            * 로그인을 완료하면 <네이버 회원 조회> 콜백 함수가 실행됩니다.
+            * 회원가입이 되어있는 경우 -> 로그인 & 토큰 정보 반환
+            * 회원가입이 되어있지 않은 경우 -> 회원가입 & 로그인 & 토큰 정보 반환
+            ** 테스트 시 API URL을 복사하여 웹 브라우저에서 실행해주세요!!**
+            """)
+    @GetMapping("/members/sign-in/naver/authorize")
+    public void authorizeWithNaver(HttpServletRequest request, HttpServletResponse response) {
+        authService.authorizeWithNaver(request, response);
+    }
+
+    @Tag(name = "네이버 로그인 API - 개발 완료", description = "네이버 로그인 API")
+    @Operation(summary = "[네이버 로그인] 네이버 로그인/회원가입 API",
+            description = """
+            ## [네이버 로그인] 네이버 액세스 토큰을 발급하여 로그인/회원가입을 수행하는 콜백 함수입니다
+            ### (직접 호출하는 API가 아닙니다)
+            * 회원가입이 되어있는 경우 -> 로그인 & 토큰 정보 반환
+            * 회원가입이 되어있지 않은 경우 -> 회원가입 & 로그인 & 토큰 정보 반환
+            * 콜백 함수의 결과로 토큰 정보가 반환됩니다.
+            """)
+    @GetMapping("/members/sign-in/naver/redirect")
+    public ApiResponse<MemberResponseDTO.NaverSignInDTO> signInWithNaver(
+            HttpServletRequest request, HttpServletResponse response, NaverCallback naverCallback) throws JsonProcessingException {
+        MemberResponseDTO.NaverSignInDTO naverSignInDTO = authService.signInWithNaver(request, response, naverCallback);
+        return ApiResponse.onSuccess(SuccessStatus._MEMBER_SIGNED_IN, naverSignInDTO);
+    }
+
+/* ----------------------------- 일반 로그인/회원가입 API ------------------------------------- */
 
     @Tag(name = "회원 관리 API - 개발 완료", description = "회원 관리 API")
     @Operation(summary = "[인증메일] 인증번호 전송 API",
@@ -67,6 +124,33 @@ public class AuthController {
         TokenResponseDTO.TempTokenDTO tempTokenDTO = authService.verifyEmail(verificationCode, email);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_EMAIL_VERIFIED, tempTokenDTO);
     }
+
+    @Tag(name = "회원 관리 API - 개발 완료", description = "회원 관리 API")
+    @Operation(summary = "[회원 가입] 아이디 사용 가능 여부 확인 API",
+            description = """
+            ## [회원 가입] 아이디 사용 가능 여부 확인 API입니다.
+            * 로그인 아이디를 입력 받아 아이디의 사용 가능 여부를 반환합니다.
+            """)
+    @GetMapping("/check/login-id")
+    public ApiResponse<MemberResponseDTO.AvailabilityDTO> checkLoginIdAvailability(
+            @RequestParam String loginId) {
+        MemberResponseDTO.AvailabilityDTO availabilityDTO = authService.checkLoginIdAvailability(loginId);
+        return ApiResponse.onSuccess(SuccessStatus._MEMBER_LOGIN_ID_CHECK_COMPLETED, availabilityDTO);
+    }
+
+    @Tag(name = "회원 관리 API - 개발 완료", description = "회원 관리 API")
+    @Operation(summary = "[회원 가입] 이메일 사용 가능 여부 확인 API",
+            description = """
+            ## [회원 가입] 이메일 사용 가능 여부 확인 API입니다.
+            * 이메일을 입력 받아 이메일의 사용 가능 여부를 반환합니다.
+            """)
+    @GetMapping("/check/email")
+    public ApiResponse<MemberResponseDTO.AvailabilityDTO> checkEmailAvailability(
+            @RequestParam String email) {
+        MemberResponseDTO.AvailabilityDTO availabilityDTO = authService.checkEmailAvailability(email);
+        return ApiResponse.onSuccess(SuccessStatus._MEMBER_EMAIL_CHECK_COMPLETED, availabilityDTO);
+    }
+
 
     @Tag(name = "회원 관리 API - 개발 완료", description = "회원 관리 API")
     @Operation(summary = "[회원 가입] 일반 회원 가입 API",
@@ -130,6 +214,8 @@ public class AuthController {
         MemberResponseDTO.MemberSignInDTO memberSignInDTO = authService.signIn(signInDTO);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_SIGNED_IN, memberSignInDTO);
     }
+
+/* ----------------------------- 로그아웃 API ------------------------------------- */
 
     @Tag(name = "회원 관리 API - 개발 중", description = "회원 관리 API")
     @Operation(summary = "[로그아웃] 로그아웃 API",

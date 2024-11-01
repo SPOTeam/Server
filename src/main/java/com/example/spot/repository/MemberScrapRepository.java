@@ -17,9 +17,9 @@ public interface MemberScrapRepository extends JpaRepository<MemberScrap, Long> 
 
     boolean existsByMemberIdAndPostId(Long memberId, Long postId);
 
-    @Query("SELECT ms FROM MemberScrap ms LEFT JOIN FETCH ms.post p WHERE ms.member.id = :memberId")
+    @Query("SELECT ms FROM MemberScrap ms LEFT JOIN FETCH ms.post p WHERE ms.member.id = :memberId ORDER BY ms.createdAt DESC")
     Page<MemberScrap> findByMemberId(@Param("memberId") Long memberId, Pageable pageable);
 
-    @Query("SELECT ms FROM MemberScrap ms LEFT JOIN FETCH ms.post p WHERE ms.member.id = :memberId AND p.board = :board")
+    @Query("SELECT ms FROM MemberScrap ms LEFT JOIN FETCH ms.post p WHERE ms.member.id = :memberId AND p.board = :board ORDER BY ms.createdAt DESC")
     Page<MemberScrap> findByMemberIdAndPost_Board(@Param("memberId") Long memberId, @Param("board") Board board, Pageable pageable);
 }

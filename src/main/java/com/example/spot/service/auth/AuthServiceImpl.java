@@ -19,6 +19,8 @@ import com.example.spot.web.dto.member.MemberRequestDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.security.utils.SecurityUtils;
 import com.example.spot.service.message.MailService;
+import com.example.spot.web.dto.member.naver.NaverCallback;
+import com.example.spot.web.dto.member.naver.NaverMember;
 import com.example.spot.web.dto.token.TokenResponseDTO;
 import com.example.spot.web.dto.token.TokenResponseDTO.TokenDTO;
 
@@ -27,9 +29,12 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +52,7 @@ public class AuthServiceImpl implements AuthService{
     private final RefreshTokenRepository refreshTokenRepository;
     private final VerificationCodeRepository verificationCodeRepository;
     private final MailService mailService;
+    private final NaverOAuthService naverOAuthService;
 
     @Value("${image.post.anonymous.profile}")
     private String DEFAULT_PROFILE_IMAGE_URL;
@@ -101,6 +107,116 @@ public class AuthServiceImpl implements AuthService{
         return tokenDTO;
     }
 
+/* ----------------------------- 공통 회원 관리 API ------------------------------------- */
+
+    @Override
+    public MemberResponseDTO.MemberUpdateDTO signUpAndPartialUpdate(String nickname, Boolean personalInfo, Boolean idInfo) {
+
+        // Authorization
+        Long memberId = SecurityUtils.getCurrentUserId();
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
+
+        member.setNickname(nickname);
+        member.updateTerm(personalInfo, idInfo);
+        member = memberRepository.save(member);
+
+        return MemberResponseDTO.MemberUpdateDTO.builder()
+                .memberId(memberId)
+                .updatedAt(member.getUpdatedAt())
+                .build();
+    }
+
+/* ----------------------------- 네이버 소셜로그인 API ------------------------------------- */
+
+    @Override
+    public void authorizeWithNaver(HttpServletRequest request, HttpServletResponse response) {
+        String url = naverOAuthService.getNaverAuthorizeUrl();
+        System.out.println(url);
+        try {
+            response.sendRedirect(url);
+        } catch (Exception e) {
+            throw new MemberHandler(ErrorStatus._NAVER_SIGN_IN_INTEGRATION_FAILED);
+        }
+    }
+
+    @Override
+    public MemberResponseDTO.NaverSignInDTO signInWithNaver(HttpServletRequest request, HttpServletResponse response, NaverCallback naverCallback) throws JsonProcessingException {
+
+        NaverMember.ResponseDTO responseDTO = naverOAuthService.getNaverMember(request, response, naverCallback);
+        String email = responseDTO.getResponse().getEmail();
+
+        Boolean isSpotMember = Boolean.TRUE;
+
+        // 가입되지 않은 회원이면 회원 정보 저장
+        if (!memberRepository.existsByEmailAndLoginType(email, LoginType.NAVER)) {
+            isSpotMember = Boolean.FALSE;
+            signUpWithNaver(responseDTO);
+        }
+
+        Member member = memberRepository.findByEmailAndLoginType(email, LoginType.NAVER)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        // 로그인을 위한 토큰 발급
+        TokenDTO token = jwtTokenProvider.createToken(member.getId());
+        saveRefreshToken(member, token);
+
+        MemberResponseDTO.MemberSignInDTO signInDTO = MemberResponseDTO.MemberSignInDTO.builder()
+                .tokens(token)
+                .memberId(member.getId())
+                .email(member.getEmail())
+                .build();
+
+        return MemberResponseDTO.NaverSignInDTO.toDTO(isSpotMember, signInDTO);
+    }
+
+    private void signUpWithNaver(NaverMember.ResponseDTO memberDTO) {
+        String birthYear = memberDTO.getResponse().getBirthYear();
+        String birthDay = memberDTO.getResponse().getBirthDay();
+
+        LocalDate birth = null;
+        if (birthYear != null && birthDay != null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            birth = LocalDate.parse(birthYear + "-" + birthDay, formatter);
+        }
+
+        Gender gender;
+        if (memberDTO.getResponse().getGender().equals("F")) {
+            gender = Gender.FEMALE;
+        } else if (memberDTO.getResponse().getGender().equals("M")) {
+            gender = Gender.MALE;
+        } else {
+            gender = Gender.UNKNOWN;
+        }
+
+        Member member = Member.builder()
+                .name(memberDTO.getResponse().getName())
+                .nickname(memberDTO.getResponse().getNickname())
+                .birth(birth)
+                .gender(gender)
+                .email(memberDTO.getResponse().getEmail())
+                .carrier(Carrier.NONE)
+                .phone("")
+                .loginId(memberDTO.getResponse().getEmail())
+                .password("")
+                .profileImage(DEFAULT_PROFILE_IMAGE_URL)
+                .personalInfo(false)
+                .idInfo(false)
+                .isAdmin(Boolean.FALSE)
+                .loginType(LoginType.NAVER)
+                .status(Status.ON)
+                .build();
+
+        memberRepository.save(member);
+    }
+
+/* ----------------------------- 일반 로그인/회원가입 API ------------------------------------- */
+
+    /**
+     * 일반 로그인을 위한 메서드입니다. 아이디와 비밀번호를 확인한 후 토큰을 발급하는 로직을 수행합니다.
+     * @param signInDTO 로그인할 회원의 아이디와 비밀번호를 입력 받습니다.
+     * @return 로그인한 회원의 토큰 정보(액세스 & 리프레시 토큰 & 만료기간), 이메일과 회원 아이디(정수)가 반환됩니다.
+     */
     @Override
     public MemberResponseDTO.MemberSignInDTO signIn(MemberRequestDTO.SignInDTO signInDTO) {
 
@@ -124,6 +240,13 @@ public class AuthServiceImpl implements AuthService{
                 .build();
     }
 
+    /**
+     * 인증 코드를 전송하는 메서드입니다.
+     * 일반 회원가입, 아이디 찾기, 비밀번호 찾기에 공통으로 적용되는 인증 메일 전송 로직입니다.
+     * @param request 클라이언트의 요청 정보 객체를 입력 받습니다.
+     * @param response 서버의 응답 정보 객체를 입력 받습니다.
+     * @param email 인증 코드를 전송할 이메일을 입력 받습니다.
+     */
     @Override
     public void sendVerificationCode(HttpServletRequest request, HttpServletResponse response, String email) {
 
@@ -137,12 +260,23 @@ public class AuthServiceImpl implements AuthService{
         mailService.sendMail(request, response, email, verificationCode);
     }
 
+    /**
+     * 인증 코드를 생성하는 메서드입니다.
+     * @return 1 ~ 9999 사이의 랜덤한 정수를 반환합니다.
+     */
     private String createCode() {
         Random random = new Random();
         int intCode = random.nextInt(10000); // 1 ~ 9999 사이의 정수
         return String.format("%04d", intCode);
     }
 
+    /**
+     * 이메일로 전송된 인증 코드를 메모리에 저장된 인증 코드 객체 정보와 비교 검증하는 메서드입니다.
+     * 인증이 완료되면 일반 회원가입, 아이디 찾기, 비밀번호 찾기에 필요한 임시 토큰을 발급합니다.
+     * @param code 이메일로 전달된 인증 코드를 입력 받습니다.
+     * @param email 인증 코드가 전송된 이메일을 입력 받습니다.
+     * @return 발급한 임시 토큰 정보(토큰 & 만료기간)를 반환합니다.
+     */
     @Override
     public TokenResponseDTO.TempTokenDTO verifyEmail(String code, String email) {
 
@@ -163,6 +297,21 @@ public class AuthServiceImpl implements AuthService{
         return tempTokenDTO;
     }
 
+    /**
+     * 일반 회원가입에 사용되는 메서드입니다.
+     * @param signUpDTO 회원의 기본 정보를 입력 받습니다.
+     *                  name : 이름
+     *                  nickname : 닉네임
+     *                  frontRID : 주민번호 앞자리
+     *                  backRID : 주민번호 뒷자리 첫 글자
+     *                  email : 이메일
+     *                  loginId : 아이디
+     *                  password : 비밀번호
+     *                  pwCheck : 비밀번호 확인
+     *                  personalInfo : 개인정보활용 동의 여부
+     *                  idInfo : 고유식별정보처리 동의 여부
+     * @return 가입한 회원은 자동으로 로그인되며, 회원의 토큰 정보(액세스 & 리프레시 토큰 & 만료기간), 이메일과 회원 아이디(정수)가 반환됩니다.
+     */
     @Override
     public MemberResponseDTO.MemberSignInDTO signUp(MemberRequestDTO.SignUpDTO signUpDTO) {
 
@@ -228,6 +377,11 @@ public class AuthServiceImpl implements AuthService{
                 .build();
     }
 
+    /**
+     * 생성된 리프레시 토큰을 DB에 저장하는 메서드입니다.
+     * @param member 리프레시 토큰을 발급한 회원을 입력 받습니다.
+     * @param token 저장할 토큰 정보(액세스 & 리프레시 토큰, 만료기간)를 입력 받습니다.
+     */
     private void saveRefreshToken(Member member, TokenDTO token) {
 
         if (refreshTokenRepository.existsByMemberId(member.getId()))
@@ -241,6 +395,10 @@ public class AuthServiceImpl implements AuthService{
         refreshTokenRepository.save(refreshToken);
     }
 
+    /**
+     * 아이디 찾기에 사용되는 메서드입니다. 임시 토큰을 검증한 후 이메일로 가입된 회원 정보를 확인합니다.
+     * @return 아이디/이메일, 로그인 타입, 계정 생성일시가 반환합니다.
+     */
     @Override
     public MemberResponseDTO.FindIdDTO findId() {
 
@@ -254,6 +412,11 @@ public class AuthServiceImpl implements AuthService{
         return MemberResponseDTO.FindIdDTO.toDTO(member);
     }
 
+    /**
+     * 비밀번호 찾기에 사용되는 메서드입니다. 임시 토큰을 검증한 후 아이디 & 이메일로 가입된 회원 정보를 확인합니다.
+     * @param loginId 비밀번호를 찾고자 하는 회원의 아이디를 입력 받습니다.
+     * @return 닉네임, 아이디, 발급된 임시 비밀번호를 반환합니다.
+     */
     @Override
     public MemberResponseDTO.FindPwDTO findPw(String loginId) {
 
@@ -278,6 +441,60 @@ public class AuthServiceImpl implements AuthService{
 
     }
 
+    @Override
+    public MemberResponseDTO.AvailabilityDTO checkLoginIdAvailability(String loginId) {
+
+        // 입력 조건 확인 (영어 대소문자 및 숫자 조합)
+        String inputRegex = "(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]+";
+        Pattern inputPattern = Pattern.compile(inputRegex);
+        Matcher inputRegexMatcher = inputPattern.matcher(loginId);
+
+        if (!inputRegexMatcher.matches()) {
+            return MemberResponseDTO.AvailabilityDTO.toDTO(Boolean.FALSE, "NOT_CONTAIN_MIX_OF_LETTERS_AND_NUMBERS");
+        }
+
+        // 글자수 확인 (6자 이상)
+        String lengthRegex = "[a-zA-Z0-9]{6,}";
+        Pattern lengthPattern = Pattern.compile(lengthRegex);
+        Matcher lengthRegexMatcher = lengthPattern.matcher(loginId);
+
+        if (!lengthRegexMatcher.matches()) {
+            return MemberResponseDTO.AvailabilityDTO.toDTO(Boolean.FALSE, "AT_LEAST_SIX_CHARACTERS_LONG");
+        }
+
+        // 기존 아이디와 중복 여부 확인
+        if (memberRepository.existsByLoginId(loginId)) {
+            return MemberResponseDTO.AvailabilityDTO.toDTO(Boolean.FALSE, "LOGIN_ID_ALREADY_EXISTS");
+        }
+
+        return MemberResponseDTO.AvailabilityDTO.toDTO(Boolean.TRUE, null);
+    }
+
+    @Override
+    public MemberResponseDTO.AvailabilityDTO checkEmailAvailability(String email) {
+
+        // 입력 조건 확인
+        String inputRegex = "[^@+ ]+@[^@+ ]+";
+        Pattern inputPattern = Pattern.compile(inputRegex);
+        Matcher inputRegexMatcher = inputPattern.matcher(email);
+
+        if (!inputRegexMatcher.matches()) {
+            return MemberResponseDTO.AvailabilityDTO.toDTO(Boolean.FALSE, "NOT_MATCH_INPUT_CONDITION");
+        }
+
+        // 기존 이메일과 중복 여부 확인
+        if (memberRepository.existsByEmail(email)) {
+            return MemberResponseDTO.AvailabilityDTO.toDTO(Boolean.FALSE, "EMAIL_ALREADY_EXISTS");
+        }
+
+        return MemberResponseDTO.AvailabilityDTO.toDTO(Boolean.TRUE, null);
+    }
+
+    /**
+     * 임시 비밀번호를 발급하는 메서드입니다.
+     * 알파벳 대소문자, 숫자, 특수기호를 혼합하여 13자리 비밀번호를 생성합니다.
+     * @return 생성된 임시 비밀번호를 반환합니다.
+     */
     private String generateTempPassword() {
 
         // Char Set
@@ -294,6 +511,8 @@ public class AuthServiceImpl implements AuthService{
                 .mapToObj(c -> String.valueOf((char) c))
                 .collect(Collectors.joining());
     }
+
+/* ----------------------------- 로그아웃 API ------------------------------------- */
 
 
 }

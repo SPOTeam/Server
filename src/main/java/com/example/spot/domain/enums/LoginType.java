@@ -4,5 +4,5 @@ public enum LoginType {
     NORMAL,
     KAKAO,
     GOOGLE,
-    FACEBOOK
+    NAVER
 }

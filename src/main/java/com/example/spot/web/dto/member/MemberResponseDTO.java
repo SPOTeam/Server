@@ -16,6 +16,33 @@ public class MemberResponseDTO {
     @Getter
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     @Builder(access = AccessLevel.PRIVATE)
+    public static class NaverSignInDTO {
+
+        private final Boolean isSpotMember;
+        private final MemberSignInDTO signInDTO;
+
+        public static NaverSignInDTO toDTO(Boolean isSpotMember, MemberSignInDTO signInDTO) {
+            return NaverSignInDTO.builder()
+                    .isSpotMember(isSpotMember)
+                    .signInDTO(signInDTO)
+                    .build();
+        }
+    }
+
+    @Getter
+    @RequiredArgsConstructor
+    public static class AvailabilityDTO {
+        private final boolean isAvailable;
+        private final String reason;
+
+        public static AvailabilityDTO toDTO(boolean isAvailable, String reason) {
+            return new AvailabilityDTO(isAvailable, reason);
+        }
+    }
+
+    @Getter
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    @Builder(access = AccessLevel.PRIVATE)
     public static class FindPwDTO {
 
         private final String nickname;

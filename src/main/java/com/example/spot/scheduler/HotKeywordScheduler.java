@@ -21,14 +21,15 @@ import org.springframework.stereotype.Component;
 public class HotKeywordScheduler {
 
     @Value("${study.keyword}")
-    private String KEYWORD;
+    private String KEYWORD; // 인기 검색어 목록을 저장하는 키
     @Value("${study.hot-keyword}")
-    private String HOT_KEYWORD;
+    private String HOT_KEYWORD; // 매일 13시, 18시에 갱신된 인기 검색어 목록을 저장하는 키
     @Value("${study.last-updated}")
-    private String LAST_UPDATED;
+    private String LAST_UPDATED; // 인기 검색어 업데이트 시점을 저장하는 키
 
     private RedisTemplate<String, String> redisTemplate;
 
+    // RedisTemplate을 주입받습니다.
     @Autowired
     public HotKeywordScheduler(RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;

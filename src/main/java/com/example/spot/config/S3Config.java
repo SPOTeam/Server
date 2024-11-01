@@ -21,10 +21,16 @@ public class S3Config {
     @Value("${cloud.aws.region.static}")
     private String region;
 
+    /**
+     * AmazonS3를 Bean으로 등록합니다.
+     * @return AmazonS3
+     */
     @Bean
     public AmazonS3 amazonS3() {
+        // AWS 인증 정보를 이용하여 AmazonS3를 생성합니다.
         AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
 
+        // AmazonS3를 생성합니다.
         return AmazonS3ClientBuilder
                 .standard()
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
