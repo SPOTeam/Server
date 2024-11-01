@@ -14,6 +14,8 @@ public interface AuthService {
     // 리프레시 토큰을 사용하여 새로운 액세스 토큰을 발급
     TokenDTO reissueToken(String refreshToken);
 
+    MemberResponseDTO.MemberUpdateDTO signUpAndPartialUpdate(String nickname, Boolean personalInfo, Boolean idInfo);
+
     void authorizeWithNaver(HttpServletRequest request, HttpServletResponse response);
 
     MemberResponseDTO.NaverSignInDTO signInWithNaver(HttpServletRequest request, HttpServletResponse response, NaverCallback naverCallback) throws JsonProcessingException;

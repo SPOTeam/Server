@@ -107,6 +107,26 @@ public class AuthServiceImpl implements AuthService{
         return tokenDTO;
     }
 
+/* ----------------------------- 공통 회원 관리 API ------------------------------------- */
+
+    @Override
+    public MemberResponseDTO.MemberUpdateDTO signUpAndPartialUpdate(String nickname, Boolean personalInfo, Boolean idInfo) {
+
+        // Authorization
+        Long memberId = SecurityUtils.getCurrentUserId();
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
+
+        member.setNickname(nickname);
+        member.updateTerm(personalInfo, idInfo);
+        member = memberRepository.save(member);
+
+        return MemberResponseDTO.MemberUpdateDTO.builder()
+                .memberId(memberId)
+                .updatedAt(member.getUpdatedAt())
+                .build();
+    }
+
 /* ----------------------------- 네이버 소셜로그인 API ------------------------------------- */
 
     @Override

@@ -3,6 +3,7 @@ package com.example.spot.web.controller;
 import com.example.spot.api.ApiResponse;
 import com.example.spot.api.code.status.SuccessStatus;
 import com.example.spot.service.auth.AuthService;
+import com.example.spot.validation.annotation.TextLength;
 import com.example.spot.web.dto.member.MemberRequestDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.web.dto.member.naver.NaverCallback;
@@ -41,6 +42,25 @@ public class AuthController {
         return ApiResponse.onSuccess(SuccessStatus._CREATED, authService.reissueToken(refreshToken));
     }
 
+/* ----------------------------- 공통 회원 관리 API ------------------------------------- */
+
+    @Tag(name = "회원 관리 API - 개발 완료", description = "회원 관리 API")
+    @Operation(summary = "[공통 회원 관리] 닉네임 생성 및 약관 동의 API",
+            description = """
+            ## [공통 회원 관리] 소셜 회원가입 혹은 일반 회원가입 이후 닉네임 및 약관 동의사항을 업데이트하는 API입니다.
+            * Authorization 헤더에 액세스 토큰을 포함해야 합니다.
+            * Request Params : String nickname, Boolean personalInfo, Boolean idInfo
+            * Response Body : Long memberId, LocalDateTime updatedAt
+            """)
+    @GetMapping("/sign-up/update")
+    public ApiResponse<MemberResponseDTO.MemberUpdateDTO> signUpAndPartialUpdate(
+            @RequestParam @TextLength(max = 8) String nickname,
+            @RequestParam Boolean personalInfo,
+            @RequestParam Boolean idInfo) {
+        MemberResponseDTO.MemberUpdateDTO memberUpdateDTO = authService.signUpAndPartialUpdate(nickname, personalInfo, idInfo);
+        return ApiResponse.onSuccess(SuccessStatus._MEMBER_UPDATED, memberUpdateDTO);
+    }
+
 /* ----------------------------- 네이버 소셜로그인 API ------------------------------------- */
 
     @Tag(name = "네이버 로그인 API - 개발 완료", description = "네이버 로그인 API")
@@ -61,7 +81,8 @@ public class AuthController {
     @Tag(name = "네이버 로그인 API - 개발 완료", description = "네이버 로그인 API")
     @Operation(summary = "[네이버 로그인] 네이버 로그인/회원가입 API",
             description = """
-            ## [네이버 로그인] 네이버 액세스 토큰을 발급하여 로그인/회원가입을 수행하는 콜백 함수입니다(**직접 호출하는 API가 아닙니다**).
+            ## [네이버 로그인] 네이버 액세스 토큰을 발급하여 로그인/회원가입을 수행하는 콜백 함수입니다
+            ### (직접 호출하는 API가 아닙니다)
             * 회원가입이 되어있는 경우 -> 로그인 & 토큰 정보 반환
             * 회원가입이 되어있지 않은 경우 -> 회원가입 & 로그인 & 토큰 정보 반환
             * 콜백 함수의 결과로 토큰 정보가 반환됩니다.
@@ -72,7 +93,6 @@ public class AuthController {
         MemberResponseDTO.NaverSignInDTO naverSignInDTO = authService.signInWithNaver(request, response, naverCallback);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_SIGNED_IN, naverSignInDTO);
     }
-
 
 /* ----------------------------- 일반 로그인/회원가입 API ------------------------------------- */
 
