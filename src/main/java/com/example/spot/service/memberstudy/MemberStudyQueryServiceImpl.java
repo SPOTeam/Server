@@ -284,7 +284,7 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
     }
 
     @Override
-    public StudyQuizResponseDTO.QuizDTO getAttendanceQuiz(Long studyId) {
+    public StudyQuizResponseDTO.QuizDTO getAttendanceQuiz(Long studyId, LocalDate date) {
 
         // Authorization
         Long memberId = SecurityUtils.getCurrentUserId();
@@ -299,9 +299,9 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
         memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
 
-        // 오늘자 생성된 스터디 퀴즈 조회
-        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
-        LocalDateTime endOfDay = LocalDate.now().atTime(LocalTime.MAX);
+        // 해당 날짜에 생성된 스터디 퀴즈 조회
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
         List<Quiz> todayQuizzes = quizRepository.findAllByStudyIdAndCreatedAtBetween(studyId, startOfDay, endOfDay);
 
         if (todayQuizzes.isEmpty()) {

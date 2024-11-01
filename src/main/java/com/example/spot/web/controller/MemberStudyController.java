@@ -409,13 +409,13 @@ public class MemberStudyController {
     @Tag(name = "스터디 출석체크")
     @Operation(summary = "[스터디 출석체크] 출석 퀴즈 불러오기", description = """ 
         ## [스터디 출석체크] 내 스터디 > 스터디 > 캘린더 > 출석체크, 로그인한 회원이 참여하는 스터디의 퀴즈를 불러옵니다.
-        오늘 날짜에 해당하는 퀴즈의 아이디와 질문이 반환됩니다.
+        날짜에 해당하는 퀴즈의 아이디와 질문이 반환됩니다.
         """)
     @Parameter(name = "studyId", description = "출석 퀴즈를 불러올 스터디의 id를 입력합니다.", required = true)
     @GetMapping("/studies/{studyId}/quizzes")
     public ApiResponse<StudyQuizResponseDTO.QuizDTO> getAttendanceQuiz(
-            @PathVariable @ExistStudy Long studyId) {
-        StudyQuizResponseDTO.QuizDTO quizDTO = memberStudyQueryService.getAttendanceQuiz(studyId);
+            @PathVariable @ExistStudy Long studyId, LocalDate date) {
+        StudyQuizResponseDTO.QuizDTO quizDTO = memberStudyQueryService.getAttendanceQuiz(studyId, date);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_QUIZ_FOUND, quizDTO);
     }
 
