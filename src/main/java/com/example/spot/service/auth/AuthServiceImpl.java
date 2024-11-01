@@ -2,7 +2,6 @@ package com.example.spot.service.auth;
 
 
 import com.example.spot.api.code.status.ErrorStatus;
-import com.example.spot.api.code.status.SuccessStatus;
 import com.example.spot.api.exception.GeneralException;
 import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.domain.Member;
@@ -20,6 +19,8 @@ import com.example.spot.web.dto.member.MemberRequestDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.security.utils.SecurityUtils;
 import com.example.spot.service.message.MailService;
+import com.example.spot.web.dto.member.naver.NaverCallback;
+import com.example.spot.web.dto.member.naver.NaverMember;
 import com.example.spot.web.dto.token.TokenResponseDTO;
 import com.example.spot.web.dto.token.TokenResponseDTO.TokenDTO;
 
@@ -33,6 +34,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -50,6 +52,7 @@ public class AuthServiceImpl implements AuthService{
     private final RefreshTokenRepository refreshTokenRepository;
     private final VerificationCodeRepository verificationCodeRepository;
     private final MailService mailService;
+    private final NaverOAuthService naverOAuthService;
 
     @Value("${image.post.anonymous.profile}")
     private String DEFAULT_PROFILE_IMAGE_URL;
@@ -103,6 +106,111 @@ public class AuthServiceImpl implements AuthService{
         // 토큰 재발급
         return tokenDTO;
     }
+
+/* ----------------------------- 공통 회원 관리 API ------------------------------------- */
+
+    @Override
+    public MemberResponseDTO.MemberUpdateDTO signUpAndPartialUpdate(String nickname, Boolean personalInfo, Boolean idInfo) {
+
+        // Authorization
+        Long memberId = SecurityUtils.getCurrentUserId();
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
+
+        member.setNickname(nickname);
+        member.updateTerm(personalInfo, idInfo);
+        member = memberRepository.save(member);
+
+        return MemberResponseDTO.MemberUpdateDTO.builder()
+                .memberId(memberId)
+                .updatedAt(member.getUpdatedAt())
+                .build();
+    }
+
+/* ----------------------------- 네이버 소셜로그인 API ------------------------------------- */
+
+    @Override
+    public void authorizeWithNaver(HttpServletRequest request, HttpServletResponse response) {
+        String url = naverOAuthService.getNaverAuthorizeUrl();
+        System.out.println(url);
+        try {
+            response.sendRedirect(url);
+        } catch (Exception e) {
+            throw new MemberHandler(ErrorStatus._NAVER_SIGN_IN_INTEGRATION_FAILED);
+        }
+    }
+
+    @Override
+    public MemberResponseDTO.NaverSignInDTO signInWithNaver(HttpServletRequest request, HttpServletResponse response, NaverCallback naverCallback) throws JsonProcessingException {
+
+        NaverMember.ResponseDTO responseDTO = naverOAuthService.getNaverMember(request, response, naverCallback);
+        String email = responseDTO.getResponse().getEmail();
+
+        Boolean isSpotMember = Boolean.TRUE;
+
+        // 가입되지 않은 회원이면 회원 정보 저장
+        if (!memberRepository.existsByEmailAndLoginType(email, LoginType.NAVER)) {
+            isSpotMember = Boolean.FALSE;
+            signUpWithNaver(responseDTO);
+        }
+
+        Member member = memberRepository.findByEmailAndLoginType(email, LoginType.NAVER)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        // 로그인을 위한 토큰 발급
+        TokenDTO token = jwtTokenProvider.createToken(member.getId());
+        saveRefreshToken(member, token);
+
+        MemberResponseDTO.MemberSignInDTO signInDTO = MemberResponseDTO.MemberSignInDTO.builder()
+                .tokens(token)
+                .memberId(member.getId())
+                .email(member.getEmail())
+                .build();
+
+        return MemberResponseDTO.NaverSignInDTO.toDTO(isSpotMember, signInDTO);
+    }
+
+    private void signUpWithNaver(NaverMember.ResponseDTO memberDTO) {
+        String birthYear = memberDTO.getResponse().getBirthYear();
+        String birthDay = memberDTO.getResponse().getBirthDay();
+
+        LocalDate birth = null;
+        if (birthYear != null && birthDay != null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            birth = LocalDate.parse(birthYear + "-" + birthDay, formatter);
+        }
+
+        Gender gender;
+        if (memberDTO.getResponse().getGender().equals("F")) {
+            gender = Gender.FEMALE;
+        } else if (memberDTO.getResponse().getGender().equals("M")) {
+            gender = Gender.MALE;
+        } else {
+            gender = Gender.UNKNOWN;
+        }
+
+        Member member = Member.builder()
+                .name(memberDTO.getResponse().getName())
+                .nickname(memberDTO.getResponse().getNickname())
+                .birth(birth)
+                .gender(gender)
+                .email(memberDTO.getResponse().getEmail())
+                .carrier(Carrier.NONE)
+                .phone("")
+                .loginId(memberDTO.getResponse().getEmail())
+                .password("")
+                .profileImage(DEFAULT_PROFILE_IMAGE_URL)
+                .personalInfo(false)
+                .idInfo(false)
+                .isAdmin(Boolean.FALSE)
+                .loginType(LoginType.NAVER)
+                .status(Status.ON)
+                .build();
+
+        memberRepository.save(member);
+    }
+
+/* ----------------------------- 일반 로그인/회원가입 API ------------------------------------- */
 
     /**
      * 일반 로그인을 위한 메서드입니다. 아이디와 비밀번호를 확인한 후 토큰을 발급하는 로직을 수행합니다.
@@ -403,6 +511,8 @@ public class AuthServiceImpl implements AuthService{
                 .mapToObj(c -> String.valueOf((char) c))
                 .collect(Collectors.joining());
     }
+
+/* ----------------------------- 로그아웃 API ------------------------------------- */
 
 
 }

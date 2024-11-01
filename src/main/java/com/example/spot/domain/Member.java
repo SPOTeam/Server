@@ -49,6 +49,7 @@ public class Member extends BaseEntity {
     @Column(nullable = false, length = 100)
     private String password;
 
+    @Setter
     @Column(nullable = false, length = 8)
     private String nickname;
 
@@ -263,6 +264,11 @@ public class Member extends BaseEntity {
     public void updateReasons(List<StudyReason> studyReasons) {
         this.studyReasonList.clear();
         this.studyReasonList.addAll(studyReasons);
+    }
+
+    public void updateTerm(Boolean personalInfo, Boolean idInfo) {
+        this.personalInfo = personalInfo;
+        this.idInfo = idInfo;
     }
 
     public void updateInfo(MemberUpdateDTO req) {

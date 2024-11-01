@@ -27,6 +27,11 @@ public enum ErrorStatus implements BaseErrorCode {
     _VALUE_RANGE_EXCEEDED(HttpStatus.BAD_REQUEST, "COMMON4012", "값이 지정된 범위를 초과합니다."),
     _TERMS_NOT_AGREED(HttpStatus.FORBIDDEN, "COMMON4013", "이용 약관이 동의되지 않았습니다."),
 
+    // 네이버 소셜 로그인 관련 에러
+    _NAVER_SIGN_IN_INTEGRATION_FAILED(HttpStatus.UNAUTHORIZED, "NAVER4001", "네이버 로그인 연동에 실패하였습니다."),
+    _NAVER_ACCESS_TOKEN_ISSUANCE_FAILED(HttpStatus.UNAUTHORIZED, "NAVER4002", "네이버 액세스 토큰 발급에 실패하였습니다."),
+    _UNABLE_TO_RETRIEVE_NAVER_PROFILE(HttpStatus.UNAUTHORIZED, "NAVER4003", "네이버 프로필 조회에 실패하였습니다."),
+
     //멤버 관련 에러
     _MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER4001", "회원을 찾을 수 없습니다."),
     _MEMBER_NAME_INVALID(HttpStatus.BAD_REQUEST, "MEMBER4002", "회원 이름이 유효하지 않습니다."),
