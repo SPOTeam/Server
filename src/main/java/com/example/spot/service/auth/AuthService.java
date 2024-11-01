@@ -16,7 +16,7 @@ public interface AuthService {
 
     void authorizeWithNaver(HttpServletRequest request, HttpServletResponse response);
 
-    MemberResponseDTO.MemberSignInDTO signInWithNaver(HttpServletRequest request, HttpServletResponse response, NaverCallback naverCallback) throws JsonProcessingException;
+    MemberResponseDTO.NaverSignInDTO signInWithNaver(HttpServletRequest request, HttpServletResponse response, NaverCallback naverCallback) throws JsonProcessingException;
 
     MemberResponseDTO.MemberSignInDTO signIn(MemberRequestDTO.SignInDTO signInDTO);
 

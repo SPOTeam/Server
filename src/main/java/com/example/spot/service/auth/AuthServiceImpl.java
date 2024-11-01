@@ -121,13 +121,16 @@ public class AuthServiceImpl implements AuthService{
     }
 
     @Override
-    public MemberResponseDTO.MemberSignInDTO signInWithNaver(HttpServletRequest request, HttpServletResponse response, NaverCallback naverCallback) throws JsonProcessingException {
+    public MemberResponseDTO.NaverSignInDTO signInWithNaver(HttpServletRequest request, HttpServletResponse response, NaverCallback naverCallback) throws JsonProcessingException {
 
         NaverMember.ResponseDTO responseDTO = naverOAuthService.getNaverMember(request, response, naverCallback);
         String email = responseDTO.getResponse().getEmail();
 
+        Boolean isSpotMember = Boolean.TRUE;
+
         // 가입되지 않은 회원이면 회원 정보 저장
         if (!memberRepository.existsByEmailAndLoginType(email, LoginType.NAVER)) {
+            isSpotMember = Boolean.FALSE;
             signUpWithNaver(responseDTO);
         }
 
@@ -138,12 +141,13 @@ public class AuthServiceImpl implements AuthService{
         TokenDTO token = jwtTokenProvider.createToken(member.getId());
         saveRefreshToken(member, token);
 
-        return MemberResponseDTO.MemberSignInDTO.builder()
+        MemberResponseDTO.MemberSignInDTO signInDTO = MemberResponseDTO.MemberSignInDTO.builder()
                 .tokens(token)
                 .memberId(member.getId())
                 .email(member.getEmail())
                 .build();
 
+        return MemberResponseDTO.NaverSignInDTO.toDTO(isSpotMember, signInDTO);
     }
 
     private void signUpWithNaver(NaverMember.ResponseDTO memberDTO) {

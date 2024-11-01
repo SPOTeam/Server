@@ -61,6 +61,22 @@ public class MemberResponseDTO {
         }
     }
 
+    @Getter
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    @Builder(access = AccessLevel.PRIVATE)
+    public static class NaverSignInDTO {
+
+        private final Boolean isSpotMember;
+        private final MemberSignInDTO signInDTO;
+
+        public static NaverSignInDTO toDTO(Boolean isSpotMember, MemberSignInDTO signInDTO) {
+            return NaverSignInDTO.builder()
+                    .isSpotMember(isSpotMember)
+                    .signInDTO(signInDTO)
+                    .build();
+        }
+    }
+
     @Builder
     @Getter
     @NoArgsConstructor

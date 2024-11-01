@@ -67,10 +67,10 @@ public class AuthController {
             * 콜백 함수의 결과로 토큰 정보가 반환됩니다.
             """)
     @GetMapping("/members/sign-in/naver/redirect")
-    public ApiResponse<MemberResponseDTO.MemberSignInDTO> signInWithNaver(
+    public ApiResponse<MemberResponseDTO.NaverSignInDTO> signInWithNaver(
             HttpServletRequest request, HttpServletResponse response, NaverCallback naverCallback) throws JsonProcessingException {
-        MemberResponseDTO.MemberSignInDTO memberSignInDTO = authService.signInWithNaver(request, response, naverCallback);
-        return ApiResponse.onSuccess(SuccessStatus._MEMBER_SIGNED_IN, memberSignInDTO);
+        MemberResponseDTO.NaverSignInDTO naverSignInDTO = authService.signInWithNaver(request, response, naverCallback);
+        return ApiResponse.onSuccess(SuccessStatus._MEMBER_SIGNED_IN, naverSignInDTO);
     }
 
 
