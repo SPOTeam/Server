@@ -47,6 +47,7 @@ public class WebSecurity {
                 .requestMatchers(new AntPathRequestMatcher("/spot/send-verification-code")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/spot/verify")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/spot/reissue")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/spot/sign-up", "POST")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/spot/login", "POST")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/spot/members/sign-in/naver/redirect", "GET")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/spot/members/sign-in/naver/authorize", "GET")).permitAll()
