@@ -301,35 +301,23 @@ public class AuthServiceImpl implements AuthService{
      * 일반 회원가입에 사용되는 메서드입니다.
      * @param signUpDTO 회원의 기본 정보를 입력 받습니다.
      *                  name : 이름
-     *                  nickname : 닉네임
      *                  frontRID : 주민번호 앞자리
      *                  backRID : 주민번호 뒷자리 첫 글자
      *                  email : 이메일
      *                  loginId : 아이디
      *                  password : 비밀번호
      *                  pwCheck : 비밀번호 확인
-     *                  personalInfo : 개인정보활용 동의 여부
-     *                  idInfo : 고유식별정보처리 동의 여부
      * @return 가입한 회원은 자동으로 로그인되며, 회원의 토큰 정보(액세스 & 리프레시 토큰 & 만료기간), 이메일과 회원 아이디(정수)가 반환됩니다.
      */
     @Override
     public MemberResponseDTO.MemberSignInDTO signUp(MemberRequestDTO.SignUpDTO signUpDTO) {
 
-        // 임시 토큰 검증
-        String email = SecurityUtils.getVerifiedTempUserEmail();
-
         // 회원 생성
         if (memberRepository.existsByEmail(signUpDTO.getEmail())) {
             throw new MemberHandler(ErrorStatus._MEMBER_EMAIL_ALREADY_EXISTS);
         }
-        if (!signUpDTO.getIdInfo() || !signUpDTO.getPersonalInfo()) {
-            throw new MemberHandler(ErrorStatus._TERMS_NOT_AGREED);
-        }
         if (!signUpDTO.getPassword().equals(signUpDTO.getPwCheck())) {
             throw new MemberHandler(ErrorStatus._MEMBER_PW_AND_PW_CHECK_DO_NOT_MATCH);
-        }
-        if (!email.equals(signUpDTO.getEmail())) {
-            throw new MemberHandler(ErrorStatus._MEMBER_EMAIL_NOT_VERIFIED);
         }
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMdd");
@@ -346,7 +334,7 @@ public class AuthServiceImpl implements AuthService{
 
         Member member = Member.builder()
                 .name(signUpDTO.getName())
-                .nickname(signUpDTO.getNickname())
+                .nickname(signUpDTO.getName())
                 .birth(birth)
                 .gender(gender)
                 .email(signUpDTO.getEmail())
@@ -355,8 +343,8 @@ public class AuthServiceImpl implements AuthService{
                 .loginId(signUpDTO.getLoginId())
                 .password(signUpDTO.getPassword())
                 .profileImage(DEFAULT_PROFILE_IMAGE_URL)
-                .personalInfo(signUpDTO.getPersonalInfo())
-                .idInfo(signUpDTO.getIdInfo())
+                .personalInfo(false)
+                .idInfo(false)
                 .isAdmin(Boolean.FALSE)
                 .loginType(LoginType.NORMAL)
                 .status(Status.ON)
