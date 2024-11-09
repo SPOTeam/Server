@@ -422,7 +422,8 @@ public class MemberStudyController {
     @GetMapping("/studies/{studyId}/schedules/{scheduleId}/quiz")
     public ApiResponse<StudyQuizResponseDTO.QuizDTO> getAttendanceQuiz(
             @PathVariable @ExistStudy Long studyId,
-            @PathVariable @ExistSchedule Long scheduleId, LocalDate date) {
+            @PathVariable @ExistSchedule Long scheduleId,
+            @RequestParam LocalDate date) {
         StudyQuizResponseDTO.QuizDTO quizDTO = memberStudyQueryService.getAttendanceQuiz(studyId, scheduleId, date);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_QUIZ_FOUND, quizDTO);
     }
@@ -461,14 +462,15 @@ public class MemberStudyController {
     @DeleteMapping("/studies/{studyId}/schedules/{scheduleId}/quiz")
     public ApiResponse<StudyQuizResponseDTO.QuizDTO> deleteAttendanceQuiz(
             @PathVariable @ExistStudy Long studyId,
-            @PathVariable @ExistSchedule Long scheduleId, LocalDate date) {
+            @PathVariable @ExistSchedule Long scheduleId,
+            @RequestParam LocalDate date) {
         StudyQuizResponseDTO.QuizDTO quizDTO = memberStudyCommandService.deleteAttendanceQuiz(studyId, scheduleId, date);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_QUIZ_DELETED, quizDTO);
     }
 
     @Tag(name = "스터디 출석체크")
-    @Operation(summary = "[스터디 출석체크] 금일 회원 출석부 불러오기", description = """ 
-        ## [스터디 출석체크] 금일 모든 스터디 회원의 출석 여부를 불러옵니다.
+    @Operation(summary = "[스터디 출석체크] 회원 출석부 불러오기", description = """ 
+        ## [스터디 출석체크] 지정된 날짜의 모든 스터디 회원의 출석 여부를 불러옵니다.
         * 출석체크 화면에 표시되는 스터디 회원 정보(프로필 사진, 이름, 출석 여부, 스터디장 여부) 목록를 반환합니다.
         * date에는 출석 정보를 확인할 날짜를 입력합니다.
         """)
@@ -477,7 +479,8 @@ public class MemberStudyController {
     @GetMapping("/studies/{studyId}/schedules/{scheduleId}/attendance")
     public ApiResponse<StudyQuizResponseDTO.AttendanceListDTO> getAllAttendances(
             @PathVariable @ExistStudy Long studyId,
-            @PathVariable @ExistSchedule Long scheduleId, LocalDate date) {
+            @PathVariable @ExistSchedule Long scheduleId,
+            @RequestParam LocalDate date) {
         StudyQuizResponseDTO.AttendanceListDTO attendanceListDTO = memberStudyQueryService.getAllAttendances(studyId, scheduleId, date);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_MEMBER_ATTENDANCES_FOUND, attendanceListDTO);
     }
