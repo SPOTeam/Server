@@ -13,9 +13,7 @@ import java.util.Optional;
 @Repository
 public interface QuizRepository extends JpaRepository<Quiz, Long> {
 
-    Optional<Quiz> findByIdAndStudyId(Long id, Long studyId);
+    List<Quiz> findByScheduleId(Long scheduleId);
 
-    @Query("SELECT q FROM Quiz q WHERE q.study.id = :studyId AND q.createdAt >= :startOfDay AND q.createdAt <= :endOfDay")
-    List<Quiz> findAllByStudyIdAndCreatedAtBetween(@Param("studyId") Long studyId, @Param("startOfDay") LocalDateTime startOfDay, @Param("endOfDay") LocalDateTime endOfDay);
-
+    List<Quiz> findAllByScheduleIdAndCreatedAtBetween(Long scheduleId, LocalDateTime startOfDay, LocalDateTime endOfDay);
 }

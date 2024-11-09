@@ -24,6 +24,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.validation.annotation.Validated;
@@ -395,27 +397,33 @@ public class MemberStudyController {
     @Tag(name = "스터디 출석체크")
     @Operation(summary = "[스터디 출석체크] 출석 퀴즈 생성하기", description = """ 
         ## [스터디 출석체크] 내 스터디 > 스터디 > 캘린더 > 출석체크 > 퀴즈 만들기 클릭, 로그인한 회원이 운영하는 스터디에 퀴즈를 생성합니다.
-        로그인한 회원이 스터디장인 경우 quiz에 새로운 퀴즈를 생성합니다.
+        * 로그인한 회원이 스터디장인 경우 quiz에 새로운 퀴즈를 생성합니다.
+        * createdAt에는 출석 퀴즈를 생성할 날짜를 입력합니다.
         """)
     @Parameter(name = "studyId", description = "출석 퀴즈를 생성할 스터디의 id를 입력합니다.", required = true)
-    @PostMapping("/studies/{studyId}/quizzes")
+    @Parameter(name = "scheduleId", description = "출석 퀴즈를 생성할 일정의 id를 입력합니다.", required = true)
+    @PostMapping("/studies/{studyId}/schedules/{scheduleId}/quiz")
     public ApiResponse<StudyQuizResponseDTO.QuizDTO> createAttendanceQuiz(
             @PathVariable @ExistStudy Long studyId,
+            @PathVariable @ExistSchedule Long scheduleId,
             @RequestBody @Valid StudyQuizRequestDTO.QuizDTO quizRequestDTO) {
-        StudyQuizResponseDTO.QuizDTO quizResponseDTO = memberStudyCommandService.createAttendanceQuiz(studyId, quizRequestDTO);
+        StudyQuizResponseDTO.QuizDTO quizResponseDTO = memberStudyCommandService.createAttendanceQuiz(studyId, scheduleId, quizRequestDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_QUIZ_CREATED, quizResponseDTO);
     }
 
     @Tag(name = "스터디 출석체크")
     @Operation(summary = "[스터디 출석체크] 출석 퀴즈 불러오기", description = """ 
         ## [스터디 출석체크] 내 스터디 > 스터디 > 캘린더 > 출석체크, 로그인한 회원이 참여하는 스터디의 퀴즈를 불러옵니다.
-        날짜에 해당하는 퀴즈의 아이디와 질문이 반환됩니다.
+        * 날짜에 해당하는 퀴즈의 아이디와 질문이 반환됩니다.
+        * date에는 출석 퀴즈를 불러올 날짜를 입력합니다.
         """)
     @Parameter(name = "studyId", description = "출석 퀴즈를 불러올 스터디의 id를 입력합니다.", required = true)
-    @GetMapping("/studies/{studyId}/quizzes")
+    @Parameter(name = "scheduleId", description = "출석 퀴즈를 불러올 일정의 id를 입력합니다.", required = true)
+    @GetMapping("/studies/{studyId}/schedules/{scheduleId}/quiz")
     public ApiResponse<StudyQuizResponseDTO.QuizDTO> getAttendanceQuiz(
-            @PathVariable @ExistStudy Long studyId, LocalDate date) {
-        StudyQuizResponseDTO.QuizDTO quizDTO = memberStudyQueryService.getAttendanceQuiz(studyId, date);
+            @PathVariable @ExistStudy Long studyId,
+            @PathVariable @ExistSchedule Long scheduleId, LocalDate date) {
+        StudyQuizResponseDTO.QuizDTO quizDTO = memberStudyQueryService.getAttendanceQuiz(studyId, scheduleId, date);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_QUIZ_FOUND, quizDTO);
     }
 
@@ -423,16 +431,17 @@ public class MemberStudyController {
     @Tag(name = "스터디 출석체크")
     @Operation(summary = "[스터디 출석체크] 출석 체크하기", description = """ 
         ## [스터디 출석체크] 내 스터디 > 스터디 > 캘린더 > 이미지 클릭, 로그인한 회원이 참여하는 스터디에서 오늘의 퀴즈를 풀어 출석을 체크합니다.
-        특정 시점의 quiz에 대해 member_attendance 튜플을 추가합니다.
+        * 특정 시점의 quiz에 대해 member_attendance 튜플을 추가합니다.
+        * dateTime에는 출석을 체크할 날짜와 시간을 입력합니다.
         """)
     @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
-    @Parameter(name = "quizId", description = "출석 체크를 위한 퀴즈의 id를 입력합니다.", required = true)
-    @PostMapping("/studies/{studyId}/quizzes/{quizId}")
+    @Parameter(name = "scheduleId", description = "일정의 id를 입력합니다.", required = true)
+    @PostMapping("/studies/{studyId}/schedules/{scheduleId}/attendance")
     public ApiResponse<StudyQuizResponseDTO.AttendanceDTO> attendantStudy(
             @PathVariable @ExistStudy Long studyId,
-            @PathVariable @ExistQuiz Long quizId,
+            @PathVariable @ExistSchedule Long scheduleId,
             @RequestBody @Valid StudyQuizRequestDTO.AttendanceDTO attendanceRequestDTO) {
-        StudyQuizResponseDTO.AttendanceDTO attendanceResponseDTO = memberStudyCommandService.attendantStudy(studyId, quizId, attendanceRequestDTO);
+        StudyQuizResponseDTO.AttendanceDTO attendanceResponseDTO = memberStudyCommandService.attendantStudy(studyId, scheduleId, attendanceRequestDTO);
         if (attendanceResponseDTO.getIsCorrect()) {
             return ApiResponse.onSuccess(SuccessStatus._STUDY_ATTENDANCE_CREATED_CORRECT_ANSWER, attendanceResponseDTO);
         } else {
@@ -443,31 +452,33 @@ public class MemberStudyController {
     @Tag(name = "스터디 출석체크")
     @Operation(summary = "[스터디 출석체크] 출석 퀴즈 삭제하기", description = """ 
         ## [스터디 출석체크] 기한이 지난 출석 퀴즈를 삭제합니다. (화면 X)
-        PathVariable을 통해 전달받은 정보를 바탕으로 출석 퀴즈를 삭제합니다.
-        출석 퀴즈 정보와 함께 퀴즈에 대한 MemberAttendance(회원 출석) 목록도 함께 삭제됩니다.
+        * PathVariable을 통해 전달받은 정보를 바탕으로 출석 퀴즈를 삭제합니다.
+        * 출석 퀴즈 정보와 함께 퀴즈에 대한 MemberAttendance(회원 출석) 목록도 함께 삭제됩니다.
+        * date에는 출석 퀴즈를 삭제할 날짜를 입력합니다.
         """)
     @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
-    @Parameter(name = "quizId", description = "삭제할 출석 퀴즈의 id를 입력합니다.", required = true)
-    @DeleteMapping("/studies/{studyId}/quizzes/{quizId}")
+    @Parameter(name = "scheduleId", description = "일정의 id를 입력합니다.", required = true)
+    @DeleteMapping("/studies/{studyId}/schedules/{scheduleId}/quiz")
     public ApiResponse<StudyQuizResponseDTO.QuizDTO> deleteAttendanceQuiz(
             @PathVariable @ExistStudy Long studyId,
-            @PathVariable @ExistQuiz Long quizId) {
-        StudyQuizResponseDTO.QuizDTO quizDTO = memberStudyCommandService.deleteAttendanceQuiz(studyId, quizId);
+            @PathVariable @ExistSchedule Long scheduleId, LocalDate date) {
+        StudyQuizResponseDTO.QuizDTO quizDTO = memberStudyCommandService.deleteAttendanceQuiz(studyId, scheduleId, date);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_QUIZ_DELETED, quizDTO);
     }
 
     @Tag(name = "스터디 출석체크")
     @Operation(summary = "[스터디 출석체크] 금일 회원 출석부 불러오기", description = """ 
         ## [스터디 출석체크] 금일 모든 스터디 회원의 출석 여부를 불러옵니다.
-        출석체크 화면에 표시되는 스터디 회원 정보(프로필 사진, 이름, 출석 여부, 스터디장 여부) 목록를 반환합니다.
+        * 출석체크 화면에 표시되는 스터디 회원 정보(프로필 사진, 이름, 출석 여부, 스터디장 여부) 목록를 반환합니다.
+        * date에는 출석 정보를 확인할 날짜를 입력합니다.
         """)
     @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
-    @Parameter(name = "quizId", description = "금일 출석 퀴즈의 id를 입력합니다.", required = true)
-    @GetMapping("/studies/{studyId}/quizzes/{quizId}/members")
+    @Parameter(name = "scheduleId", description = "출석을 확인할 일정의 id를 입력합니다.", required = true)
+    @GetMapping("/studies/{studyId}/schedules/{scheduleId}/attendance")
     public ApiResponse<StudyQuizResponseDTO.AttendanceListDTO> getAllAttendances(
             @PathVariable @ExistStudy Long studyId,
-            @PathVariable @ExistQuiz Long quizId) {
-        StudyQuizResponseDTO.AttendanceListDTO attendanceListDTO = memberStudyQueryService.getAllAttendances(studyId, quizId);
+            @PathVariable @ExistSchedule Long scheduleId, LocalDate date) {
+        StudyQuizResponseDTO.AttendanceListDTO attendanceListDTO = memberStudyQueryService.getAllAttendances(studyId, scheduleId, date);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_MEMBER_ATTENDANCES_FOUND, attendanceListDTO);
     }
 

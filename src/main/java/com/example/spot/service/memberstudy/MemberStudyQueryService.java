@@ -35,10 +35,10 @@ public interface MemberStudyQueryService {
     StudyApplicantDTO isApplied(Long studyId);
 
     // 금일 회원 출석 여부 불러오기
-    StudyQuizResponseDTO.AttendanceListDTO getAllAttendances(Long studyId, Long quizId);
+    StudyQuizResponseDTO.AttendanceListDTO getAllAttendances(Long studyId, Long scheduleId, LocalDate date);
 
     // 스터디 출석퀴즈 조회
-    StudyQuizResponseDTO.QuizDTO getAttendanceQuiz(Long studyId, LocalDate date);
+    StudyQuizResponseDTO.QuizDTO getAttendanceQuiz(Long studyId, Long scheduleId, LocalDate date);
 
     // 스터디 투표 목록 조회
     StudyVoteResponseDTO.VoteListDTO getAllVotes(Long studyId);
