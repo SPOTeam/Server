@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Getter
 public class StudyQuizRequestDTO {
 
@@ -13,6 +15,8 @@ public class StudyQuizRequestDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class QuizDTO {
+
+        private LocalDateTime createdAt;
 
         @TextLength(min = 1, max = 20)
         private String question;
@@ -25,6 +29,8 @@ public class StudyQuizRequestDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class AttendanceDTO {
+
+        private LocalDateTime dateTime;
 
         @TextLength(min = 1, max = 10)
         private String answer;
