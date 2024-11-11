@@ -31,7 +31,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.*;
-import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -239,12 +238,14 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 
     /**
      * 금일 모든 스터디 회원의 출석 정보를 불러옵니다.
-     * @param studyId 출석 정보를 불러올 스터디의 아이디를 입력 받습니다.
-     * @param quizId 금일 생성된 출석 퀴즈의 아이디를 입력 받습니다.
+     *
+     * @param studyId    출석 정보를 불러올 스터디의 아이디를 입력 받습니다.
+     * @param scheduleId 스터디 일정의 아이디를 입력 받습니다.
+     * @param date
      * @return 모든 스터디 회원에 대한 정보와 출석 여부를 담은 리스트를 반환합니다.
      */
     @Override
-    public StudyQuizResponseDTO.AttendanceListDTO getAllAttendances(Long studyId, Long quizId) {
+    public StudyQuizResponseDTO.AttendanceListDTO getAllAttendances(Long studyId, Long scheduleId, LocalDate date) {
 
         //=== Exception ===//
         Long memberId = SecurityUtils.getCurrentUserId();
@@ -254,21 +255,24 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._MEMBER_NOT_FOUND));
         studyRepository.findById(studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
-        Quiz quiz = quizRepository.findById(quizId)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_QUIZ_NOT_FOUND));
+
+        // 요청한 날짜에 생성된 출석 퀴즈 조회
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime endOfDay = date.atStartOfDay().plusDays(1);
+        List<Quiz> todayQuizzes = quizRepository.findAllByScheduleIdAndCreatedAtBetween(scheduleId, startOfDay, endOfDay);
+        if (todayQuizzes.isEmpty()) {
+            throw new StudyHandler(ErrorStatus._STUDY_QUIZ_NOT_FOUND);
+        }
+        Quiz quiz = todayQuizzes.get(0);
 
         // 로그인한 회원이 스터디 회원인지 확인
         memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
 
-        // 해당 스터디의 퀴즈인지 확인
-        quizRepository.findByIdAndStudyId(quizId, studyId)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_QUIZ_NOT_FOUND));
-
         //=== Feature ===//
         List<StudyQuizResponseDTO.StudyMemberDTO> studyMembers = memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED).stream()
                 .map(memberStudy -> {
-                    List<MemberAttendance> attendanceList = memberAttendanceRepository.findByQuizIdAndMemberId(quizId, memberStudy.getMember().getId());
+                    List<MemberAttendance> attendanceList = memberAttendanceRepository.findByQuizIdAndMemberId(quiz.getId(), memberStudy.getMember().getId());
                     for (MemberAttendance attendance : attendanceList) {
                         // MemberAttendance에 퀴즈에 대한 정답이 저장되어 있으면 금일 출석 성공
                         if (attendance.getIsCorrect())
@@ -284,7 +288,7 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
     }
 
     @Override
-    public StudyQuizResponseDTO.QuizDTO getAttendanceQuiz(Long studyId, LocalDate date) {
+    public StudyQuizResponseDTO.QuizDTO getAttendanceQuiz(Long studyId, Long scheduleId, LocalDate date) {
 
         // Authorization
         Long memberId = SecurityUtils.getCurrentUserId();
@@ -292,8 +296,15 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._MEMBER_NOT_FOUND));
-        studyRepository.findById(studyId)
+        Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        Schedule schedule = scheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_SCHEDULE_NOT_FOUND));
+
+        // 해당 스터디에서 생성된 일정인지 확인
+        if (!schedule.getStudy().equals(study)) {
+            throw new StudyHandler(ErrorStatus._STUDY_SCHEDULE_NOT_FOUND);
+        }
 
         // 로그인한 회원이 스터디 회원인지 확인
         memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
@@ -301,14 +312,13 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 
         // 해당 날짜에 생성된 스터디 퀴즈 조회
         LocalDateTime startOfDay = date.atStartOfDay();
-        LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
-        List<Quiz> todayQuizzes = quizRepository.findAllByStudyIdAndCreatedAtBetween(studyId, startOfDay, endOfDay);
-
+        LocalDateTime endOfDay = date.atStartOfDay().plusDays(1);
+        List<Quiz> todayQuizzes = quizRepository.findAllByScheduleIdAndCreatedAtBetween(scheduleId, startOfDay, endOfDay);
         if (todayQuizzes.isEmpty()) {
             throw new StudyHandler(ErrorStatus._STUDY_QUIZ_NOT_FOUND);
         }
-
         Quiz quiz = todayQuizzes.get(0);
+
         return StudyQuizResponseDTO.QuizDTO.toDTO(quiz);
     }
 
