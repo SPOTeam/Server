@@ -107,9 +107,6 @@ public class Study extends BaseEntity {
     private List<PreferredStudy> preferredStudies = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
-    private List<Quiz> quizzes = new ArrayList<>();
-
-    @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
     private List<StudyPost> studyPosts = new ArrayList<>();
 
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
@@ -148,7 +145,6 @@ public class Study extends BaseEntity {
         this.preferredStudies = new ArrayList<>();
         this.memberStudies = new ArrayList<>();
         this.regionStudies = new ArrayList<>();
-        this.quizzes = new ArrayList<>();
         this.studyPosts = new ArrayList<>();
         this.toDoLists = new ArrayList<>();
         this.notifications = new ArrayList<>();
@@ -190,11 +186,6 @@ public class Study extends BaseEntity {
 
     public void updateSchedule(Schedule schedule) {
         schedules.set(schedules.indexOf(schedule), schedule);
-    }
-
-    public void addQuiz(Quiz quiz) {
-        quizzes.add(quiz);
-        quiz.setStudy(this);
     }
 
     public void addStudyPost(StudyPost studyPost) {

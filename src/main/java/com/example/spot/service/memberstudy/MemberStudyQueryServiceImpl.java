@@ -31,7 +31,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.*;
-import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -239,12 +238,14 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 
     /**
      * 금일 모든 스터디 회원의 출석 정보를 불러옵니다.
-     * @param studyId 출석 정보를 불러올 스터디의 아이디를 입력 받습니다.
-     * @param quizId 금일 생성된 출석 퀴즈의 아이디를 입력 받습니다.
+     *
+     * @param studyId    출석 정보를 불러올 스터디의 아이디를 입력 받습니다.
+     * @param scheduleId 스터디 일정의 아이디를 입력 받습니다.
+     * @param date
      * @return 모든 스터디 회원에 대한 정보와 출석 여부를 담은 리스트를 반환합니다.
      */
     @Override
-    public StudyQuizResponseDTO.AttendanceListDTO getAllAttendances(Long studyId, Long quizId) {
+    public StudyQuizResponseDTO.AttendanceListDTO getAllAttendances(Long studyId, Long scheduleId, LocalDate date) {
 
         //=== Exception ===//
         Long memberId = SecurityUtils.getCurrentUserId();
@@ -254,21 +255,24 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._MEMBER_NOT_FOUND));
         studyRepository.findById(studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
-        Quiz quiz = quizRepository.findById(quizId)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_QUIZ_NOT_FOUND));
+
+        // 요청한 날짜에 생성된 출석 퀴즈 조회
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime endOfDay = date.atStartOfDay().plusDays(1);
+        List<Quiz> todayQuizzes = quizRepository.findAllByScheduleIdAndCreatedAtBetween(scheduleId, startOfDay, endOfDay);
+        if (todayQuizzes.isEmpty()) {
+            throw new StudyHandler(ErrorStatus._STUDY_QUIZ_NOT_FOUND);
+        }
+        Quiz quiz = todayQuizzes.get(0);
 
         // 로그인한 회원이 스터디 회원인지 확인
         memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
 
-        // 해당 스터디의 퀴즈인지 확인
-        quizRepository.findByIdAndStudyId(quizId, studyId)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_QUIZ_NOT_FOUND));
-
         //=== Feature ===//
         List<StudyQuizResponseDTO.StudyMemberDTO> studyMembers = memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED).stream()
                 .map(memberStudy -> {
-                    List<MemberAttendance> attendanceList = memberAttendanceRepository.findByQuizIdAndMemberId(quizId, memberStudy.getMember().getId());
+                    List<MemberAttendance> attendanceList = memberAttendanceRepository.findByQuizIdAndMemberId(quiz.getId(), memberStudy.getMember().getId());
                     for (MemberAttendance attendance : attendanceList) {
                         // MemberAttendance에 퀴즈에 대한 정답이 저장되어 있으면 금일 출석 성공
                         if (attendance.getIsCorrect())
@@ -284,7 +288,7 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
     }
 
     @Override
-    public StudyQuizResponseDTO.QuizDTO getAttendanceQuiz(Long studyId, LocalDate date) {
+    public StudyQuizResponseDTO.QuizDTO getAttendanceQuiz(Long studyId, Long scheduleId, LocalDate date) {
 
         // Authorization
         Long memberId = SecurityUtils.getCurrentUserId();
@@ -292,8 +296,15 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._MEMBER_NOT_FOUND));
-        studyRepository.findById(studyId)
+        Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        Schedule schedule = scheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_SCHEDULE_NOT_FOUND));
+
+        // 해당 스터디에서 생성된 일정인지 확인
+        if (!schedule.getStudy().equals(study)) {
+            throw new StudyHandler(ErrorStatus._STUDY_SCHEDULE_NOT_FOUND);
+        }
 
         // 로그인한 회원이 스터디 회원인지 확인
         memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
@@ -301,14 +312,13 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 
         // 해당 날짜에 생성된 스터디 퀴즈 조회
         LocalDateTime startOfDay = date.atStartOfDay();
-        LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
-        List<Quiz> todayQuizzes = quizRepository.findAllByStudyIdAndCreatedAtBetween(studyId, startOfDay, endOfDay);
-
+        LocalDateTime endOfDay = date.atStartOfDay().plusDays(1);
+        List<Quiz> todayQuizzes = quizRepository.findAllByScheduleIdAndCreatedAtBetween(scheduleId, startOfDay, endOfDay);
         if (todayQuizzes.isEmpty()) {
             throw new StudyHandler(ErrorStatus._STUDY_QUIZ_NOT_FOUND);
         }
-
         Quiz quiz = todayQuizzes.get(0);
+
         return StudyQuizResponseDTO.QuizDTO.toDTO(quiz);
     }
 
@@ -418,28 +428,32 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
      */
     private void addPeriodSchedules(Schedule schedule, int year, int month, List<ScheduleResponseDTO.MonthlyScheduleDTO> monthlyScheduleDTOS, boolean isStudyMember) {
 
-        Duration duration = Duration.between(schedule.getStartedAt(), schedule.getFinishedAt()); // 일정 수행 시간
-        DayOfWeek targetDayOfWeek = schedule.getStartedAt().getDayOfWeek(); // 일정을 반복할 요일
-        LocalDate firstDayOfMonth = LocalDate.of(year, month, 1); // 탐색 연월의 첫째 날
-        LocalDate newStartedAtDate = firstDayOfMonth.with(TemporalAdjusters.nextOrSame(targetDayOfWeek)); // 탐색할 첫 날짜
+        LocalDateTime startedAt = schedule.getStartedAt();
+        LocalDateTime finishedAt = schedule.getFinishedAt();
 
-        // 일정 시작일이 탐색 연월 내에 있는 경우에만 반복
-        if (schedule.getStartedAt().isBefore(firstDayOfMonth.plusMonths(1).atStartOfDay())) {
-            while (newStartedAtDate.getMonthValue() == month) {
-                LocalDateTime newStartedAt = newStartedAtDate.atStartOfDay().with(schedule.getStartedAt().toLocalTime());
-                LocalDateTime newFinishedAt = newStartedAt.plus(duration);
+        YearMonth yearMonth = YearMonth.of(year, month); // 탐색 연월
+        //LocalDateTime startOfMonth = yearMonth.atDay(1).atStartOfDay(); // 탐색 연월의 첫째 날
+        LocalDateTime endOfMonth = yearMonth.atEndOfMonth().atTime(23, 59, 59); // 탐색 연월의 마지막 날
 
-                monthlyScheduleDTOS.add(ScheduleResponseDTO.MonthlyScheduleDTO.toDTOWithDate(schedule, newStartedAt, newFinishedAt, isStudyMember));
+        // 일정 시작일이 탐색 연월 내에 있는 경우만 반복
+        while (startedAt.isBefore(endOfMonth)) {
+            // 업데이트된 일정 시작일의 month가 탐색 month와 일치하면 추가
+            if (startedAt.getMonthValue() == month) {
+                monthlyScheduleDTOS.add(ScheduleResponseDTO.MonthlyScheduleDTO.toDTOWithDate(schedule, startedAt, finishedAt, isStudyMember));
+            }
 
-                if (schedule.getPeriod().equals(Period.DAILY)) {
-                    newStartedAtDate = newStartedAtDate.plusDays(1);
-                } else if (schedule.getPeriod().equals(Period.WEEKLY)) {
-                    newStartedAtDate = newStartedAtDate.plusWeeks(1);
-                } else if (schedule.getPeriod().equals(Period.BIWEEKLY)) {
-                    newStartedAtDate = newStartedAtDate.plusWeeks(2);
-                } else if (schedule.getPeriod().equals(Period.MONTHLY)) {
-                    newStartedAtDate = newStartedAtDate.plusMonths(1);
-                }
+            if (schedule.getPeriod().equals(Period.DAILY)) {
+                startedAt = startedAt.plusDays(1);
+                finishedAt = finishedAt.plusDays(1);
+            } else if (schedule.getPeriod().equals(Period.WEEKLY)) {
+                startedAt = startedAt.plusWeeks(1);
+                finishedAt = finishedAt.plusWeeks(1);
+            } else if (schedule.getPeriod().equals(Period.BIWEEKLY)) {
+                startedAt = startedAt.plusWeeks(2);
+                finishedAt = finishedAt.plusWeeks(2);
+            } else if (schedule.getPeriod().equals(Period.MONTHLY)) {
+                startedAt = startedAt.plusMonths(1);
+                finishedAt = finishedAt.plusMonths(1);
             }
         }
     }

@@ -133,8 +133,9 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_QUIZ_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "QUIZ4003", "금일 출석 퀴즈가 이미 존재합니다."),
     _STUDY_QUIZ_ID_NULL(HttpStatus.BAD_REQUEST, "QUIZ4004", "출석 퀴즈 아이디가 입력되지 않았습니다."),
     _STUDY_QUIZ_CREATION_INVALID(HttpStatus.FORBIDDEN, "QUIZ4005", "출석 퀴즈는 스터디장만 생성할 수 있습니다."),
-    _STUDY_ATTENDANCE_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "QUIZ4004", "이미 출석 체크되었습니다."),
-    _STUDY_ATTENDANCE_ATTEMPT_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "QUIZ4005", "출석 퀴즈 시도 횟수가 초과되었습니다."),
+    _STUDY_ATTENDANCE_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "QUIZ4006", "이미 출석 체크되었습니다."),
+    _STUDY_ATTENDANCE_ATTEMPT_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "QUIZ4007", "출석 퀴즈 시도 횟수가 초과되었습니다."),
+    _STUDY_QUIZ_DELETION_INVALID(HttpStatus.BAD_REQUEST, "QUIZ4008", "출석 퀴즈는 스터디장만 삭제할 수 있습니다."),
 
     // S3 관련 에러
     _FILE_IS_NULL(HttpStatus.BAD_REQUEST, "S34001", "파일이 입력되지 않았습니다."),

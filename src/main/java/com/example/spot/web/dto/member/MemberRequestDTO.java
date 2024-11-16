@@ -31,9 +31,6 @@ public class MemberRequestDTO {
         @TextLength(max = 20)
         private final String name;
 
-        @TextLength(max = 8)
-        private final String nickname;
-
         @TextLength(max = 6)
         private final String frontRID;
 
@@ -52,9 +49,6 @@ public class MemberRequestDTO {
         @TextLength(max = 100)
         private final String pwCheck;
 
-        private final Boolean personalInfo;
-
-        private final Boolean idInfo;
     }
 
     @Getter

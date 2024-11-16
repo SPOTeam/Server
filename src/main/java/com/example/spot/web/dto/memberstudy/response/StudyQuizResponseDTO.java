@@ -59,13 +59,13 @@ public class StudyQuizResponseDTO {
     @Builder(access = AccessLevel.PRIVATE)
     public static class AttendanceListDTO {
 
-        private final Long studyId;
+        private final Long scheduleId;
         private final Long quizId;
         private final List<StudyMemberDTO> studyMembers;
 
         public static AttendanceListDTO toDTO(Quiz quiz, List<StudyMemberDTO> studyMembers) {
             return AttendanceListDTO.builder()
-                    .studyId(quiz.getStudy().getId())
+                    .scheduleId(quiz.getSchedule().getId())
                     .quizId(quiz.getId())
                     .studyMembers(studyMembers)
                     .build();
