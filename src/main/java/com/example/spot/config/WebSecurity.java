@@ -8,6 +8,7 @@ import com.example.spot.service.member.UserDetailsServiceCustom;
 import com.example.spot.security.oauth.CustomOAuth2UserService;
 import com.example.spot.security.oauth.CustomOAuthSuccessHandler;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -17,7 +18,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -34,6 +34,7 @@ public class WebSecurity {
     private final CustomOAuthSuccessHandler customOAuthSuccessHandler;
 
     /**
+     *
      * @param http
      * @return
      * @throws Exception
@@ -42,7 +43,7 @@ public class WebSecurity {
     protected SecurityFilterChain configure(HttpSecurity http) throws Exception {
 
         // CSRF 보안 설정을 비활성화합니다.
-        http.csrf((csrf) -> csrf.disable());
+        http.csrf( (csrf) -> csrf.disable());
 
         // HttpSecurity 설정을 구성합니다. JWT 토큰을 통한 검증을 거치지 않는 요청은 permitAll()로 설정합니다.
         http.authorizeHttpRequests((authz) -> authz
@@ -52,6 +53,7 @@ public class WebSecurity {
                         .requestMatchers(new AntPathRequestMatcher("/spot/send-verification-code")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/spot/verify")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/spot/reissue")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/spot/sign-up", "POST")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/spot/login", "POST")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/spot/members/sign-in/naver/redirect", "GET")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/spot/members/sign-in/naver/authorize", "GET")).permitAll()
@@ -82,7 +84,6 @@ public class WebSecurity {
 
     /**
      * JWT 토큰을 검증하는 필터를 생성합니다.
-     *
      * @return JwtAuthenticationFilter
      */
     private JwtAuthenticationFilter getJwtAuthenticationFilter() {
