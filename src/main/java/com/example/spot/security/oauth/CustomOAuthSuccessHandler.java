@@ -32,8 +32,6 @@ public class CustomOAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        System.out.println("flag1 CustomOAuthSuccessHandler.onAuthenticationSuccess");
-        System.out.println("로그인 성공");
 
         CustomOAuth2User customOAuth2User = (CustomOAuth2User) authentication.getPrincipal();
         GoogleUserInfo googleUserInfo = new GoogleUserInfo(customOAuth2User.getAttributes());
