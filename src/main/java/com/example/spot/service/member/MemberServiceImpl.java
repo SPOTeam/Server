@@ -4,7 +4,6 @@ import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.GeneralException;
 import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.domain.StudyReason;
-import com.example.spot.domain.enums.Carrier;
 import com.example.spot.domain.enums.LoginType;
 import com.example.spot.domain.enums.Reason;
 import com.example.spot.domain.enums.Status;
@@ -18,9 +17,6 @@ import com.example.spot.web.dto.member.MemberRequestDTO.MemberReasonDTO;
 import com.example.spot.domain.auth.CustomUserDetails;
 import com.example.spot.domain.auth.RefreshToken;
 import com.example.spot.repository.RefreshTokenRepository;
-import com.example.spot.security.utils.JwtTokenProvider;
-import com.example.spot.domain.Member;
-import com.example.spot.repository.MemberRepository;
 import com.example.spot.service.auth.KaKaoOAuthService;
 import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.MemberRegionDTO.RegionDTO;
@@ -33,7 +29,6 @@ import com.example.spot.web.dto.token.TokenResponseDTO.TokenDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,8 +52,7 @@ import com.example.spot.web.dto.member.MemberRequestDTO.MemberThemeDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.MemberUpdateDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.LocalDate;
-import java.util.Random;
+
 import java.util.UUID;
 
 @Service
@@ -619,6 +613,12 @@ public class MemberServiceImpl implements MemberService {
         } catch (NumberFormatException e) {
             throw new UsernameNotFoundException("Invalid user ID format");
         }
+    }
+
+    @Override
+    @Transactional
+    public void save(Member member) {
+        memberRepository.save(member);
     }
 
 }
