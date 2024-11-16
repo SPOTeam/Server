@@ -15,6 +15,7 @@ import com.example.spot.repository.MemberRepository;
 import com.example.spot.repository.RefreshTokenRepository;
 import com.example.spot.repository.verification.VerificationCodeRepository;
 import com.example.spot.security.utils.JwtTokenProvider;
+import com.example.spot.security.utils.MemberUtils;
 import com.example.spot.web.dto.member.MemberRequestDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.security.utils.SecurityUtils;
@@ -196,7 +197,7 @@ public class AuthServiceImpl implements AuthService{
                 .gender(gender)
                 .email(memberDTO.getResponse().getEmail())
                 .carrier(Carrier.NONE)
-                .phone("")
+                .phone(MemberUtils.generatePhoneNumber())
                 .loginId(memberDTO.getResponse().getEmail())
                 .password("")
                 .profileImage(DEFAULT_PROFILE_IMAGE_URL)
