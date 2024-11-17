@@ -42,6 +42,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import static com.example.spot.web.dto.member.google.GoogleExampleResponse.EXAMPLE_RESPONSE;
+
 @RestController
 @RequestMapping("/spot")
 @RequiredArgsConstructor
@@ -275,24 +277,6 @@ public class MemberController {
         response.setHeader("Location", "/oauth/authorize");
     }
 
-
-    private final String EXAMPLE_RESPONSE = """
-            {
-              "isSuccess": true,
-              "code": "COMMON200",
-              "message": "OK",
-              "result": {
-                "tokens": {
-                  "accessToken": "eyABCDEFG.eyJtZW1i12341234123xNzMxNzU4MTAxLCJleHAiOjE3MzE3NjE3MDF9.ZplY8yGgO24234FQj0hPB6uY",
-                  "refreshToken": "eyABCDEFG.eyJtZW123412341234312hdCI6MTczMTc1ODEwMSwiZXhwIjoxNzMxODQ0NTAxfQ.FGvZ5nL2342342yJ0I7LX-rac",
-                  "accessTokenExpiresIn": 3600000
-                },
-                "email": "example@gmail.com",
-                "memberId": 1
-              }
-            }
-            """;
-
     @Tag(name = "구글 로그인 API", description = "구글 OAuth2 로그인 API")
     @Operation(summary = "[구글 로그인] 구글 로그인/회원가입 리다이렉트용 API",
             description = """
@@ -308,12 +292,8 @@ public class MemberController {
                             examples = @ExampleObject(
                                     value = EXAMPLE_RESPONSE
                             )))})
-    @GetMapping("/spot/members/sign-in/google/redirect")
+    @GetMapping("/members/sign-in/google/redirect")
     public void handleGoogleCallback() {
     }
 
 }
-
-
-
-
