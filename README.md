@@ -1,3 +1,6 @@
+# SPOT Server Repository입니다. 
+
+
 1. [Intro](#intro)
 2. [Architecture](#architecture)
 3. [Package Structure](#package-structure)
