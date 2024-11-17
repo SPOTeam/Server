@@ -1,5 +1,7 @@
 package com.example.spot.security.oauth;
 
+import com.example.spot.api.code.status.ErrorStatus;
+import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.web.dto.member.google.GoogleUserInfo;
 import com.example.spot.web.dto.member.google.OAuth2UserInfo;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +20,7 @@ public class OAuthUserInfoFactory {
 
             return new GoogleUserInfo(attributes);
         }
-        System.out.println("provider = " + provider);
-        throw new RuntimeException("provider가 google이 아님");
+        throw new MemberHandler(ErrorStatus._MEMBER_UNSUPPORTED_LOGIN_TYPE);
+
     }
 }

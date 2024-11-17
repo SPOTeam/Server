@@ -1,7 +1,9 @@
 package com.example.spot.security.oauth;
 
 import com.example.spot.api.ApiResponse;
+import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.code.status.SuccessStatus;
+import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.domain.Member;
 import com.example.spot.repository.MemberRepository;
 import com.example.spot.security.utils.JwtTokenProvider;
@@ -38,7 +40,7 @@ public class CustomOAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         String email = googleUserInfo.getEmail();
 
         Optional<Member> memberOptional = memberRepository.findByEmail(email);
-        Member member = memberOptional.orElseThrow(() -> new IllegalArgumentException("회원 정보가 없습니다."));
+        Member member = memberOptional.orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
 
         Long memberId = member.getId();
 

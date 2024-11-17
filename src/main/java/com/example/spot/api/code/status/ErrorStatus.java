@@ -32,6 +32,9 @@ public enum ErrorStatus implements BaseErrorCode {
     _NAVER_ACCESS_TOKEN_ISSUANCE_FAILED(HttpStatus.UNAUTHORIZED, "NAVER4002", "네이버 액세스 토큰 발급에 실패하였습니다."),
     _UNABLE_TO_RETRIEVE_NAVER_PROFILE(HttpStatus.UNAUTHORIZED, "NAVER4003", "네이버 프로필 조회에 실패하였습니다."),
 
+    // 구글 소셜 로그인 관련 에러
+    _MEMBER_UNSUPPORTED_LOGIN_TYPE(HttpStatus.BAD_REQUEST, "GOOGLE4001", "제공하지 않는 로그인타입 입니다."),
+
     //멤버 관련 에러
     _MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER4001", "회원을 찾을 수 없습니다."),
     _MEMBER_NAME_INVALID(HttpStatus.BAD_REQUEST, "MEMBER4002", "회원 이름이 유효하지 않습니다."),

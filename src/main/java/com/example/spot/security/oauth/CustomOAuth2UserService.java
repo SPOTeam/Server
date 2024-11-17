@@ -1,5 +1,7 @@
 package com.example.spot.security.oauth;
 
+import com.example.spot.api.code.status.ErrorStatus;
+import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.domain.Member;
 import com.example.spot.domain.enums.Carrier;
 import com.example.spot.domain.enums.LoginType;
@@ -56,7 +58,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 memberService.save(newMember);
                 return new CustomOAuth2User(newMember, attributes);
             }
-            throw new RuntimeException("제공하지 않는 로그인타입 입니다.");
+            throw new MemberHandler(ErrorStatus._MEMBER_UNSUPPORTED_LOGIN_TYPE);
         }
 
         return new CustomOAuth2User(optionalMember.get(), attributes);
