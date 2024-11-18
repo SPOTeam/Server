@@ -98,7 +98,7 @@
 
 | 기능                  | Server 담당자 |
 |-----------------------|----------|
-| 회원 기능            | @msk226  |
+| 회원 기능            | [@msk226](https://github.com/msk226)  |
 | 카카오 소셜 로그인 기능 | @msk226  |
 | 스터디 조회 기능     | @msk226  |
 | 모집중인 스터디      | @msk226  |
@@ -106,7 +106,7 @@
 | 스터디 상세 정보     | @msk226  |
 | 알림 관련 기능       | @msk226  |
 | 투두 리스트 기능     | @msk226  |
-| 스터디 일정          | @dvlp-sy |
+| 스터디 일정          | [@dvlp-sy](https://github.com/dvlp-sy)  |
 | 스터디 게시글        | @dvlp-sy |
 | 스터디 출석체크      | @dvlp-sy |
 | 일반 로그인 관련 기능 | @dvlp-sy |
@@ -114,7 +114,7 @@
 | 스터디 갤러리        | @dvlp-sy |
 | 스터디 생성/참여/신청 | @dvlp-sy |
 | 진행중인 스터디      | @dvlp-sy |
-| 구글 소셜 로그인 기능 | @FromKyoung        |
+| 구글 소셜 로그인 기능 | [@FromKyoung](https://github.com/FromKyoung)          |
 | 게시판 기능          | @FromKyoung         |
 | 게시판 메인 페이지   | @FromKyoung          |
 | 게시글 댓글 기능     | @FromKyoung          |
