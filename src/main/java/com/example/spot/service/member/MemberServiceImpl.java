@@ -116,6 +116,7 @@ public class MemberServiceImpl implements MemberService {
             MemberSignInDTO dto = MemberSignInDTO.builder()
                     .tokens(token)
                     .memberId(member.getId())
+                    .loginType(member.getLoginType())
                     .email(member.getEmail())
                     .build();
             return SocialLoginSignInDTO.toDTO(isSpotMember, dto);
@@ -134,6 +135,7 @@ public class MemberServiceImpl implements MemberService {
         MemberSignInDTO dto = MemberSignInDTO.builder()
                 .tokens(token)
                 .memberId(member.getId())
+                .loginType(member.getLoginType())
                 .email(member.getEmail())
                 .build();
         return SocialLoginSignInDTO.toDTO(isSpotMember, dto);
@@ -289,10 +291,11 @@ public class MemberServiceImpl implements MemberService {
 
             // 로그인 DTO 반환
             MemberSignInDTO memberSignInDto = MemberSignInDTO.builder()
-                .tokens(token)
-                .memberId(member.getId())
-                .email(member.getEmail())
-                .build();
+                    .tokens(token)
+                    .memberId(member.getId())
+                    .loginType(member.getLoginType())
+                    .email(member.getEmail())
+                    .build();
 
             return SocialLoginSignInDTO.toDTO(isSpotMember, memberSignInDto);
         }
@@ -309,6 +312,7 @@ public class MemberServiceImpl implements MemberService {
         MemberSignInDTO dto = MemberSignInDTO.builder()
                 .tokens(token)
                 .memberId(member.getId())
+                .loginType(member.getLoginType())
                 .email(member.getEmail())
                 .build();
         return SocialLoginSignInDTO.toDTO(isSpotMember, dto);

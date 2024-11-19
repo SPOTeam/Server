@@ -85,6 +85,7 @@ public class MemberResponseDTO {
         private TokenDTO tokens;
         private String email;
         private Long memberId;
+        private LoginType loginType;
     }
 
     @Builder

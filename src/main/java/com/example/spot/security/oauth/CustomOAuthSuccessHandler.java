@@ -51,12 +51,13 @@ public class CustomOAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         MemberResponseDTO.MemberSignInDTO memberSignInDTO = MemberResponseDTO.MemberSignInDTO.builder()
                 .tokens(token)
                 .memberId(member.getId())
+                .loginType(member.getLoginType())
                 .email(member.getEmail())
                 .build();
 
         ApiResponse<MemberResponseDTO.SocialLoginSignInDTO> apiResponse = ApiResponse.onSuccess(
                 SuccessStatus._OK, SocialLoginSignInDTO.toDTO(
-                        customOAuth2User.getIsSpotMember(), member.getLoginType() ,memberSignInDTO));
+                        customOAuth2User.getIsSpotMember(),memberSignInDTO));
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");

@@ -169,6 +169,7 @@ public class AuthServiceImpl implements AuthService{
         MemberResponseDTO.MemberSignInDTO signInDTO = MemberResponseDTO.MemberSignInDTO.builder()
                 .tokens(token)
                 .memberId(member.getId())
+                .loginType(member.getLoginType())
                 .email(member.getEmail())
                 .build();
 
@@ -241,6 +242,7 @@ public class AuthServiceImpl implements AuthService{
         return MemberResponseDTO.MemberSignInDTO.builder()
                 .tokens(tokenDTO)
                 .memberId(member.getId())
+                .loginType(member.getLoginType())
                 .email(member.getEmail())
                 .build();
     }
@@ -366,6 +368,7 @@ public class AuthServiceImpl implements AuthService{
         return MemberResponseDTO.MemberSignInDTO.builder()
                 .tokens(token)
                 .memberId(member.getId())
+                .loginType(member.getLoginType())
                 .email(member.getEmail())
                 .build();
     }
