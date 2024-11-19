@@ -10,6 +10,7 @@ import com.example.spot.web.dto.member.MemberResponseDTO.MemberRegionDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.MemberSignInDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.MemberStudyReasonDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.MemberTestDTO;
+import com.example.spot.web.dto.member.MemberResponseDTO.SocialLoginSignInDTO;
 import com.example.spot.web.dto.member.naver.NaverCallback;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.example.spot.validation.annotation.ExistMember;
@@ -110,8 +111,8 @@ public class MemberController {
             
            생성된 회원의 액세스 토큰과 Email이 반환 됩니다. """)
     @GetMapping("/members/sign-in/kakao/redirect")
-    public ApiResponse<MemberResponseDTO.MemberSignInDTO> redirectURL(@RequestParam String code) throws IOException {
-        MemberSignInDTO dto = memberService.signUpByKAKAOForTest(code);
+    public ApiResponse<MemberResponseDTO.SocialLoginSignInDTO> redirectURL(@RequestParam String code) throws IOException {
+        SocialLoginSignInDTO dto = memberService.signUpByKAKAOForTest(code);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_CREATED, dto);
     }
 
@@ -125,8 +126,8 @@ public class MemberController {
 
     @Parameter(name = "accessToken", description = "카카오 액세스 토큰을 입력 해 주세요. ", required = true)
     @GetMapping("/members/sign-in/kakao")
-    public ApiResponse<MemberResponseDTO.MemberSignInDTO> signInByKaKao(@RequestParam String accessToken) throws JsonProcessingException {
-        MemberSignInDTO dto = memberService.signUpByKAKAO(accessToken);
+    public ApiResponse<MemberResponseDTO.SocialLoginSignInDTO> signInByKaKao(@RequestParam String accessToken) throws JsonProcessingException {
+        SocialLoginSignInDTO dto = memberService.signUpByKAKAO(accessToken);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_CREATED, dto);
     }
 

@@ -17,9 +17,9 @@ public interface MemberService extends UserDetailsService {
     // 테스트 용 멤버 생성
     MemberResponseDTO.MemberTestDTO testMember(MemberInfoListDTO memberInfoListDTO);
 
-    MemberResponseDTO.MemberSignInDTO signUpByKAKAO(String code) throws JsonProcessingException;
+    MemberResponseDTO.SocialLoginSignInDTO signUpByKAKAO(String code) throws JsonProcessingException;
 
-    MemberResponseDTO.MemberSignInDTO signUpByKAKAOForTest(String code)
+    MemberResponseDTO.SocialLoginSignInDTO signUpByKAKAOForTest(String code)
         throws JsonProcessingException;
 
     void redirectURL() throws IOException;
