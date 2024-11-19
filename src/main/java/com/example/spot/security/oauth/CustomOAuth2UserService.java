@@ -47,8 +47,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         if (optionalMember.isEmpty()) {
             if (provider.equals("google")) {
                 Member newMember = Member.builder()
-                        .name(attributes.get("name").toString())
-                        .nickname(attributes.get("name").toString())
+                        .name(attributes.get("name").toString().substring(0, 10))
+                        .nickname(attributes.get("name").toString().substring(0, 10))
                         .email(oauthEmail)
                         .profileImage(attributes.get("picture").toString())
                         .carrier(Carrier.NONE)
@@ -61,11 +61,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                         .loginType(LoginType.GOOGLE)
                         .build();
                 memberService.save(newMember);
-                return new CustomOAuth2User(newMember, attributes);
+                return new CustomOAuth2User(newMember, attributes, false);
             }
             throw new MemberHandler(ErrorStatus._MEMBER_UNSUPPORTED_LOGIN_TYPE);
         }
 
-        return new CustomOAuth2User(optionalMember.get(), attributes);
+        return new CustomOAuth2User(optionalMember.get(), attributes, true);
     }
 }
