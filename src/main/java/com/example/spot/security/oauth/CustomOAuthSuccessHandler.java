@@ -8,6 +8,7 @@ import com.example.spot.domain.Member;
 import com.example.spot.repository.MemberRepository;
 import com.example.spot.security.utils.JwtTokenProvider;
 import com.example.spot.web.dto.member.MemberResponseDTO;
+import com.example.spot.web.dto.member.MemberResponseDTO.SocialLoginSignInDTO;
 import com.example.spot.web.dto.member.google.CustomOAuth2User;
 import com.example.spot.web.dto.member.google.GoogleUserInfo;
 import com.example.spot.web.dto.token.TokenResponseDTO;
@@ -50,10 +51,13 @@ public class CustomOAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         MemberResponseDTO.MemberSignInDTO memberSignInDTO = MemberResponseDTO.MemberSignInDTO.builder()
                 .tokens(token)
                 .memberId(member.getId())
+                .loginType(member.getLoginType())
                 .email(member.getEmail())
                 .build();
 
-        ApiResponse<MemberResponseDTO.MemberSignInDTO> apiResponse = ApiResponse.onSuccess(SuccessStatus._OK, memberSignInDTO);
+        ApiResponse<MemberResponseDTO.SocialLoginSignInDTO> apiResponse = ApiResponse.onSuccess(
+                SuccessStatus._OK, SocialLoginSignInDTO.toDTO(
+                        customOAuth2User.getIsSpotMember(),memberSignInDTO));
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");

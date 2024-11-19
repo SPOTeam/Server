@@ -21,8 +21,10 @@ import com.example.spot.service.auth.KaKaoOAuthService;
 import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.MemberRegionDTO.RegionDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.MemberSignInDTO;
+import com.example.spot.web.dto.member.MemberResponseDTO.MemberSignInDTO.MemberSignInDTOBuilder;
 import com.example.spot.web.dto.member.MemberResponseDTO.MemberStudyReasonDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.MemberTestDTO;
+import com.example.spot.web.dto.member.MemberResponseDTO.SocialLoginSignInDTO;
 import com.example.spot.web.dto.member.kakao.KaKaoOAuthToken.KaKaoOAuthTokenDTO;
 import com.example.spot.web.dto.member.kakao.KaKaoUser;
 import com.example.spot.web.dto.token.TokenResponseDTO.TokenDTO;
@@ -86,30 +88,38 @@ public class MemberServiceImpl implements MemberService {
      * @throws JsonProcessingException 카카오 사용자 정보 파싱 중 발생하는 예외
      */
     @Override
-    public MemberResponseDTO.MemberSignInDTO signUpByKAKAO(String accessToken) throws JsonProcessingException {
+    public MemberResponseDTO.SocialLoginSignInDTO signUpByKAKAO(String accessToken) throws JsonProcessingException {
         // 액세스 토큰을 사용하여 사용자 정보 요청
         ResponseEntity<String> userInfoResponse = kaKaoOAuthService.requestUserInfo(accessToken);
 
         // 응답에서 사용자 정보를 파싱
         KaKaoUser kaKaoUser = kaKaoOAuthService.getUserInfo(userInfoResponse);
 
+        if (memberRepository.existsByEmailAndLoginTypeNot(kaKaoUser.toMember().getEmail(), LoginType.KAKAO)){
+            log.info(kaKaoUser.toMember().getEmail());
+            throw new GeneralException(ErrorStatus._MEMBER_EMAIL_EXIST);
+        }
+
+        Boolean isSpotMember = false;
         // 사용자가 이미 존재하는지 확인
         if (memberRepository.existsByEmail(kaKaoUser.toMember().getEmail())) {
             // 존재하는 경우, 사용자 정보를 가져옴
             Member member = memberRepository.findByEmail(kaKaoUser.toMember().getEmail())
                 .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
-
+            isSpotMember = true;
             // JWT 토큰 생성
             TokenDTO token = jwtTokenProvider.createToken(member.getId());
 
             saveRefreshToken(member, token);
 
             // 로그인 DTO 반환
-            return MemberResponseDTO.MemberSignInDTO.builder()
-                .tokens(token)
-                .memberId(member.getId())
-                .email(member.getEmail())
-                .build();
+            MemberSignInDTO dto = MemberSignInDTO.builder()
+                    .tokens(token)
+                    .memberId(member.getId())
+                    .loginType(member.getLoginType())
+                    .email(member.getEmail())
+                    .build();
+            return SocialLoginSignInDTO.toDTO(isSpotMember, dto);
         }
 
 
@@ -122,11 +132,13 @@ public class MemberServiceImpl implements MemberService {
         saveRefreshToken(member, token);
 
         // 회원 가입 DTO 반환
-        return MemberResponseDTO.MemberSignInDTO.builder()
-            .tokens(token)
-            .memberId(member.getId())
-            .email(member.getEmail())
-            .build();
+        MemberSignInDTO dto = MemberSignInDTO.builder()
+                .tokens(token)
+                .memberId(member.getId())
+                .loginType(member.getLoginType())
+                .email(member.getEmail())
+                .build();
+        return SocialLoginSignInDTO.toDTO(isSpotMember, dto);
     }
 
     /**
@@ -247,7 +259,7 @@ public class MemberServiceImpl implements MemberService {
      * @throws MemberHandler 이메일로 가입된 내역이 존재하지만, 실제로는 회원이 존재하지 않을 경우
      */
     @Override
-    public MemberSignInDTO signUpByKAKAOForTest(String code) throws JsonProcessingException {
+    public SocialLoginSignInDTO signUpByKAKAOForTest(String code) throws JsonProcessingException {
         // 카카오 OAuth 서비스에서 액세스 토큰 요청
         ResponseEntity<String> accessTokenResponse = kaKaoOAuthService.requestAccessToken(code);
 
@@ -261,11 +273,16 @@ public class MemberServiceImpl implements MemberService {
         // 응답에서 사용자 정보를 파싱
         KaKaoUser kaKaoUser = kaKaoOAuthService.getUserInfo(userInfoResponse);
 
+        if (memberRepository.existsByEmailAndLoginTypeNot(kaKaoUser.toMember().getEmail(), LoginType.KAKAO))
+            throw new GeneralException(ErrorStatus._MEMBER_EMAIL_EXIST);
+
+        Boolean isSpotMember = false;
         // 사용자가 이미 존재하는지 확인
         if (memberRepository.existsByEmail(kaKaoUser.toMember().getEmail())) {
             // 존재하는 경우, 사용자 정보를 가져옴
             Member member = memberRepository.findByEmail(kaKaoUser.toMember().getEmail())
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+            isSpotMember = true;
 
             // JWT 토큰 생성
             TokenDTO token = jwtTokenProvider.createToken(member.getId());
@@ -273,11 +290,14 @@ public class MemberServiceImpl implements MemberService {
             saveRefreshToken(member, token);
 
             // 로그인 DTO 반환
-            return MemberResponseDTO.MemberSignInDTO.builder()
-                .tokens(token)
-                .memberId(member.getId())
-                .email(member.getEmail())
-                .build();
+            MemberSignInDTO memberSignInDto = MemberSignInDTO.builder()
+                    .tokens(token)
+                    .memberId(member.getId())
+                    .loginType(member.getLoginType())
+                    .email(member.getEmail())
+                    .build();
+
+            return SocialLoginSignInDTO.toDTO(isSpotMember, memberSignInDto);
         }
 
         // 존재하지 않는 경우, 새로운 회원 정보 저장
@@ -289,11 +309,13 @@ public class MemberServiceImpl implements MemberService {
         saveRefreshToken(member, token);
 
         // 회원 가입 DTO 반환
-        return MemberResponseDTO.MemberSignInDTO.builder()
-            .tokens(token)
-            .memberId(member.getId())
-            .email(member.getEmail())
-            .build();
+        MemberSignInDTO dto = MemberSignInDTO.builder()
+                .tokens(token)
+                .memberId(member.getId())
+                .loginType(member.getLoginType())
+                .email(member.getEmail())
+                .build();
+        return SocialLoginSignInDTO.toDTO(isSpotMember, dto);
     }
 
     /**

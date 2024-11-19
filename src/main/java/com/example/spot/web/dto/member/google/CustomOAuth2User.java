@@ -2,6 +2,7 @@ package com.example.spot.web.dto.member.google;
 
 import com.example.spot.domain.Member;
 import com.example.spot.domain.enums.LoginType;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -16,6 +17,9 @@ public class CustomOAuth2User implements OAuth2User {
 
     private final Member member;
     private final Map<String, Object> attributes;
+
+    @Getter
+    private final Boolean isSpotMember;
 
     @Override
     public Map<String, Object> getAttributes() {
@@ -35,4 +39,5 @@ public class CustomOAuth2User implements OAuth2User {
 
         return null;
     }
+
 }

@@ -6,6 +6,7 @@ import com.example.spot.service.auth.AuthService;
 import com.example.spot.validation.annotation.TextLength;
 import com.example.spot.web.dto.member.MemberRequestDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO;
+import com.example.spot.web.dto.member.MemberResponseDTO.SocialLoginSignInDTO;
 import com.example.spot.web.dto.member.naver.NaverCallback;
 import com.example.spot.web.dto.token.TokenResponseDTO;
 import com.example.spot.web.dto.token.TokenResponseDTO.TokenDTO;
@@ -88,10 +89,10 @@ public class AuthController {
             * 콜백 함수의 결과로 토큰 정보가 반환됩니다.
             """)
     @GetMapping("/members/sign-in/naver/redirect")
-    public ApiResponse<MemberResponseDTO.NaverSignInDTO> signInWithNaver(
+    public ApiResponse<SocialLoginSignInDTO> signInWithNaver(
             HttpServletRequest request, HttpServletResponse response, NaverCallback naverCallback) throws JsonProcessingException {
-        MemberResponseDTO.NaverSignInDTO naverSignInDTO = authService.signInWithNaver(request, response, naverCallback);
-        return ApiResponse.onSuccess(SuccessStatus._MEMBER_SIGNED_IN, naverSignInDTO);
+        SocialLoginSignInDTO socialLoginSignInDTO = authService.signInWithNaver(request, response, naverCallback);
+        return ApiResponse.onSuccess(SuccessStatus._MEMBER_SIGNED_IN, socialLoginSignInDTO);
     }
 
 /* ----------------------------- 일반 로그인/회원가입 API ------------------------------------- */

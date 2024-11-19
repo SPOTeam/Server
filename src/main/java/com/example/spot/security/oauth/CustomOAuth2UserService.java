@@ -1,6 +1,7 @@
 package com.example.spot.security.oauth;
 
 import com.example.spot.api.code.status.ErrorStatus;
+import com.example.spot.api.exception.GeneralException;
 import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.domain.Member;
 import com.example.spot.domain.enums.Carrier;
@@ -38,12 +39,16 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         OAuth2UserInfo oAuthUserInfo = OAuthUserInfoFactory.getOAuthUserInfo(provider, attributes);
 
         String oauthEmail = oAuthUserInfo.getEmail();
+
+        if (memberRepository.existsByEmailAndLoginTypeNot(oauthEmail, LoginType.GOOGLE))
+            throw new GeneralException(ErrorStatus._MEMBER_EMAIL_EXIST);
+
         Optional<Member> optionalMember = memberRepository.findByEmail(oauthEmail);
         if (optionalMember.isEmpty()) {
             if (provider.equals("google")) {
                 Member newMember = Member.builder()
-                        .name(attributes.get("name").toString())
-                        .nickname(attributes.get("name").toString())
+                        .name(attributes.get("name").toString().substring(0, 10))
+                        .nickname(attributes.get("name").toString().substring(0, 10))
                         .email(oauthEmail)
                         .profileImage(attributes.get("picture").toString())
                         .carrier(Carrier.NONE)
@@ -56,11 +61,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                         .loginType(LoginType.GOOGLE)
                         .build();
                 memberService.save(newMember);
-                return new CustomOAuth2User(newMember, attributes);
+                return new CustomOAuth2User(newMember, attributes, false);
             }
             throw new MemberHandler(ErrorStatus._MEMBER_UNSUPPORTED_LOGIN_TYPE);
         }
 
-        return new CustomOAuth2User(optionalMember.get(), attributes);
+        return new CustomOAuth2User(optionalMember.get(), attributes, true);
     }
 }

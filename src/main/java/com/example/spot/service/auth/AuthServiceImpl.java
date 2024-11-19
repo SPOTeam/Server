@@ -20,6 +20,7 @@ import com.example.spot.web.dto.member.MemberRequestDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.security.utils.SecurityUtils;
 import com.example.spot.service.message.MailService;
+import com.example.spot.web.dto.member.MemberResponseDTO.SocialLoginSignInDTO;
 import com.example.spot.web.dto.member.naver.NaverCallback;
 import com.example.spot.web.dto.member.naver.NaverMember;
 import com.example.spot.web.dto.token.TokenResponseDTO;
@@ -142,10 +143,13 @@ public class AuthServiceImpl implements AuthService{
     }
 
     @Override
-    public MemberResponseDTO.NaverSignInDTO signInWithNaver(HttpServletRequest request, HttpServletResponse response, NaverCallback naverCallback) throws JsonProcessingException {
+    public SocialLoginSignInDTO signInWithNaver(HttpServletRequest request, HttpServletResponse response, NaverCallback naverCallback) throws JsonProcessingException {
 
         NaverMember.ResponseDTO responseDTO = naverOAuthService.getNaverMember(request, response, naverCallback);
         String email = responseDTO.getResponse().getEmail();
+
+        if (memberRepository.existsByEmailAndLoginTypeNot(email, LoginType.NAVER))
+            throw new GeneralException(ErrorStatus._MEMBER_EMAIL_EXIST);
 
         Boolean isSpotMember = Boolean.TRUE;
 
@@ -165,10 +169,11 @@ public class AuthServiceImpl implements AuthService{
         MemberResponseDTO.MemberSignInDTO signInDTO = MemberResponseDTO.MemberSignInDTO.builder()
                 .tokens(token)
                 .memberId(member.getId())
+                .loginType(member.getLoginType())
                 .email(member.getEmail())
                 .build();
 
-        return MemberResponseDTO.NaverSignInDTO.toDTO(isSpotMember, signInDTO);
+        return SocialLoginSignInDTO.toDTO(isSpotMember, signInDTO);
     }
 
     private void signUpWithNaver(NaverMember.ResponseDTO memberDTO) {
@@ -237,6 +242,7 @@ public class AuthServiceImpl implements AuthService{
         return MemberResponseDTO.MemberSignInDTO.builder()
                 .tokens(tokenDTO)
                 .memberId(member.getId())
+                .loginType(member.getLoginType())
                 .email(member.getEmail())
                 .build();
     }
@@ -362,6 +368,7 @@ public class AuthServiceImpl implements AuthService{
         return MemberResponseDTO.MemberSignInDTO.builder()
                 .tokens(token)
                 .memberId(member.getId())
+                .loginType(member.getLoginType())
                 .email(member.getEmail())
                 .build();
     }
