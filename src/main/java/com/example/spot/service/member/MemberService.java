@@ -11,14 +11,15 @@ import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.IOException;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface MemberService extends UserDetailsService {
     // 테스트 용 멤버 생성
     MemberResponseDTO.MemberTestDTO testMember(MemberInfoListDTO memberInfoListDTO);
 
-    MemberResponseDTO.MemberSignInDTO signUpByKAKAO(String code) throws JsonProcessingException;
+    MemberResponseDTO.SocialLoginSignInDTO signUpByKAKAO(String code) throws JsonProcessingException;
 
-    MemberResponseDTO.MemberSignInDTO signUpByKAKAOForTest(String code)
+    MemberResponseDTO.SocialLoginSignInDTO signUpByKAKAOForTest(String code)
         throws JsonProcessingException;
 
     void redirectURL() throws IOException;
@@ -36,5 +37,8 @@ public interface MemberService extends UserDetailsService {
     MemberResponseDTO.MemberRegionDTO getRegions(Long memberId);
     MemberResponseDTO.MemberStudyReasonDTO getStudyReasons(Long memberId);
     MemberResponseDTO.MemberUpdateDTO toAdmin(Long memberId);
+
+    @Transactional
+    void save(Member member);
 }
 

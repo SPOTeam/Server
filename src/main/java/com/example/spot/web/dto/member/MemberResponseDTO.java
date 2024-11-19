@@ -16,13 +16,13 @@ public class MemberResponseDTO {
     @Getter
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     @Builder(access = AccessLevel.PRIVATE)
-    public static class NaverSignInDTO {
+    public static class SocialLoginSignInDTO {
 
         private final Boolean isSpotMember;
         private final MemberSignInDTO signInDTO;
 
-        public static NaverSignInDTO toDTO(Boolean isSpotMember, MemberSignInDTO signInDTO) {
-            return NaverSignInDTO.builder()
+        public static SocialLoginSignInDTO toDTO(Boolean isSpotMember, MemberSignInDTO signInDTO) {
+            return SocialLoginSignInDTO.builder()
                     .isSpotMember(isSpotMember)
                     .signInDTO(signInDTO)
                     .build();
@@ -85,6 +85,7 @@ public class MemberResponseDTO {
         private TokenDTO tokens;
         private String email;
         private Long memberId;
+        private LoginType loginType;
     }
 
     @Builder

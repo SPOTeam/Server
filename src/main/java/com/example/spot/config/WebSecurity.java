@@ -5,6 +5,8 @@ import com.example.spot.security.filters.JwtAuthenticationFilter;
 import com.example.spot.security.utils.JwtTokenProvider;
 import com.example.spot.service.member.MemberService;
 import com.example.spot.service.member.UserDetailsServiceCustom;
+import com.example.spot.security.oauth.CustomOAuth2UserService;
+import com.example.spot.security.oauth.CustomOAuthSuccessHandler;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.context.annotation.Bean;
@@ -12,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -27,6 +30,9 @@ public class WebSecurity {
     // 사용자 정보를 처리하는 UserDetailsServiceCustom
     private final UserDetailsServiceCustom userDetailsService;
 
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final CustomOAuthSuccessHandler customOAuthSuccessHandler;
+
     /**
      *
      * @param http
@@ -41,30 +47,35 @@ public class WebSecurity {
 
         // HttpSecurity 설정을 구성합니다. JWT 토큰을 통한 검증을 거치지 않는 요청은 permitAll()로 설정합니다.
         http.authorizeHttpRequests((authz) -> authz
-                .requestMatchers(new AntPathRequestMatcher("/api/**")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/actuator/**")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/spot/check/**")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/spot/send-verification-code")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/spot/verify")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/spot/reissue")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/spot/sign-up", "POST")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/spot/login", "POST")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/spot/members/sign-in/naver/redirect", "GET")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/spot/members/sign-in/naver/authorize", "GET")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/spot/login/kakao", "GET")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/spot/members/sign-in/kakao", "GET")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/spot/members/sign-in/kakao/redirect", "GET")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/spot/member/test", "POST")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/api-docs")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/v3/**", "GET")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**", "GET")).permitAll()
-                .anyRequest().authenticated()
-            )
-            // JWT 토큰을 검증하는 필터를 UsernamePasswordAuthenticationFilter 앞에 추가합니다.
-            .addFilterBefore(getJwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-            // 세션을 사용하지 않도록 설정합니다.
-            .sessionManagement((session) -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                        .requestMatchers(new AntPathRequestMatcher("/api/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/actuator/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/spot/check/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/spot/send-verification-code")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/spot/verify")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/spot/reissue")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/spot/sign-up", "POST")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/spot/login", "POST")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/spot/members/sign-in/naver/redirect", "GET")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/spot/members/sign-in/naver/authorize", "GET")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/spot/login/kakao", "GET")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/spot/members/sign-in/kakao", "GET")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/spot/members/sign-in/kakao/redirect", "GET")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/spot/member/test", "POST")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/api-docs")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/v3/**", "GET")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**", "GET")).permitAll()
+                        .anyRequest().authenticated()
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .authorizationEndpoint(authorization -> authorization.baseUri("/oauth/authorize"))
+                        .redirectionEndpoint(redirection -> redirection.baseUri("/spot/members/sign-in/google/redirect"))
+                        .successHandler(customOAuthSuccessHandler)
+                )
+                // JWT 토큰을 검증하는 필터를 UsernamePasswordAuthenticationFilter 앞에 추가합니다.
+                .addFilterBefore(getJwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                // 세션을 사용하지 않도록 설정합니다.
+                .sessionManagement((session) -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         // X-Frame-Options를 설정합니다.
         http.headers((headers) -> headers.frameOptions((frameOptions) -> frameOptions.sameOrigin()));
 
@@ -77,5 +88,10 @@ public class WebSecurity {
      */
     private JwtAuthenticationFilter getJwtAuthenticationFilter() {
         return new JwtAuthenticationFilter(jwtTokenProvider, memberService, userDetailsService);
+    }
+
+    @Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }
