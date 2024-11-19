@@ -1,6 +1,7 @@
 package com.example.spot.security.oauth;
 
 import com.example.spot.api.code.status.ErrorStatus;
+import com.example.spot.api.exception.GeneralException;
 import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.domain.Member;
 import com.example.spot.domain.enums.Carrier;
@@ -38,6 +39,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         OAuth2UserInfo oAuthUserInfo = OAuthUserInfoFactory.getOAuthUserInfo(provider, attributes);
 
         String oauthEmail = oAuthUserInfo.getEmail();
+
+        if (memberRepository.existsByEmailAndLoginTypeNot(oauthEmail, LoginType.GOOGLE))
+            throw new GeneralException(ErrorStatus._MEMBER_EMAIL_EXIST);
+
         Optional<Member> optionalMember = memberRepository.findByEmail(oauthEmail);
         if (optionalMember.isEmpty()) {
             if (provider.equals("google")) {

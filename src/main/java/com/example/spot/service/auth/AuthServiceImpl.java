@@ -147,6 +147,9 @@ public class AuthServiceImpl implements AuthService{
         NaverMember.ResponseDTO responseDTO = naverOAuthService.getNaverMember(request, response, naverCallback);
         String email = responseDTO.getResponse().getEmail();
 
+        if (memberRepository.existsByEmailAndLoginTypeNot(email, LoginType.NAVER))
+            throw new GeneralException(ErrorStatus._MEMBER_EMAIL_EXIST);
+
         Boolean isSpotMember = Boolean.TRUE;
 
         // 가입되지 않은 회원이면 회원 정보 저장

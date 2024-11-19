@@ -93,6 +93,11 @@ public class MemberServiceImpl implements MemberService {
         // 응답에서 사용자 정보를 파싱
         KaKaoUser kaKaoUser = kaKaoOAuthService.getUserInfo(userInfoResponse);
 
+        if (memberRepository.existsByEmailAndLoginTypeNot(kaKaoUser.toMember().getEmail(), LoginType.KAKAO)){
+            log.info(kaKaoUser.toMember().getEmail());
+            throw new GeneralException(ErrorStatus._MEMBER_EMAIL_EXIST);
+        }
+
         // 사용자가 이미 존재하는지 확인
         if (memberRepository.existsByEmail(kaKaoUser.toMember().getEmail())) {
             // 존재하는 경우, 사용자 정보를 가져옴
@@ -260,6 +265,9 @@ public class MemberServiceImpl implements MemberService {
 
         // 응답에서 사용자 정보를 파싱
         KaKaoUser kaKaoUser = kaKaoOAuthService.getUserInfo(userInfoResponse);
+
+        if (memberRepository.existsByEmailAndLoginTypeNot(kaKaoUser.toMember().getEmail(), LoginType.KAKAO))
+            throw new GeneralException(ErrorStatus._MEMBER_EMAIL_EXIST);
 
         // 사용자가 이미 존재하는지 확인
         if (memberRepository.existsByEmail(kaKaoUser.toMember().getEmail())) {
