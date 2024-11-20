@@ -432,7 +432,6 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
         LocalDateTime finishedAt = schedule.getFinishedAt();
 
         YearMonth yearMonth = YearMonth.of(year, month); // 탐색 연월
-        //LocalDateTime startOfMonth = yearMonth.atDay(1).atStartOfDay(); // 탐색 연월의 첫째 날
         LocalDateTime endOfMonth = yearMonth.atEndOfMonth().atTime(23, 59, 59); // 탐색 연월의 마지막 날
 
         // 일정 시작일이 탐색 연월 내에 있는 경우만 반복
