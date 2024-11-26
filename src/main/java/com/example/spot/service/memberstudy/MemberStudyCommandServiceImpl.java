@@ -10,6 +10,7 @@ import com.example.spot.domain.Notification;
 import com.example.spot.domain.Quiz;
 import com.example.spot.domain.enums.ApplicationStatus;
 import com.example.spot.domain.enums.NotifyType;
+import com.example.spot.domain.enums.Period;
 import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.mapping.*;
 import com.example.spot.domain.study.*;
@@ -258,6 +259,10 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
 
         //=== Feature ===//
+
+        // Period 기반 시작일 종료일 제한
+        checkStartAndFinishDate(scheduleRequestDTO);
+
         Schedule schedule = Schedule.builder()
                 .study(study)
                 .member(member)
@@ -275,7 +280,6 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         List<Member> members = memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED).stream()
             .map(MemberStudy::getMember)
             .toList();
-
 
         if (members.isEmpty())
             throw new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND);
@@ -332,6 +336,10 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_SCHEDULE_NOT_FOUND));
 
         //=== Feature ===//
+
+        // Period 기반 시작일 종료일 제한
+        checkStartAndFinishDate(scheduleModDTO);
+
         schedule.modSchedule(scheduleModDTO);
         schedule = scheduleRepository.save(schedule);
 
@@ -341,7 +349,41 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         return ScheduleResponseDTO.ScheduleDTO.toDTO(schedule);
     }
 
-/* ----------------------------- 스터디 출석 관련 API ------------------------------------- */
+    private static void checkStartAndFinishDate(ScheduleRequestDTO.ScheduleDTO scheduleRequestDTO) {
+        LocalDate startDate = scheduleRequestDTO.getStartedAt().toLocalDate();
+        LocalDate finishDate = scheduleRequestDTO.getFinishedAt().toLocalDate();
+        System.out.println(startDate);
+        System.out.println(finishDate);
+        switch (scheduleRequestDTO.getPeriod()) {
+            case DAILY :
+                // 시작일과 종료일이 일치해야 함
+                if (finishDate.equals(startDate.plusDays(1)) ||
+                        finishDate.isAfter(startDate.plusDays(1))) {
+                    throw new StudyHandler(ErrorStatus._STUDY_SCHEDULE_WRONG_FORMAT);
+                }
+            case WEEKLY :
+                // 시작일과 종료일이 일주일 이상 차이나지 않아야 함
+                if (finishDate.equals(startDate.plusWeeks(1)) ||
+                        finishDate.isAfter(startDate.plusWeeks(1))) {
+                    throw new StudyHandler(ErrorStatus._STUDY_SCHEDULE_WRONG_FORMAT);
+                }
+            case BIWEEKLY :
+                // 시작일과 종료일이 2주 이상 차이나지 않아야 함
+                if (finishDate.equals(startDate.plusWeeks(2)) ||
+                        finishDate.isAfter(startDate.plusWeeks(2))) {
+                    throw new StudyHandler(ErrorStatus._STUDY_SCHEDULE_WRONG_FORMAT);
+                }
+            case MONTHLY :
+                // 시작일과 종료일이 한 달 이상 차이나지 않아야 함
+                if (finishDate.equals(startDate.plusMonths(1)) ||
+                        finishDate.isAfter(startDate.plusMonths(1))) {
+                    throw new StudyHandler(ErrorStatus._STUDY_SCHEDULE_WRONG_FORMAT);
+                }
+        }
+    }
+
+
+    /* ----------------------------- 스터디 출석 관련 API ------------------------------------- */
 
     /**
      * 출석 퀴즈를 생성하는 메서드입니다.

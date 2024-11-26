@@ -98,6 +98,7 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "SCHEDULE4001", "스터디 일정을 찾을 수 없습니다."),
     _STUDY_SCHEDULE_ID_NULL(HttpStatus.BAD_REQUEST, "SCHEDULE4002", "일정 아이디가 입력되지 않았습니다."),
     _SCHEDULE_MOD_INVALID(HttpStatus.FORBIDDEN, "SCHEDULE4003", "일정을 생성한 회원만 수정 가능합니다."),
+    _STUDY_SCHEDULE_WRONG_FORMAT(HttpStatus.BAD_REQUEST, "SCHEDULE4004", "잘못된 일정 형식입니다."),
 
     //알림 관련 에러
     _NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTIFICATION4001", "알림을 찾을 수 없습니다."),
