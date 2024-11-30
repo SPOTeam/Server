@@ -57,8 +57,8 @@ public class NaverOAuthService {
     /**
      * 네이버 액세스 토큰을 발급하고 해당 액세스 토큰을 통해 네이버 프로필을 조회하는 메서드입니다.
      * 내부적으로 issueNaverAccessToken, getNaverProfile 메서드를 수행합니다.
-     * @param request : HttpServlet Request
-     * @param response : HttpServlet Response
+     * @param request : HttpServletRequest
+     * @param response : HttpServletResponse
      * @param naverCallback : Callback 함수 성공시 반환되는 요소(code, state, error, error_description)
      * @return 네이버 프로필 정보
      */

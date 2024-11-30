@@ -131,6 +131,11 @@ public class AuthServiceImpl implements AuthService{
 
 /* ----------------------------- 네이버 소셜로그인 API ------------------------------------- */
 
+    /**
+     * 네이버 로그인 인증 요청 URL로 실제 요청을 전송하고 로그인 페이지로 리디렉션하는 메서드입니다.
+     * @param request : HTTPServletRequest
+     * @param response : HttpServletResponse
+     */
     @Override
     public void authorizeWithNaver(HttpServletRequest request, HttpServletResponse response) {
         String url = naverOAuthService.getNaverAuthorizeUrl();
@@ -142,6 +147,16 @@ public class AuthServiceImpl implements AuthService{
         }
     }
 
+    /**
+     * SPOT 서비스에 네이버를 통해 로그인과 회원가입을 수행하는 함수입니다.
+     * 로그인 Callback 성공시 반환되는 naverCallback을 바탕으로 액세스 토큰을 발급받고 프로필에 접근합니다.
+     * 현재 SPOT에 가입되지 않은 회원이라면, 반환된 프로필 정보를 기반으로 회원 정보를 생성하여 DB에 저장합니다.
+     * 현재 SPOT에 가입되어 있는 회원이라면, 소셜로그인 후 토큰 정보를 반환합니다.
+     * @param request : HttpServletRequest
+     * @param response : HttpServletResponse
+     * @param naverCallback : Callback 함수 성공시 반환되는 요소(code, state, error, error_description)
+     * @return SocialLoginSignInDTO(isSpotMember, signInDTO-토큰정보)
+     */
     @Override
     public SocialLoginSignInDTO signInWithNaver(HttpServletRequest request, HttpServletResponse response, NaverCallback naverCallback) throws JsonProcessingException {
 
@@ -176,6 +191,10 @@ public class AuthServiceImpl implements AuthService{
         return SocialLoginSignInDTO.toDTO(isSpotMember, signInDTO);
     }
 
+    /**
+     * 현재 SPOT에 가입되어 있지 않은 회원에 한해 회원 정보를 생성하여 DB에 저장합니다.
+     * @param memberDTO : naverCallback을 바탕으로 생성된 프로필 객체
+     */
     private void signUpWithNaver(NaverMember.ResponseDTO memberDTO) {
         String birthYear = memberDTO.getResponse().getBirthYear();
         String birthDay = memberDTO.getResponse().getBirthDay();
