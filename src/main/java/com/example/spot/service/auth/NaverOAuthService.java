@@ -38,6 +38,11 @@ public class NaverOAuthService {
     @Value("${spring.OAuth2.naver.csrf-token}")
     private String CSRF_TOKEN;
 
+    /**
+     * 네이버 로그인 인증 요청 URL을 생성하는 메서드입니다.
+     * 네이버에서 발급받은 client id와 callback url을 쿼리로 포함하여 String 타입의 URL을 반환합니다.
+     * @return NAVER_OAUTH_URL
+     */
     public String getNaverAuthorizeUrl() {
         String NAVER_OAUTH_URL = "https://nid.naver.com/oauth2.0/authorize";
         return UriComponentsBuilder.fromHttpUrl(NAVER_OAUTH_URL)
@@ -49,6 +54,14 @@ public class NaverOAuthService {
                 .toUriString();
     }
 
+    /**
+     * 네이버 액세스 토큰을 발급하고 해당 액세스 토큰을 통해 네이버 프로필을 조회하는 메서드입니다.
+     * 내부적으로 issueNaverAccessToken, getNaverProfile 메서드를 수행합니다.
+     * @param request : HttpServlet Request
+     * @param response : HttpServlet Response
+     * @param naverCallback : Callback 함수 성공시 반환되는 요소(code, state, error, error_description)
+     * @return 네이버 프로필 정보
+     */
     public NaverMember.ResponseDTO getNaverMember(HttpServletRequest request, HttpServletResponse response, NaverCallback naverCallback) throws JsonProcessingException {
 
         // 네이버 액세스 토큰 발급
@@ -63,6 +76,12 @@ public class NaverOAuthService {
         return objectMapper.readValue(naverMember, NaverMember.ResponseDTO.class);
     }
 
+    /**
+     * 네이버 액세스 토큰을 발급하는 메서드입니다.
+     * @param authorizationCode : Callback 함수로부터 반환된 authorizationCode
+     * @return String 토큰 정보
+     *         (access_token, refresh_token, token_type, expires_in, error, error_description)
+     */
     private String issueNaverAccessToken(String authorizationCode) {
 
         String NAVER_ACCESS_TOKEN_URL = "https://nid.naver.com/oauth2.0/token";
@@ -85,6 +104,11 @@ public class NaverOAuthService {
         }
     }
 
+    /**
+     * 토큰 정보를 파라미터로 받아 네이버 프로필을 조회하는 메서드입니다.
+     * @param naverTokenIssuanceDTO : 토큰 객체 (access_token, refresh_token, token_type, expires_in, error, error_description)
+     * @return String 프로필 정보
+     */
     private String getNaverProfile(NaverOAuthToken.NaverTokenIssuanceDTO naverTokenIssuanceDTO) {
 
         String NAVER_PROFILE_URL = "https://openapi.naver.com/v1/nid/me";
@@ -103,6 +127,11 @@ public class NaverOAuthService {
         }
     }
 
+    /**
+     * HTTP 응답을 버퍼를 통해 읽어오는 메서드입니다.
+     * @param con : HttpURLConnection (HTTP 연결 정보)
+     * @return String Response
+     */
     private static String extractResponse(HttpURLConnection con) throws IOException {
 
         int responseCode = con.getResponseCode();
