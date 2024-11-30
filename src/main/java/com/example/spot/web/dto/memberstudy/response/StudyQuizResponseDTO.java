@@ -21,11 +21,13 @@ public class StudyQuizResponseDTO {
 
         private final Long quizId;
         private final String question;
+        private final LocalDateTime createdAt;
 
         public static QuizDTO toDTO(Quiz quiz) {
             return QuizDTO.builder()
                     .quizId(quiz.getId())
                     .question(quiz.getQuestion())
+                    .createdAt(quiz.getCreatedAt())
                     .build();
         }
     }
