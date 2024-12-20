@@ -1,6 +1,7 @@
 
 plugins {
     id 'java'
+    id 'jacoco'
     id 'org.springframework.boot' version '3.3.1'
     id 'io.spring.dependency-management' version '1.1.5'
     id "io.sentry.jvm.gradle" version "4.10.0"
@@ -85,6 +86,34 @@ sentry {
     projectName = "java-spring-boot"
     authToken = System.getenv("SENTRY_AUTH_TOKEN")
 }
+
+jacocoTestReport {
+    reports {
+        html.required.set(true) // HTML 리포트를 활성화
+        xml.required.set(false) // XML 리포트를 비활성화
+        csv.required.set(false) // CSV 리포트를 비활성화
+
+        // 리포트 저장 경로 설정
+        html.outputLocation.set(file("jacoco"))
+        //xml.outputLocation.set(file("jacoco/jacoco.xml"))
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            element = 'CLASS' // class 단위로 룰을 체크합니다.
+
+            // 브랜치 커버리지 최소값 설정
+            limit {
+                counter = 'BRANCH'
+                value = 'COVEREDRATIO'
+                minimum = 0.80
+            }
+        }
+    }
+}
+
 
 
 tasks.named('test') {
