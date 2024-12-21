@@ -41,6 +41,7 @@ import com.example.spot.repository.ThemeRepository;
 import com.example.spot.security.utils.SecurityUtils;
 import com.example.spot.web.dto.search.SearchRequestDTO.SearchRequestStudyDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.StudyPreviewDTO;
+import com.example.spot.web.dto.study.response.StudyInfoResponseDTO.StudyInfoDTO;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -148,6 +149,8 @@ class StudyQueryServiceTest {
         memberStudy1 = getMemberStudy(member, study1);
         memberStudy2 = getMemberStudy(member, study2);
 
+        study1.addMemberStudy(memberStudy1);
+
         request = getSearchRequestStudyDTO();
 
         when(memberRepository.existsById(member.getId())).thenReturn(true);
@@ -157,7 +160,6 @@ class StudyQueryServiceTest {
             .thenReturn(2L);
         when(studyRepository.findByStudyTheme(anyList())).thenReturn(List.of(study1, study2));
     }
-
 
     @Test
     void getStudyInfo() {
@@ -171,6 +173,57 @@ class StudyQueryServiceTest {
     @Test
     void getMyPageStudyCount() {
     }
+
+    /* -------------------------------------------------------- 인기 검색어 조회  ------------------------------------------------------------------------*/
+
+    @Test
+    @DisplayName("스터디 상세 정보 조회 - 성공")
+    void 스터디_상세_정보_조회_성공() {
+        // given
+        Long studyId = 1L;
+
+        when(studyRepository.findById(studyId)).thenReturn(Optional.ofNullable(study1));
+
+        // when
+        StudyInfoDTO result = studyQueryService.getStudyInfo(studyId);
+
+        // then
+        assertNotNull(result);
+        assertEquals(result.getStudyId(), study1.getId());
+        assertEquals(result.getStudyName(), study1.getTitle());
+        verify(studyRepository).findById(studyId);
+    }
+
+    @Test
+    @DisplayName("스터디 상세 정보 조회 - 찾는 스터디가 없는 경우")
+    void 스터디_상세_정보_조회_시_스터디가_없는_경우() {
+        // given
+        Long studyId = 1L;
+
+        when(studyRepository.findById(studyId)).thenReturn(Optional.empty());
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.getStudyInfo(studyId);
+        });
+        verify(studyRepository).findById(studyId);
+    }
+
+    @Test
+    @DisplayName("스터디 상세 정보 조회 - 스터디의 소유자가 없는 경우 (스터디 삭제..등)")
+    void 스터디_상세_정보_조회_시_스터디의_소유자가_없는_경우() {
+        // given
+        Long studyId = 2L;
+
+        when(studyRepository.findById(studyId)).thenReturn(Optional.ofNullable(study2));
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.getStudyInfo(studyId);
+        });
+        verify(studyRepository).findById(studyId);
+    }
+
 
     /* -------------------------------------------------------- 추천 스터디 조회 ------------------------------------------------------------------------*/
 
@@ -1371,6 +1424,8 @@ class StudyQueryServiceTest {
         return MemberStudy.builder()
             .member(member)
             .study(study)
+                .isOwned(true)
+                .status(ApplicationStatus.APPROVED)
             .build();
     }
 
