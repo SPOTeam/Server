@@ -43,6 +43,7 @@ import com.example.spot.web.dto.search.SearchRequestDTO.SearchRequestStudyDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.MyPageDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.StudyPreviewDTO;
 import com.example.spot.web.dto.study.response.StudyInfoResponseDTO.StudyInfoDTO;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +60,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -153,6 +155,13 @@ class StudyQueryServiceTest {
         study1.addMemberStudy(memberStudy1);
 
         request = getSearchRequestStudyDTO();
+
+        // 사용자 인증 정보 생성
+        Authentication authentication = new UsernamePasswordAuthenticationToken("1", null, Collections.emptyList());
+        // SecurityContext 생성 및 설정
+        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+        securityContext.setAuthentication(authentication);
+        SecurityContextHolder.setContext(securityContext);
 
         when(memberRepository.existsById(member.getId())).thenReturn(true);
         when(memberThemeRepository.findAllByMemberId(member.getId())).thenReturn(List.of(memberTheme1, memberTheme2));
@@ -263,6 +272,59 @@ class StudyQueryServiceTest {
         });
     }
 
+    /* -------------------------------------------------------- 검색 조건 없는 스터디 검색  ------------------------------------------------------------------------*/
+
+    @Test
+    @DisplayName("검색 조건 없는 스터디 검색 - 성공")
+    void 검색_조건_없는_스터디_검색() {
+        // given
+        when(studyRepository.findAllStudy(StudySortBy.ALL, pageable)).thenReturn(List.of(study1, study2));
+        when(studyRepository.count()).thenReturn(2L);
+
+        // when
+        StudyPreviewDTO studies = studyQueryService.findStudies(pageable, StudySortBy.ALL);
+
+        // then
+        assertNotNull(studies);
+        assertEquals(2, studies.getTotalElements());
+        assertEquals(study1.getTitle(), studies.getContent().get(0).getTitle());
+
+    }
+
+    @Test
+    @DisplayName("검색 조건 없는 스터디 검색 - 페이징 테스트")
+    void 검색_조건_없는_스터디_검색_페이징(){
+        //given
+        List<Study> studies = List.of(study1, study2);
+
+        when(studyRepository.findAllStudy(any(), any()))
+            .thenReturn(studies);
+        when(studyRepository.count())
+            .thenReturn(2L);
+
+        // when
+        StudyPreviewDTO result = studyQueryService.findStudies(
+            PageRequest.of(0, 10), StudySortBy.ALL);
+
+        // then
+        assertEquals(10, result.getSize());
+        assertEquals(2, result.getTotalElements());
+        assertEquals(2, result.getContent().size());
+
+    }
+
+    @Test
+    @DisplayName("검색 조건 없는 스터디 검색 - 조회된 스터디가 없을 경우")
+    void 검색_조건_없는_스터디_검색_시_스터디가_없는_경우() {
+        // given
+        when(studyRepository.findAllStudy(StudySortBy.ALL, pageable)).thenReturn(List.of());
+        when(studyRepository.count()).thenReturn(0L);
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.findStudies(pageable, StudySortBy.ALL);
+        });
+    }
 
     /* -------------------------------------------------------- 추천 스터디 조회 ------------------------------------------------------------------------*/
 
