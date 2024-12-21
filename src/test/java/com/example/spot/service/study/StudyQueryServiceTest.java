@@ -326,6 +326,65 @@ class StudyQueryServiceTest {
         });
     }
 
+    /* -------------------------------------------------------- 검색 조건 있는 스터디 검색  ------------------------------------------------------------------------*/
+
+    @Test
+    @DisplayName("검색 조건 있는 스터디 검색 - 성공")
+    void 검색_조건_있는_스터디_검색() {
+        // given
+        SearchRequestStudyDTO request = getSearchRequestStudyDTO();
+        Map<String, Object> conditions = getStringObjectMap();
+        when(studyRepository.findAllStudyByConditions(conditions, StudySortBy.ALL, pageable)).thenReturn(List.of(study1, study2));
+        when(studyRepository.countStudyByConditions(conditions, StudySortBy.ALL)).thenReturn(2L);
+
+        // when
+        StudyPreviewDTO studies = studyQueryService.findStudiesByConditions(pageable, request, StudySortBy.ALL);
+
+        // then
+        assertNotNull(studies);
+        assertEquals(2, studies.getTotalElements());
+        assertEquals(study1.getTitle(), studies.getContent().get(0).getTitle());
+
+    }
+
+    @Test
+    @DisplayName("검색 조건 있는 스터디 검색 - 페이징 테스트")
+    void 검색_조건_있는_스터디_검색_페이징(){
+        //given
+        List<Study> studies = List.of(study1, study2);
+        SearchRequestStudyDTO request = getSearchRequestStudyDTO();
+        Map<String, Object> conditions = getStringObjectMap();
+        when(studyRepository.findAllStudyByConditions(conditions, StudySortBy.ALL, pageable))
+                .thenReturn(studies);
+        when(studyRepository.countStudyByConditions(conditions, StudySortBy.ALL))
+                .thenReturn(2L);
+
+        // when
+        StudyPreviewDTO result = studyQueryService.findStudiesByConditions(
+                 PageRequest.of(0, 10), request, StudySortBy.ALL);
+
+        // then
+        assertEquals(10, result.getSize());
+        assertEquals(2, result.getTotalElements());
+        assertEquals(2, result.getContent().size());
+
+    }
+
+    @Test
+    @DisplayName("검색 조건 있는 스터디 검색 - 조회된 스터디가 없을 경우")
+    void 검색_조건_있는_스터디_검색_시_스터디가_없는_경우() {
+        // given
+        SearchRequestStudyDTO request = getSearchRequestStudyDTO();
+        Map<String, Object> conditions = getStringObjectMap();
+        when(studyRepository.findAllStudyByConditions(conditions, StudySortBy.ALL, pageable)).thenReturn(List.of());
+        when(studyRepository.countStudyByConditions(conditions, StudySortBy.ALL)).thenReturn(0L);
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.findStudiesByConditions(pageable, request, StudySortBy.ALL);
+        });
+    }
+
     /* -------------------------------------------------------- 추천 스터디 조회 ------------------------------------------------------------------------*/
 
     @Test
