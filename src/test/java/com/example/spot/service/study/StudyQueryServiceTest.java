@@ -40,6 +40,7 @@ import com.example.spot.repository.StudyThemeRepository;
 import com.example.spot.repository.ThemeRepository;
 import com.example.spot.security.utils.SecurityUtils;
 import com.example.spot.web.dto.search.SearchRequestDTO.SearchRequestStudyDTO;
+import com.example.spot.web.dto.search.SearchResponseDTO.MyPageDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.StudyPreviewDTO;
 import com.example.spot.web.dto.study.response.StudyInfoResponseDTO.StudyInfoDTO;
 import java.util.HashMap;
@@ -174,7 +175,7 @@ class StudyQueryServiceTest {
     void getMyPageStudyCount() {
     }
 
-    /* -------------------------------------------------------- 인기 검색어 조회  ------------------------------------------------------------------------*/
+    /* -------------------------------------------------------- 스터디 상세 정보 조회  ------------------------------------------------------------------------*/
 
     @Test
     @DisplayName("스터디 상세 정보 조회 - 성공")
@@ -222,6 +223,44 @@ class StudyQueryServiceTest {
             studyQueryService.getStudyInfo(studyId);
         });
         verify(studyRepository).findById(studyId);
+    }
+
+    /* -------------------------------------------------------- 마이페이지 스터디 갯수 조회  ------------------------------------------------------------------------*/
+
+    @Test
+    @DisplayName("마이페이지 스터디 갯수 조회 - 성공")
+    void 마이페이지_스터디_갯수_조회_성공() {
+        // given
+        Long memberId = 1L;
+
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+        when(memberStudyRepository.countByMemberIdAndStatus(memberId, ApplicationStatus.APPLIED)).thenReturn(2L);
+        when(memberStudyRepository.countByMemberIdAndStatus(memberId, ApplicationStatus.APPROVED)).thenReturn(1L);
+        when(memberStudyRepository.countByMemberIdAndIsOwned(memberId, true)).thenReturn(3L);
+
+        // when
+        MyPageDTO myPageStudyCount = studyQueryService.getMyPageStudyCount(memberId);
+
+        // then
+        assertNotNull(myPageStudyCount);
+        assertEquals(member.getName(), myPageStudyCount.getName());
+        assertEquals(2, myPageStudyCount.getAppliedStudies());
+        assertEquals(1, myPageStudyCount.getOngoingStudies());
+        assertEquals(3, myPageStudyCount.getMyRecruitingStudies());
+    }
+
+    @Test
+    @DisplayName("마이페이지 스터디 갯수 조회 - 유효하지 않은 사용자인 경우")
+    void 마이페이지_스터디_갯수_조회_시_유효하지_않은_사용자인_경우() {
+        // given
+        Long memberId = 1L;
+
+        when(memberRepository.findById(memberId)).thenReturn(Optional.empty());
+
+        // when & then
+        assertThrows(MemberHandler.class, () -> {
+            studyQueryService.getMyPageStudyCount(memberId);
+        });
     }
 
 
