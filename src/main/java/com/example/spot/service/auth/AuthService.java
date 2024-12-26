@@ -21,6 +21,8 @@ public interface AuthService {
 
     SocialLoginSignInDTO signInWithNaver(HttpServletRequest request, HttpServletResponse response, NaverCallback naverCallback) throws JsonProcessingException;
 
+    SocialLoginSignInDTO signInWithNaver(HttpServletRequest request, HttpServletResponse response, String accessToken) throws JsonProcessingException;
+
     MemberResponseDTO.MemberSignInDTO signIn(MemberRequestDTO.SignInDTO signInDTO);
 
     void sendVerificationCode(HttpServletRequest request, HttpServletResponse response, String email);

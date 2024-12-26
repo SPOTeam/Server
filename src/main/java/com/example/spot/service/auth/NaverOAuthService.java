@@ -77,6 +77,25 @@ public class NaverOAuthService {
     }
 
     /**
+     * 네이버 액세스 토큰을 발급하고 해당 액세스 토큰을 통해 네이버 프로필을 조회하는 메서드입니다.
+     * 내부적으로 getNaverProfile 메서드를 수행합니다.
+     * @param request : HttpServletRequest
+     * @param response : HttpServletResponse
+     * @return 네이버 프로필 정보
+     */
+    public NaverMember.ResponseDTO getNaverMember(HttpServletRequest request, HttpServletResponse response, String accessToken) throws JsonProcessingException {
+
+        ObjectMapper mapper = new ObjectMapper();
+        NaverOAuthToken.NaverTokenIssuanceDTO naverTokenIssuanceDTO
+                 = mapper.readValue(accessToken, NaverOAuthToken.NaverTokenIssuanceDTO.class);
+
+        // 네이버 프로필 반환
+        String naverMember = getNaverProfile(naverTokenIssuanceDTO);
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.readValue(naverMember, NaverMember.ResponseDTO.class);
+    }
+
+    /**
      * 네이버 액세스 토큰을 발급하는 메서드입니다.
      * @param authorizationCode : Callback 함수로부터 반환된 authorizationCode
      * @return String 토큰 정보
@@ -152,6 +171,5 @@ public class NaverOAuthService {
         br.close();
         return response.toString();
     }
-
 
 }
