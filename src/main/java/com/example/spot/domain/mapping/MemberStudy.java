@@ -5,12 +5,15 @@ import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.enums.ApplicationStatus;
 import com.example.spot.domain.study.Study;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Entity
+@Builder
+@AllArgsConstructor
 public class MemberStudy extends BaseEntity {
 
     @Id
