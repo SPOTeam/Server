@@ -49,3 +49,6 @@ out/
 
 ### yaml ###
 src/main/resources/application.yml
+
+### jacoco ###
+jacoco
