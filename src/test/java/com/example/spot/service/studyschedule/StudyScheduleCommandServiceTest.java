@@ -29,7 +29,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -63,31 +66,21 @@ class StudyScheduleCommandServiceTest {
     private MemberStudyCommandServiceImpl memberStudyCommandService;
 
     private static Study study1;
-    private static Study study2;
     private static Member member1;
     private static Member member2;
     private static Member owner;
     private static MemberStudy memberStudy1;
     private static MemberStudy memberStudy2;
-    private static MemberStudy memberStudy3;
-    private static MemberStudy memberStudy4;
-    private static Schedule schedule1;
-    private static Schedule schedule2;
-    private static Pageable pageable;
+
+    @Mock
+    private static Schedule schedule;
+
 
     @BeforeEach
     void setUp() {
-
-        // 객체 초기화
         initMember();
         initStudy();
         initMemberStudy();
-        pageable = PageRequest.of(0, 10);
-
-        // 사전 응답 설정
-        when(memberRepository.existsById(member1.getId())).thenReturn(true);
-        when(memberRepository.existsById(member2.getId())).thenReturn(true);
-        when(memberRepository.existsById(owner.getId())).thenReturn(true);
     }
 
     @Test
@@ -120,20 +113,38 @@ class StudyScheduleCommandServiceTest {
         addScheduleSuccess(Period.MONTHLY);
     }
 
-    private void addScheduleSuccess(Period weekly) {
+    private void addScheduleSuccess(Period period) {
+
         // given
         Long studyId = 1L;
         Long memberId = 1L;
 
+        LocalDateTime startedAt = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
+
         ScheduleRequestDTO.ScheduleDTO scheduleRequestDTO = ScheduleRequestDTO.ScheduleDTO
                 .builder()
-                .title("일정1")
+                .title("일정")
                 .location("서울특별시")
-                .startedAt(LocalDateTime.now())
-                .finishedAt(LocalDateTime.now().plusHours(2))
+                .startedAt(startedAt)
+                .finishedAt(startedAt.plusHours(3))
                 .isAllDay(false)
-                .period(weekly)
+                .period(period)
                 .build();
+
+        schedule = Schedule.builder()
+                .id(1L)
+                .study(study1)
+                .member(owner)
+                .title("일정")
+                .location("서울특별시")
+                .startedAt(startedAt)
+                .finishedAt(startedAt.plusHours(3))
+                .isAllDay(false)
+                .period(period)
+                .build();
+
+        study1.addSchedule(schedule);
+        owner.addSchedule(schedule);
 
         // 사용자 인증 정보 생성
         getAuthentication(memberId);
@@ -144,13 +155,14 @@ class StudyScheduleCommandServiceTest {
                 .thenReturn(Optional.of(memberStudy2));
         when(memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED))
                 .thenReturn(List.of(memberStudy1, memberStudy2));
+        when(scheduleRepository.save(schedule)).thenReturn(schedule);
 
         // when
         ScheduleResponseDTO.ScheduleDTO result = memberStudyCommandService.addSchedule(studyId, scheduleRequestDTO);
 
         // then
         assertThat(result).isNotNull();
-        assertThat(result.getTitle()).isEqualTo("일정1");
+        assertThat(result.getTitle()).isEqualTo("일정");
         verify(scheduleRepository, times(1)).save(any(Schedule.class));
         verify(notificationRepository, times(2)).save(any(Notification.class));
     }
@@ -160,7 +172,8 @@ class StudyScheduleCommandServiceTest {
     void addSchedule_NotStudyMember_Fail() {
         Long studyId = 1L;
         Long memberId = 2L;
-        addScheduleFail(LocalDateTime.now().plusHours(2), memberId, studyId);
+        LocalDateTime startedAt = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
+        addScheduleFail(startedAt, startedAt.plusHours(2), memberId, studyId);
     }
 
     @Test
@@ -168,7 +181,8 @@ class StudyScheduleCommandServiceTest {
     void addSchedule_Daily_Fail() {
         Long studyId = 1L;
         Long memberId = 1L;
-        addScheduleFail(LocalDateTime.now().plusDays(1), memberId, studyId);
+        LocalDateTime startedAt = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
+        addScheduleFail(startedAt, startedAt.plusDays(1), memberId, studyId);
     }
 
     @Test
@@ -176,7 +190,8 @@ class StudyScheduleCommandServiceTest {
     void addSchedule_Weekly_Fail() {
         Long studyId = 1L;
         Long memberId = 1L;
-        addScheduleFail(LocalDateTime.now().plusWeeks(1), memberId, studyId);
+        LocalDateTime startedAt = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
+        addScheduleFail(startedAt, startedAt.plusWeeks(1), memberId, studyId);
     }
 
     @Test
@@ -184,7 +199,8 @@ class StudyScheduleCommandServiceTest {
     void addSchedule_Biweekly_Fail() {
         Long studyId = 1L;
         Long memberId = 1L;
-        addScheduleFail(LocalDateTime.now().plusWeeks(2), memberId, studyId);
+        LocalDateTime startedAt = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
+        addScheduleFail(startedAt, startedAt.plusWeeks(2), memberId, studyId);
     }
 
     @Test
@@ -192,20 +208,35 @@ class StudyScheduleCommandServiceTest {
     void addSchedule_Monthly_Fail() {
         Long studyId = 1L;
         Long memberId = 1L;
-        addScheduleFail(LocalDateTime.now().plusMonths(2), memberId, studyId);
+        LocalDateTime startedAt = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
+        addScheduleFail(startedAt, startedAt.plusMonths(1), memberId, studyId);
     }
 
-    private void addScheduleFail(LocalDateTime finishedAt, Long memberId, Long studyId) {
+    private void addScheduleFail(LocalDateTime startedAt, LocalDateTime finishedAt, Long memberId, Long studyId) {
+
         // given
         ScheduleRequestDTO.ScheduleDTO scheduleRequestDTO = ScheduleRequestDTO.ScheduleDTO
                 .builder()
-                .title("일정1")
+                .title("일정")
                 .location("서울특별시")
-                .startedAt(LocalDateTime.now())
+                .startedAt(startedAt)
                 .finishedAt(finishedAt)
                 .isAllDay(false)
-                .period(Period.NONE)
                 .build();
+
+        schedule = Schedule.builder()
+                .id(1L)
+                .study(study1)
+                .member(owner)
+                .title("일정")
+                .location("서울특별시")
+                .startedAt(startedAt)
+                .finishedAt(finishedAt)
+                .isAllDay(false)
+                .build();
+
+        study1.addSchedule(schedule);
+        owner.addSchedule(schedule);
 
         // 사용자 인증 정보 생성
         getAuthentication(memberId);
@@ -214,38 +245,137 @@ class StudyScheduleCommandServiceTest {
         when(studyRepository.findById(studyId)).thenReturn(Optional.of(study1));
         when(memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED))
                 .thenReturn(List.of(memberStudy1, memberStudy2));
+        when(scheduleRepository.save(schedule)).thenReturn(schedule);
 
         // when & then
         assertThrows(StudyHandler.class, () -> memberStudyCommandService.addSchedule(studyId, scheduleRequestDTO));
     }
 
     @Test
-    void modSchedule() {
+    @DisplayName("스터디 일정 수정 - (성공)")
+    void modSchedule_Success() {
+
+        // given
+        Long memberId = 1L;
+        Long studyId = 1L;
+        Long scheduleId = 1L;
+
+        ScheduleRequestDTO.ScheduleDTO scheduleModDTO = getScheduleModDTO(memberId, scheduleId, studyId, member1, study1);
+
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED))
+                .thenReturn(Optional.of(memberStudy2));
+        when(scheduleRepository.findByIdAndMemberId(scheduleId, memberId))
+                .thenReturn(Optional.of(schedule));
+        when(scheduleRepository.findByIdAndStudyId(scheduleId, studyId))
+                .thenReturn(Optional.of(schedule));
+        when(scheduleRepository.save(schedule)).thenReturn(schedule);
+
+        // when
+        ScheduleResponseDTO.ScheduleDTO result = memberStudyCommandService.modSchedule(studyId, scheduleId, scheduleModDTO);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.getTitle()).isEqualTo("수정된 일정");
+        assertThat(study1.getSchedules()).isNotEmpty();
+        assertThat(member1.getScheduleList()).isNotEmpty();
+        verify(scheduleRepository, times(1)).save(any(Schedule.class));
     }
 
     @Test
-    void createAttendanceQuiz() {
+    @DisplayName("스터디 일정 수정 - 스터디 회원이 아닌 경우 (실패)")
+    void modSchedule_NotStudyMember_Fail() {
+
+        // given
+        Long memberId = 2L;
+        Long studyId = 1L;
+        Long scheduleId = 1L;
+
+        ScheduleRequestDTO.ScheduleDTO scheduleModDTO = getScheduleModDTO(memberId, scheduleId, studyId, member2, study1);
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> memberStudyCommandService.modSchedule(studyId, scheduleId, scheduleModDTO));
     }
 
     @Test
-    void attendantStudy() {
+    @DisplayName("스터디 일정 수정 - 일정 생성자가 아닌 경우 (실패)")
+    void modSchedule_NotCreator_Fail() {
+
+        // given
+        Long memberId = 3L;
+        Long studyId = 1L;
+        Long scheduleId = 1L;
+
+        ScheduleRequestDTO.ScheduleDTO scheduleModDTO = getScheduleModDTO(memberId, scheduleId, studyId, member1, study1);
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> memberStudyCommandService.modSchedule(studyId, scheduleId, scheduleModDTO));
     }
 
     @Test
-    void deleteAttendanceQuiz() {
+    @DisplayName("스터디 일정 수정 - 해당 스터디의 일정이 아닌 경우 (실패)")
+    void modSchedule_NotStudySchedule_Fail() {
+
+        // given
+        Long memberId = 1L;
+        Long studyId = 2L;
+        Long scheduleId = 1L;
+
+        ScheduleRequestDTO.ScheduleDTO scheduleModDTO = getScheduleModDTO(memberId, scheduleId, studyId, member1, study1);
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> memberStudyCommandService.modSchedule(studyId, scheduleId, scheduleModDTO));
     }
 
-/*-------------------------------------------------------- Utils ------------------------------------------------------------------------*/
+    private ScheduleRequestDTO.ScheduleDTO getScheduleModDTO(
+            Long memberId, Long scheduleId, Long studyId, Member member, Study study) {
+
+        getAuthentication(memberId);
+        LocalDateTime startedAt = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
+
+        ScheduleRequestDTO.ScheduleDTO scheduleModDTO = ScheduleRequestDTO.ScheduleDTO
+                .builder()
+                .title("수정된 일정")
+                .location("서울특별시")
+                .startedAt(startedAt)
+                .finishedAt(startedAt.plusHours(3))
+                .isAllDay(false)
+                .period(Period.NONE)
+                .build();
+
+        schedule = Schedule.builder()
+                .id(scheduleId)
+                .study(study)
+                .member(member)
+                .title("일정")
+                .startedAt(startedAt)
+                .finishedAt(startedAt.plusHours(2))
+                .isAllDay(false)
+                .period(Period.WEEKLY)
+                .build();
+
+        study.addSchedule(schedule);
+        member.addSchedule(schedule);
+
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+        when(studyRepository.findById(studyId)).thenReturn(Optional.of(study));
+        when(scheduleRepository.findById(scheduleId)).thenReturn(Optional.of(schedule));
+        return scheduleModDTO;
+    }
+
+    /*-------------------------------------------------------- Utils ------------------------------------------------------------------------*/
 
     private static void initMember() {
         member1 = Member.builder()
                 .id(1L)
+                .scheduleList(new ArrayList<>())
                 .build();
         member2 = Member.builder()
                 .id(2L)
+                .scheduleList(new ArrayList<>())
                 .build();
         owner = Member.builder()
                 .id(3L)
+                .scheduleList(new ArrayList<>())
                 .build();
     }
 
@@ -261,19 +391,6 @@ class StudyScheduleCommandServiceTest {
                 .goal("SQLD")
                 .introduction("SQLD 자격증 스터디")
                 .title("SQLD Master")
-                .maxPeople(10L)
-                .build();
-        study2 = Study.builder()
-                .gender(Gender.FEMALE)
-                .minAge(1)
-                .maxAge(100)
-                .fee(0)
-                .profileImage("a.jpg")
-                .hasFee(false)
-                .isOnline(false)
-                .goal("Spring Study")
-                .introduction("스프링 스터디")
-                .title("SPR")
                 .maxPeople(10L)
                 .build();
     }
@@ -294,22 +411,6 @@ class StudyScheduleCommandServiceTest {
                 .introduction("Hi")
                 .member(member1)
                 .study(study1)
-                .build();
-        memberStudy3 = MemberStudy.builder()
-                .id(3L)
-                .status(ApplicationStatus.APPROVED)
-                .isOwned(true)
-                .introduction("Hi")
-                .member(owner)
-                .study(study2)
-                .build();
-        memberStudy4 = MemberStudy.builder()
-                .id(4L)
-                .status(ApplicationStatus.APPLIED)
-                .isOwned(false)
-                .introduction("Hi")
-                .member(member2)
-                .study(study2)
                 .build();
     }
 
