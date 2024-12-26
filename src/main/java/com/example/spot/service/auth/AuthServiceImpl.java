@@ -161,6 +161,30 @@ public class AuthServiceImpl implements AuthService{
     public SocialLoginSignInDTO signInWithNaver(HttpServletRequest request, HttpServletResponse response, NaverCallback naverCallback) throws JsonProcessingException {
 
         NaverMember.ResponseDTO responseDTO = naverOAuthService.getNaverMember(request, response, naverCallback);
+        return getSocialLoginSignInDTO(responseDTO);
+    }
+
+    /**
+     * SPOT 서비스에 네이버를 통해 로그인과 회원가입을 수행하는 함수입니다.
+     * 클라이언트로부터 전달받은 액세스 토큰을 통해 프로필에 접근합니다.
+     * 현재 SPOT에 가입되지 않은 회원이라면, 반환된 프로필 정보를 기반으로 회원 정보를 생성하여 DB에 저장합니다.
+     * 현재 SPOT에 가입되어 있는 회원이라면, 소셜로그인 후 토큰 정보를 반환합니다.
+     * @param request : HttpServletRequest
+     * @param response : HttpServletResponse
+     * @return SocialLoginSignInDTO(isSpotMember, signInDTO-토큰정보)
+     */
+    @Override
+    public SocialLoginSignInDTO signInWithNaver(HttpServletRequest request, HttpServletResponse response, String accessToken) throws JsonProcessingException {
+        NaverMember.ResponseDTO responseDTO = naverOAuthService.getNaverMember(request, response, accessToken);
+        return getSocialLoginSignInDTO(responseDTO);
+    }
+
+    /**
+     * 네이버 회원 프로필을 통해 SocialLoginSignInDTO를 생성하는 함수입니다.
+     * @param responseDTO : 네이버 회원 프로필 DTO
+     * @return SocialLoginSignInDTO (SPOT 회원 정보 및 토큰 정보)
+     */
+    private SocialLoginSignInDTO getSocialLoginSignInDTO(NaverMember.ResponseDTO responseDTO) {
         String email = responseDTO.getResponse().getEmail();
 
         if (memberRepository.existsByEmailAndLoginTypeNot(email, LoginType.NAVER))

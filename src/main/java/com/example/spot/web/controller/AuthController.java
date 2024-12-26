@@ -65,7 +65,7 @@ public class AuthController {
 /* ----------------------------- 네이버 소셜로그인 API ------------------------------------- */
 
     @Tag(name = "네이버 로그인 API - 개발 완료", description = "네이버 로그인 API")
-    @Operation(summary = "[네이버 로그인] 인증코드 발급 API",
+    @Operation(summary = "!서버용! [네이버 로그인] 인증코드 발급 API",
             description = """
             ## [네이버 로그인] 네이버 액세스 토큰 발급에 필요한 인증코드를 발급 받는 API입니다.
             * API를 호출하면 네이버 로그인 페이지로 리디렉션됩니다.
@@ -74,13 +74,13 @@ public class AuthController {
             * 회원가입이 되어있지 않은 경우 -> 회원가입 & 로그인 & 토큰 정보 반환
             ** 테스트 시 API URL을 복사하여 웹 브라우저에서 실행해주세요!!**
             """)
-    @GetMapping("/members/sign-in/naver/authorize")
+    @GetMapping("/members/sign-in/naver/authorize/test")
     public void authorizeWithNaver(HttpServletRequest request, HttpServletResponse response) {
         authService.authorizeWithNaver(request, response);
     }
 
     @Tag(name = "네이버 로그인 API - 개발 완료", description = "네이버 로그인 API")
-    @Operation(summary = "[네이버 로그인] 네이버 로그인/회원가입 API",
+    @Operation(summary = "!서버용! [네이버 로그인] 네이버 로그인/회원가입 API",
             description = """
             ## [네이버 로그인] 네이버 액세스 토큰을 발급하여 로그인/회원가입을 수행하는 콜백 함수입니다
             ### (직접 호출하는 API가 아닙니다)
@@ -88,10 +88,27 @@ public class AuthController {
             * 회원가입이 되어있지 않은 경우 -> 회원가입 & 로그인 & 토큰 정보 반환
             * 콜백 함수의 결과로 토큰 정보가 반환됩니다.
             """)
-    @GetMapping("/members/sign-in/naver/redirect")
+    @GetMapping("/members/sign-in/naver/redirect/test")
     public ApiResponse<SocialLoginSignInDTO> signInWithNaver(
             HttpServletRequest request, HttpServletResponse response, NaverCallback naverCallback) throws JsonProcessingException {
         SocialLoginSignInDTO socialLoginSignInDTO = authService.signInWithNaver(request, response, naverCallback);
+        return ApiResponse.onSuccess(SuccessStatus._MEMBER_SIGNED_IN, socialLoginSignInDTO);
+    }
+
+    @Tag(name = "네이버 로그인 API - 개발 완료", description = "네이버 로그인 API")
+    @Operation(summary = "[네이버 로그인] 네이버 로그인/회원가입 API",
+            description = """
+            ## [네이버 로그인] 클라이언트로부터 네이버 액세스 토큰을 받아 로그인/회원가입을 수행하는 함수입니다
+            * 회원가입이 되어있는 경우 -> 로그인 & 토큰 정보 반환
+            * 회원가입이 되어있지 않은 경우 -> 회원가입 & 로그인 & 토큰 정보 반환
+            """)
+    @GetMapping("/members/sign-in/naver")
+    public ApiResponse<SocialLoginSignInDTO> signInWithNaver(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            String accessToken
+    ) throws JsonProcessingException {
+        SocialLoginSignInDTO socialLoginSignInDTO = authService.signInWithNaver(request, response, accessToken);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_SIGNED_IN, socialLoginSignInDTO);
     }
 
