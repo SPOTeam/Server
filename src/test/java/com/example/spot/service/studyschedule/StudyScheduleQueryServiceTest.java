@@ -37,7 +37,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -58,14 +57,16 @@ class StudyScheduleQueryServiceTest {
     @InjectMocks
     private MemberStudyQueryServiceImpl memberStudyQueryService;
 
-    private static Study study;
+    private static Study study1;
+    private static Study study2;
     private static Member member1;
     private static Member member2;
     private static Member owner;
-    private static MemberStudy member1Study;
-    private static MemberStudy ownerStudy;
+    private static MemberStudy member1Study1;
+    private static MemberStudy ownerStudy1;
     private static Schedule schedule1;
     private static Schedule schedule2;
+    private static Schedule schedule3;
 
     @BeforeEach
     void setUp() {
@@ -77,14 +78,21 @@ class StudyScheduleQueryServiceTest {
         when(memberRepository.findById(member1.getId())).thenReturn(Optional.of(member1));
         when(memberRepository.findById(member2.getId())).thenReturn(Optional.of(member2));
         when(memberRepository.findById(owner.getId())).thenReturn(Optional.of(owner));
-        when(studyRepository.findById(1L)).thenReturn(Optional.of(study));
+        when(studyRepository.findById(1L)).thenReturn(Optional.of(study1));
+        when(studyRepository.findById(2L)).thenReturn(Optional.of(study2));
 
-        when(memberStudyRepository.findById(member1Study.getId())).thenReturn(Optional.of(member1Study));
-        when(memberStudyRepository.findById(ownerStudy.getId())).thenReturn(Optional.of(ownerStudy));
-        when(memberStudyRepository.existsByMemberIdAndStudyIdAndStatus(member1.getId(), study.getId(), ApplicationStatus.APPROVED)).thenReturn(true);
-        when(memberStudyRepository.existsByMemberIdAndStudyIdAndStatus(member2.getId(), study.getId(), ApplicationStatus.APPROVED)).thenReturn(false);
-        when(memberStudyRepository.existsByMemberIdAndStudyIdAndStatus(owner.getId(), study.getId(), ApplicationStatus.APPROVED)).thenReturn(true);
+        when(memberStudyRepository.findById(member1Study1.getId())).thenReturn(Optional.of(member1Study1));
+        when(memberStudyRepository.findById(ownerStudy1.getId())).thenReturn(Optional.of(ownerStudy1));
+        when(memberStudyRepository.existsByMemberIdAndStudyIdAndStatus(member1.getId(), study1.getId(), ApplicationStatus.APPROVED)).thenReturn(true);
+        when(memberStudyRepository.existsByMemberIdAndStudyIdAndStatus(member2.getId(), study1.getId(), ApplicationStatus.APPROVED)).thenReturn(false);
+        when(memberStudyRepository.existsByMemberIdAndStudyIdAndStatus(owner.getId(), study1.getId(), ApplicationStatus.APPROVED)).thenReturn(true);
 
+        when(scheduleRepository.findById(schedule1.getId())).thenReturn(Optional.of(schedule1));
+        when(scheduleRepository.findById(schedule2.getId())).thenReturn(Optional.of(schedule2));
+        when(scheduleRepository.findById(schedule3.getId())).thenReturn(Optional.of(schedule3));
+        when(scheduleRepository.findByIdAndStudyId(schedule1.getId(), 1L)).thenReturn(Optional.of(schedule1));
+        when(scheduleRepository.findByIdAndStudyId(schedule2.getId(), 1L)).thenReturn(Optional.of(schedule2));
+        when(scheduleRepository.findByIdAndStudyId(schedule3.getId(), 1L)).thenReturn(Optional.of(schedule3));
     }
 
     @Test
@@ -132,7 +140,39 @@ class StudyScheduleQueryServiceTest {
     }
 
     @Test
-    void getSchedule() {
+    @DisplayName("스터디 일정 조회 - (성공)")
+    void getSchedule_Success() {
+
+        // given
+        Long memberId = 1L;
+        Long studyId = 1L;
+        Long scheduleId = 1L;
+
+        // 사용자 인증 정보 생성
+        getAuthentication(memberId);
+
+        // when
+        ScheduleResponseDTO.MonthlyScheduleDTO result = memberStudyQueryService.getSchedule(scheduleId, studyId);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.getTitle()).isEqualTo(schedule1.getTitle());
+    }
+
+    @Test
+    @DisplayName("스터디 일정 조회 - 해당 스터디 일정이 아닌 경우(실패)")
+    void getSchedule_NotStudySchedule_Fail() {
+
+        // given
+        Long memberId = 1L;
+        Long studyId = 1L;
+        Long scheduleId = 3L;
+
+        // 사용자 인증 정보 생성
+        getAuthentication(memberId);
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> memberStudyQueryService.getSchedule(scheduleId, studyId));
     }
 
 /*-------------------------------------------------------- Utils ------------------------------------------------------------------------*/
@@ -153,8 +193,21 @@ class StudyScheduleQueryServiceTest {
     }
 
     private static void initStudy() {
-        study = Study.builder()
+        study1 = Study.builder()
                 .gender(Gender.MALE)
+                .minAge(20)
+                .maxAge(29)
+                .fee(10000)
+                .profileImage("a.jpg")
+                .hasFee(true)
+                .isOnline(true)
+                .goal("SQLD")
+                .introduction("SQLD 자격증 스터디")
+                .title("SQLD Master")
+                .maxPeople(10L)
+                .build();
+        study2 = Study.builder()
+                .gender(Gender.FEMALE)
                 .minAge(20)
                 .maxAge(29)
                 .fee(10000)
@@ -169,21 +222,21 @@ class StudyScheduleQueryServiceTest {
     }
 
     private static void initMemberStudy() {
-        ownerStudy = MemberStudy.builder()
+        ownerStudy1 = MemberStudy.builder()
                 .id(1L)
                 .status(ApplicationStatus.APPROVED)
                 .isOwned(true)
                 .introduction("Hi")
                 .member(owner)
-                .study(study)
+                .study(study1)
                 .build();
-        member1Study = MemberStudy.builder()
+        member1Study1 = MemberStudy.builder()
                 .id(2L)
                 .status(ApplicationStatus.APPROVED)
                 .isOwned(false)
                 .introduction("Hi")
                 .member(member1)
-                .study(study)
+                .study(study1)
                 .build();
     }
 
@@ -193,27 +246,39 @@ class StudyScheduleQueryServiceTest {
 
         schedule1 = Schedule.builder()
                 .id(1L)
-                .study(study)
+                .study(study1)
                 .member(owner)
                 .title("일정1")
                 .startedAt(startedAt)
                 .finishedAt(startedAt.plusHours(1))
                 .period(Period.NONE)
                 .build();
-        study.addSchedule(schedule1);
+        study1.addSchedule(schedule1);
         owner.addSchedule(schedule1);
 
         schedule2 = Schedule.builder()
                 .id(2L)
-                .study(study)
+                .study(study1)
                 .member(member1)
                 .title("일정2")
                 .startedAt(startedAt)
                 .finishedAt(startedAt.plusHours(2))
                 .period(Period.MONTHLY)
                 .build();
-        study.addSchedule(schedule2);
+        study1.addSchedule(schedule2);
         member1.addSchedule(schedule2);
+
+        schedule3 = Schedule.builder()
+                .id(3L)
+                .study(study2)
+                .member(member2)
+                .title("일정3")
+                .startedAt(startedAt)
+                .finishedAt(startedAt.plusHours(2))
+                .period(Period.WEEKLY)
+                .build();
+        study2.addSchedule(schedule3);
+        member2.addSchedule(schedule3);
     }
 
     private static void getAuthentication(Long memberId) {
