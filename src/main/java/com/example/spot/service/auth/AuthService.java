@@ -4,6 +4,7 @@ import com.example.spot.web.dto.member.MemberRequestDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.SocialLoginSignInDTO;
 import com.example.spot.web.dto.member.naver.NaverCallback;
+import com.example.spot.web.dto.member.naver.NaverOAuthToken;
 import com.example.spot.web.dto.token.TokenResponseDTO;
 import com.example.spot.web.dto.token.TokenResponseDTO.TokenDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -21,7 +22,7 @@ public interface AuthService {
 
     SocialLoginSignInDTO signInWithNaver(HttpServletRequest request, HttpServletResponse response, NaverCallback naverCallback) throws JsonProcessingException;
 
-    SocialLoginSignInDTO signInWithNaver(HttpServletRequest request, HttpServletResponse response, String accessToken) throws JsonProcessingException;
+    SocialLoginSignInDTO signInWithNaver(HttpServletRequest request, HttpServletResponse response, NaverOAuthToken.NaverTokenIssuanceDTO naverTokenDTO) throws JsonProcessingException;
 
     MemberResponseDTO.MemberSignInDTO signIn(MemberRequestDTO.SignInDTO signInDTO);
 

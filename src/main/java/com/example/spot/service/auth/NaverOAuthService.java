@@ -83,14 +83,9 @@ public class NaverOAuthService {
      * @param response : HttpServletResponse
      * @return 네이버 프로필 정보
      */
-    public NaverMember.ResponseDTO getNaverMember(HttpServletRequest request, HttpServletResponse response, String accessToken) throws JsonProcessingException {
-
-        ObjectMapper mapper = new ObjectMapper();
-        NaverOAuthToken.NaverTokenIssuanceDTO naverTokenIssuanceDTO
-                 = mapper.readValue(accessToken, NaverOAuthToken.NaverTokenIssuanceDTO.class);
-
+    public NaverMember.ResponseDTO getNaverMember(HttpServletRequest request, HttpServletResponse response, NaverOAuthToken.NaverTokenIssuanceDTO naverTokenDTO) throws JsonProcessingException {
         // 네이버 프로필 반환
-        String naverMember = getNaverProfile(naverTokenIssuanceDTO);
+        String naverMember = getNaverProfile(naverTokenDTO);
         ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper.readValue(naverMember, NaverMember.ResponseDTO.class);
     }
