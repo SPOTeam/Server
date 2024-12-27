@@ -8,6 +8,7 @@ import com.example.spot.web.dto.member.MemberRequestDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.SocialLoginSignInDTO;
 import com.example.spot.web.dto.member.naver.NaverCallback;
+import com.example.spot.web.dto.member.naver.NaverOAuthToken;
 import com.example.spot.web.dto.token.TokenResponseDTO;
 import com.example.spot.web.dto.token.TokenResponseDTO.TokenDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -106,9 +107,9 @@ public class AuthController {
     public ApiResponse<SocialLoginSignInDTO> signInWithNaver(
             HttpServletRequest request,
             HttpServletResponse response,
-            String accessToken
+            NaverOAuthToken.NaverTokenIssuanceDTO naverTokenDTO
     ) throws JsonProcessingException {
-        SocialLoginSignInDTO socialLoginSignInDTO = authService.signInWithNaver(request, response, accessToken);
+        SocialLoginSignInDTO socialLoginSignInDTO = authService.signInWithNaver(request, response, naverTokenDTO);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_SIGNED_IN, socialLoginSignInDTO);
     }
 

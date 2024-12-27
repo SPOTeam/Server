@@ -3,6 +3,7 @@ package com.example.spot.web.dto.member.naver;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -13,11 +14,22 @@ public class NaverOAuthToken {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class NaverTokenIssuanceDTO {
 
+        @Schema(name = "access_token", description = "Access token")
         private final String accessToken;
+
+        @Schema(name = "refresh_token", description = "Refresh token")
         private final String refreshToken;
+
+        @Schema(name = "token_type", description = "Token type")
         private final String tokenType;
+
+        @Schema(name = "expires_in", description = "Expiration time in seconds")
         private final Integer expiresIn;
+
+        @Schema(name = "error", description = "Error code")
         private final String error;
+
+        @Schema(name = "error_description", description = "Error description")
         private final String errorDescription;
 
         @JsonCreator

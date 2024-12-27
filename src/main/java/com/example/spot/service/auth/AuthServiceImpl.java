@@ -23,6 +23,7 @@ import com.example.spot.service.message.MailService;
 import com.example.spot.web.dto.member.MemberResponseDTO.SocialLoginSignInDTO;
 import com.example.spot.web.dto.member.naver.NaverCallback;
 import com.example.spot.web.dto.member.naver.NaverMember;
+import com.example.spot.web.dto.member.naver.NaverOAuthToken;
 import com.example.spot.web.dto.token.TokenResponseDTO;
 import com.example.spot.web.dto.token.TokenResponseDTO.TokenDTO;
 
@@ -159,7 +160,6 @@ public class AuthServiceImpl implements AuthService{
      */
     @Override
     public SocialLoginSignInDTO signInWithNaver(HttpServletRequest request, HttpServletResponse response, NaverCallback naverCallback) throws JsonProcessingException {
-
         NaverMember.ResponseDTO responseDTO = naverOAuthService.getNaverMember(request, response, naverCallback);
         return getSocialLoginSignInDTO(responseDTO);
     }
@@ -174,8 +174,8 @@ public class AuthServiceImpl implements AuthService{
      * @return SocialLoginSignInDTO(isSpotMember, signInDTO-토큰정보)
      */
     @Override
-    public SocialLoginSignInDTO signInWithNaver(HttpServletRequest request, HttpServletResponse response, String accessToken) throws JsonProcessingException {
-        NaverMember.ResponseDTO responseDTO = naverOAuthService.getNaverMember(request, response, accessToken);
+    public SocialLoginSignInDTO signInWithNaver(HttpServletRequest request, HttpServletResponse response, NaverOAuthToken.NaverTokenIssuanceDTO naverTokenDTO) throws JsonProcessingException {
+        NaverMember.ResponseDTO responseDTO = naverOAuthService.getNaverMember(request, response, naverTokenDTO);
         return getSocialLoginSignInDTO(responseDTO);
     }
 
