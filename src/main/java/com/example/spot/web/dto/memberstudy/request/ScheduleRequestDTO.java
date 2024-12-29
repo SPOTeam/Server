@@ -3,6 +3,7 @@ package com.example.spot.web.dto.memberstudy.request;
 import com.example.spot.domain.enums.Period;
 import com.example.spot.validation.annotation.TextLength;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 public class ScheduleRequestDTO {
 
     @Getter
+    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class ScheduleDTO {
