@@ -1456,6 +1456,22 @@ class StudyQueryServiceTest {
         verify(studyRepository).countStudyByConditions(searchConditions, sortBy);
     }
 
+    @Test
+    @DisplayName("모집 중 스터디 조회 - 조회 된 스터디가 없는 경우")
+    void 조회_된_스터디가_없는_경우() {
+        // given
+        Map<String, Object> searchConditions = getStringObjectMap();
+
+        when(studyRepository.findRecruitingStudyByConditions(searchConditions, StudySortBy.ALL, pageable))
+                .thenReturn(List.of());
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.findRecruitingStudiesByConditions(pageable, request, StudySortBy.ALL);
+        });
+
+    }
+
     /* -------------------------------------------------------- 찜한 스터디 조회 ------------------------------------------------------------------------*/
     @Test
     @DisplayName("찜한 스터디 조회 - 찜한 스터디가 있는 경우")
