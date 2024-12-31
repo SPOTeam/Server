@@ -1683,6 +1683,21 @@ class StudyQueryServiceTest {
         verify(studyRepository).findByMemberStudy(List.of(memberStudy1, memberStudy2), pageable);
 
     }
+
+    @Test
+    @DisplayName("내가 신청한 스터디 조회 - 신청한 스터디가 없는 경우")
+    void 내가_신청한_스터디가_없는_경우() {
+        // given
+
+        when(memberStudyRepository.findAllByMemberIdAndStatus(member.getId(), ApplicationStatus.APPLIED))
+            .thenReturn(List.of());
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.findAppliedStudies(pageable, member.getId());
+        });
+
+    }
     /* -------------------------------------------------------- 내가 모집 중인 스터디 조회 ------------------------------------------------------------------------*/
     @Test
     @DisplayName("내가 모집중인 스터디 조회 - 모집중인 스터디가 있는 경우")
