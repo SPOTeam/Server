@@ -1603,6 +1603,23 @@ class StudyQueryServiceTest {
 
     }
 
+    @Test
+    @DisplayName("테마 별 스터디 검색 - 해당 테마에 해당하는 스터디가 없는 경우")
+    void 테마_스터디_검색_시_조회_된_스터디가_없는_경우() {
+        // given
+        Pageable pageable = PageRequest.of(0, 10);
+        ThemeType themeType = ThemeType.어학;
+        StudySortBy sortBy = StudySortBy.ALL;
+
+        when(themeRepository.findByStudyTheme(themeType)).thenReturn(Optional.empty());
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.findStudiesByTheme(pageable, themeType, sortBy);
+        });
+
+    }
+
     /* -------------------------------------------------------- 내가 참여하는 스터디 조회 ------------------------------------------------------------------------*/
     @Test
     @DisplayName("내가 참여하고 있는 스터디 조회 - 참여하고 있는 스터디가 있는 경우")
