@@ -1494,6 +1494,22 @@ class StudyQueryServiceTest {
 
     }
 
+    @Test
+    @DisplayName("찜한 스터디 조회 - 찜한 스터디가 없는 경우")
+    void 찜한_스터디가_없는_경우() {
+        // given
+        Member member = getMember();
+
+        when(preferredStudyRepository.findByMemberIdAndStudyLikeStatusOrderByCreatedAtDesc(member.getId(), StudyLikeStatus.LIKE, PageRequest.of(0, 10)))
+                .thenReturn(List.of());
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.findLikedStudies(member.getId(), PageRequest.of(0, 10));
+        });
+
+    }
+
 
     /* -------------------------------------------------------- 키워드를 통한 스터디 검색 ------------------------------------------------------------------------*/
     @Test
