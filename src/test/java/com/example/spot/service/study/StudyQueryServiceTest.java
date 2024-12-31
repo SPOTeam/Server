@@ -1645,6 +1645,21 @@ class StudyQueryServiceTest {
 
     }
 
+    @Test
+    @DisplayName("내가 참여하고 있는 스터디 조회 - 참여하고 있는 스터디가 없는 경우")
+    void 내가_참여하고_있는_스터디가_없는_경우() {
+        // given
+
+        when(memberStudyRepository.findAllByMemberIdAndStatus(member.getId(), ApplicationStatus.APPROVED))
+            .thenReturn(List.of());
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.findOngoingStudiesByMemberId(pageable, member.getId());
+        });
+
+    }
+
     /* -------------------------------------------------------- 내가 신청한 스터디 조회 ------------------------------------------------------------------------*/
     @Test
     @DisplayName("내가 신청한 스터디 조회 - 신청한 스터디가 있는 경우")
