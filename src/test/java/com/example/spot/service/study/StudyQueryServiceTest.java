@@ -1611,7 +1611,11 @@ class StudyQueryServiceTest {
         ThemeType themeType = ThemeType.어학;
         StudySortBy sortBy = StudySortBy.ALL;
 
-        when(themeRepository.findByStudyTheme(themeType)).thenReturn(Optional.empty());
+        when(themeRepository.findByStudyTheme(themeType)).thenReturn(Optional.ofNullable(theme1));
+        when(studyThemeRepository.findAllByTheme(theme1)).thenReturn(List.of(studyTheme1));
+        when(studyRepository.findByStudyTheme(List.of(studyTheme1), sortBy, pageable))
+                .thenReturn(List.of());
+
 
         // when & then
         assertThrows(StudyHandler.class, () -> {
@@ -1646,12 +1650,12 @@ class StudyQueryServiceTest {
     }
 
     @Test
-    @DisplayName("내가 참여하고 있는 스터디 조회 - 참여하고 있는 스터디가 없는 경우")
-    void 내가_참여하고_있는_스터디가_없는_경우() {
+    @DisplayName("내가 참여하고 있는 스터디 조회 - 참여하고 있는 스터디가 없는 경우 (회원이 스터디에 단 하나도 참여하고 있지 않은 경우)")
+    void 내가_참여하고_있는_스터디가_없는_경우_1() {
         // given
 
         when(memberStudyRepository.findAllByMemberIdAndStatus(member.getId(), ApplicationStatus.APPROVED))
-            .thenReturn(List.of());
+                .thenReturn(List.of());
 
         // when & then
         assertThrows(StudyHandler.class, () -> {
@@ -1659,6 +1663,25 @@ class StudyQueryServiceTest {
         });
 
     }
+
+    @Test
+    @DisplayName("내가 참여하고 있는 스터디 조회 - 참여하고 있는 스터디가 없는 경우 (회원이 참가하고 있던 스터디가 종료 및 삭제 된 경우)")
+    void 내가_참여하고_있는_스터디가_없는_경우_2() {
+        // given
+
+        when(memberStudyRepository.findAllByMemberIdAndStatus(member.getId(), ApplicationStatus.APPROVED))
+            .thenReturn(List.of(memberStudy1, memberStudy2));
+        when(studyRepository.findByMemberStudy(List.of(memberStudy1, memberStudy2), pageable))
+                .thenReturn(List.of());
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.findOngoingStudiesByMemberId(pageable, member.getId());
+        });
+
+    }
+
+
 
     /* -------------------------------------------------------- 내가 신청한 스터디 조회 ------------------------------------------------------------------------*/
     @Test
@@ -1685,11 +1708,27 @@ class StudyQueryServiceTest {
     }
 
     @Test
-    @DisplayName("내가 신청한 스터디 조회 - 신청한 스터디가 없는 경우")
-    void 내가_신청한_스터디가_없는_경우() {
-        // given
+    @DisplayName("내가 신청한 스터디 조회 - 신청한 스터디가 없는 경우 (회원이 스터디에 단 하나도 신청하지 않은 경우)")
+    void 내가_신청한_스터디가_없는_경우_1() {
 
+        // given
         when(memberStudyRepository.findAllByMemberIdAndStatus(member.getId(), ApplicationStatus.APPLIED))
+                .thenReturn(List.of());
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.findAppliedStudies(pageable, member.getId());
+        });
+
+    }
+
+    @Test
+    @DisplayName("내가 신청한 스터디 조회 - 신청한 스터디가 없는 경우 (회원이 신청했던 스터디가 종료 및 삭제 된 경우)")
+    void 내가_신청한_스터디가_없는_경우_2() {
+
+        // given
+        when(memberStudyRepository.findAllByMemberIdAndStatus(member.getId(), ApplicationStatus.APPLIED))
+            .thenReturn(List.of(memberStudy1, memberStudy2));
+        when(studyRepository.findByMemberStudy(List.of(memberStudy1, memberStudy2), pageable))
             .thenReturn(List.of());
 
         // when & then
@@ -1727,13 +1766,29 @@ class StudyQueryServiceTest {
     }
 
     @Test
-    @DisplayName("내가 모집중인 스터디 조회 - 모집중인 스터디가 없는 경우")
-    void 내가_모집중인_스터디가_없는_경우() {
+    @DisplayName("내가 모집중인 스터디 조회 - 모집중인 스터디가 없는 경우 (회원이 모집중인 스터디가 아예 없는 경우) ")
+    void 내가_모집중인_스터디가_없는_경우_1() {
         // given
         Member member = getMember();
 
         when(memberStudyRepository.findAllByMemberIdAndIsOwned(member.getId(), true))
-            .thenReturn(List.of());
+                .thenReturn(List.of());
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.findMyRecruitingStudies(pageable, member.getId());
+        });
+
+    }
+    @Test
+    @DisplayName("내가 모집중인 스터디 조회 - 모집중인 스터디가 없는 경우 (회원이 모집중인 스터디가 종료 및 삭제 된 경우) ")
+    void 내가_모집중인_스터디가_없는_경우_2() {
+        // given
+        Member member = getMember();
+
+        when(memberStudyRepository.findAllByMemberIdAndIsOwned(member.getId(), true))
+            .thenReturn(List.of(memberStudy1, memberStudy2));
+        when(studyRepository.findByMemberStudy(List.of(memberStudy1, memberStudy2), pageable))
+                .thenReturn(List.of());
 
         // when & then
         assertThrows(StudyHandler.class, () -> {
