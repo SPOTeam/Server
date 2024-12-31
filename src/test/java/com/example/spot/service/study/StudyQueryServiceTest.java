@@ -442,7 +442,23 @@ class StudyQueryServiceTest {
         verify(studyRepository).findByStudyThemeAndNotInIds(anyList(), anyList());
     }
 
+    @Test
+    @DisplayName("추천 스터디 조회 - 회원의 관심 테마에_해당하는_스터디가 없는 경우")
+    void 추천_스터디_조회_시_회원의_관심_테마에_해당하는_스터디가_없는_경우() {
+        // given
+        when(memberThemeRepository.findAllByMemberId(member.getId())).thenReturn(List.of(memberTheme1, memberTheme2));
 
+        when(studyThemeRepository.findAllByTheme(theme1)).thenReturn(List.of());
+        when(studyThemeRepository.findAllByTheme(theme2)).thenReturn(List.of());
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.findRecommendStudies(member.getId());
+        });
+        verify(memberThemeRepository).findAllByMemberId(member.getId());
+        verify(studyThemeRepository, times(1)).findAllByTheme(theme1);
+        verify(studyThemeRepository, times(1)).findAllByTheme(theme2);
+    }
 
     // 유효하지 않은 사용자인 경우
     @Test
