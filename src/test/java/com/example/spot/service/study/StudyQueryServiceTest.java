@@ -522,7 +522,7 @@ class StudyQueryServiceTest {
 
     /* -------------------------------------------------------- 내 관심사 스터디 조회 ------------------------------------------------------------------------*/
     @Test
-    @DisplayName("내 전체 관심사 스터디 조회 - 내 전체 관심사에 해당하는 스터디가 없는 경우")
+    @DisplayName("내 전체 관심사 스터디 조회 - 내 전체 관심사와 검색 조건에 해당하는 스터디가 없는 경우")
     void findInterestStudiesByConditionsAllOnFail() {
         // given
 
@@ -559,6 +559,29 @@ class StudyQueryServiceTest {
         verify(studyThemeRepository, times(1)).findAllByTheme(theme2);
     }
 
+    @Test
+    @DisplayName("내 전체 관심사 스터디 조회 - 내 전체 관심사와 검색 조건에 해당하는 스터디가 없는 경우")
+    void 전체_테마_스터디_조회_시_테마에_해당하는_스터디가_없는_경우() {
+        // given
+        StudySortBy sortBy = StudySortBy.ALL;
+
+        when(memberThemeRepository.findAllByMemberId(member.getId()))
+                .thenReturn(List.of(memberTheme1, memberTheme2));
+        when(studyThemeRepository.findAllByTheme(theme1))
+                .thenReturn(List.of());
+        when(studyThemeRepository.findAllByTheme(theme2))
+                .thenReturn(List.of());
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.findInterestStudiesByConditionsAll(pageable, member.getId(), request, sortBy);
+        });
+
+        // then
+        verify(memberThemeRepository).findAllByMemberId(member.getId());
+        verify(studyThemeRepository, times(1)).findAllByTheme(theme1);
+        verify(studyThemeRepository, times(1)).findAllByTheme(theme2);
+    }
 
 
     @Test
