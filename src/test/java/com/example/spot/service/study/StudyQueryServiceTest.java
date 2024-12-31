@@ -1545,6 +1545,23 @@ class StudyQueryServiceTest {
         assertEquals(1, result.getTotalElements());
         verify(studyRepository).findAllByTitleContaining(keyword, sortBy, pageable);
     }
+
+    @Test
+    @DisplayName("키워드로 스터디 검색 - 해당 키워드에 해당하는 스터디가 없는 경우")
+    void 키워드_스터디_검색_시_조회_된_스터디가_없는_경우() {
+        // given
+        String keyword = "English";
+        StudySortBy sortBy = StudySortBy.ALL;
+
+        when(studyRepository.findAllByTitleContaining(keyword, sortBy, pageable))
+                .thenReturn(List.of());
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.findStudiesByKeyword(pageable, keyword, sortBy);
+        });
+
+    }
     /* -------------------------------------------------------- 테마 별 스터디 검색 ------------------------------------------------------------------------*/
     @Test
     @DisplayName("테마 별 스터디 검색 - 해당 테마에 해당하는 스터디가 있는 경우")
