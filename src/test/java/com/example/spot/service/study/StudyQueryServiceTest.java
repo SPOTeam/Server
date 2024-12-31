@@ -492,6 +492,34 @@ class StudyQueryServiceTest {
         });
     }
 
+    /* -------------------------------------------------------- 관심 Best 스터디 조회 ------------------------------------------------------------------------*/
+    @Test
+    @DisplayName("관심 Best 스터디 조회 - 성공")
+    void 관심_BEST_스터디_조회_성공(){
+        // given
+        when(studyRepository.findAllStudyByConditions(any(), any(), any()))
+            .thenReturn(List.of(study1, study2));
+
+        // when
+        StudyPreviewDTO result = studyQueryService.findInterestedStudies(member.getId());
+
+        // then
+        assertNotNull(result);
+        assertEquals(2, result.getTotalElements());
+        assertEquals(study1.getTitle(), result.getContent().get(0).getTitle());
+    }
+
+    @Test
+    @DisplayName("관심 Best 스터디 조회 - 추천 스터디가 조회되지 않는 경우 ")
+    void 관심_BEST_스터디_조회_시_추천_스터디가_없는_경우(){
+        // given
+        when(studyRepository.findAllStudyByConditions(any(), any(), any()))
+                .thenReturn(List.of());
+        // when & then
+        assertThrows(StudyHandler.class, () ->
+                studyQueryService.findInterestedStudies(member.getId()));
+    }
+
     /* -------------------------------------------------------- 내 관심사 스터디 조회 ------------------------------------------------------------------------*/
     @Test
     @DisplayName("내 전체 관심사 스터디 조회 - 내 전체 관심사에 해당하는 스터디가 없는 경우")
