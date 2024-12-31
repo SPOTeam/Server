@@ -1726,6 +1726,22 @@ class StudyQueryServiceTest {
 
     }
 
+    @Test
+    @DisplayName("내가 모집중인 스터디 조회 - 모집중인 스터디가 없는 경우")
+    void 내가_모집중인_스터디가_없는_경우() {
+        // given
+        Member member = getMember();
+
+        when(memberStudyRepository.findAllByMemberIdAndIsOwned(member.getId(), true))
+            .thenReturn(List.of());
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.findMyRecruitingStudies(pageable, member.getId());
+        });
+
+    }
+
     /*-------------------------------------------------------- Utils ------------------------------------------------------------------------*/
 
 
