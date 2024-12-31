@@ -1239,6 +1239,26 @@ class StudyQueryServiceTest {
 
     @Test
     @DisplayName("내 특정 관심 지역 스터디 조회 - 내 특정 관심 지역에 해당하는 스터디가 없는 경우")
+    void 특정_관심_지역_스터디_조회_시_해당_지역에_스터디가_없는_경우() {
+        // given
+
+        StudySortBy sortBy = StudySortBy.ALL;
+
+        when(preferredRegionRepository.findAllByMemberId(member.getId()))
+                .thenReturn(List.of(preferredRegion1, preferredRegion2));
+        when(regionStudyRepository.findAllByRegion(any())).thenReturn(List.of( ));
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.findInterestRegionStudiesByConditionsSpecific(pageable, member.getId(), request, region1.getCode(), sortBy);
+        });
+
+        // then
+        verify(regionStudyRepository, times(2)).findAllByRegion(any());
+    }
+
+    @Test
+    @DisplayName("내 특정 관심 지역 스터디 조회 - 내 특정 관심 지역에 해당하는 스터디가 없는 경우")
     void findInterestRegionStudiesByConditionsSpecificOnFail() {
         // given
 
