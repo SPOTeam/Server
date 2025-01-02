@@ -13,6 +13,7 @@ import com.example.spot.repository.MemberStudyRepository;
 import com.example.spot.repository.ScheduleRepository;
 import com.example.spot.repository.StudyPostRepository;
 import com.example.spot.security.utils.SecurityUtils;
+import com.example.spot.web.dto.study.response.StudyMemberResponseDTO;
 import com.example.spot.web.dto.study.response.StudyPostResponseDTO;
 import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO;
 import java.util.Collections;
@@ -199,5 +200,38 @@ public class MemberStudyQueryServiceTest {
         // when & then
         assertThrows(GeneralException.class, () -> memberStudyQueryService.findStudySchedule(studyId, Pageable.unpaged()));
     }
+
+
+    /* ------------------------------------------------ 특정 스터디 회원 목록 전체 조회  --------------------------------------------------- */
+
+    @Test
+    @DisplayName("특정 스터디 회원 목록 조회 - 성공")
+    void 특정_스터디_회원_목록_조회_성공() {
+
+        // given
+        Long studyId = 1L;
+        when(memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED)).thenReturn(List.of(memberStudy));
+
+        // when
+        StudyMemberResponseDTO responseDTO = memberStudyQueryService.findStudyMembers(studyId);
+
+        // then
+        assertEquals(1, responseDTO.getTotalElements());
+        assertEquals(1L, responseDTO.getMembers().get(0).getMemberId());
+
+    }
+
+    @Test
+    @DisplayName("특정 스터디 회원 목록 조회 - 스터디에 멤버가 존재하지 않는 경우")
+    void 특정_스터디_회원_목록_조회_실패() {
+
+        // given
+        Long studyId = 1L;
+        when(memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED)).thenReturn(List.of());
+
+        // when & then
+        assertThrows(GeneralException.class, () -> memberStudyQueryService.findStudyMembers(studyId));
+    }
+
 
 }
