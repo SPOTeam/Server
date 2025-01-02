@@ -18,6 +18,7 @@ import com.example.spot.web.dto.study.response.StudyPostResponseDTO;
 import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -63,6 +64,7 @@ public class MemberStudyQueryServiceTest {
     private static Member member;
     private static Study study;
     private static MemberStudy memberStudy;
+    private static MemberStudy apply;
     @BeforeEach
     void setup(){
         member = Member.builder()
@@ -74,6 +76,8 @@ public class MemberStudyQueryServiceTest {
 
         memberStudy = MemberStudy.builder()
                 .introduction("title").study(study).member(member).isOwned(true).status(ApplicationStatus.APPROVED).build();
+        apply = MemberStudy.builder()
+                .introduction("title").study(study).member(member).isOwned(true).status(ApplicationStatus.APPLIED).build();
 
         Long studyId = 1L;
 
@@ -234,4 +238,49 @@ public class MemberStudyQueryServiceTest {
     }
 
 
+    /* ------------------------------------------------ 모집중인 스터디에 신청한 회원 목록 조회  --------------------------------------------------- */
+
+    @Test
+    @DisplayName("모집중인 스터디에 신청한 회원 목록 조회 - 성공")
+    void 스터디_신청_회원_목록_조회_성공() {
+
+        // given
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndIsOwned(1L, 1L, true)).thenReturn(
+                Optional.ofNullable(memberStudy));
+        when(memberStudyRepository.findAllByStudyIdAndStatus(1L, ApplicationStatus.APPLIED))
+                .thenReturn(List.of(apply));
+
+        // when
+        StudyMemberResponseDTO responseDTO = memberStudyQueryService.findStudyApplicants(1L);
+
+        // then
+        assertEquals(1, responseDTO.getTotalElements());
+        assertEquals(1L, responseDTO.getMembers().get(0).getMemberId());
+    }
+
+    @Test
+    @DisplayName("모집중인 스터디에 신청한 회원 목록 조회 - 로그인 한 회원이 해당 스터디 장이 아닌 경우")
+    void 스터디_신청_회원_목록_조회_실패_1() {
+
+        // given
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndIsOwned(1L, 1L, true)).thenReturn(
+                Optional.empty());
+
+        // when & then
+        assertThrows(GeneralException.class, () -> memberStudyQueryService.findStudyApplicants(1L));
+    }
+
+    @Test
+    @DisplayName("모집중인 스터디에 신청한 회원 목록 조회 - 스터디 신청자가 존재하지 않는 경우")
+    void 스터디_신청_회원_목록_조회_실패_2() {
+
+        // given
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndIsOwned(1L, 1L, true)).thenReturn(
+                Optional.ofNullable(memberStudy));
+        when(memberStudyRepository.findAllByStudyIdAndStatus(1L, ApplicationStatus.APPLIED))
+                .thenReturn(List.of());
+
+        // when & then
+        assertThrows(GeneralException.class, () -> memberStudyQueryService.findStudyApplicants(1L));
+    }
 }
