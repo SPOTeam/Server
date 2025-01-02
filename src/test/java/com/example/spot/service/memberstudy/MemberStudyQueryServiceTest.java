@@ -92,18 +92,6 @@ public class MemberStudyQueryServiceTest {
         SecurityContextHolder.setContext(securityContext);
     }
 
-
-    @Test
-    void test(){
-        // given
-
-
-        // when
-
-
-        // then
-    }
-
     /* ------------------------------------------------ 스터디 공지사항 조회  --------------------------------------------------- */
 
     @Test
