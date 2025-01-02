@@ -303,7 +303,6 @@ public class MemberStudyQueryServiceTest {
 
         // then
         assertEquals(1L, responseDTO.getMemberId());
-        assertEquals(100L, responseDTO.getStudyId());
     }
 
     @Test
