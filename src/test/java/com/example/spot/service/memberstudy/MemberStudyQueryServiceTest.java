@@ -14,6 +14,7 @@ import com.example.spot.repository.ScheduleRepository;
 import com.example.spot.repository.StudyPostRepository;
 import com.example.spot.security.utils.SecurityUtils;
 import com.example.spot.web.dto.study.response.StudyMemberResponseDTO;
+import com.example.spot.web.dto.study.response.StudyMemberResponseDTO.StudyApplicantDTO;
 import com.example.spot.web.dto.study.response.StudyMemberResponseDTO.StudyApplyMemberDTO;
 import com.example.spot.web.dto.study.response.StudyPostResponseDTO;
 import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO;
@@ -344,4 +345,33 @@ public class MemberStudyQueryServiceTest {
         assertThrows(GeneralException.class, () -> memberStudyQueryService.findStudyApplication(100L, 1L));
     }
 
+
+    /* ------------------------------------------------ 스터디 신청 여부 조회  --------------------------------------------------- */
+
+    @Test
+    @DisplayName("스터디 신청 여부 조회 - 성공")
+    void 스터디_신청_여부_조회_성공() {
+        // given
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndStatus(1L, 100L, ApplicationStatus.APPROVED))
+                .thenReturn(Optional.empty());
+        when(memberStudyRepository.existsByMemberIdAndStudyIdAndStatus(1L, 100L, ApplicationStatus.APPLIED))
+                .thenReturn(true);
+
+        // when
+        StudyApplicantDTO responseDTO = memberStudyQueryService.isApplied(100L);
+
+        // then
+        assertEquals(100L, responseDTO.getStudyId());
+        assertEquals(true, responseDTO.isApplied());
+    }
+
+    @Test
+    @DisplayName("스터디 신청 여부 조회 - 이미 가입 된 경우")
+    void 스터디_신청_여부_조회_실패() {
+        // given
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndStatus(1L, 100L, ApplicationStatus.APPROVED))
+                .thenReturn(Optional.ofNullable(memberStudy));
+        // when & then
+        assertThrows(GeneralException.class, () -> memberStudyQueryService.isApplied(100L));
+    }
 }
