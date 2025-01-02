@@ -14,6 +14,7 @@ import com.example.spot.repository.ScheduleRepository;
 import com.example.spot.repository.StudyPostRepository;
 import com.example.spot.security.utils.SecurityUtils;
 import com.example.spot.web.dto.study.response.StudyMemberResponseDTO;
+import com.example.spot.web.dto.study.response.StudyMemberResponseDTO.StudyApplyMemberDTO;
 import com.example.spot.web.dto.study.response.StudyPostResponseDTO;
 import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO;
 import java.util.Collections;
@@ -77,7 +78,7 @@ public class MemberStudyQueryServiceTest {
         memberStudy = MemberStudy.builder()
                 .introduction("title").study(study).member(member).isOwned(true).status(ApplicationStatus.APPROVED).build();
         apply = MemberStudy.builder()
-                .introduction("title").study(study).member(member).isOwned(true).status(ApplicationStatus.APPLIED).build();
+                .introduction("title").study(study).member(member).isOwned(false).status(ApplicationStatus.APPLIED).build();
 
         Long studyId = 1L;
 
@@ -283,4 +284,64 @@ public class MemberStudyQueryServiceTest {
         // when & then
         assertThrows(GeneralException.class, () -> memberStudyQueryService.findStudyApplicants(1L));
     }
+
+
+    /* ------------------------------------------------ 스터디 신청자 정보 조회  --------------------------------------------------- */
+
+    @Test
+    @DisplayName("스터디 신청자 정보 조회 - 성공")
+    void 스터디_신청자_정보_조회_성공() {
+        // given
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndIsOwned(1L, 100L, true)).thenReturn(
+                Optional.ofNullable(memberStudy));
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndStatus(1L, 100L, ApplicationStatus.APPLIED))
+                .thenReturn(Optional.ofNullable(apply));
+
+        // when
+        StudyApplyMemberDTO responseDTO = memberStudyQueryService.findStudyApplication(100L, 1L);
+
+        // then
+        assertEquals(1L, responseDTO.getMemberId());
+        assertEquals(100L, responseDTO.getStudyId());
+    }
+
+    @Test
+    @DisplayName("스터디 신청자 정보 조회 - 로그인 한 회원이 스터디 장이 아닌 경우")
+    void 스터디_신청자_정보_조회_실패_1() {
+        // given
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndIsOwned(1L, 100L, true)).thenReturn(
+                Optional.empty());
+
+        // when & then
+        assertThrows(GeneralException.class, () -> memberStudyQueryService.findStudyApplication(100L, 1L));
+    }
+
+    @Test
+    @DisplayName("스터디 신청자 정보 조회 - 스터디 신청자가 없는 경우 ")
+    void 스터디_신청자_정보_조회_실패_2() {
+        // given
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndIsOwned(1L, 100L, true)).thenReturn(
+                Optional.ofNullable(memberStudy));
+
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndStatus(1L, 100L, ApplicationStatus.APPLIED))
+                .thenReturn(Optional.empty());
+
+        // when & then
+        assertThrows(GeneralException.class, () -> memberStudyQueryService.findStudyApplication(100L, 1L));
+    }
+
+    @Test
+    @DisplayName("스터디 신청자 정보 조회 - 스터디 신청자가 스터디 장인 경우")
+    void 스터디_신청자_정보_조회_실패_3() {
+        // given
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndIsOwned(1L, 100L, true)).thenReturn(
+                Optional.ofNullable(memberStudy));
+
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndStatus(1L, 100L, ApplicationStatus.APPLIED))
+                .thenReturn(Optional.ofNullable(memberStudy));
+
+        // when & then
+        assertThrows(GeneralException.class, () -> memberStudyQueryService.findStudyApplication(100L, 1L));
+    }
+
 }
