@@ -103,11 +103,11 @@ public class AuthController {
             * 회원가입이 되어있는 경우 -> 로그인 & 토큰 정보 반환
             * 회원가입이 되어있지 않은 경우 -> 회원가입 & 로그인 & 토큰 정보 반환
             """)
-    @GetMapping("/members/sign-in/naver")
+    @PostMapping("/members/sign-in/naver")
     public ApiResponse<SocialLoginSignInDTO> signInWithNaver(
             HttpServletRequest request,
             HttpServletResponse response,
-            NaverOAuthToken.NaverTokenIssuanceDTO naverTokenDTO
+            @RequestBody NaverOAuthToken.NaverTokenIssuanceDTO naverTokenDTO
     ) throws JsonProcessingException {
         SocialLoginSignInDTO socialLoginSignInDTO = authService.signInWithNaver(request, response, naverTokenDTO);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_SIGNED_IN, socialLoginSignInDTO);
