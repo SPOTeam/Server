@@ -60,6 +60,8 @@ public class StudyCommandServiceImpl implements StudyCommandService {
 
         // Authorization
         Long memberId = SecurityUtils.getCurrentUserId();
+        SecurityUtils.verifyUserId(memberId);
+
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
 
@@ -106,7 +108,11 @@ public class StudyCommandServiceImpl implements StudyCommandService {
 
     // [스터디 생성/참여] 스터디 생성하기
     @Transactional
-    public StudyRegisterResponseDTO.RegisterDTO registerStudy(Long memberId, StudyRegisterRequestDTO.RegisterDTO studyRegisterRequestDTO) {
+    public StudyRegisterResponseDTO.RegisterDTO registerStudy(StudyRegisterRequestDTO.RegisterDTO studyRegisterRequestDTO) {
+
+        // Authorization
+        Long memberId = SecurityUtils.getCurrentUserId();
+        SecurityUtils.verifyUserId(memberId);
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));

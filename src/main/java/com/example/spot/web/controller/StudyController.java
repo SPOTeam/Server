@@ -68,12 +68,10 @@ public class StudyController {
         regions에는 지역 코드를 입력해야 합니다.
         """)
     @Parameter(name = "memberId", description = "스터디를 생성할 회원의 id를 입력 받습니다.", required = true)
-    @PostMapping("/members/{memberId}/studies")
+    @PostMapping("/studies")
     public ApiResponse<StudyRegisterResponseDTO.RegisterDTO> registerStudy(
-            @PathVariable @ExistMember Long memberId,
             @RequestBody @Valid StudyRegisterRequestDTO.RegisterDTO studyRegisterRequestDTO) {
-        SecurityUtils.verifyUserId(memberId);
-        StudyRegisterResponseDTO.RegisterDTO studyRegisterResponseDTO = studyCommandService.registerStudy(memberId, studyRegisterRequestDTO);
+        StudyRegisterResponseDTO.RegisterDTO studyRegisterResponseDTO = studyCommandService.registerStudy(studyRegisterRequestDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_CREATED, studyRegisterResponseDTO);
     }
 
