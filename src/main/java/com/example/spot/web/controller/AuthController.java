@@ -19,6 +19,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -103,7 +104,7 @@ public class AuthController {
             * 회원가입이 되어있는 경우 -> 로그인 & 토큰 정보 반환
             * 회원가입이 되어있지 않은 경우 -> 회원가입 & 로그인 & 토큰 정보 반환
             """)
-    @PostMapping("/members/sign-in/naver")
+    @PostMapping(value = "/members/sign-in/naver", produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiResponse<SocialLoginSignInDTO> signInWithNaver(
             HttpServletRequest request,
             HttpServletResponse response,
