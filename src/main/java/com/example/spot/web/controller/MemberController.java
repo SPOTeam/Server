@@ -54,7 +54,7 @@ public class MemberController {
             다른 API를 테스트 하기 위해 회원이 필요한 경우 사용해주세요.
             회원의 관심 분야 및 지역을 입력 받습니다.   
            생성된 회원의 ID와 Email이 반환 됩니다. """)
-    @PostMapping("/member/test")
+    @PostMapping("/members/test")
     public ApiResponse<MemberResponseDTO.MemberTestDTO> testMember(
         @RequestBody @Valid MemberRequestDTO.MemberInfoListDTO memberInfoListDTO){
         MemberTestDTO dto = memberService.testMember(memberInfoListDTO);
@@ -69,11 +69,9 @@ public class MemberController {
             회원의 ID를 입력 받아 관리자 권한을 부여합니다.
             성공 여부와 회원 ID가 반환 됩니다. 
              """)
-    @PostMapping("/member/{memberId}/test/admin")
-    public ApiResponse<MemberResponseDTO.MemberUpdateDTO> toAdmin(
-        @ExistMember @PathVariable Long memberId){
-        SecurityUtils.verifyUserId(memberId);
-        MemberUpdateDTO dto = memberService.toAdmin(memberId);
+    @PostMapping("/members/test/admin")
+    public ApiResponse<MemberResponseDTO.MemberUpdateDTO> toAdmin(){
+        MemberUpdateDTO dto = memberService.toAdmin(SecurityUtils.getCurrentUserId());
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_CREATED, dto);
     }
 
@@ -127,7 +125,7 @@ public class MemberController {
     }
 
     @Tag(name = "회원 관리 API", description = "회원 관리 API")
-    @PostMapping("/member/{memberId}/theme")
+    @PostMapping("/members/theme")
     @Operation(summary = "[회원 정보 업데이트] 관심 분야 입력 및 수정",
         description = """
             ## [회원 정보 업데이트] 해당하는 회원의 관심 분야를 입력 및 수정 합니다.
@@ -135,17 +133,14 @@ public class MemberController {
             대상 회원의 식별 아이디와 수정 시각이 반환 됩니다. 
             """,
         security = @SecurityRequirement(name = "accessToken"))
-    @Parameter(name = "memberId", description = "업데이트할 유저의 ID를 입력 받습니다.", required = true)
     public ApiResponse<MemberUpdateDTO> updateThemes(
-        @PathVariable @ExistMember Long memberId,
         @RequestBody @Valid MemberRequestDTO.MemberThemeDTO requestDTO){
-        SecurityUtils.verifyUserId(memberId);
-        MemberUpdateDTO memberUpdateDTO = memberService.updateTheme(memberId, requestDTO);
+        MemberUpdateDTO memberUpdateDTO = memberService.updateTheme(SecurityUtils.getCurrentUserId(), requestDTO);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_THEME_UPDATE, memberUpdateDTO);
     }
 
     @Tag(name = "회원 관리 API", description = "회원 관리 API")
-    @PostMapping("/member/{memberId}/region")
+    @PostMapping("/members/region")
     @Operation(summary = "[회원 정보 업데이트] 관심 지역 입력 및 수정",
         description = """
             ## [회원 정보 업데이트] 해당하는 회원의 관심 지역을 입력 및 수정 합니다.
@@ -153,16 +148,13 @@ public class MemberController {
             대상 회원의 식별 아이디와 수정 시각이 반환 됩니다. 
             """,
         security = @SecurityRequirement(name = "accessToken"))
-    @Parameter(name = "memberId", description = "업데이트할 유저의 ID를 입력 받습니다.", required = true)
     public ApiResponse<MemberUpdateDTO> updateRegions(
-        @PathVariable @ExistMember Long memberId,
         @RequestBody @Valid MemberRequestDTO.MemberRegionDTO requestDTO){
-        SecurityUtils.verifyUserId(memberId);
-        MemberUpdateDTO memberUpdateDTO = memberService.updateRegion(memberId, requestDTO);
+        MemberUpdateDTO memberUpdateDTO = memberService.updateRegion(SecurityUtils.getCurrentUserId(), requestDTO);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_REGION_UPDATE, memberUpdateDTO);
     }
     @Tag(name = "회원 관리 API", description = "회원 관리 API")
-    @PostMapping("/member/{memberId}/user-info")
+    @PostMapping("/members/user-info")
     @Operation(summary = "[회원 정보 업데이트] 개인 정보 입력 및 수정",
         description = """
             ## [회원 정보 업데이트] 해당하는 회원의 개인 정보를 입력 및 수정 합니다.
@@ -170,17 +162,14 @@ public class MemberController {
             대상 회원의 식별 아이디와 수정 시각이 반환 됩니다. 
             """,
         security = @SecurityRequirement(name = "accessToken"))
-    @Parameter(name = "memberId", description = "업데이트할 유저의 ID를 입력 받습니다.", required = true)
     public ApiResponse<MemberUpdateDTO> updateMemberInfo(
-        @PathVariable @ExistMember Long memberId,
         @RequestBody @Valid MemberRequestDTO.MemberUpdateDTO requestDTO){
-        SecurityUtils.verifyUserId(memberId);
-        MemberUpdateDTO memberUpdateDTO = memberService.updateProfile(memberId, requestDTO);
+        MemberUpdateDTO memberUpdateDTO = memberService.updateProfile(SecurityUtils.getCurrentUserId(), requestDTO);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_INFO_UPDATE, memberUpdateDTO);
     }
 
     @Tag(name = "회원 관리 API", description = "회원 관리 API")
-    @PostMapping("/member/{memberId}/study-reasons")
+    @PostMapping("/members/study-reasons")
     @Operation(summary = "[회원 정보 업데이트] 스터디 이유 입력 및 수정",
         description = """
             ## [회원 정보 업데이트] 해당하는 회원의 스터디 이유를 입력 및 수정 합니다.
@@ -197,17 +186,14 @@ public class MemberController {
             대상 회원의 식별 아이디와 수정 시각이 반환 됩니다. 
             """,
         security = @SecurityRequirement(name = "accessToken"))
-    @Parameter(name = "memberId", description = "업데이트할 유저의 ID를 입력 받습니다.", required = true)
     public ApiResponse<MemberUpdateDTO> updateMemberStudyReason(
-        @PathVariable @ExistMember Long memberId,
         @RequestBody @Valid MemberRequestDTO.MemberReasonDTO requestDTO){
-        SecurityUtils.verifyUserId(memberId);
-        MemberUpdateDTO memberUpdateDTO = memberService.updateStudyReason(memberId, requestDTO);
+        MemberUpdateDTO memberUpdateDTO = memberService.updateStudyReason(SecurityUtils.getCurrentUserId(), requestDTO);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_INFO_UPDATE, memberUpdateDTO);
     }
 
     @Tag(name = "회원 조회 API", description = "회원 조회 API")
-    @GetMapping("/member/{memberId}/theme")
+    @GetMapping("/members/theme")
     @Operation(summary = "[회원 정보 조회] 관심 분야 조회",
         description = """
             ## [회원 정보 조회] 해당하는 회원의 관심 분야를 조회 합니다.
@@ -215,16 +201,13 @@ public class MemberController {
             관심 분야를 리스트 형식으로 응답합니다.
             """,
         security = @SecurityRequirement(name = "accessToken"))
-    @Parameter(name = "memberId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
-    public ApiResponse<MemberResponseDTO.MemberThemeDTO> getThemes(
-        @PathVariable @ExistMember Long memberId){
-        SecurityUtils.verifyUserId(memberId);
-        MemberResponseDTO.MemberThemeDTO memberThemeDTO = memberService.getThemes(memberId);
+    public ApiResponse<MemberResponseDTO.MemberThemeDTO> getThemes(){
+        MemberResponseDTO.MemberThemeDTO memberThemeDTO = memberService.getThemes(SecurityUtils.getCurrentUserId());
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_THEME_UPDATE, memberThemeDTO);
     }
 
     @Tag(name = "회원 조회 API", description = "회원 조회 API")
-    @GetMapping("/member/{memberId}/region")
+    @GetMapping("/members/region")
     @Operation(summary = "[회원 정보 조회] 관심 지역 조회",
         description = """
             ## [회원 정보 조회] 해당하는 회원의 관심 지역을 조회 합니다.
@@ -232,16 +215,13 @@ public class MemberController {
             관심 지역을 리스트 형식으로 응답합니다.
             """,
         security = @SecurityRequirement(name = "accessToken"))
-    @Parameter(name = "memberId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
-    public ApiResponse<MemberResponseDTO.MemberRegionDTO> getRegions(
-        @PathVariable @ExistMember Long memberId){
-        SecurityUtils.verifyUserId(memberId);
-        MemberRegionDTO memberRegionDTO = memberService.getRegions(memberId);
+    public ApiResponse<MemberResponseDTO.MemberRegionDTO> getRegions(){
+        MemberRegionDTO memberRegionDTO = memberService.getRegions(SecurityUtils.getCurrentUserId());
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_REGION_UPDATE, memberRegionDTO);
     }
 
     @Tag(name = "회원 조회 API", description = "회원 조회 API")
-    @GetMapping("/member/{memberId}/study-reasons")
+    @GetMapping("/members/study-reasons")
     @Operation(summary = "[회원 정보 조회] 스터디 이유 조회",
         description = """
             ## [회원 정보 조회] 해당하는 회원의 스터디 이유를 조회 합니다.
@@ -249,11 +229,8 @@ public class MemberController {
             스터디 이유를 리스트 형식으로 응답합니다.
             """,
         security = @SecurityRequirement(name = "accessToken"))
-    @Parameter(name = "memberId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
-    public ApiResponse<MemberResponseDTO.MemberStudyReasonDTO> getStudyReasons(
-        @PathVariable @ExistMember Long memberId){
-        SecurityUtils.verifyUserId(memberId);
-        MemberStudyReasonDTO memberStudyReasonDTO = memberService.getStudyReasons(memberId);
+    public ApiResponse<MemberResponseDTO.MemberStudyReasonDTO> getStudyReasons(){
+        MemberStudyReasonDTO memberStudyReasonDTO = memberService.getStudyReasons(SecurityUtils.getCurrentUserId());
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_REGION_UPDATE, memberStudyReasonDTO);
     }
 

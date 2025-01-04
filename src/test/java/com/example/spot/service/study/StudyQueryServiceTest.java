@@ -442,7 +442,23 @@ class StudyQueryServiceTest {
         verify(studyRepository).findByStudyThemeAndNotInIds(anyList(), anyList());
     }
 
+    @Test
+    @DisplayName("추천 스터디 조회 - 회원의 관심 테마에_해당하는_스터디가 없는 경우")
+    void 추천_스터디_조회_시_회원의_관심_테마에_해당하는_스터디가_없는_경우() {
+        // given
+        when(memberThemeRepository.findAllByMemberId(member.getId())).thenReturn(List.of(memberTheme1, memberTheme2));
 
+        when(studyThemeRepository.findAllByTheme(theme1)).thenReturn(List.of());
+        when(studyThemeRepository.findAllByTheme(theme2)).thenReturn(List.of());
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.findRecommendStudies(member.getId());
+        });
+        verify(memberThemeRepository).findAllByMemberId(member.getId());
+        verify(studyThemeRepository, times(1)).findAllByTheme(theme1);
+        verify(studyThemeRepository, times(1)).findAllByTheme(theme2);
+    }
 
     // 유효하지 않은 사용자인 경우
     @Test
@@ -476,9 +492,37 @@ class StudyQueryServiceTest {
         });
     }
 
+    /* -------------------------------------------------------- 관심 Best 스터디 조회 ------------------------------------------------------------------------*/
+    @Test
+    @DisplayName("관심 Best 스터디 조회 - 성공")
+    void 관심_BEST_스터디_조회_성공(){
+        // given
+        when(studyRepository.findAllStudyByConditions(any(), any(), any()))
+            .thenReturn(List.of(study1, study2));
+
+        // when
+        StudyPreviewDTO result = studyQueryService.findInterestedStudies(member.getId());
+
+        // then
+        assertNotNull(result);
+        assertEquals(2, result.getTotalElements());
+        assertEquals(study1.getTitle(), result.getContent().get(0).getTitle());
+    }
+
+    @Test
+    @DisplayName("관심 Best 스터디 조회 - 추천 스터디가 조회되지 않는 경우 ")
+    void 관심_BEST_스터디_조회_시_추천_스터디가_없는_경우(){
+        // given
+        when(studyRepository.findAllStudyByConditions(any(), any(), any()))
+                .thenReturn(List.of());
+        // when & then
+        assertThrows(StudyHandler.class, () ->
+                studyQueryService.findInterestedStudies(member.getId()));
+    }
+
     /* -------------------------------------------------------- 내 관심사 스터디 조회 ------------------------------------------------------------------------*/
     @Test
-    @DisplayName("내 전체 관심사 스터디 조회 - 내 전체 관심사에 해당하는 스터디가 없는 경우")
+    @DisplayName("내 전체 관심사 스터디 조회 - 내 전체 관심사와 검색 조건에 해당하는 스터디가 없는 경우")
     void findInterestStudiesByConditionsAllOnFail() {
         // given
 
@@ -515,6 +559,29 @@ class StudyQueryServiceTest {
         verify(studyThemeRepository, times(1)).findAllByTheme(theme2);
     }
 
+    @Test
+    @DisplayName("내 전체 관심사 스터디 조회 - 내 전체 관심사와 검색 조건에 해당하는 스터디가 없는 경우")
+    void 전체_테마_스터디_조회_시_테마에_해당하는_스터디가_없는_경우() {
+        // given
+        StudySortBy sortBy = StudySortBy.ALL;
+
+        when(memberThemeRepository.findAllByMemberId(member.getId()))
+                .thenReturn(List.of(memberTheme1, memberTheme2));
+        when(studyThemeRepository.findAllByTheme(theme1))
+                .thenReturn(List.of());
+        when(studyThemeRepository.findAllByTheme(theme2))
+                .thenReturn(List.of());
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.findInterestStudiesByConditionsAll(pageable, member.getId(), request, sortBy);
+        });
+
+        // then
+        verify(memberThemeRepository).findAllByMemberId(member.getId());
+        verify(studyThemeRepository, times(1)).findAllByTheme(theme1);
+        verify(studyThemeRepository, times(1)).findAllByTheme(theme2);
+    }
 
 
     @Test
@@ -719,6 +786,28 @@ class StudyQueryServiceTest {
         verify(studyRepository).findStudyByConditionsAndThemeTypesAndNotInIds(searchConditions, sortBy, pageable, List.of(studyTheme1),studyIds);
     }
 
+    @Test
+    @DisplayName("내 특정 관심사 스터디 조회 - 내 특정 관심사와 검색 조건에 해당하는 스터디가 없는 경우")
+    void 특정_테마_스터디_조회_시_테마에_해당하는_스터디가_없는_경우() {
+        // given
+        StudySortBy sortBy = StudySortBy.ALL;
+
+        when(memberThemeRepository.findAllByMemberId(member.getId()))
+                .thenReturn(List.of(memberTheme1, memberTheme2));
+        when(studyThemeRepository.findAllByTheme(theme1))
+                .thenReturn(List.of());
+        when(studyThemeRepository.findAllByTheme(theme2))
+                .thenReturn(List.of());
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.findInterestStudiesByConditionsSpecific(pageable, member.getId(), request, ThemeType.어학, sortBy);
+        });
+
+        // then
+        verify(memberThemeRepository).findAllByMemberId(member.getId());
+        verify(studyThemeRepository, times(2)).findAllByTheme(any());
+    }
 
     @Test
     @DisplayName("내 특정 관심사 스터디 조회 - 내 특정 관심사에 해당하는 스터디가 없는 경우")
@@ -928,6 +1017,27 @@ class StudyQueryServiceTest {
 
     @Test
     @DisplayName("내 전체 관심 지역 스터디 조회 - 내 전체 관심 지역에 해당하는 스터디가 없는 경우")
+    void 전체_관심_지역_스터디_조회_시_해당_지역에_스터디가_없는_경우() {
+        // given
+
+        StudySortBy sortBy = StudySortBy.ALL;
+
+        when(preferredRegionRepository.findAllByMemberId(member.getId()))
+                .thenReturn(List.of(preferredRegion1, preferredRegion2));
+        when(regionStudyRepository.findAllByRegion(any())).thenReturn(List.of( ));
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.findInterestRegionStudiesByConditionsAll(pageable, member.getId(), request, sortBy);
+        });
+
+        // then
+        verify(regionStudyRepository, times(1)).findAllByRegion(region1);
+    }
+
+
+    @Test
+    @DisplayName("내 전체 관심 지역 스터디 조회 - 내 전체 관심 지역에 해당하는 스터디가 없는 경우")
     void findInterestRegionStudiesByConditionsAllOnFail() {
         // given
 
@@ -1129,6 +1239,26 @@ class StudyQueryServiceTest {
 
     @Test
     @DisplayName("내 특정 관심 지역 스터디 조회 - 내 특정 관심 지역에 해당하는 스터디가 없는 경우")
+    void 특정_관심_지역_스터디_조회_시_해당_지역에_스터디가_없는_경우() {
+        // given
+
+        StudySortBy sortBy = StudySortBy.ALL;
+
+        when(preferredRegionRepository.findAllByMemberId(member.getId()))
+                .thenReturn(List.of(preferredRegion1, preferredRegion2));
+        when(regionStudyRepository.findAllByRegion(any())).thenReturn(List.of( ));
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.findInterestRegionStudiesByConditionsSpecific(pageable, member.getId(), request, region1.getCode(), sortBy);
+        });
+
+        // then
+        verify(regionStudyRepository, times(2)).findAllByRegion(any());
+    }
+
+    @Test
+    @DisplayName("내 특정 관심 지역 스터디 조회 - 내 특정 관심 지역에 해당하는 스터디가 없는 경우")
     void findInterestRegionStudiesByConditionsSpecificOnFail() {
         // given
 
@@ -1326,6 +1456,22 @@ class StudyQueryServiceTest {
         verify(studyRepository).countStudyByConditions(searchConditions, sortBy);
     }
 
+    @Test
+    @DisplayName("모집 중 스터디 조회 - 조회 된 스터디가 없는 경우")
+    void 조회_된_스터디가_없는_경우() {
+        // given
+        Map<String, Object> searchConditions = getStringObjectMap();
+
+        when(studyRepository.findRecruitingStudyByConditions(searchConditions, StudySortBy.ALL, pageable))
+                .thenReturn(List.of());
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.findRecruitingStudiesByConditions(pageable, request, StudySortBy.ALL);
+        });
+
+    }
+
     /* -------------------------------------------------------- 찜한 스터디 조회 ------------------------------------------------------------------------*/
     @Test
     @DisplayName("찜한 스터디 조회 - 찜한 스터디가 있는 경우")
@@ -1345,6 +1491,22 @@ class StudyQueryServiceTest {
         assertNotNull(result);
         assertEquals(2, result.getTotalElements());
         verify(preferredStudyRepository).findByMemberIdAndStudyLikeStatusOrderByCreatedAtDesc(member.getId(), StudyLikeStatus.LIKE, PageRequest.of(0, 10));
+
+    }
+
+    @Test
+    @DisplayName("찜한 스터디 조회 - 찜한 스터디가 없는 경우")
+    void 찜한_스터디가_없는_경우() {
+        // given
+        Member member = getMember();
+
+        when(preferredStudyRepository.findByMemberIdAndStudyLikeStatusOrderByCreatedAtDesc(member.getId(), StudyLikeStatus.LIKE, PageRequest.of(0, 10)))
+                .thenReturn(List.of());
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.findLikedStudies(member.getId(), PageRequest.of(0, 10));
+        });
 
     }
 
@@ -1382,6 +1544,23 @@ class StudyQueryServiceTest {
         assertNotNull(result);
         assertEquals(1, result.getTotalElements());
         verify(studyRepository).findAllByTitleContaining(keyword, sortBy, pageable);
+    }
+
+    @Test
+    @DisplayName("키워드로 스터디 검색 - 해당 키워드에 해당하는 스터디가 없는 경우")
+    void 키워드_스터디_검색_시_조회_된_스터디가_없는_경우() {
+        // given
+        String keyword = "English";
+        StudySortBy sortBy = StudySortBy.ALL;
+
+        when(studyRepository.findAllByTitleContaining(keyword, sortBy, pageable))
+                .thenReturn(List.of());
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.findStudiesByKeyword(pageable, keyword, sortBy);
+        });
+
     }
     /* -------------------------------------------------------- 테마 별 스터디 검색 ------------------------------------------------------------------------*/
     @Test
@@ -1424,6 +1603,27 @@ class StudyQueryServiceTest {
 
     }
 
+    @Test
+    @DisplayName("테마 별 스터디 검색 - 해당 테마에 해당하는 스터디가 없는 경우")
+    void 테마_스터디_검색_시_조회_된_스터디가_없는_경우() {
+        // given
+        Pageable pageable = PageRequest.of(0, 10);
+        ThemeType themeType = ThemeType.어학;
+        StudySortBy sortBy = StudySortBy.ALL;
+
+        when(themeRepository.findByStudyTheme(themeType)).thenReturn(Optional.ofNullable(theme1));
+        when(studyThemeRepository.findAllByTheme(theme1)).thenReturn(List.of(studyTheme1));
+        when(studyRepository.findByStudyTheme(List.of(studyTheme1), sortBy, pageable))
+                .thenReturn(List.of());
+
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.findStudiesByTheme(pageable, themeType, sortBy);
+        });
+
+    }
+
     /* -------------------------------------------------------- 내가 참여하는 스터디 조회 ------------------------------------------------------------------------*/
     @Test
     @DisplayName("내가 참여하고 있는 스터디 조회 - 참여하고 있는 스터디가 있는 경우")
@@ -1449,6 +1649,40 @@ class StudyQueryServiceTest {
 
     }
 
+    @Test
+    @DisplayName("내가 참여하고 있는 스터디 조회 - 참여하고 있는 스터디가 없는 경우 (회원이 스터디에 단 하나도 참여하고 있지 않은 경우)")
+    void 내가_참여하고_있는_스터디가_없는_경우_1() {
+        // given
+
+        when(memberStudyRepository.findAllByMemberIdAndStatus(member.getId(), ApplicationStatus.APPROVED))
+                .thenReturn(List.of());
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.findOngoingStudiesByMemberId(pageable, member.getId());
+        });
+
+    }
+
+    @Test
+    @DisplayName("내가 참여하고 있는 스터디 조회 - 참여하고 있는 스터디가 없는 경우 (회원이 참가하고 있던 스터디가 종료 및 삭제 된 경우)")
+    void 내가_참여하고_있는_스터디가_없는_경우_2() {
+        // given
+
+        when(memberStudyRepository.findAllByMemberIdAndStatus(member.getId(), ApplicationStatus.APPROVED))
+            .thenReturn(List.of(memberStudy1, memberStudy2));
+        when(studyRepository.findByMemberStudy(List.of(memberStudy1, memberStudy2), pageable))
+                .thenReturn(List.of());
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.findOngoingStudiesByMemberId(pageable, member.getId());
+        });
+
+    }
+
+
+
     /* -------------------------------------------------------- 내가 신청한 스터디 조회 ------------------------------------------------------------------------*/
     @Test
     @DisplayName("내가 신청한 스터디 조회 - 신청한 스터디가 있는 경우")
@@ -1470,6 +1704,37 @@ class StudyQueryServiceTest {
         assertEquals(2, result.getTotalElements());
         verify(memberStudyRepository).findAllByMemberIdAndStatus(member.getId(), ApplicationStatus.APPLIED);
         verify(studyRepository).findByMemberStudy(List.of(memberStudy1, memberStudy2), pageable);
+
+    }
+
+    @Test
+    @DisplayName("내가 신청한 스터디 조회 - 신청한 스터디가 없는 경우 (회원이 스터디에 단 하나도 신청하지 않은 경우)")
+    void 내가_신청한_스터디가_없는_경우_1() {
+
+        // given
+        when(memberStudyRepository.findAllByMemberIdAndStatus(member.getId(), ApplicationStatus.APPLIED))
+                .thenReturn(List.of());
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.findAppliedStudies(pageable, member.getId());
+        });
+
+    }
+
+    @Test
+    @DisplayName("내가 신청한 스터디 조회 - 신청한 스터디가 없는 경우 (회원이 신청했던 스터디가 종료 및 삭제 된 경우)")
+    void 내가_신청한_스터디가_없는_경우_2() {
+
+        // given
+        when(memberStudyRepository.findAllByMemberIdAndStatus(member.getId(), ApplicationStatus.APPLIED))
+            .thenReturn(List.of(memberStudy1, memberStudy2));
+        when(studyRepository.findByMemberStudy(List.of(memberStudy1, memberStudy2), pageable))
+            .thenReturn(List.of());
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.findAppliedStudies(pageable, member.getId());
+        });
 
     }
     /* -------------------------------------------------------- 내가 모집 중인 스터디 조회 ------------------------------------------------------------------------*/
@@ -1497,6 +1762,38 @@ class StudyQueryServiceTest {
         assertEquals(2, result.getTotalElements());
         verify(memberStudyRepository).findAllByMemberIdAndIsOwned(member.getId(), true);
         verify(studyRepository).findRecruitingStudiesByMemberStudy(List.of(memberStudy1, memberStudy2), pageable);
+
+    }
+
+    @Test
+    @DisplayName("내가 모집중인 스터디 조회 - 모집중인 스터디가 없는 경우 (회원이 모집중인 스터디가 아예 없는 경우) ")
+    void 내가_모집중인_스터디가_없는_경우_1() {
+        // given
+        Member member = getMember();
+
+        when(memberStudyRepository.findAllByMemberIdAndIsOwned(member.getId(), true))
+                .thenReturn(List.of());
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.findMyRecruitingStudies(pageable, member.getId());
+        });
+
+    }
+    @Test
+    @DisplayName("내가 모집중인 스터디 조회 - 모집중인 스터디가 없는 경우 (회원이 모집중인 스터디가 종료 및 삭제 된 경우) ")
+    void 내가_모집중인_스터디가_없는_경우_2() {
+        // given
+        Member member = getMember();
+
+        when(memberStudyRepository.findAllByMemberIdAndIsOwned(member.getId(), true))
+            .thenReturn(List.of(memberStudy1, memberStudy2));
+        when(studyRepository.findByMemberStudy(List.of(memberStudy1, memberStudy2), pageable))
+                .thenReturn(List.of());
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.findMyRecruitingStudies(pageable, member.getId());
+        });
 
     }
 
