@@ -80,7 +80,7 @@ public class StudyController {
 
 /* ----------------------------- 스터디 찜하기 관련 API ------------------------------------- */
 
-    @PostMapping("/studies/{studyId}/members/{memberId}/like")
+    @PostMapping("/studies/{studyId}/like")
     @Operation(summary = "[스터디 찜하기] 스터디 찜하기 ", description = """ 
         ## [스터디 찜하기] 해당 스터디를 찜하지 않은 상태에서 버튼을 누르면 해당 스터디를 찜 하게 됩니다.
         반대로, 찜한 상태에서 버튼을 누르면 찜을 취소하게 됩니다.
@@ -88,11 +88,8 @@ public class StudyController {
         찜한 스터디 제목과 찜 생성 시간, 찜 상태가 반환 됩니다.
         """)
     @Parameter(name = "studyId", description = "찜할 스터디의 ID를 입력 받습니다.", required = true)
-    @Parameter(name = "memberId", description = "찜을 누를 회원의 ID를 입력 받습니다.", required = true)
     public ApiResponse<StudyLikeResponseDTO> likeStudy(
-        @PathVariable("studyId") @ExistStudy Long studyId,
-        @PathVariable("memberId") @ExistMember Long memberId) {
-        SecurityUtils.verifyUserId(memberId);
-        return ApiResponse.onSuccess(SuccessStatus._STUDY_LIKED, studyCommandService.likeStudy(memberId, studyId));
+        @PathVariable("studyId") @ExistStudy Long studyId) {
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_LIKED, studyCommandService.likeStudy(SecurityUtils.getCurrentUserId(), studyId));
     }
 }
