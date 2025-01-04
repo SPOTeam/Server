@@ -13,7 +13,7 @@ import java.time.LocalDate;
 
 public interface MemberStudyCommandService {
 
-    StudyWithdrawalResponseDTO.WithdrawalDTO withdrawFromStudy(Long memberId, Long studyId);
+    StudyWithdrawalResponseDTO.WithdrawalDTO withdrawFromStudy(Long studyId);
 
     StudyTerminationResponseDTO.TerminationDTO terminateStudy(Long studyId);
 

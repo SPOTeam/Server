@@ -10,7 +10,6 @@ import com.example.spot.domain.Notification;
 import com.example.spot.domain.Quiz;
 import com.example.spot.domain.enums.ApplicationStatus;
 import com.example.spot.domain.enums.NotifyType;
-import com.example.spot.domain.enums.Period;
 import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.mapping.*;
 import com.example.spot.domain.study.*;
@@ -68,11 +67,15 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
     /**
      * 진행중인 스터디에서 탈퇴하기 위한 메서드입니다.
      * 스터디장은 스터디를 탈퇴할 수 없으며 스터디를 종료하고자 하는 경우 스터디 terminateStudy API를 호출해야 합니다.
-     * @param memberId 스터디를 탈퇴할 타겟 회원의 아이디(로그인 아이디 X)를 입력 받습니다.
+     *
      * @param studyId 타겟 회원이 탈퇴하고자 하는 스터디의 아이디를 입력 받습니다.
      * @return 탈퇴한 스터디의 아이디와 이름, 탈퇴한 회원의 아이디와 이름이 반환됩니다.
      */
-    public StudyWithdrawalResponseDTO.WithdrawalDTO withdrawFromStudy(Long memberId, Long studyId) {
+    public StudyWithdrawalResponseDTO.WithdrawalDTO withdrawFromStudy(Long studyId) {
+
+        // Authorization
+        Long memberId = SecurityUtils.getCurrentUserId();
+        SecurityUtils.verifyUserId(memberId);
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
