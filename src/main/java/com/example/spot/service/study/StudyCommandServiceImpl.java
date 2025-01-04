@@ -15,6 +15,7 @@ import com.example.spot.domain.mapping.RegionStudy;
 import com.example.spot.domain.mapping.StudyTheme;
 import com.example.spot.domain.study.Study;
 import com.example.spot.repository.*;
+import com.example.spot.security.utils.SecurityUtils;
 import com.example.spot.web.dto.study.request.StudyJoinRequestDTO;
 import com.example.spot.web.dto.study.request.StudyRegisterRequestDTO;
 import com.example.spot.web.dto.study.response.StudyJoinResponseDTO;
@@ -55,8 +56,10 @@ public class StudyCommandServiceImpl implements StudyCommandService {
 
     // [스터디 생성/참여] 참여 신청하기
     @Transactional
-    public StudyJoinResponseDTO.JoinDTO applyToStudy(Long memberId, Long studyId,
-                                                     StudyJoinRequestDTO.StudyJoinDTO studyJoinRequestDTO) {
+    public StudyJoinResponseDTO.JoinDTO applyToStudy(Long studyId, StudyJoinRequestDTO.StudyJoinDTO studyJoinRequestDTO) {
+
+        // Authorization
+        Long memberId = SecurityUtils.getCurrentUserId();
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
 

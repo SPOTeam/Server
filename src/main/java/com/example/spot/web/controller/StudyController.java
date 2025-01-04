@@ -51,12 +51,11 @@ public class StudyController {
         """)
     @Parameter(name = "memberId", description = "스터디에 참여하는 회원의 id를 입력 받습니다.", required = true)
     @Parameter(name = "studyId", description = "참여할 스터디의 id를 입력 받습니다.", required = true)
-    @PostMapping("/members/{memberId}/studies/{studyId}")
+    @PostMapping("/studies/{studyId}")
     public ApiResponse<StudyJoinResponseDTO.JoinDTO> applyToStudy(
-            @PathVariable @ExistMember Long memberId, @PathVariable @ExistStudy Long studyId,
+            @PathVariable @ExistStudy Long studyId,
             @RequestBody @Valid StudyJoinRequestDTO.StudyJoinDTO studyJoinRequestDTO) {
-        SecurityUtils.verifyUserId(memberId);
-        StudyJoinResponseDTO.JoinDTO studyJoinResponseDTO = studyCommandService.applyToStudy(memberId, studyId, studyJoinRequestDTO);
+        StudyJoinResponseDTO.JoinDTO studyJoinResponseDTO = studyCommandService.applyToStudy(studyId, studyJoinRequestDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_APPLY_COMPLETED, studyJoinResponseDTO);
     }
 
