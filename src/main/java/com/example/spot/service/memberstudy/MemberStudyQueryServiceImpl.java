@@ -238,7 +238,6 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 
     /**
      * 금일 모든 스터디 회원의 출석 정보를 불러옵니다.
-     *
      * @param studyId    출석 정보를 불러올 스터디의 아이디를 입력 받습니다.
      * @param scheduleId 스터디 일정의 아이디를 입력 받습니다.
      * @param date

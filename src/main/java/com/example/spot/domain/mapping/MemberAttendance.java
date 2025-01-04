@@ -4,10 +4,7 @@ import com.example.spot.domain.Member;
 import com.example.spot.domain.Quiz;
 import com.example.spot.domain.common.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Entity
@@ -36,6 +33,7 @@ public class MemberAttendance extends BaseEntity {
 
 /* ----------------------------- 생성자 ------------------------------------- */
 
+    @Builder
     public MemberAttendance(Boolean isCorrect) {
         this.isCorrect = isCorrect;
     }
