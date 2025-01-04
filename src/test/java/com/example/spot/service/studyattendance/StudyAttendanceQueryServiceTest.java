@@ -1,10 +1,10 @@
 package com.example.spot.service.studyattendance;
 
+import com.example.spot.api.exception.handler.StudyHandler;
 import com.example.spot.domain.Member;
 import com.example.spot.domain.Quiz;
 import com.example.spot.domain.enums.ApplicationStatus;
 import com.example.spot.domain.enums.Gender;
-import com.example.spot.domain.enums.Period;
 import com.example.spot.domain.mapping.MemberAttendance;
 import com.example.spot.domain.mapping.MemberStudy;
 import com.example.spot.domain.study.Schedule;
@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -103,7 +104,7 @@ class StudyAttendanceQueryServiceTest {
 
     @Test
     @DisplayName("회원 출석부 불러오기 - (성공)")
-    void getAllAttendances() {
+    void getAllAttendances_Success() {
 
         // given
         Long studyId = 1L;
@@ -125,8 +126,50 @@ class StudyAttendanceQueryServiceTest {
     }
 
     @Test
+    @DisplayName("회원 출석부 불러오기 - 스터디가 존재하지 않는 경우 (실패)")
+    void getAllAttendances_StudyNotFound_Fail() {
+
+        // given
+        Long studyId = 2L;
+
+        // 사용자 인증 정보 생성
+        getAuthentication(member2.getId());
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> memberStudyQueryService.getAllAttendances(studyId, schedule.getId(), date));
+    }
+
+    @Test
+    @DisplayName("회원 출석부 불러오기 - 스터디 회원이 아닌 경우 (실패)")
+    void getAllAttendances_NotStudyMember_Fail() {
+
+        // given
+        Long studyId = 1L;
+
+        // 사용자 인증 정보 생성
+        getAuthentication(member2.getId());
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> memberStudyQueryService.getAllAttendances(studyId, schedule.getId(), date));
+    }
+
+    @Test
+    @DisplayName("회원 출석부 불러오기 - 일정이 존재하지 않는 경우 (실패)")
+    void getAllAttendances_ScheduleNotFound_Fail() {
+
+        // given
+        Long studyId = 1L;
+
+        // 사용자 인증 정보 생성
+        getAuthentication(member1.getId());
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> memberStudyQueryService.getAllAttendances(studyId, 2L, date));
+    }
+
+    @Test
     @DisplayName("출석 퀴즈 불러오기 - (성공)")
-    void getAttendanceQuiz() {
+    void getAttendanceQuiz_Success() {
 
         // given
         Long studyId = 1L;
@@ -142,6 +185,49 @@ class StudyAttendanceQueryServiceTest {
         assertThat(result.getQuizId()).isEqualTo(quiz.getId());
         assertThat(result.getQuestion()).isEqualTo("최고의 스터디 앱은?");
     }
+
+    @Test
+    @DisplayName("출석 퀴즈 불러오기 - 스터디가 존재하지 않는 경우 (실패)")
+    void getAttendanceQuiz_StudyNotFound_Fail() {
+
+        // given
+        Long studyId = 2L;
+
+        // 사용자 인증 정보 생성
+        getAuthentication(member1.getId());
+
+        // when
+        assertThrows(StudyHandler.class, () -> memberStudyQueryService.getAttendanceQuiz(studyId, schedule.getId(), date));
+    }
+
+    @Test
+    @DisplayName("출석 퀴즈 불러오기 - 스터디 회원이 아닌 경우 (실패)")
+    void getAttendanceQuiz_NotStudyMember_Fail() {
+
+        // given
+        Long studyId = 1L;
+
+        // 사용자 인증 정보 생성
+        getAuthentication(member2.getId());
+
+        // when
+        assertThrows(StudyHandler.class, () -> memberStudyQueryService.getAttendanceQuiz(studyId, schedule.getId(), date));
+    }
+
+    @Test
+    @DisplayName("출석 퀴즈 불러오기 - 일정이 존재하지 않는 경우 (실패)")
+    void getAttendanceQuiz_ScheduleNotFound_Fail() {
+
+        // given
+        Long studyId = 1L;
+
+        // 사용자 인증 정보 생성
+        getAuthentication(member1.getId());
+
+        // when
+        assertThrows(StudyHandler.class, () -> memberStudyQueryService.getAttendanceQuiz(studyId, 2L, date));
+    }
+
 
 /*-------------------------------------------------------- Utils ------------------------------------------------------------------------*/
 
