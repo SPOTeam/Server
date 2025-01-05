@@ -11,7 +11,6 @@ import com.example.spot.web.dto.member.naver.NaverCallback;
 import com.example.spot.web.dto.member.naver.NaverOAuthToken;
 import com.example.spot.web.dto.token.TokenResponseDTO;
 import com.example.spot.web.dto.token.TokenResponseDTO.TokenDTO;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,6 +18,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -89,9 +89,9 @@ public class AuthController {
             * 회원가입이 되어있지 않은 경우 -> 회원가입 & 로그인 & 토큰 정보 반환
             * 콜백 함수의 결과로 토큰 정보가 반환됩니다.
             """)
-    @GetMapping("/members/sign-in/naver/redirect/test")
+    @GetMapping("/members/sign-in/naver/redirect")
     public ApiResponse<SocialLoginSignInDTO> signInWithNaver(
-            HttpServletRequest request, HttpServletResponse response, NaverCallback naverCallback) throws JsonProcessingException {
+            HttpServletRequest request, HttpServletResponse response, NaverCallback naverCallback) throws Exception {
         SocialLoginSignInDTO socialLoginSignInDTO = authService.signInWithNaver(request, response, naverCallback);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_SIGNED_IN, socialLoginSignInDTO);
     }
@@ -103,12 +103,12 @@ public class AuthController {
             * 회원가입이 되어있는 경우 -> 로그인 & 토큰 정보 반환
             * 회원가입이 되어있지 않은 경우 -> 회원가입 & 로그인 & 토큰 정보 반환
             """)
-    @PostMapping("/members/sign-in/naver")
+    @PostMapping(value = "/members/sign-in/naver", produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiResponse<SocialLoginSignInDTO> signInWithNaver(
             HttpServletRequest request,
             HttpServletResponse response,
             @RequestBody NaverOAuthToken.NaverTokenIssuanceDTO naverTokenDTO
-    ) throws JsonProcessingException {
+    ) throws Exception {
         SocialLoginSignInDTO socialLoginSignInDTO = authService.signInWithNaver(request, response, naverTokenDTO);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_SIGNED_IN, socialLoginSignInDTO);
     }

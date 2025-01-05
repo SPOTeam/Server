@@ -5,7 +5,6 @@ import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.web.dto.member.naver.NaverCallback;
 import com.example.spot.web.dto.member.naver.NaverMember;
 import com.example.spot.web.dto.member.naver.NaverOAuthToken;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -48,8 +47,8 @@ public class NaverOAuthService {
         return UriComponentsBuilder.fromHttpUrl(NAVER_OAUTH_URL)
                 .queryParam("response_type", "code")
                 .queryParam("client_id", NAVER_CLIENT_ID)
-                .queryParam("redirect_uri", URLEncoder.encode(NAVER_CALL_BACK_URL, StandardCharsets.UTF_8))
-                .queryParam("state", URLEncoder.encode(CSRF_TOKEN, StandardCharsets.UTF_8))
+                .queryParam("redirect_uri", NAVER_CALL_BACK_URL)
+                .queryParam("state",CSRF_TOKEN)
                 .build()
                 .toUriString();
     }
@@ -62,14 +61,14 @@ public class NaverOAuthService {
      * @param naverCallback : Callback 함수 성공시 반환되는 요소(code, state, error, error_description)
      * @return 네이버 프로필 정보
      */
-    public NaverMember.ResponseDTO getNaverMember(HttpServletRequest request, HttpServletResponse response, NaverCallback naverCallback) throws JsonProcessingException {
+    public NaverMember.ResponseDTO getNaverMember(HttpServletRequest request, HttpServletResponse response, NaverCallback naverCallback) throws Exception {
 
         // 네이버 액세스 토큰 발급
         String accessToken = issueNaverAccessToken(naverCallback.getCode());
         ObjectMapper mapper = new ObjectMapper();
         NaverOAuthToken.NaverTokenIssuanceDTO naverTokenIssuanceDTO
                 = mapper.readValue(accessToken, NaverOAuthToken.NaverTokenIssuanceDTO.class);
-
+        
         // 네이버 프로필 반환
         String naverMember = getNaverProfile(naverTokenIssuanceDTO);
         ObjectMapper objectMapper = new ObjectMapper();
@@ -83,7 +82,7 @@ public class NaverOAuthService {
      * @param response : HttpServletResponse
      * @return 네이버 프로필 정보
      */
-    public NaverMember.ResponseDTO getNaverMember(HttpServletRequest request, HttpServletResponse response, NaverOAuthToken.NaverTokenIssuanceDTO naverTokenDTO) throws JsonProcessingException {
+    public NaverMember.ResponseDTO getNaverMember(HttpServletRequest request, HttpServletResponse response, NaverOAuthToken.NaverTokenIssuanceDTO naverTokenDTO) throws Exception {
         // 네이버 프로필 반환
         String naverMember = getNaverProfile(naverTokenDTO);
         ObjectMapper objectMapper = new ObjectMapper();

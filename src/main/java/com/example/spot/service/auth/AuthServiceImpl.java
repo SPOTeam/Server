@@ -140,7 +140,6 @@ public class AuthServiceImpl implements AuthService{
     @Override
     public void authorizeWithNaver(HttpServletRequest request, HttpServletResponse response) {
         String url = naverOAuthService.getNaverAuthorizeUrl();
-        System.out.println(url);
         try {
             response.sendRedirect(url);
         } catch (Exception e) {
@@ -159,7 +158,7 @@ public class AuthServiceImpl implements AuthService{
      * @return SocialLoginSignInDTO(isSpotMember, signInDTO-토큰정보)
      */
     @Override
-    public SocialLoginSignInDTO signInWithNaver(HttpServletRequest request, HttpServletResponse response, NaverCallback naverCallback) throws JsonProcessingException {
+    public SocialLoginSignInDTO signInWithNaver(HttpServletRequest request, HttpServletResponse response, NaverCallback naverCallback) throws Exception {
         NaverMember.ResponseDTO responseDTO = naverOAuthService.getNaverMember(request, response, naverCallback);
         return getSocialLoginSignInDTO(responseDTO);
     }
@@ -174,7 +173,7 @@ public class AuthServiceImpl implements AuthService{
      * @return SocialLoginSignInDTO(isSpotMember, signInDTO-토큰정보)
      */
     @Override
-    public SocialLoginSignInDTO signInWithNaver(HttpServletRequest request, HttpServletResponse response, NaverOAuthToken.NaverTokenIssuanceDTO naverTokenDTO) throws JsonProcessingException {
+    public SocialLoginSignInDTO signInWithNaver(HttpServletRequest request, HttpServletResponse response, NaverOAuthToken.NaverTokenIssuanceDTO naverTokenDTO) throws Exception {
         NaverMember.ResponseDTO responseDTO = naverOAuthService.getNaverMember(request, response, naverTokenDTO);
         return getSocialLoginSignInDTO(responseDTO);
     }
