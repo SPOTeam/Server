@@ -10,8 +10,10 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -38,6 +40,21 @@ public class UtilController {
     ) {
         ImageResponse.ImageUploadResponse imageUploadResponse = s3ImageService.uploadImages(images);
         return ApiResponse.onSuccess(SuccessStatus._IMAGE_UPLOADED, imageUploadResponse);
+    }
+
+    @GetMapping("/current-env")
+    @Tag(name = "배포")
+    @Operation(summary = "[배포 관련] 무중단 배포를 위한 현재 환경 확인", description = """
+        ## [배포 관련] 현재 서버의 환경을 확인합니다.
+        현재 서버의 환경을 확인하여 무중단 배포를 위한 환경을 확인합니다.
+        """)
+    public String getCurrentEnvironment() {
+        return  (isBlueServer() ? "blue" : "green");
+    }
+
+    private boolean isBlueServer() {
+        // 현재 포트를 확인하거나 환경 변수를 기반으로 설정
+        return System.getProperty("server.port").equals("8080");
     }
 
 }
