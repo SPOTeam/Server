@@ -50,7 +50,40 @@ jobs:
           username: ubuntu
           key: ${{ secrets.KEY }}
           script: |
-            sudo docker rm -f $(sudo docker ps -qa)
-            sudo docker pull ${{ secrets.DOCKER_REPO }}
-            sudo docker-compose up -d
-            sudo docker image prune -f
+            # 새로운 서버를 먼저 가동 (예: Green 서버)
+            ENV_COLOR=$(curl --silent --fail https://teamspot.site/spot/current-env || echo "none")
+
+            if [[ "$ENV_COLOR" == "blue" || "$ENV_COLOR" == "none"]]; then
+              # 블루 서버가 실행 중이거나 아무 서버도 돌아가고 있지 않다면 그린 서버를 실행
+              docker-compose -f docker-compose.yml up -d web-green
+              # 그린 서버가 정상적으로 작동하는지 확인 (예: HTTP 상태 코드 200 확인)
+              if curl --silent --fail http://localhost:8081; then
+                echo "Green server is working correctly."
+                # 기존 서버 종료
+                docker-compose -f docker-compose.yml down web-blue
+                # Nginx를 Green 서버로 전환
+                sudo sed -i 's/8080/8081/' /etc/nginx/nginx.conf
+                sudo systemctl restart nginx
+              else
+                echo "Green server is not responding correctly. Exiting."
+                exit 1
+              fi
+            elif [[ "$ENV_COLOR" == "green" ]]; then
+              # 그린 서버가 실행 중이면 블루 서버를 실행
+              docker-compose -f docker-compose.yml up -d web-blue
+              # 블루 서버가 정상적으로 작동하는지 확인
+              if curl --silent --fail http://localhost:8080; then
+                echo "Blue server is working correctly."
+                # 기존 서버 종료
+                docker-compose -f docker-compose.yml down web-green
+                # Nginx를 Blue 서버로 전환
+                sudo sed -i 's/8081/8080/' /etc/nginx/nginx.conf
+                sudo systemctl restart nginx
+              else
+                echo "Blue server is not responding correctly. Exiting."
+                exit 1
+              fi
+            else
+              echo "Unable to determine current environment, exiting."
+              exit 1
+            fi
