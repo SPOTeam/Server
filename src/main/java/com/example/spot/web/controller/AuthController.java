@@ -89,7 +89,7 @@ public class AuthController {
             * 회원가입이 되어있지 않은 경우 -> 회원가입 & 로그인 & 토큰 정보 반환
             * 콜백 함수의 결과로 토큰 정보가 반환됩니다.
             """)
-    @GetMapping("/members/sign-in/naver/redirect/test")
+    @GetMapping("/members/sign-in/naver/redirect")
     public ApiResponse<SocialLoginSignInDTO> signInWithNaver(
             HttpServletRequest request, HttpServletResponse response, NaverCallback naverCallback) throws Exception {
         SocialLoginSignInDTO socialLoginSignInDTO = authService.signInWithNaver(request, response, naverCallback);

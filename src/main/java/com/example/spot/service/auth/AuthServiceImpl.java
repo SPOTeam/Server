@@ -140,7 +140,6 @@ public class AuthServiceImpl implements AuthService{
     @Override
     public void authorizeWithNaver(HttpServletRequest request, HttpServletResponse response) {
         String url = naverOAuthService.getNaverAuthorizeUrl();
-        System.out.println(url);
         try {
             response.sendRedirect(url);
         } catch (Exception e) {

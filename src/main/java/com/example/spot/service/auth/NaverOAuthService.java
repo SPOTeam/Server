@@ -47,8 +47,8 @@ public class NaverOAuthService {
         return UriComponentsBuilder.fromHttpUrl(NAVER_OAUTH_URL)
                 .queryParam("response_type", "code")
                 .queryParam("client_id", NAVER_CLIENT_ID)
-                .queryParam("redirect_uri", URLEncoder.encode(NAVER_CALL_BACK_URL, StandardCharsets.UTF_8))
-                .queryParam("state", URLEncoder.encode(CSRF_TOKEN, StandardCharsets.UTF_8))
+                .queryParam("redirect_uri", NAVER_CALL_BACK_URL)
+                .queryParam("state",CSRF_TOKEN)
                 .build()
                 .toUriString();
     }
@@ -68,7 +68,7 @@ public class NaverOAuthService {
         ObjectMapper mapper = new ObjectMapper();
         NaverOAuthToken.NaverTokenIssuanceDTO naverTokenIssuanceDTO
                 = mapper.readValue(accessToken, NaverOAuthToken.NaverTokenIssuanceDTO.class);
-
+        
         // 네이버 프로필 반환
         String naverMember = getNaverProfile(naverTokenIssuanceDTO);
         ObjectMapper objectMapper = new ObjectMapper();
