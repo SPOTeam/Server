@@ -51,21 +51,23 @@ jobs:
           username: ubuntu
           key: ${{ secrets.KEY }}
           script: |
-            sudo docker-compose -f docker-compose.yml down --remove-orphans
-            # 새로운 서버를 먼저 가동 (예: Green 서버)
+            # Docker 이미지를 최신 상태로 가져오기
+            sudo docker pull ${{ secrets.DOCKER_REPO }}:latest
+
+            # 서버의 현재 환경 확인 (블루 / 그린)
             ENV_COLOR=$(curl --silent --fail https://teamspot.site/spot/current-env || echo "none")
 
-            if [[ "$ENV_COLOR" == "blue" || "$ENV_COLOR" == "none" ]]; then
+            if [[ "$ENV_COLOR" == "blue" || "$ENV_COLOR" == "noneㄹ" ]]; then
               # 블루 서버가 실행 중이거나 아무 서버도 돌아가고 있지 않다면 그린 서버를 실행
-              sudo docker-compose -f docker-compose.yml up -d web-green
-              sleep 20
+              sudo docker-compose -f docker-compose.yml up -d --no-deps web-green
+              sleep 30
               # 그린 서버가 정상적으로 작동하는지 확인 (예: HTTP 상태 코드 200 확인)
               if curl --silent --fail http://localhost:8081; then
                 echo "Green server is working correctly."
                 # 기존 서버 종료
-                sudo docker-compose -f docker-compose.yml down web-blue
+                sudo docker-compose -f docker-compose.yml stop web-blue
                 # Nginx를 Green 서버로 전환
-                sudo sed -i 's/8080/8081/' /etc/nginx/nginx.conf
+                sudo sed -i 's/8080/8081/' /etc/nginx/sites-available/teamspot.site
                 sudo systemctl restart nginx
               else
                 echo "Green server is not responding correctly. Exiting."
@@ -73,15 +75,15 @@ jobs:
               fi
             elif [[ "$ENV_COLOR" == "green" ]]; then
               # 그린 서버가 실행 중이면 블루 서버를 실행
-              sudo docker-compose -f docker-compose.yml up -d web-blue
-              sleep 20
+              sudo docker-compose -f docker-compose.yml up -d --no-deps web-blue
+              sleep 30
               # 블루 서버가 정상적으로 작동하는지 확인
               if curl --silent --fail http://localhost:8080; then
                 echo "Blue server is working correctly."
                 # 기존 서버 종료
-                sudo docker-compose -f docker-compose.yml down web-green
+                sudo docker-compose -f docker-compose.yml stop web-green
                 # Nginx를 Blue 서버로 전환
-                sudo sed -i 's/8081/8080/' /etc/nginx/nginx.conf
+                sudo sed -i 's/8081/8080/' /etc/nginx/sites-available/teamspot.site
                 sudo systemctl restart nginx
               else
                 echo "Blue server is not responding correctly. Exiting."

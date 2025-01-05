@@ -15,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,7 +43,7 @@ public class UtilController {
         return ApiResponse.onSuccess(SuccessStatus._IMAGE_UPLOADED, imageUploadResponse);
     }
 
-    @GetMapping("/current-env")
+    @GetMapping(value = "/current-env", produces =  MediaType.TEXT_PLAIN_VALUE)
     @Tag(name = "배포")
     @Operation(summary = "[배포 관련] 무중단 배포를 위한 현재 환경 확인", description = """
         ## [배포 관련] 현재 서버의 환경을 확인합니다.
