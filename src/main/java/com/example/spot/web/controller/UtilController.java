@@ -49,12 +49,8 @@ public class UtilController {
         현재 서버의 환경을 확인하여 무중단 배포를 위한 환경을 확인합니다.
         """)
     public String getCurrentEnvironment() {
-        return  (isBlueServer() ? "blue" : "green");
+        return System.getProperty("server.color");
     }
 
-    private boolean isBlueServer() {
-        // 현재 포트를 확인하거나 환경 변수를 기반으로 설정
-        return System.getProperty("server.port").equals("8080");
-    }
 
 }
