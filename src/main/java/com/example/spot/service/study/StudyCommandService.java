@@ -8,9 +8,9 @@ import com.example.spot.web.dto.study.response.StudyRegisterResponseDTO;
 
 public interface StudyCommandService {
 
-    StudyJoinResponseDTO.JoinDTO applyToStudy(Long memberId, Long studyId, StudyJoinRequestDTO.StudyJoinDTO studyJoinRequestDTO);
+    StudyJoinResponseDTO.JoinDTO applyToStudy(Long studyId, StudyJoinRequestDTO.StudyJoinDTO studyJoinRequestDTO);
 
-    StudyRegisterResponseDTO.RegisterDTO registerStudy(Long memberId, StudyRegisterRequestDTO.RegisterDTO studyRegisterRequestDTO);
+    StudyRegisterResponseDTO.RegisterDTO registerStudy(StudyRegisterRequestDTO.RegisterDTO studyRegisterRequestDTO);
 
     StudyLikeResponseDTO likeStudy(Long memberId, Long studyId);
 
