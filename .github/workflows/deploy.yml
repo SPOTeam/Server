@@ -51,6 +51,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.KEY }}
           script: |
+            sudo docker-compose -f docker-compose.yml down --remove-orphans
             # 새로운 서버를 먼저 가동 (예: Green 서버)
             ENV_COLOR=$(curl --silent --fail https://teamspot.site/spot/current-env || echo "none")
 
