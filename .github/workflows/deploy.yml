@@ -57,6 +57,7 @@ jobs:
             if [[ "$ENV_COLOR" == "blue" || "$ENV_COLOR" == "none" ]]; then
               # 블루 서버가 실행 중이거나 아무 서버도 돌아가고 있지 않다면 그린 서버를 실행
               sudo docker-compose -f docker-compose.yml up -d web-green
+              sleep 10
               # 그린 서버가 정상적으로 작동하는지 확인 (예: HTTP 상태 코드 200 확인)
               if curl --silent --fail http://localhost:8081; then
                 echo "Green server is working correctly."
@@ -72,6 +73,7 @@ jobs:
             elif [[ "$ENV_COLOR" == "green" ]]; then
               # 그린 서버가 실행 중이면 블루 서버를 실행
               sudo docker-compose -f docker-compose.yml up -d web-blue
+              sleep 10
               # 블루 서버가 정상적으로 작동하는지 확인
               if curl --silent --fail http://localhost:8080; then
                 echo "Blue server is working correctly."
