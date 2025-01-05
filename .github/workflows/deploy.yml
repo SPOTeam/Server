@@ -55,7 +55,7 @@ jobs:
             sudo docker pull ${{ secrets.DOCKER_REPO }}:latest
 
             # 서버의 현재 환경 확인 (블루 / 그린)
-            ENV_COLOR=$(curl --silent --fail https://teamspot.site/spot/current-env || echo "none")
+            ENV_COLOR=$(curl --silent --fail https://www.teamspot.site/spot/current-env || echo "none")
 
             if [[ "$ENV_COLOR" == "blue" || "$ENV_COLOR" == "noneㄹ" ]]; then
               # 블루 서버가 실행 중이거나 아무 서버도 돌아가고 있지 않다면 그린 서버를 실행
