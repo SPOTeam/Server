@@ -56,10 +56,10 @@ jobs:
             # 서버의 현재 환경 확인 (블루 / 그린)
             ENV_COLOR=$(curl --silent --fail https://www.teamspot.site/spot/current-env || echo "none")
 
-            if [[ "$ENV_COLOR" == "blue" || "$ENV_COLOR" == "noneㄹ" ]]; then
+            if [[ "$ENV_COLOR" == "blue" || "$ENV_COLOR" == "none" ]]; then
               # 블루 서버가 실행 중이거나 아무 서버도 돌아가고 있지 않다면 그린 서버를 실행
               sudo docker-compose -f docker-compose.yml up -d --no-deps web-green
-              sleep 30
+              sleep 45
               # 그린 서버가 정상적으로 작동하는지 확인 (예: HTTP 상태 코드 200 확인)
               if curl --silent --fail http://localhost:8081; then
                 echo "Green server is working correctly."
@@ -75,7 +75,7 @@ jobs:
             elif [[ "$ENV_COLOR" == "green" ]]; then
               # 그린 서버가 실행 중이면 블루 서버를 실행
               sudo docker-compose -f docker-compose.yml up -d --no-deps web-blue
-              sleep 30
+              sleep 45
               # 블루 서버가 정상적으로 작동하는지 확인
               if curl --silent --fail http://localhost:8080; then
                 echo "Blue server is working correctly."
