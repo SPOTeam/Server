@@ -11,7 +11,6 @@ import com.example.spot.web.dto.member.naver.NaverCallback;
 import com.example.spot.web.dto.member.naver.NaverOAuthToken;
 import com.example.spot.web.dto.token.TokenResponseDTO;
 import com.example.spot.web.dto.token.TokenResponseDTO.TokenDTO;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -92,7 +91,7 @@ public class AuthController {
             """)
     @GetMapping("/members/sign-in/naver/redirect/test")
     public ApiResponse<SocialLoginSignInDTO> signInWithNaver(
-            HttpServletRequest request, HttpServletResponse response, NaverCallback naverCallback) throws JsonProcessingException {
+            HttpServletRequest request, HttpServletResponse response, NaverCallback naverCallback) throws Exception {
         SocialLoginSignInDTO socialLoginSignInDTO = authService.signInWithNaver(request, response, naverCallback);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_SIGNED_IN, socialLoginSignInDTO);
     }
@@ -109,7 +108,7 @@ public class AuthController {
             HttpServletRequest request,
             HttpServletResponse response,
             @RequestBody NaverOAuthToken.NaverTokenIssuanceDTO naverTokenDTO
-    ) throws JsonProcessingException {
+    ) throws Exception {
         SocialLoginSignInDTO socialLoginSignInDTO = authService.signInWithNaver(request, response, naverTokenDTO);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_SIGNED_IN, socialLoginSignInDTO);
     }
