@@ -48,10 +48,9 @@ public class MemberStudyController {
         ## [진행중인 스터디] 마이페이지 > 진행중 > 진행중인 스터디의 메뉴 클릭, 로그인한 회원이 현재 진행중인 스터디에서 탈퇴합니다.
         로그인한 회원이 참여하는 특정 스터디에 대해 member_study 튜플을 삭제합니다.
         """)
-    @DeleteMapping("/members/{memberId}/studies/{studyId}/withdrawal")
-    public ApiResponse<StudyWithdrawalResponseDTO.WithdrawalDTO> withdrawFromStudy(@PathVariable Long memberId, @PathVariable Long studyId) {
-        SecurityUtils.verifyUserId(memberId);
-        StudyWithdrawalResponseDTO.WithdrawalDTO withdrawalDTO = memberStudyCommandService.withdrawFromStudy(memberId, studyId);
+    @DeleteMapping("/studies/{studyId}/withdrawal")
+    public ApiResponse<StudyWithdrawalResponseDTO.WithdrawalDTO> withdrawFromStudy(@PathVariable Long studyId) {
+        StudyWithdrawalResponseDTO.WithdrawalDTO withdrawalDTO = memberStudyCommandService.withdrawFromStudy(studyId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_MEMBER_DELETED, withdrawalDTO);
     }
 

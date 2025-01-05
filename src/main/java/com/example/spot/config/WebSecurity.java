@@ -2,11 +2,11 @@ package com.example.spot.config;
 
 
 import com.example.spot.security.filters.JwtAuthenticationFilter;
+import com.example.spot.security.oauth.CustomOAuth2UserService;
+import com.example.spot.security.oauth.CustomOAuthSuccessHandler;
 import com.example.spot.security.utils.JwtTokenProvider;
 import com.example.spot.service.member.MemberService;
 import com.example.spot.service.member.UserDetailsServiceCustom;
-import com.example.spot.security.oauth.CustomOAuth2UserService;
-import com.example.spot.security.oauth.CustomOAuthSuccessHandler;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.context.annotation.Bean;
@@ -57,11 +57,12 @@ public class WebSecurity {
                         .requestMatchers(new AntPathRequestMatcher("/spot/login", "POST")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/spot/members/sign-in/naver", "POST")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/spot/members/sign-in/naver/redirect", "GET")).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/spot/members/sign-in/naver/authorize", "GET")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/spot/members/sign-in/naver/authorize/test", "GET")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/spot/login/kakao", "GET")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/spot/members/sign-in/kakao", "GET")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/spot/members/sign-in/kakao/redirect", "GET")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/spot/member/test", "POST")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/spot/current-env", "GET")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api-docs")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/v3/**", "GET")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**", "GET")).permitAll()
