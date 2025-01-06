@@ -390,7 +390,6 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
 
     /**
      * 출석 퀴즈를 생성하는 메서드입니다.
-     *
      * @param studyId        타겟 스터디의 아이디를 입력 받습니다.
      * @param scheduleId     타겟 일정의 아이디를 입력 받습니다.
      * @param quizRequestDTO 출석 퀴즈에 담길 질문과 정답을 입력 받습니다.
