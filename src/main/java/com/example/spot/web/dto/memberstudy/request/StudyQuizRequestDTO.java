@@ -28,6 +28,7 @@ public class StudyQuizRequestDTO {
     }
 
     @Getter
+    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class AttendanceDTO {

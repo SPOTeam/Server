@@ -69,10 +69,15 @@ class StudyAttendanceCommandServiceTest {
     private static Schedule schedule;
     private static Quiz quiz1;
     private static MemberAttendance member1Attendance;
+    private static MemberAttendance member1Attendance2;
+    private static MemberAttendance member1Attendance3;
     private static MemberAttendance ownerAttendance;
 
     @Mock
     private static Quiz quiz2;
+
+    @Mock
+    private static MemberAttendance mockAttendance;
 
     private static final LocalDate date = LocalDate.now();
     private static final LocalDateTime now = LocalDateTime.now();
@@ -207,29 +212,188 @@ class StudyAttendanceCommandServiceTest {
         assertThrows(StudyHandler.class, () -> memberStudyCommandService.createAttendanceQuiz(studyId, schedule.getId(), quizRequestDTO));
     }
 
-    private StudyQuizRequestDTO.QuizDTO getQuizDTO(Member member1) {
-        // 사용자 인증 정보 생성
-        getAuthentication(member1.getId());
+    @Test
+    @DisplayName("스터디 출석 - (성공)")
+    void attendantStudy_Success() {
 
-        StudyQuizRequestDTO.QuizDTO quizRequestDTO = StudyQuizRequestDTO.QuizDTO
-                .builder()
-                .createdAt(now)
-                .question("question")
-                .answer("answer")
-                .build();
+        // given
+        initMemberAttendance();
+        initQuiz();
 
-        quiz2 = Quiz.builder()
-                .schedule(schedule)
-                .member(member1)
-                .question("최고의 스터디 앱은?")
-                .answer("SPOT")
-                .createdAt(now)
-                .build();
-        return quizRequestDTO;
+        Long studyId = 1L;
+        Long scheduleId = schedule.getId();
+
+        StudyQuizRequestDTO.AttendanceDTO attendanceRequestDTO = getAttendanceDTO(member1, now);
+
+        LocalDateTime startOfDay = attendanceRequestDTO.getDateTime().withHour(0).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime endOfDay = attendanceRequestDTO.getDateTime().withHour(23).withMinute(59).withSecond(59).withNano(999_999_000);
+
+        when(quizRepository.findAllByScheduleIdAndCreatedAtBetween(schedule.getId(), startOfDay, endOfDay))
+                .thenReturn(List.of(quiz1));
+        when(memberAttendanceRepository.save(any(MemberAttendance.class))).thenReturn(mockAttendance);
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndStatus(member1.getId(), null, ApplicationStatus.APPROVED))
+                .thenReturn(Optional.of(member1Study));
+        when(memberAttendanceRepository.findByQuizIdAndMemberId(null, member1.getId()))
+                .thenReturn(List.of(member1Attendance));
+
+        // when
+        StudyQuizResponseDTO.AttendanceDTO result = memberStudyCommandService.attendantStudy(studyId, scheduleId,  attendanceRequestDTO);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.getMemberId()).isEqualTo(member1.getId());
+        assertThat(result.getTryNum()).isEqualTo(2);
+        assertThat(result.getIsCorrect()).isEqualTo(true);
+
+        verify(memberAttendanceRepository, times(1)).save(any(MemberAttendance.class));
     }
 
     @Test
-    void attendantStudy() {
+    @DisplayName("스터디 출석 - 스터디 회원이 아닌 경우 (실패)")
+    void attendantStudy_NotStudyMember_Fail() {
+
+        // given
+        initMemberAttendance();
+        initQuiz();
+
+        Long studyId = 1L;
+        Long scheduleId = schedule.getId();
+
+        StudyQuizRequestDTO.AttendanceDTO attendanceRequestDTO = getAttendanceDTO();
+
+        LocalDateTime startOfDay = attendanceRequestDTO.getDateTime().withHour(0).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime endOfDay = attendanceRequestDTO.getDateTime().withHour(23).withMinute(59).withSecond(59).withNano(999_999_000);
+
+        when(quizRepository.findAllByScheduleIdAndCreatedAtBetween(schedule.getId(), startOfDay, endOfDay))
+                .thenReturn(List.of(quiz1));
+        when(memberAttendanceRepository.save(any(MemberAttendance.class))).thenReturn(mockAttendance);
+        when(memberAttendanceRepository.findByQuizIdAndMemberId(null, member2.getId()))
+                .thenReturn(List.of());
+
+        // when
+        assertThrows(StudyHandler.class, () -> memberStudyCommandService.attendantStudy(studyId, scheduleId,  attendanceRequestDTO));
+    }
+
+    @Test
+    @DisplayName("스터디 출석 - 요청 날짜에 출석 퀴즈가 존재하지 않는 경우 (실패)")
+    void attendantStudy_QuizNotFound_Fail() {
+
+        // given
+        initMemberAttendance();
+        initQuiz();
+
+        Long studyId = 1L;
+        Long scheduleId = 2L;
+
+        // 사용자 인증 정보 생성
+        getAuthentication(member1.getId());
+
+        StudyQuizRequestDTO.AttendanceDTO attendanceRequestDTO = getAttendanceDTO();
+
+        LocalDateTime startOfDay = attendanceRequestDTO.getDateTime().withHour(0).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime endOfDay = attendanceRequestDTO.getDateTime().withHour(23).withMinute(59).withSecond(59).withNano(999_999_000);
+
+        when(quizRepository.findAllByScheduleIdAndCreatedAtBetween(schedule.getId(), startOfDay, endOfDay))
+                .thenReturn(List.of(quiz1));
+        when(memberAttendanceRepository.save(any(MemberAttendance.class))).thenReturn(mockAttendance);
+        when(quizRepository.findAllByScheduleIdAndCreatedAtBetween(scheduleId, startOfDay, endOfDay))
+                .thenReturn(List.of());
+        when(memberAttendanceRepository.findByQuizIdAndMemberId(null, member1.getId()))
+                .thenReturn(List.of(member1Attendance));
+
+        // when
+        assertThrows(StudyHandler.class, () -> memberStudyCommandService.attendantStudy(studyId, scheduleId,  attendanceRequestDTO));
+    }
+
+    @Test
+    @DisplayName("스터디 출석 - 퀴즈 제한시간이 끝난 경우 (실패)")
+    void attendantStudy_QuizTimeOver_Fail() {
+
+        // given
+        initMemberAttendance();
+        initQuiz();
+
+        Long studyId = 1L;
+        Long scheduleId = schedule.getId();
+
+        // 사용자 인증 정보 생성
+        getAuthentication(member1.getId());
+
+        StudyQuizRequestDTO.AttendanceDTO attendanceRequestDTO = StudyQuizRequestDTO.AttendanceDTO.builder()
+                .dateTime(now.plusMinutes(5).plusNanos(1))
+                .answer("SPOT")
+                .build();
+
+        LocalDateTime startOfDay = attendanceRequestDTO.getDateTime().withHour(0).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime endOfDay = attendanceRequestDTO.getDateTime().withHour(23).withMinute(59).withSecond(59).withNano(999_999_000);
+
+        when(quizRepository.findAllByScheduleIdAndCreatedAtBetween(schedule.getId(), startOfDay, endOfDay))
+                .thenReturn(List.of(quiz1));
+        when(memberAttendanceRepository.save(any(MemberAttendance.class))).thenReturn(mockAttendance);
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndStatus(member1.getId(), null, ApplicationStatus.APPROVED))
+                .thenReturn(Optional.of(member1Study));
+        when(memberAttendanceRepository.findByQuizIdAndMemberId(null, member1.getId()))
+                .thenReturn(List.of());
+
+        // when
+        assertThrows(StudyHandler.class, () -> memberStudyCommandService.attendantStudy(studyId, scheduleId,  attendanceRequestDTO));
+    }
+
+    @Test
+    @DisplayName("스터디 출석 - 퀴즈 시도 횟수를 초과한 경우 (실패)")
+    void attendantStudy_QuizTryOver_Fail() {
+
+        // given
+        initMemberAttendance();
+        initQuiz();
+
+        Long studyId = 1L;
+        Long scheduleId = schedule.getId();
+
+        // 사용자 인증 정보 생성
+        StudyQuizRequestDTO.AttendanceDTO attendanceRequestDTO = getAttendanceDTO(member1, now.plusMinutes(5).plusNanos(1));
+
+        LocalDateTime startOfDay = attendanceRequestDTO.getDateTime().withHour(0).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime endOfDay = attendanceRequestDTO.getDateTime().withHour(23).withMinute(59).withSecond(59).withNano(999_999_000);
+
+        when(quizRepository.findAllByScheduleIdAndCreatedAtBetween(schedule.getId(), startOfDay, endOfDay))
+                .thenReturn(List.of(quiz1));
+        when(memberAttendanceRepository.save(any(MemberAttendance.class))).thenReturn(mockAttendance);
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndStatus(member1.getId(), null, ApplicationStatus.APPROVED))
+                .thenReturn(Optional.of(member1Study));
+        when(memberAttendanceRepository.findByQuizIdAndMemberId(null, member1.getId()))
+                .thenReturn(List.of(member1Attendance, member1Attendance2, member1Attendance3));
+
+        // when
+        assertThrows(StudyHandler.class, () -> memberStudyCommandService.attendantStudy(studyId, scheduleId,  attendanceRequestDTO));
+    }
+
+    @Test
+    @DisplayName("스터디 출석 - 이미 출석이 완료된 경우 (실패)")
+    void attendantStudy_QuizAlreadyCorrect_Fail() {
+
+        // given
+        initMemberAttendance();
+        initQuiz();
+
+        Long studyId = 1L;
+        Long scheduleId = schedule.getId();
+
+        StudyQuizRequestDTO.AttendanceDTO attendanceRequestDTO = getAttendanceDTO(owner, now.plusMinutes(5).plusNanos(1));
+
+        LocalDateTime startOfDay = attendanceRequestDTO.getDateTime().withHour(0).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime endOfDay = attendanceRequestDTO.getDateTime().withHour(23).withMinute(59).withSecond(59).withNano(999_999_000);
+
+        when(quizRepository.findAllByScheduleIdAndCreatedAtBetween(schedule.getId(), startOfDay, endOfDay))
+                .thenReturn(List.of(quiz1));
+        when(memberAttendanceRepository.save(any(MemberAttendance.class))).thenReturn(mockAttendance);
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndStatus(owner.getId(), null, ApplicationStatus.APPROVED))
+                .thenReturn(Optional.of(ownerStudy));
+        when(memberAttendanceRepository.findByQuizIdAndMemberId(null, owner.getId()))
+                .thenReturn(List.of(ownerAttendance));
+
+        // when
+        assertThrows(StudyHandler.class, () -> memberStudyCommandService.attendantStudy(studyId, scheduleId,  attendanceRequestDTO));
     }
 
     @Test
@@ -304,6 +468,7 @@ class StudyAttendanceCommandServiceTest {
                 .member(owner)
                 .question("최고의 스터디 앱은?")
                 .answer("SPOT")
+                .createdAt(now)
                 .build();
         quiz1.addMemberAttendance(member1Attendance);
         quiz1.addMemberAttendance(ownerAttendance);
@@ -311,14 +476,28 @@ class StudyAttendanceCommandServiceTest {
 
     private static void initMemberAttendance() {
         member1Attendance = MemberAttendance.builder()
-                .isCorrect(true)
-                .build();
-        member1Attendance.setMember(member1);
-
-        ownerAttendance = MemberAttendance.builder()
                 .isCorrect(false)
                 .build();
+        member1Attendance.setMember(member1);
+        member1Attendance.setQuiz(quiz1);
+
+        ownerAttendance = MemberAttendance.builder()
+                .isCorrect(true)
+                .build();
+        ownerAttendance.setMember(owner);
         ownerAttendance.setQuiz(quiz1);
+
+        member1Attendance2 = MemberAttendance.builder()
+                .isCorrect(false)
+                .build();
+        member1Attendance2.setMember(member1);
+        member1Attendance2.setQuiz(quiz1);
+
+        member1Attendance3 = MemberAttendance.builder()
+                .isCorrect(false)
+                .build();
+        member1Attendance3.setMember(member1);
+        member1Attendance3.setQuiz(quiz1);
     }
 
     private static void getAuthentication(Long memberId) {
@@ -327,5 +506,53 @@ class StudyAttendanceCommandServiceTest {
         SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
         securityContext.setAuthentication(authentication);
         SecurityContextHolder.setContext(securityContext);
+    }
+
+    private StudyQuizRequestDTO.QuizDTO getQuizDTO(Member member1) {
+
+        // 사용자 인증 정보 생성
+        getAuthentication(member1.getId());
+
+        StudyQuizRequestDTO.QuizDTO quizRequestDTO = StudyQuizRequestDTO.QuizDTO
+                .builder()
+                .createdAt(now)
+                .question("question")
+                .answer("answer")
+                .build();
+
+        quiz2 = Quiz.builder()
+                .schedule(schedule)
+                .member(member1)
+                .question("최고의 스터디 앱은?")
+                .answer("SPOT")
+                .createdAt(now)
+                .build();
+        return quizRequestDTO;
+    }
+
+    private static StudyQuizRequestDTO.AttendanceDTO getAttendanceDTO() {
+        // 사용자 인증 정보 생성
+        getAuthentication(member2.getId());
+        return StudyQuizRequestDTO.AttendanceDTO.builder()
+                .dateTime(now)
+                .answer("SPOT")
+                .build();
+    }
+
+    private static StudyQuizRequestDTO.AttendanceDTO getAttendanceDTO(Member owner, LocalDateTime now) {
+        // 사용자 인증 정보 생성
+        getAuthentication(owner.getId());
+
+        StudyQuizRequestDTO.AttendanceDTO attendanceRequestDTO = StudyQuizRequestDTO.AttendanceDTO.builder()
+                .dateTime(now)
+                .answer("SPOT")
+                .build();
+
+        mockAttendance = MemberAttendance.builder()
+                .isCorrect(true)
+                .build();
+        mockAttendance.setMember(owner);
+        mockAttendance.setQuiz(quiz1);
+        return attendanceRequestDTO;
     }
 }
