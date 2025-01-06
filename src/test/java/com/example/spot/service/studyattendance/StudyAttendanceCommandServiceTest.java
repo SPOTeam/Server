@@ -270,7 +270,7 @@ class StudyAttendanceCommandServiceTest {
         when(memberAttendanceRepository.findByQuizIdAndMemberId(null, member2.getId()))
                 .thenReturn(List.of());
 
-        // when
+        // when & then
         assertThrows(StudyHandler.class, () -> memberStudyCommandService.attendantStudy(studyId, scheduleId,  attendanceRequestDTO));
     }
 
@@ -301,7 +301,7 @@ class StudyAttendanceCommandServiceTest {
         when(memberAttendanceRepository.findByQuizIdAndMemberId(null, member1.getId()))
                 .thenReturn(List.of(member1Attendance));
 
-        // when
+        // when & then
         assertThrows(StudyHandler.class, () -> memberStudyCommandService.attendantStudy(studyId, scheduleId,  attendanceRequestDTO));
     }
 
@@ -335,7 +335,7 @@ class StudyAttendanceCommandServiceTest {
         when(memberAttendanceRepository.findByQuizIdAndMemberId(null, member1.getId()))
                 .thenReturn(List.of());
 
-        // when
+        // when & then
         assertThrows(StudyHandler.class, () -> memberStudyCommandService.attendantStudy(studyId, scheduleId,  attendanceRequestDTO));
     }
 
@@ -364,7 +364,7 @@ class StudyAttendanceCommandServiceTest {
         when(memberAttendanceRepository.findByQuizIdAndMemberId(null, member1.getId()))
                 .thenReturn(List.of(member1Attendance, member1Attendance2, member1Attendance3));
 
-        // when
+        // when & then
         assertThrows(StudyHandler.class, () -> memberStudyCommandService.attendantStudy(studyId, scheduleId,  attendanceRequestDTO));
     }
 
@@ -392,12 +392,124 @@ class StudyAttendanceCommandServiceTest {
         when(memberAttendanceRepository.findByQuizIdAndMemberId(null, owner.getId()))
                 .thenReturn(List.of(ownerAttendance));
 
-        // when
+        // when & then
         assertThrows(StudyHandler.class, () -> memberStudyCommandService.attendantStudy(studyId, scheduleId,  attendanceRequestDTO));
     }
 
     @Test
-    void deleteAttendanceQuiz() {
+    @DisplayName("스터디 출석 퀴즈 삭제 - (성공)")
+    void deleteAttendanceQuiz_Success() {
+
+        // given
+        initMemberAttendance();
+        initQuiz();
+
+        Long studyId = 1L;
+        Long scheduleId = schedule.getId();
+
+        // 사용자 인증 정보 생성
+        getAuthentication(owner.getId());
+
+        LocalDateTime startOfDay = date.atStartOfDay();             // 오늘 날짜
+        LocalDateTime endOfDay = date.atStartOfDay().plusDays(1);   // 내일 날짜
+
+        when(quizRepository.findAllByScheduleIdAndCreatedAtBetween(schedule.getId(), startOfDay, endOfDay))
+                .thenReturn(List.of(quiz1));
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndStatus(owner.getId(), null, ApplicationStatus.APPROVED))
+                .thenReturn(Optional.of(ownerStudy));
+        when(memberAttendanceRepository.findByQuizId(quiz1.getId()))
+                .thenReturn(List.of(member1Attendance, member1Attendance2, member1Attendance3, ownerAttendance));
+
+        // when
+        StudyQuizResponseDTO.QuizDTO result = memberStudyCommandService.deleteAttendanceQuiz(studyId, scheduleId, date);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.getQuestion()).isEqualTo("최고의 스터디 앱은?");
+        assertThat(result.getCreatedAt()).isEqualTo(now);
+        verify(quizRepository, times(1)).delete(any(Quiz.class));
+    }
+
+    @Test
+    @DisplayName("스터디 출석 퀴즈 삭제 - 스터디 퀴즈가 없는 경우 (실패)")
+    void deleteAttendanceQuiz_QuizNotFound_Fail() {
+
+        // given
+        initMemberAttendance();
+        initQuiz();
+
+        Long studyId = 1L;
+        Long scheduleId = 2L;
+
+        // 사용자 인증 정보 생성
+        getAuthentication(owner.getId());
+
+        LocalDateTime startOfDay = date.atStartOfDay();             // 오늘 날짜
+        LocalDateTime endOfDay = date.atStartOfDay().plusDays(1);   // 내일 날짜
+
+        when(quizRepository.findAllByScheduleIdAndCreatedAtBetween(2L, startOfDay, endOfDay))
+                .thenReturn(List.of());
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndStatus(owner.getId(), null, ApplicationStatus.APPROVED))
+                .thenReturn(Optional.of(ownerStudy));
+        when(memberAttendanceRepository.findByQuizId(quiz1.getId()))
+                .thenReturn(List.of(member1Attendance, member1Attendance2, member1Attendance3, ownerAttendance));
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> memberStudyCommandService.deleteAttendanceQuiz(studyId, scheduleId, date));
+    }
+
+    @Test
+    @DisplayName("스터디 출석 퀴즈 삭제 - 스터디 회원이 아닌 경우 (실패)")
+    void deleteAttendanceQuiz_NotStudyMember_Fail() {
+
+        // given
+        initMemberAttendance();
+        initQuiz();
+
+        Long studyId = 1L;
+        Long scheduleId = schedule.getId();
+
+        // 사용자 인증 정보 생성
+        getAuthentication(member2.getId());
+
+        LocalDateTime startOfDay = date.atStartOfDay();             // 오늘 날짜
+        LocalDateTime endOfDay = date.atStartOfDay().plusDays(1);   // 내일 날짜
+
+        when(quizRepository.findAllByScheduleIdAndCreatedAtBetween(scheduleId, startOfDay, endOfDay))
+                .thenReturn(List.of(quiz1));
+        when(memberAttendanceRepository.findByQuizId(quiz1.getId()))
+                .thenReturn(List.of(member1Attendance, member1Attendance2, member1Attendance3, ownerAttendance));
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> memberStudyCommandService.deleteAttendanceQuiz(studyId, scheduleId, date));
+    }
+
+    @Test
+    @DisplayName("스터디 출석 퀴즈 삭제 - 스터디장이 아닌 경우 (실패)")
+    void deleteAttendanceQuiz_NotStudyOwner_Fail() {
+
+        // given
+        initMemberAttendance();
+        initQuiz();
+
+        Long studyId = 1L;
+        Long scheduleId = schedule.getId();
+
+        // 사용자 인증 정보 생성
+        getAuthentication(member1.getId());
+
+        LocalDateTime startOfDay = date.atStartOfDay();             // 오늘 날짜
+        LocalDateTime endOfDay = date.atStartOfDay().plusDays(1);   // 내일 날짜
+
+        when(quizRepository.findAllByScheduleIdAndCreatedAtBetween(scheduleId, startOfDay, endOfDay))
+                .thenReturn(List.of(quiz1));
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndStatus(owner.getId(), null, ApplicationStatus.APPROVED))
+                .thenReturn(Optional.of(member1Study));
+        when(memberAttendanceRepository.findByQuizId(quiz1.getId()))
+                .thenReturn(List.of(member1Attendance, member1Attendance2, member1Attendance3, ownerAttendance));
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> memberStudyCommandService.deleteAttendanceQuiz(studyId, scheduleId, date));
     }
 
 /*-------------------------------------------------------- Utils ------------------------------------------------------------------------*/
