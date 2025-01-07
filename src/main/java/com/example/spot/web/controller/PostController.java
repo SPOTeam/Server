@@ -2,6 +2,7 @@ package com.example.spot.web.controller;
 
 import com.example.spot.api.ApiResponse;
 import com.example.spot.api.code.status.SuccessStatus;
+import com.example.spot.security.utils.SecurityUtils;
 import com.example.spot.service.post.PostCommandService;
 import com.example.spot.service.post.PostQueryService;
 import com.example.spot.validation.annotation.ExistMember;
@@ -42,12 +43,11 @@ public class PostController {
         """,
             security = @SecurityRequirement(name = "accessToken")
     )
-    @PostMapping(value = "/{memberId}")
+    @PostMapping
     public ApiResponse<PostCreateResponse> create(
-            @PathVariable @ExistMember Long memberId,
             @RequestBody @Valid PostCreateRequest postCreateRequest
     ) {
-        PostCreateResponse response = postCommandService.createPost(memberId, postCreateRequest);
+        PostCreateResponse response = postCommandService.createPost(SecurityUtils.getCurrentUserId(), postCreateRequest);
         return ApiResponse.onSuccess(SuccessStatus._CREATED, response);
     }
 
@@ -139,9 +139,8 @@ public class PostController {
             description = "게시글 Id를 받아 게시글을 수정합니다.",
             security = @SecurityRequirement(name = "accessToken")
     )
-    @PatchMapping("/{memberId}/{postId}")
+    @PatchMapping("/{postId}")
     public ApiResponse<PostCreateResponse> update(
-            @PathVariable @ExistMember Long memberId,
             @Parameter(
                     description = "수정할 게시글의 ID입니다.",
                     schema = @Schema(type = "integer", format = "int64")
@@ -152,22 +151,21 @@ public class PostController {
             )
             @RequestBody PostUpdateRequest postUpdateRequest
     ) {
-        PostCreateResponse response = postCommandService.updatePost(memberId, postId, postUpdateRequest);
+        PostCreateResponse response = postCommandService.updatePost(SecurityUtils.getCurrentUserId(), postId, postUpdateRequest);
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
     @Tag(name = "게시판", description = "게시판 관련 API")
     @Operation(summary = "[게시판] 게시글 삭제 API", description = "게시글 Id를 받아 게시글을 삭제합니다.")
-    @DeleteMapping("/{memberId}/{postId}")
+    @DeleteMapping("/{postId}")
     public ApiResponse<Void> delete(
-            @PathVariable @ExistMember Long memberId,
             @Parameter(
                     description = "삭제할 게시글의 ID입니다.",
                     schema = @Schema(type = "integer", format = "int64")
             )
             @PathVariable Long postId
     ) {
-        postCommandService.deletePost(memberId, postId);
+        postCommandService.deletePost(SecurityUtils.getCurrentUserId(), postId);
         return ApiResponse.onSuccess(SuccessStatus._NO_CONTENT);
 
     }
@@ -175,21 +173,21 @@ public class PostController {
     @Tag(name = "게시글 좋아요", description = "게시글 좋아요 관련 API")
     //게시글 좋아요
     @Operation(summary = "[게시판] 게시글 좋아요 API", description = "게시글 Id를 받아 게시글에 좋아요를 추가합니다.")
-    @PostMapping("/{postId}/{memberId}/like")
+    @PostMapping("/{postId}/like")
     public ApiResponse<PostLikeResponse> likePost(
-            @PathVariable @ExistPost Long postId,
-            @PathVariable @ExistMember Long memberId) {
-        PostLikeResponse response = postCommandService.likePost(postId, memberId);
+            @PathVariable @ExistPost Long postId
+            ) {
+        PostLikeResponse response = postCommandService.likePost(postId, SecurityUtils.getCurrentUserId());
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
     @Tag(name = "게시글 좋아요", description = "게시글 좋아요 관련 API")
     @Operation(summary = "[게시판] 게시글 좋아요 취소 API", description = "게시글 Id를 받아 게시글에 좋아요를 취소합니다.")
-    @DeleteMapping("/{postId}/{memberId}/like")
+    @DeleteMapping("/{postId}/like")
     public ApiResponse<PostLikeResponse> cancelPostLike(
-            @PathVariable @ExistPost Long postId,
-            @PathVariable @ExistMember Long memberId) {
-        PostLikeResponse response = postCommandService.cancelPostLike(postId, memberId);
+            @PathVariable @ExistPost Long postId
+            ) {
+        PostLikeResponse response = postCommandService.cancelPostLike(postId, SecurityUtils.getCurrentUserId());
         return ApiResponse.onSuccess(SuccessStatus._NO_CONTENT, response);
     }
 
@@ -206,12 +204,11 @@ public class PostController {
             
             생성된 댓글의 고유 ID와 부모댓글 ID(parentCommentId가 0일 경우 null로 반환), 댓글 내용, 작성자를 반환합니다.
             """)
-    @PostMapping("/{postId}/{memberId}/comments")
+    @PostMapping("/{postId}/comments")
     public ApiResponse<CommentCreateResponse> createComment(
             @PathVariable @ExistPost Long postId,
-            @PathVariable @ExistMember Long memberId,
             @RequestBody CommentCreateRequest request) {
-        CommentCreateResponse response = postCommandService.createComment(postId, memberId, request);
+        CommentCreateResponse response = postCommandService.createComment(postId, SecurityUtils.getCurrentUserId(), request);
         return ApiResponse.onSuccess(SuccessStatus._CREATED, response);
     }
 
@@ -233,64 +230,64 @@ public class PostController {
     //게시글 댓글 좋아요
     @Tag(name = "게시판 - 댓글", description = "댓글 관련 API")
     @Operation(summary = "[게시판] 댓글 좋아요 API", description = "댓글 ID와 회원 ID를 받아 댓글에 좋아요를 추가합니다.")
-    @PostMapping("/comments/{commentId}/{memberId}/like")
+    @PostMapping("/comments/{commentId}/like")
     public ApiResponse<CommentLikeResponse> likeComment(
-            @PathVariable Long commentId,
-            @PathVariable @ExistMember Long memberId) {
-        CommentLikeResponse response = postCommandService.likeComment(commentId, memberId);
+            @PathVariable Long commentId
+    ) {
+        CommentLikeResponse response = postCommandService.likeComment(commentId, SecurityUtils.getCurrentUserId());
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
     @Tag(name = "게시판 - 댓글", description = "댓글 관련 API")
     @Operation(summary = "[게시판] 댓글 좋아요 취소 API", description = "댓글 ID와 회원 ID를 받아 댓글에 좋아요를 취소합니다.")
-    @DeleteMapping("/comments/{commentId}/{memberId}/like")
+    @DeleteMapping("/comments/{commentId}/like")
     public ApiResponse<CommentLikeResponse> cancelCommentLike(
-            @PathVariable Long commentId,
-            @PathVariable @ExistMember Long memberId) {
-        CommentLikeResponse response = postCommandService.cancelCommentLike(commentId, memberId);
+            @PathVariable Long commentId
+            ) {
+        CommentLikeResponse response = postCommandService.cancelCommentLike(commentId, SecurityUtils.getCurrentUserId());
         return ApiResponse.onSuccess(SuccessStatus._NO_CONTENT, response);
     }
 
     //게시글 댓글 싫어요
     @Tag(name = "게시판 - 댓글", description = "댓글 관련 API")
     @Operation(summary = "[게시판] 댓글 싫어요 API", description = "댓글 ID와 회원 ID를 받아 댓글에 싫어요를 추가합니다.")
-    @PostMapping("/comments/{commentId}/{memberId}/dislike")
+    @PostMapping("/comments/{commentId}/dislike")
     public ApiResponse<CommentLikeResponse> dislikeComment(
-            @PathVariable Long commentId,
-            @PathVariable @ExistMember Long memberId) {
-        CommentLikeResponse response = postCommandService.dislikeComment(commentId, memberId);
+            @PathVariable Long commentId
+            ) {
+        CommentLikeResponse response = postCommandService.dislikeComment(commentId, SecurityUtils.getCurrentUserId());
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
     @Tag(name = "게시판 - 댓글", description = "댓글 관련 API")
     @Operation(summary = "[게시판] 댓글 싫어요 취소 API", description = "댓글 ID와 회원 ID를 받아 댓글에 싫어요를 취소합니다.")
-    @DeleteMapping("/comments/{commentId}/{memberId}/dislike")
+    @DeleteMapping("/comments/{commentId}/dislike")
     public ApiResponse<CommentLikeResponse> cancelCommentDislike(
-            @PathVariable Long commentId,
-            @PathVariable @ExistMember Long memberId) {
-        CommentLikeResponse response = postCommandService.cancelCommentDislike(commentId, memberId);
+            @PathVariable Long commentId
+            ) {
+        CommentLikeResponse response = postCommandService.cancelCommentDislike(commentId, SecurityUtils.getCurrentUserId());
         return ApiResponse.onSuccess(SuccessStatus._NO_CONTENT, response);
     }
 
     //스크랩
     @Tag(name = "게시글 스크랩", description = "게시글 스크랩 관련 API")
     @Operation(summary = "[게시판] 게시글 스크랩 API", description = "게시글 ID와 회원 ID를 받아 스크랩을 추가합니다.")
-    @PostMapping("/{postId}/{memberId}/scrap")
+    @PostMapping("/{postId}/scrap")
     public ApiResponse<ScrapPostResponse> scrapPost(
-            @PathVariable @ExistPost Long postId,
-            @PathVariable @ExistMember Long memberId) {
-        ScrapPostResponse response = postCommandService.scrapPost(postId, memberId);
+            @PathVariable @ExistPost Long postId
+           ) {
+        ScrapPostResponse response = postCommandService.scrapPost(postId, SecurityUtils.getCurrentUserId());
         return ApiResponse.onSuccess(SuccessStatus._OK, response);
     }
 
 
     @Tag(name = "게시글 스크랩", description = "게시글 스크랩 관련 API")
     @Operation(summary = "[게시판] 게시글 스크랩 취소 API", description = "게시글 ID와 회원 ID를 받아 스크랩을 취소합니다.")
-    @DeleteMapping("/{postId}/{memberId}/scrap")
+    @DeleteMapping("/{postId}/scrap")
     public ApiResponse<ScrapPostResponse> cancelPostScrap(
-            @PathVariable @ExistPost Long postId,
-            @PathVariable @ExistMember Long memberId) {
-        ScrapPostResponse response = postCommandService.cancelPostScrap(postId, memberId);
+            @PathVariable @ExistPost Long postId
+            ) {
+        ScrapPostResponse response = postCommandService.cancelPostScrap(postId, SecurityUtils.getCurrentUserId());
         return ApiResponse.onSuccess(SuccessStatus._NO_CONTENT, response);
     }
 
