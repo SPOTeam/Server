@@ -3,6 +3,7 @@ package com.example.spot.web.dto.memberstudy.request;
 import com.example.spot.validation.annotation.ExistMember;
 import com.example.spot.validation.annotation.TextLength;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 public class StudyQuizRequestDTO {
 
     @Getter
+    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class QuizDTO {
@@ -26,6 +28,7 @@ public class StudyQuizRequestDTO {
     }
 
     @Getter
+    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class AttendanceDTO {

@@ -44,7 +44,6 @@ public class SearchController {
             ## [메인 화면] 접속한 회원의 추천 스터디 3개를 조회 합니다.
             조회된 스터디 3개의 정보가 반환 됩니다.""",
         security = @SecurityRequirement(name = "accessToken"))
-    @Parameter(name = "memberId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
     public ApiResponse<StudyPreviewDTO> recommendStudiesForMain() {
         StudyPreviewDTO recommendStudies = studyQueryService.findRecommendStudies(SecurityUtils.getCurrentUserId());
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, recommendStudies);
@@ -68,7 +67,6 @@ public class SearchController {
             ## [마이 페이지] 마이 페이지에 들어갈 나와 관련된 스터디 갯수 정보를 조회합니다.
             스터디 갯수 정보와 내 이름이 반환 됩니다.""",
         security = @SecurityRequirement(name = "accessToken"))
-    @Parameter(name = "memberId", description = "조회할 유저의 ID를 입력 받습니다.", required = true)
     public ApiResponse<MyPageDTO> myPage() {
         MyPageDTO myPageStudyCount = studyQueryService.getMyPageStudyCount(SecurityUtils.getCurrentUserId());
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND,  myPageStudyCount);

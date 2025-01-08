@@ -60,15 +60,15 @@ jobs:
             if [[ "$ENV_COLOR" == "blue" || "$ENV_COLOR" == "none" ]]; then
               # 블루 서버가 실행 중이거나 아무 서버도 돌아가고 있지 않다면 그린 서버를 실행
               sudo docker-compose -f docker-compose.yml up -d --no-deps web-green
-              sleep 45
+              sleep 75
               # 그린 서버가 정상적으로 작동하는지 확인 (예: HTTP 상태 코드 200 확인)
               if curl --silent --fail http://localhost:8081; then
                 echo "Green server is working correctly."
-                # 기존 서버 종료
-                sudo docker-compose -f docker-compose.yml stop web-blue
                 # Nginx를 Green 서버로 전환
                 sudo sed -i 's/8080/8081/' /etc/nginx/sites-available/teamspot.site
                 sudo systemctl restart nginx
+                # 기존 서버 종료
+                sudo docker-compose -f docker-compose.yml stop web-blue
               else
                 echo "Green server is not responding correctly. Exiting."
                 exit 1
@@ -76,15 +76,15 @@ jobs:
             elif [[ "$ENV_COLOR" == "green" ]]; then
               # 그린 서버가 실행 중이면 블루 서버를 실행
               sudo docker-compose -f docker-compose.yml up -d --no-deps web-blue
-              sleep 45
+              sleep 75
               # 블루 서버가 정상적으로 작동하는지 확인
               if curl --silent --fail http://localhost:8080; then
                 echo "Blue server is working correctly."
-                # 기존 서버 종료
-                sudo docker-compose -f docker-compose.yml stop web-green
                 # Nginx를 Blue 서버로 전환
                 sudo sed -i 's/8081/8080/' /etc/nginx/sites-available/teamspot.site
                 sudo systemctl restart nginx
+                # 기존 서버 종료
+                sudo docker-compose -f docker-compose.yml stop web-green
               else
                 echo "Blue server is not responding correctly. Exiting."
                 exit 1
