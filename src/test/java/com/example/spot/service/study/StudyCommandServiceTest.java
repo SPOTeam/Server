@@ -6,17 +6,18 @@ import static org.mockito.Mockito.*;
 
 import com.example.spot.api.exception.handler.StudyHandler;
 import com.example.spot.domain.Member;
-import com.example.spot.domain.enums.ApplicationStatus;
-import com.example.spot.domain.enums.Gender;
-import com.example.spot.domain.enums.Status;
-import com.example.spot.domain.enums.StudyState;
+import com.example.spot.domain.Region;
+import com.example.spot.domain.Theme;
+import com.example.spot.domain.enums.*;
 import com.example.spot.domain.mapping.MemberStudy;
+import com.example.spot.domain.mapping.RegionStudy;
+import com.example.spot.domain.mapping.StudyTheme;
 import com.example.spot.domain.study.Study;
-import com.example.spot.repository.MemberRepository;
-import com.example.spot.repository.MemberStudyRepository;
-import com.example.spot.repository.StudyRepository;
+import com.example.spot.repository.*;
 import com.example.spot.web.dto.study.request.StudyJoinRequestDTO;
+import com.example.spot.web.dto.study.request.StudyRegisterRequestDTO;
 import com.example.spot.web.dto.study.response.StudyJoinResponseDTO;
+import com.example.spot.web.dto.study.response.StudyRegisterResponseDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -48,6 +49,16 @@ class StudyCommandServiceTest {
     @Mock
     private MemberStudyRepository memberStudyRepository;
 
+    @Mock
+    private RegionRepository regionRepository;
+    @Mock
+    private RegionStudyRepository regionStudyRepository;
+
+    @Mock
+    private ThemeRepository themeRepository;
+    @Mock
+    private StudyThemeRepository studyThemeRepository;
+
     @InjectMocks
     private StudyCommandServiceImpl studyCommandService;
 
@@ -57,24 +68,24 @@ class StudyCommandServiceTest {
     private static Member owner;
     private static MemberStudy member1Study;
     private static MemberStudy ownerStudy;
-
-    @Mock
-    private static MemberStudy member2Study;
-
-    @Mock
-    private static Study newStudy;
+    private static Region region;
+    private static Theme theme;
 
     @BeforeEach
     void setUp() {
         initMember();
         initStudy();
         initMemberStudy();
+        initRegion();
+        initTheme();
 
         when(memberRepository.findById(1L)).thenReturn(Optional.of(member1));
         when(memberRepository.findById(2L)).thenReturn(Optional.of(member2));
         when(memberRepository.findById(3L)).thenReturn(Optional.of(owner));
 
         when(studyRepository.findById(1L)).thenReturn(Optional.of(study));
+        when(regionRepository.findByCode("123456")).thenReturn(Optional.of(region));
+        when(themeRepository.findByStudyTheme(ThemeType.자격증)).thenReturn(Optional.of(theme));
 
         when(memberStudyRepository.findByMemberIdAndStudyIdAndStatus(1L, 1L, ApplicationStatus.APPROVED))
                 .thenReturn(Optional.of(member1Study));
@@ -197,7 +208,65 @@ class StudyCommandServiceTest {
     }
 
     @Test
+    @DisplayName("스터디 등록 - (성공)")
     void registerStudy() {
+
+        // given
+        Long memberId = 1L;
+
+        getAuthentication(memberId);
+
+        StudyRegisterRequestDTO.RegisterDTO registerDTO = StudyRegisterRequestDTO.RegisterDTO.builder()
+                .themes(List.of(ThemeType.자격증))
+                .title("새로운 스터디")
+                .goal("목표")
+                .introduction("소개")
+                .isOnline(false)
+                .profileImage("profileImage")
+                .regions(List.of("123456"))
+                .maxPeople(5L)
+                .gender(Gender.UNKNOWN)
+                .minAge(1)
+                .maxAge(100)
+                .fee(0)
+                .hasFee(false)
+                .build();
+
+        Study study = Study.builder()
+                .title("새로운 스터디")
+                .maxPeople(10L)
+                .build();
+
+        MemberStudy memberStudy = MemberStudy.builder()
+                .member(member1)
+                .study(study)
+                .build();
+
+        RegionStudy regionStudy = RegionStudy.builder()
+                .region(region)
+                .study(study)
+                .build();
+
+        StudyTheme studyTheme = StudyTheme.builder()
+                .theme(theme)
+                .study(study)
+                .build();
+
+        when(studyRepository.save(any(Study.class))).thenReturn(study);
+        when(memberStudyRepository.save(any(MemberStudy.class))).thenReturn(memberStudy);
+        when(regionStudyRepository.save(any(RegionStudy.class))).thenReturn(regionStudy);
+        when(studyThemeRepository.save(any(StudyTheme.class))).thenReturn(studyTheme);
+
+        // when
+        StudyRegisterResponseDTO.RegisterDTO result = studyCommandService.registerStudy(registerDTO);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.getTitle()).isEqualTo("새로운 스터디");
+        verify(studyRepository, times(2)).save(any(Study.class));
+        verify(memberStudyRepository, times(1)).save(any(MemberStudy.class));
+        verify(regionStudyRepository, times(1)).save(any(RegionStudy.class));
+        verify(studyThemeRepository, times(1)).save(any(StudyTheme.class));
     }
 
     @Test
@@ -253,6 +322,18 @@ class StudyCommandServiceTest {
                 .introduction("Hi")
                 .member(member1)
                 .study(study)
+                .build();
+    }
+
+    private static void initRegion() {
+        region = Region.builder()
+                .code("123456")
+                .build();
+    }
+
+    private static void initTheme() {
+        theme = Theme.builder()
+                .studyTheme(ThemeType.자격증)
                 .build();
     }
 
