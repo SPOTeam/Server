@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.List;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
@@ -34,12 +35,14 @@ public class Theme extends BaseEntity {
     private ThemeType studyTheme;
 
     //== 해당 테마를 선호하는 멤버 목록 ==//
+    @Builder.Default
     @OneToMany(mappedBy = "theme", cascade = CascadeType.ALL)
-    private List<MemberTheme> memberThemeList;
+    private List<MemberTheme> memberThemeList = new ArrayList<>();
 
     //== 테마별 스터디 목록 ==//
+    @Builder.Default
     @OneToMany(mappedBy = "theme", cascade = CascadeType.ALL)
-    private List<StudyTheme> studyThemeList;
+    private List<StudyTheme> studyThemeList = new ArrayList<>();
 
 /* ----------------------------- 연관관계 메소드 ------------------------------------- */
 
