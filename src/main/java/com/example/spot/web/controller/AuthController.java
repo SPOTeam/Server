@@ -54,13 +54,13 @@ public class AuthController {
             * Request Params : String nickname, Boolean personalInfo, Boolean idInfo
             * Response Body : Long memberId, LocalDateTime updatedAt
             """)
-    @GetMapping("/sign-up/update")
-    public ApiResponse<MemberResponseDTO.MemberUpdateDTO> signUpAndPartialUpdate(
+    @PostMapping("/sign-up/update")
+    public ApiResponse<MemberResponseDTO.MemberInfoCreationDTO> signUpAndPartialUpdate(
             @RequestParam @TextLength(max = 8) String nickname,
             @RequestParam Boolean personalInfo,
             @RequestParam Boolean idInfo) {
-        MemberResponseDTO.MemberUpdateDTO memberUpdateDTO = authService.signUpAndPartialUpdate(nickname, personalInfo, idInfo);
-        return ApiResponse.onSuccess(SuccessStatus._MEMBER_UPDATED, memberUpdateDTO);
+        MemberResponseDTO.MemberInfoCreationDTO memberInfoCreationDTO = authService.signUpAndPartialUpdate(nickname, personalInfo, idInfo);
+        return ApiResponse.onSuccess(SuccessStatus._MEMBER_UPDATED, memberInfoCreationDTO);
     }
 
 /* ----------------------------- 네이버 소셜로그인 API ------------------------------------- */

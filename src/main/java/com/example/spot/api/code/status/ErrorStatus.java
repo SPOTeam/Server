@@ -55,6 +55,7 @@ public enum ErrorStatus implements BaseErrorCode {
     _UNABLE_TO_SEND_VERIFICATION_CODE(HttpStatus.BAD_REQUEST, "AA4017", "인증 코드를 전송할 수 없습니다."),
     _UNABLE_TO_SEND_EMAIL(HttpStatus.BAD_REQUEST, "AA4018", "이메일을 전송할 수 없습니다."),
     _UNABLE_TO_LOAD_MAIL_FORM(HttpStatus.INTERNAL_SERVER_ERROR, "AA4019", "이메일 인증 폼을 불러올 수 없습니다."),
+    _MEMBER_LOGIN_ID_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "AA4020", "해당 로그인 아이디로 가입한 회원이 이미 존재합니다."),
 
     //스터디 관련 에러
     _STUDY_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY4001", "스터디를 찾을 수 없습니다."),

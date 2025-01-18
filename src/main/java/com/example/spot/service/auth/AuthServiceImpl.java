@@ -37,7 +37,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -113,7 +112,7 @@ public class AuthServiceImpl implements AuthService{
 /* ----------------------------- 공통 회원 관리 API ------------------------------------- */
 
     @Override
-    public MemberResponseDTO.MemberUpdateDTO signUpAndPartialUpdate(String nickname, Boolean personalInfo, Boolean idInfo) {
+    public MemberResponseDTO.MemberInfoCreationDTO signUpAndPartialUpdate(String nickname, Boolean personalInfo, Boolean idInfo) {
 
         // Authorization
         Long memberId = SecurityUtils.getCurrentUserId();
@@ -124,10 +123,7 @@ public class AuthServiceImpl implements AuthService{
         member.updateTerm(personalInfo, idInfo);
         member = memberRepository.save(member);
 
-        return MemberResponseDTO.MemberUpdateDTO.builder()
-                .memberId(memberId)
-                .updatedAt(member.getUpdatedAt())
-                .build();
+        return MemberResponseDTO.MemberInfoCreationDTO.toDTO(member);
     }
 
 /* ----------------------------- 네이버 소셜로그인 API ------------------------------------- */
@@ -364,6 +360,9 @@ public class AuthServiceImpl implements AuthService{
         // 회원 생성
         if (memberRepository.existsByEmail(signUpDTO.getEmail())) {
             throw new MemberHandler(ErrorStatus._MEMBER_EMAIL_ALREADY_EXISTS);
+        }
+        if (memberRepository.existsByLoginId(signUpDTO.getLoginId())) {
+            throw new MemberHandler(ErrorStatus._MEMBER_LOGIN_ID_ALREADY_EXISTS);
         }
         if (!signUpDTO.getPassword().equals(signUpDTO.getPwCheck())) {
             throw new MemberHandler(ErrorStatus._MEMBER_PW_AND_PW_CHECK_DO_NOT_MATCH);
