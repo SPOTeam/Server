@@ -361,6 +361,9 @@ public class AuthServiceImpl implements AuthService{
         if (memberRepository.existsByEmail(signUpDTO.getEmail())) {
             throw new MemberHandler(ErrorStatus._MEMBER_EMAIL_ALREADY_EXISTS);
         }
+        if (memberRepository.existsByLoginId(signUpDTO.getLoginId())) {
+            throw new MemberHandler(ErrorStatus._MEMBER_LOGIN_ID_ALREADY_EXISTS);
+        }
         if (!signUpDTO.getPassword().equals(signUpDTO.getPwCheck())) {
             throw new MemberHandler(ErrorStatus._MEMBER_PW_AND_PW_CHECK_DO_NOT_MATCH);
         }
