@@ -19,6 +19,7 @@ import com.example.spot.web.dto.notification.NotificationResponseDTO.StduyNotifi
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -71,6 +72,7 @@ class NotificationQueryServiceTest {
     /*---------------------- 스터디 알림 조회 ---------------------- */
 
     @Test
+    @DisplayName("스터디 알림 조회 성공")
     void 스터디_알림_조회_성공() {
         // given
         given(notification1.getStudy().getId()).willReturn(1L);
@@ -91,6 +93,7 @@ class NotificationQueryServiceTest {
     }
 
     @Test
+    @DisplayName("참여 신청한 스터디 알림이 없는 경우")
     void 스터디_알림이_없는_경우() {
         // given
         when(notificationRepository.findByMemberIdAndTypeAndIsChecked(
@@ -107,6 +110,7 @@ class NotificationQueryServiceTest {
     /*---------------------- 알림 전체 조회 ---------------------- */
 
     @Test
+    @DisplayName("전체 알림 조회 성공")
     void 전체_알림_조회_성공() {
         // given
         given(notification1.getStudy().getTitle()).willReturn("스터디 참여");
@@ -125,6 +129,7 @@ class NotificationQueryServiceTest {
     }
 
     @Test
+    @DisplayName("조회할 알림이 없는 경우")
     void 조회할_알림이_없는_경우() {
         // given
 
