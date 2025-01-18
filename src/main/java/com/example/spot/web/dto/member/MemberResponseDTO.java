@@ -16,6 +16,25 @@ public class MemberResponseDTO {
     @Getter
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     @Builder(access = AccessLevel.PRIVATE)
+    public static class MemberInfoCreationDTO {
+        private final String name;
+        private final String email;
+        private final Boolean idInfo;
+        private final Boolean personalInfo;
+
+        public static MemberInfoCreationDTO toDTO(Member member) {
+            return MemberInfoCreationDTO.builder()
+                    .name(member.getName())
+                    .email(member.getEmail())
+                    .idInfo(member.getIdInfo())
+                    .personalInfo(member.getPersonalInfo())
+                    .build();
+        }
+    }
+
+    @Getter
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    @Builder(access = AccessLevel.PRIVATE)
     public static class SocialLoginSignInDTO {
 
         private final Boolean isSpotMember;
