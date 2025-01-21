@@ -2,6 +2,7 @@ package com.example.spot.web.dto.study.request;
 
 import com.example.spot.validation.annotation.TextLength;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 public class StudyJoinRequestDTO {
 
     @Getter
+    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class StudyJoinDTO {

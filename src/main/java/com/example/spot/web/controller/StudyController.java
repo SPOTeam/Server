@@ -49,7 +49,6 @@ public class StudyController {
         ## [스터디 생성/참여] 스터디 페이지 > 신청하기 클릭, 로그인한 회원이 스터디에 신청합니다.
         로그인한 회원이 member_study에 application_status = APPLIED 상태로 추가됩니다.
         """)
-    @Parameter(name = "memberId", description = "스터디에 참여하는 회원의 id를 입력 받습니다.", required = true)
     @Parameter(name = "studyId", description = "참여할 스터디의 id를 입력 받습니다.", required = true)
     @PostMapping("/studies/{studyId}")
     public ApiResponse<StudyJoinResponseDTO.JoinDTO> applyToStudy(
@@ -67,7 +66,6 @@ public class StudyController {
         
         regions에는 지역 코드를 입력해야 합니다.
         """)
-    @Parameter(name = "memberId", description = "스터디를 생성할 회원의 id를 입력 받습니다.", required = true)
     @PostMapping("/studies")
     public ApiResponse<StudyRegisterResponseDTO.RegisterDTO> registerStudy(
             @RequestBody @Valid StudyRegisterRequestDTO.RegisterDTO studyRegisterRequestDTO) {
