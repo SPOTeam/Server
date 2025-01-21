@@ -8,16 +8,20 @@ import com.example.spot.domain.mapping.MemberStudy;
 import com.example.spot.domain.study.Schedule;
 import com.example.spot.domain.study.Study;
 import com.example.spot.domain.study.StudyPost;
+import com.example.spot.domain.study.ToDoList;
 import com.example.spot.repository.MemberRepository;
 import com.example.spot.repository.MemberStudyRepository;
 import com.example.spot.repository.ScheduleRepository;
 import com.example.spot.repository.StudyPostRepository;
+import com.example.spot.repository.ToDoListRepository;
 import com.example.spot.security.utils.SecurityUtils;
+import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListResponseDTO.ToDoListSearchResponseDTO;
 import com.example.spot.web.dto.study.response.StudyMemberResponseDTO;
 import com.example.spot.web.dto.study.response.StudyMemberResponseDTO.StudyApplicantDTO;
 import com.example.spot.web.dto.study.response.StudyMemberResponseDTO.StudyApplyMemberDTO;
 import com.example.spot.web.dto.study.response.StudyPostResponseDTO;
 import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +43,7 @@ import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -61,25 +66,40 @@ public class MemberStudyQueryServiceTest {
     @Mock
     private ScheduleRepository scheduleRepository;
     @Mock
+    private ToDoListRepository toDoListRepository;
+    @Mock
     private SecurityUtils securityUtils;
 
     private static Member member;
+    private static Member member2;
     private static Study study;
     private static MemberStudy memberStudy;
+    private static MemberStudy studyMember;
     private static MemberStudy apply;
+    private static ToDoList toDoList;
     @BeforeEach
     void setup(){
         member = Member.builder()
                 .id(1L)
                 .build();
+        member2 = Member.builder()
+                .id(2L)
+                .build();
+
 
         study = Study.builder()
                 .build();
 
         memberStudy = MemberStudy.builder()
                 .introduction("title").study(study).member(member).isOwned(true).status(ApplicationStatus.APPROVED).build();
+
         apply = MemberStudy.builder()
                 .introduction("title").study(study).member(member).isOwned(false).status(ApplicationStatus.APPLIED).build();
+        studyMember = MemberStudy.builder()
+                .introduction("title").study(study).member(member2).isOwned(true).status(ApplicationStatus.APPROVED).build();
+        toDoList = ToDoList.builder()
+                .id(1L)
+                .build();
 
         Long studyId = 1L;
 
@@ -361,4 +381,110 @@ public class MemberStudyQueryServiceTest {
         // when & then
         assertThrows(GeneralException.class, () -> memberStudyQueryService.isApplied(100L));
     }
+
+    /* ------------------------------------------------ To-Do 조회  --------------------------------------------------- */
+
+    @Test
+    @DisplayName("To-Do 조회 - 성공")
+    void ToDo_조회_성공() {
+        // given
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndStatus(1L, 100L, ApplicationStatus.APPROVED))
+                .thenReturn(Optional.ofNullable(memberStudy));
+        when(toDoListRepository.findByStudyIdAndMemberIdAndDateOrderByCreatedAtDesc(anyLong(), anyLong(), any(), any()))
+                .thenReturn(List.of(toDoList));
+        when(toDoListRepository.countByStudyIdAndMemberIdAndDate(anyLong(), anyLong(), any()))
+                .thenReturn(1L);
+
+        // when
+        ToDoListSearchResponseDTO responseDTO = memberStudyQueryService.getToDoList(1L, LocalDate.MAX, PageRequest.of(0, 10));
+
+        // then
+        assertEquals(1, responseDTO.getTotalElements());
+        assertEquals(1L, responseDTO.getContent().get(0).getId());
+    }
+
+    @Test
+    @DisplayName("To-Do 조회 - 로그인 한 회원이 스터디 회원이 아닌 경우")
+    void ToDo_조회_시_로그인_한_회원이_스터디_회원이_아닌_경우() {
+        // given
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndStatus(1L, 100L, ApplicationStatus.APPROVED))
+                .thenReturn(Optional.empty());
+
+        // when & then
+        assertThrows(GeneralException.class, () -> memberStudyQueryService.getToDoList(100L, LocalDate.MAX, PageRequest.of(0, 10)));
+    }
+
+    @Test
+    @DisplayName("To-Do 조회 - 회원의 To-Do가 존재하지 않는 경우")
+    void ToDo가_존재하지_않는_경우() {
+        // given
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndStatus(1L, 100L, ApplicationStatus.APPROVED))
+                .thenReturn(Optional.ofNullable(memberStudy));
+        when(toDoListRepository.findByStudyIdAndMemberIdAndDateOrderByCreatedAtDesc(anyLong(), anyLong(), any(), any()))
+                .thenReturn(List.of());
+
+        // when & then
+        assertThrows(GeneralException.class, () -> memberStudyQueryService.getToDoList(100L, LocalDate.MAX, PageRequest.of(0, 10)));
+    }
+
+    /* ------------------------------------------------ 다른 스터디원의 To-Do 조회  --------------------------------------------------- */
+
+    @Test
+    @DisplayName("특정 스터디 원 To-Do 조회 - 성공")
+    void 스터디_원_ToDo_조회_성공() {
+        // given
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndStatus(1L, 1L, ApplicationStatus.APPROVED))
+                .thenReturn(Optional.ofNullable(memberStudy));
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndStatus(2L, 1L, ApplicationStatus.APPROVED))
+                .thenReturn(Optional.ofNullable(studyMember));
+        when(toDoListRepository.findByStudyIdAndMemberIdAndDateOrderByCreatedAtDesc(anyLong(), anyLong(), any(), any()))
+                .thenReturn(List.of(toDoList));
+        when(toDoListRepository.countByStudyIdAndMemberIdAndDate(anyLong(), anyLong(), any()))
+                .thenReturn(1L);
+
+        // when
+        ToDoListSearchResponseDTO responseDTO = memberStudyQueryService.getMemberToDoList(1L, 2L, LocalDate.MAX, PageRequest.of(0, 10));
+
+        // then
+        assertEquals(1, responseDTO.getTotalElements());
+        assertEquals(1L, responseDTO.getContent().get(0).getId());
+    }
+
+    @Test
+    @DisplayName("특정 스터디 원 To-Do 조회 - 로그인 한 회원이 스터디 회원이 아닌 경우")
+    void 스터디_원_ToDo_조회_시_로그인_한_회원이_스터디_회원이_아닌_경우() {
+        // given
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndStatus(1L, 100L, ApplicationStatus.APPROVED))
+                .thenReturn(Optional.empty());
+
+        // when & then
+        assertThrows(GeneralException.class, () -> memberStudyQueryService.getMemberToDoList(100L, 2L, LocalDate.MAX, PageRequest.of(0, 10)));
+    }
+
+    @Test
+    @DisplayName("특정 스터디 원 To-Do 조회 - 조회 하려는 회원이 스터디 회원이 아닌 경우")
+    void 스터디_원_ToDo_조회_시_조회_하려는_회원이_스터디_회원이_아닌_경우() {
+        // given
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndStatus(1L, 100L, ApplicationStatus.APPROVED))
+                .thenReturn(Optional.ofNullable(memberStudy));
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndStatus(2L, 100L, ApplicationStatus.APPROVED))
+                .thenReturn(Optional.empty());
+
+        // when & then
+        assertThrows(GeneralException.class, () -> memberStudyQueryService.getMemberToDoList(100L, 2L, LocalDate.MAX, PageRequest.of(0, 10)));
+    }
+
+    @Test
+    @DisplayName("특정 스터디 원 To-Do 조회 - 회원의 To-Do가 존재하지 않는 경우")
+    void 스터디_원_ToDo가_존재하지_않는_경우() {
+        // given
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndStatus(1L, 100L, ApplicationStatus.APPROVED))
+                .thenReturn(Optional.ofNullable(memberStudy));
+        when(toDoListRepository.findByStudyIdAndMemberIdAndDateOrderByCreatedAtDesc(anyLong(), anyLong(), any(), any()))
+                .thenReturn(List.of());
+
+        // when & then
+        assertThrows(GeneralException.class, () -> memberStudyQueryService.getToDoList(100L, LocalDate.MAX, PageRequest.of(0, 10)));
+    }
+
 }
