@@ -2,6 +2,7 @@ package com.example.spot.web.controller;
 
 import com.example.spot.api.ApiResponse;
 import com.example.spot.api.code.status.SuccessStatus;
+import com.example.spot.web.dto.rsa.Rsa;
 import com.example.spot.service.auth.AuthService;
 import com.example.spot.validation.annotation.TextLength;
 import com.example.spot.web.dto.member.MemberRequestDTO;
@@ -15,6 +16,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -217,19 +219,34 @@ public class AuthController {
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_FOUND, findPwDTO);
     }
 
+    @Tag(name = "회원 관리 API - 개발 완료", description = "회원 관리 API")
+    @Operation(summary = "[로그인] RSA Public Key 발급 API",
+            description = """
+            ## [로그인] 비밀번호 전송을 위해 RSA Public Key를 발급하는 API입니다.
+            * 서버에서 발급한 RSA Public Key와 해당 키의 식별자인 rsaId를 클라이언트에 전달합니다.
+            * 로그인 시 해당 키를 통해 비밀번호를 암호화하여 전송해야 합니다.
+            """)
+    @PostMapping("/login/rsa")
+    public ApiResponse<Rsa.RSAPublicKey> getRSAPublicKey() throws Exception {
+        Rsa.RSAPublicKey rsaPublicKey = authService.getRSAPublicKey();
+        return ApiResponse.onSuccess(SuccessStatus._RSA_PUBLIC_KEY_FOUND, rsaPublicKey);
+    }
 
     @Tag(name = "회원 관리 API - 개발 완료", description = "회원 관리 API")
     @Operation(summary = "[로그인] 일반 로그인 API",
         description = """
             ## [로그인] 아이디(이메일)과 비밀번호를 통해 로그인 하는 API입니다.
-            로그인에 성공하면, 액세스 토큰과 리프레시 토큰이 발급됩니다.
-            액세스 토큰은 사용자의 정보를 인증하는데 사용되며, 리프레시 토큰은 액세스 토큰이 만료된 경우, 액세스 토큰을 재발급 하는데 사용됩니다.
-            액세스 토큰이 만료된 경우, 유효한 상태의 리프레시 토큰을 통해 액세스 토큰을 재발급 받을 수 있습니다.
+            * 로그인에 성공하면, 액세스 토큰과 리프레시 토큰이 발급됩니다.
+            * 액세스 토큰은 사용자의 정보를 인증하는데 사용되며, 리프레시 토큰은 액세스 토큰이 만료된 경우, 액세스 토큰을 재발급 하는데 사용됩니다.
+            * 액세스 토큰이 만료된 경우, 유효한 상태의 리프레시 토큰을 통해 액세스 토큰을 재발급 받을 수 있습니다.
+            * rsaId에는 RSA Public Key 발급 API를 통해 획득한 식별자(id)를 입력해야 합니다.
+            * 비밀번호는 반드시 RSA Public Key로 암호화하여 전송해야 합니다.
             """)
     @PostMapping("/login")
     public ApiResponse<MemberResponseDTO.MemberSignInDTO> login(
-            @RequestBody @Valid MemberRequestDTO.SignInDTO signInDTO) {
-        MemberResponseDTO.MemberSignInDTO memberSignInDTO = authService.signIn(signInDTO);
+            @RequestParam Long rsaId,
+            @RequestBody @Valid MemberRequestDTO.SignInDTO signInDTO) throws Exception {
+        MemberResponseDTO.MemberSignInDTO memberSignInDTO = authService.signIn(rsaId, signInDTO);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_SIGNED_IN, memberSignInDTO);
     }
 
