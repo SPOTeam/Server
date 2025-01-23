@@ -19,8 +19,6 @@ public class MemberRequestDTO {
 
         @TextLength(max = 100)
         private final String loginId;
-
-        @TextLength(max = 100)
         private final String password;
     }
 
