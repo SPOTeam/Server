@@ -381,18 +381,20 @@ public class AuthServiceImpl implements AuthService{
 
     /**
      * 일반 회원가입에 사용되는 메서드입니다.
+     *
+     * @param rsaId
      * @param signUpDTO 회원의 기본 정보를 입력 받습니다.
      *                  name : 이름
      *                  frontRID : 주민번호 앞자리
      *                  backRID : 주민번호 뒷자리 첫 글자
      *                  email : 이메일
      *                  loginId : 아이디
-     *                  password : 비밀번호
+     *                  password : 비밀번호 (RSA Key로 암호화한 값)
      *                  pwCheck : 비밀번호 확인
      * @return 가입한 회원은 자동으로 로그인되며, 회원의 토큰 정보(액세스 & 리프레시 토큰 & 만료기간), 이메일과 회원 아이디(정수)가 반환됩니다.
      */
     @Override
-    public MemberResponseDTO.MemberSignInDTO signUp(MemberRequestDTO.SignUpDTO signUpDTO) {
+    public MemberResponseDTO.MemberSignInDTO signUp(Long rsaId, MemberRequestDTO.SignUpDTO signUpDTO) throws Exception {
 
         // 회원 생성
         if (memberRepository.existsByEmail(signUpDTO.getEmail())) {
@@ -401,7 +403,10 @@ public class AuthServiceImpl implements AuthService{
         if (memberRepository.existsByLoginId(signUpDTO.getLoginId())) {
             throw new MemberHandler(ErrorStatus._MEMBER_LOGIN_ID_ALREADY_EXISTS);
         }
-        if (!signUpDTO.getPassword().equals(signUpDTO.getPwCheck())) {
+
+        String password = getDecryptedPassword(rsaId, signUpDTO.getPassword());
+        String pwCheck = getDecryptedPassword(rsaId, signUpDTO.getPwCheck());
+        if (!password.equals(pwCheck)) {
             throw new MemberHandler(ErrorStatus._MEMBER_PW_AND_PW_CHECK_DO_NOT_MATCH);
         }
 
@@ -426,7 +431,7 @@ public class AuthServiceImpl implements AuthService{
                 .carrier(Carrier.NONE)
                 .phone("")
                 .loginId(signUpDTO.getLoginId())
-                .password(signUpDTO.getPassword())
+                .password(password)
                 .profileImage(DEFAULT_PROFILE_IMAGE_URL)
                 .personalInfo(false)
                 .idInfo(false)

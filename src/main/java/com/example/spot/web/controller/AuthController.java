@@ -179,14 +179,16 @@ public class AuthController {
             ## [회원 가입] 일반 회원 가입 API입니다.
             * 아이디(이메일)과 비밀번호 등을 포함하여 회원 가입을 진행합니다.
             * 주민번호 앞자리(frontRID)와 뒷자리(backRID)는 모두 String 타입입니다.
+            * <비밀번호>와 <비밀번호 확인>은 반드시 RSA Public Key로 암호화하여 전송해야 합니다.
             * 회원 가입에 성공하면, 액세스 토큰과 리프레시 토큰이 발급됩니다.
             * 액세스 토큰은 사용자의 정보를 인증하는데 사용되며, 리프레시 토큰은 액세스 토큰이 만료된 경우, 액세스 토큰을 재발급 하는데 사용됩니다.
             * 액세스 토큰이 만료된 경우, 유효한 상태의 리프레시 토큰을 통해 액세스 토큰을 재발급 받을 수 있습니다.
             """)
     @PostMapping("/sign-up")
     public ApiResponse<MemberResponseDTO.MemberSignInDTO> signUp(
-            @RequestBody @Valid MemberRequestDTO.SignUpDTO signUpDTO) {
-        MemberResponseDTO.MemberSignInDTO memberSignUpDTO = authService.signUp(signUpDTO);
+            @RequestParam Long rsaId,
+            @RequestBody @Valid MemberRequestDTO.SignUpDTO signUpDTO) throws Exception {
+        MemberResponseDTO.MemberSignInDTO memberSignUpDTO = authService.signUp(rsaId, signUpDTO);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_CREATED, memberSignUpDTO);
     }
 
@@ -224,7 +226,7 @@ public class AuthController {
             description = """
             ## [로그인] 비밀번호 전송을 위해 RSA Public Key를 발급하는 API입니다.
             * 서버에서 발급한 RSA Public Key와 해당 키의 식별자인 rsaId를 클라이언트에 전달합니다.
-            * 로그인 시 해당 키를 통해 비밀번호를 암호화하여 전송해야 합니다.
+            * 로그인 및 회원가입 시 해당 키를 통해 비밀번호를 암호화하여 전송해야 합니다.
             """)
     @PostMapping("/login/rsa")
     public ApiResponse<Rsa.RSAPublicKey> getRSAPublicKey() throws Exception {

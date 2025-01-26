@@ -23,6 +23,7 @@ public class MemberRequestDTO {
     }
 
     @Getter
+    @Builder
     @RequiredArgsConstructor
     public static class SignUpDTO {
 
@@ -41,10 +42,8 @@ public class MemberRequestDTO {
         @TextLength(min=6, max = 100)
         private final String loginId;
 
-        @TextLength(max = 100)
         private final String password;
 
-        @TextLength(max = 100)
         private final String pwCheck;
 
     }

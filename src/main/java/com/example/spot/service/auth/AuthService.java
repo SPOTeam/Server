@@ -32,7 +32,7 @@ public interface AuthService {
 
     TokenResponseDTO.TempTokenDTO verifyEmail(String verificationCode, String email);
 
-    MemberResponseDTO.MemberSignInDTO signUp(MemberRequestDTO.SignUpDTO signUpDTO);
+    MemberResponseDTO.MemberSignInDTO signUp(Long rsaId, MemberRequestDTO.SignUpDTO signUpDTO) throws Exception;
 
     MemberResponseDTO.FindIdDTO findId();
 
