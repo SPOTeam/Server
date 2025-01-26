@@ -52,3 +52,4 @@ src/main/resources/application.yml
 
 ### jacoco ###
 jacoco
+src/main/java/com/example/ApiClient.java
