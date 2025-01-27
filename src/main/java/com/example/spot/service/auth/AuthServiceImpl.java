@@ -5,6 +5,8 @@ import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.GeneralException;
 import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.domain.Member;
+import com.example.spot.domain.auth.RsaKey;
+import com.example.spot.web.dto.rsa.Rsa;
 import com.example.spot.domain.auth.RefreshToken;
 import com.example.spot.domain.auth.VerificationCode;
 import com.example.spot.domain.enums.Carrier;
@@ -13,9 +15,11 @@ import com.example.spot.domain.enums.LoginType;
 import com.example.spot.domain.enums.Status;
 import com.example.spot.repository.MemberRepository;
 import com.example.spot.repository.RefreshTokenRepository;
+import com.example.spot.repository.rsa.RSAKeyRepository;
 import com.example.spot.repository.verification.VerificationCodeRepository;
 import com.example.spot.security.utils.JwtTokenProvider;
 import com.example.spot.security.utils.MemberUtils;
+import com.example.spot.security.utils.RSAUtils;
 import com.example.spot.web.dto.member.MemberRequestDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.security.utils.SecurityUtils;
@@ -27,8 +31,10 @@ import com.example.spot.web.dto.member.naver.NaverOAuthToken;
 import com.example.spot.web.dto.token.TokenResponseDTO;
 import com.example.spot.web.dto.token.TokenResponseDTO.TokenDTO;
 
+import java.security.PrivateKey;
 import java.security.SecureRandom;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.Random;
@@ -55,6 +61,9 @@ public class AuthServiceImpl implements AuthService{
     private final VerificationCodeRepository verificationCodeRepository;
     private final MailService mailService;
     private final NaverOAuthService naverOAuthService;
+
+    private final RSAUtils rsaUtils;
+    private final RSAKeyRepository rsaKeyRepository;
 
     @Value("${image.post.anonymous.profile}")
     private String DEFAULT_PROFILE_IMAGE_URL;
@@ -258,18 +267,19 @@ public class AuthServiceImpl implements AuthService{
 
     /**
      * 일반 로그인을 위한 메서드입니다. 아이디와 비밀번호를 확인한 후 토큰을 발급하는 로직을 수행합니다.
-     * @param signInDTO 로그인할 회원의 아이디와 비밀번호를 입력 받습니다.
+     * @param signInDTO   로그인할 회원의 아이디와 비밀번호를 입력 받습니다.
      * @return 로그인한 회원의 토큰 정보(액세스 & 리프레시 토큰 & 만료기간), 이메일과 회원 아이디(정수)가 반환됩니다.
      */
     @Override
-    public MemberResponseDTO.MemberSignInDTO signIn(MemberRequestDTO.SignInDTO signInDTO) {
+    public MemberResponseDTO.MemberSignInDTO signIn(Long rsaId, MemberRequestDTO.SignInDTO signInDTO) throws Exception {
 
         // 아이디가 일치하는 유저가 있는지 확인
         Member member = memberRepository.findByLoginId(signInDTO.getLoginId())
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
 
         // 비밀번호 확인
-        if (!signInDTO.getPassword().equals(member.getPassword())) {
+        String password = getDecryptedPassword(rsaId, signInDTO.getPassword());
+        if (!password.equals(member.getPassword())) {
             throw new MemberHandler(ErrorStatus._MEMBER_PASSWORD_NOT_MATCH);
         }
 
@@ -282,6 +292,33 @@ public class AuthServiceImpl implements AuthService{
                 .memberId(member.getId())
                 .loginType(member.getLoginType())
                 .email(member.getEmail())
+                .build();
+    }
+
+    private String getDecryptedPassword(Long rsaId, String encryptedPassword) throws Exception {
+
+        // Private Key 추출 후 Session에 저장된 Private Key 초기화
+        RsaKey rsaKey = rsaKeyRepository.findById(rsaId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._RSA_ERROR));
+        rsaKeyRepository.deleteByCreatedAtBefore(LocalDateTime.now().minusMinutes(1));
+
+        // 복호화된 패스워드 반환
+        PrivateKey privateKey = rsaUtils.getPrivateKeyFromBase64String(rsaKey.getPrivateKey());
+        return rsaUtils.getDecryptedText(privateKey, encryptedPassword);
+    }
+
+    @Override
+    public Rsa.RSAPublicKey getRSAPublicKey() throws Exception {
+
+        // RSA 생성
+        RsaKey rsa = rsaUtils.createRSA();
+        rsa = rsaKeyRepository.save(rsa);
+
+        // Public Key 반환
+        return Rsa.RSAPublicKey.builder()
+                .rsaId(rsa.getId())
+                .modulus(rsa.getModulus())
+                .exponent(rsa.getExponent())
                 .build();
     }
 
@@ -344,18 +381,20 @@ public class AuthServiceImpl implements AuthService{
 
     /**
      * 일반 회원가입에 사용되는 메서드입니다.
+     *
+     * @param rsaId
      * @param signUpDTO 회원의 기본 정보를 입력 받습니다.
      *                  name : 이름
      *                  frontRID : 주민번호 앞자리
      *                  backRID : 주민번호 뒷자리 첫 글자
      *                  email : 이메일
      *                  loginId : 아이디
-     *                  password : 비밀번호
+     *                  password : 비밀번호 (RSA Key로 암호화한 값)
      *                  pwCheck : 비밀번호 확인
      * @return 가입한 회원은 자동으로 로그인되며, 회원의 토큰 정보(액세스 & 리프레시 토큰 & 만료기간), 이메일과 회원 아이디(정수)가 반환됩니다.
      */
     @Override
-    public MemberResponseDTO.MemberSignInDTO signUp(MemberRequestDTO.SignUpDTO signUpDTO) {
+    public MemberResponseDTO.MemberSignInDTO signUp(Long rsaId, MemberRequestDTO.SignUpDTO signUpDTO) throws Exception {
 
         // 회원 생성
         if (memberRepository.existsByEmail(signUpDTO.getEmail())) {
@@ -364,7 +403,10 @@ public class AuthServiceImpl implements AuthService{
         if (memberRepository.existsByLoginId(signUpDTO.getLoginId())) {
             throw new MemberHandler(ErrorStatus._MEMBER_LOGIN_ID_ALREADY_EXISTS);
         }
-        if (!signUpDTO.getPassword().equals(signUpDTO.getPwCheck())) {
+
+        String password = getDecryptedPassword(rsaId, signUpDTO.getPassword());
+        String pwCheck = getDecryptedPassword(rsaId, signUpDTO.getPwCheck());
+        if (!password.equals(pwCheck)) {
             throw new MemberHandler(ErrorStatus._MEMBER_PW_AND_PW_CHECK_DO_NOT_MATCH);
         }
 
@@ -389,7 +431,7 @@ public class AuthServiceImpl implements AuthService{
                 .carrier(Carrier.NONE)
                 .phone("")
                 .loginId(signUpDTO.getLoginId())
-                .password(signUpDTO.getPassword())
+                .password(password)
                 .profileImage(DEFAULT_PROFILE_IMAGE_URL)
                 .personalInfo(false)
                 .idInfo(false)

@@ -30,7 +30,7 @@ public class StudyJoinResponseDTO {
     }
 
     @Getter
-    private static class TitleDTO {
+    public static class TitleDTO {
 
         private final Long studyId;
         private final String title;

@@ -15,6 +15,9 @@ import java.util.List;
 
 @Entity
 @Getter
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class Region extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,24 +31,14 @@ public class Region extends BaseEntity {
 
     private String neighborhood;
 
+    @Builder.Default
     @OneToMany(mappedBy = "region")
     private List<RegionStudy> regionStudyList = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "region")
     private List<PreferredRegion> prefferedRegionList = new ArrayList<>();
 
-
-/* ----------------------------- 생성자 ------------------------------------- */
-
-    protected Region() {}
-
-    @Builder
-    public Region(String code, String province, String district, String neighborhood) {
-        this.code = code;
-        this.province = province;
-        this.district = district;
-        this.neighborhood = neighborhood;
-    }
 
 /* ----------------------------- 연관관계 메소드 ------------------------------------- */
 

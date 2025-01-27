@@ -6,6 +6,7 @@ import com.example.spot.validation.annotation.IntSize;
 import com.example.spot.validation.annotation.LongSize;
 import com.example.spot.validation.annotation.TextLength;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -15,6 +16,7 @@ import java.util.List;
 public class StudyRegisterRequestDTO {
 
     @Getter
+    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class RegisterDTO {

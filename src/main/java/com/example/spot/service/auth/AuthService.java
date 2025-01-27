@@ -1,5 +1,6 @@
 package com.example.spot.service.auth;
 
+import com.example.spot.web.dto.rsa.Rsa;
 import com.example.spot.web.dto.member.MemberRequestDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.SocialLoginSignInDTO;
@@ -23,13 +24,15 @@ public interface AuthService {
 
     SocialLoginSignInDTO signInWithNaver(HttpServletRequest request, HttpServletResponse response, NaverOAuthToken.NaverTokenIssuanceDTO naverTokenDTO) throws Exception;
 
-    MemberResponseDTO.MemberSignInDTO signIn(MemberRequestDTO.SignInDTO signInDTO);
+    MemberResponseDTO.MemberSignInDTO signIn(Long httpSession, MemberRequestDTO.SignInDTO signInDTO) throws Exception;
+
+    Rsa.RSAPublicKey getRSAPublicKey() throws Exception;
 
     void sendVerificationCode(HttpServletRequest request, HttpServletResponse response, String email);
 
     TokenResponseDTO.TempTokenDTO verifyEmail(String verificationCode, String email);
 
-    MemberResponseDTO.MemberSignInDTO signUp(MemberRequestDTO.SignUpDTO signUpDTO);
+    MemberResponseDTO.MemberSignInDTO signUp(Long rsaId, MemberRequestDTO.SignUpDTO signUpDTO) throws Exception;
 
     MemberResponseDTO.FindIdDTO findId();
 
