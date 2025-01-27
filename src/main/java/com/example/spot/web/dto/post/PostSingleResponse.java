@@ -86,6 +86,11 @@ public class PostSingleResponse {
     private boolean scrapedByCurrentUser;
 
     @Schema(
+            description = "현재 사용자의 해당 게시글 작성 여부입니다."
+    )
+    private boolean createdByCurrentUser;
+
+    @Schema(
             description = "댓글 리스트입니다.",
             format = "array"
     )
@@ -118,12 +123,11 @@ public class PostSingleResponse {
         return profileImage;
     }
 
-    public static PostSingleResponse toDTO(Post post, long likeCount, long scrapCount, CommentResponse commentResponse, boolean likedByCurrentUser, boolean scrapedByCurrentUser, String defaultProfileImageUrl) {
+    public static PostSingleResponse toDTO(Post post, long likeCount, long scrapCount, CommentResponse commentResponse, boolean likedByCurrentUser, boolean scrapedByCurrentUser, boolean createdByCurrentUser, String defaultProfileImageUrl) {
         // 작성자가 익명인지 확인하여 작성자 이름 설정
         String writerName = judgeAnonymous(post.isAnonymous(), post.getMember().getName());
         // 작성자가 익명인지 확인하여 프로필 반환
         String writerImage = anonymousProfileImage(post.isAnonymous(), post.getMember().getProfileImage(), defaultProfileImageUrl);
-
 
         return PostSingleResponse.builder()
                 .type(post.getBoard().name())
@@ -137,6 +141,7 @@ public class PostSingleResponse {
                 .content(post.getContent())
                 .likeCount(likeCount)
                 .likedByCurrentUser(likedByCurrentUser)
+                .createdByCurrentUser(createdByCurrentUser)
                 .commentCount(commentResponse.getComments().size())
                 .viewCount(post.getHitNum())
                 .commentResponses(commentResponse)
