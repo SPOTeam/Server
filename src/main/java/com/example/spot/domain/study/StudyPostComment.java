@@ -14,8 +14,8 @@ import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
 @Getter
-@DynamicUpdate
-@DynamicInsert
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StudyPostComment extends BaseEntity {
 
@@ -36,11 +36,11 @@ public class StudyPostComment extends BaseEntity {
     @Column(nullable = false)
     private String content;
 
-    @Column(nullable = false)
-    private Integer likeCount;
+    @Column(columnDefinition = "INTEGER DEFAULT 0")
+    private Integer likeCount = 0;
 
-    @Column(nullable = false)
-    private Integer dislikeCount;
+    @Column(columnDefinition = "INTEGER DEFAULT 0")
+    private Integer dislikeCount = 0;
 
     @Column(nullable = false, columnDefinition = "BIT DEFAULT 0")
     private Boolean isAnonymous;
@@ -56,29 +56,13 @@ public class StudyPostComment extends BaseEntity {
     @JoinColumn(name = "parent_comment_id")
     private StudyPostComment parentComment;
 
+    @Builder.Default
     @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL)
-    private List<StudyPostComment> childrenComment;
+    private List<StudyPostComment> childrenComment = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "studyPostComment", cascade = CascadeType.ALL)
-    private List<StudyLikedComment> likedComments;
-
-/* ----------------------------- 생성자 ------------------------------------- */
-
-    @Builder
-    public StudyPostComment(StudyPost studyPost, Member member, String content,
-                            Boolean isAnonymous, Integer anonymousNum, StudyPostComment parentComment) {
-        this.studyPost = studyPost;
-        this.member = member;
-        this.content = content;
-        this.likeCount = 0;
-        this.dislikeCount = 0;
-        this.isAnonymous = isAnonymous;
-        this.anonymousNum = anonymousNum;
-        this.isDeleted = Boolean.FALSE;
-        this.parentComment = parentComment;
-        this.childrenComment = new ArrayList<>();
-        this.likedComments = new ArrayList<>();
-    }
+    private List<StudyLikedComment> likedComments = new ArrayList<>();
 
 /* ----------------------------- 연관관계 메소드 ------------------------------------- */
 

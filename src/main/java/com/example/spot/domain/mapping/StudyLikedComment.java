@@ -10,8 +10,10 @@ import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
 @Getter
+@Builder
 @DynamicUpdate
 @DynamicInsert
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StudyLikedComment extends BaseEntity {
 
@@ -30,14 +32,5 @@ public class StudyLikedComment extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
-
-/* ----------------------------- 생성자 ------------------------------------- */
-
-    @Builder
-    public StudyLikedComment(StudyPostComment studyPostComment, Member member, Boolean isLiked) {
-        this.studyPostComment = studyPostComment;
-        this.member = member;
-        this.isLiked = isLiked;
-    }
 
 }
