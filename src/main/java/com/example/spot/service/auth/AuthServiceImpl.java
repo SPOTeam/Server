@@ -252,7 +252,7 @@ public class AuthServiceImpl implements AuthService{
                 .phone(MemberUtils.generatePhoneNumber())
                 .loginId(memberDTO.getResponse().getEmail())
                 .password("")
-                .profileImage(DEFAULT_PROFILE_IMAGE_URL)
+                .profileImage(memberDTO.getResponse().getProfileImage())
                 .personalInfo(false)
                 .idInfo(false)
                 .isAdmin(Boolean.FALSE)
