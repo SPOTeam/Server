@@ -93,6 +93,9 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
                 .theme(postRequestDTO.getTheme())
                 .title(postRequestDTO.getTitle())
                 .content(postRequestDTO.getContent())
+                .likeNum(0)
+                .hitNum(0)
+                .commentNum(0)
                 .build();
 
         // 공지면 announcedAt 설정
@@ -320,6 +323,8 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
                 .studyPost(studyPost)
                 .member(member)
                 .content(commentRequestDTO.getContent())
+                .likeCount(0)
+                .dislikeCount(0)
                 .isAnonymous(commentRequestDTO.getIsAnonymous())
                 .parentComment(null)
                 .anonymousNum(anonymousNum)
@@ -376,6 +381,8 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
                 .studyPost(studyPost)
                 .member(member)
                 .content(commentRequestDTO.getContent())
+                .likeCount(0)
+                .dislikeCount(0)
                 .isAnonymous(commentRequestDTO.getIsAnonymous())
                 .anonymousNum(anonymousNum)
                 .parentComment(parentComment)
