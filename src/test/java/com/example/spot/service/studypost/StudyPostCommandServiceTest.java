@@ -9,6 +9,7 @@ import com.example.spot.domain.enums.Theme;
 import com.example.spot.domain.mapping.MemberStudy;
 import com.example.spot.domain.mapping.StudyLikedComment;
 import com.example.spot.domain.mapping.StudyLikedPost;
+import com.example.spot.domain.mapping.StudyPostImage;
 import com.example.spot.domain.study.Study;
 import com.example.spot.domain.study.StudyPost;
 import com.example.spot.domain.study.StudyPostComment;
@@ -56,6 +57,10 @@ class StudyPostCommandServiceTest {
     private StudyPostRepository studyPostRepository;
     @Mock
     private StudyLikedPostRepository studyLikedPostRepository;
+    @Mock
+    private StudyPostImageRepository studyPostImageRepository;
+    @Mock
+    private StudyPostReportRepository studyPostReportRepository;
 
     @Mock
     private StudyPostCommentRepository studyPostCommentRepository;
@@ -127,7 +132,7 @@ class StudyPostCommandServiceTest {
 
     @Test
     @DisplayName("스터디 게시글 작성 - 공지 게시글 (성공)")
-    void createPost_Success() {
+    void createPost_Announcement_Success() {
 
         // given
         Long memberId = 3L;
@@ -159,6 +164,39 @@ class StudyPostCommandServiceTest {
     }
 
     @Test
+    @DisplayName("스터디 게시글 작성 - 일반 게시글 (성공)")
+    void createPost_Common_Success() {
+
+        // given
+        Long memberId = 1L;
+        Long studyId = 1L;
+
+        StudyPostRequestDTO.PostDTO postPreviewDTO = StudyPostRequestDTO.PostDTO.builder()
+                .isAnnouncement(false)
+                .theme(Theme.FREE_TALK)
+                .title("잡담")
+                .content("내용")
+                .build();
+
+        getAuthentication(memberId);
+
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndIsOwned(memberId, studyId, true))
+                .thenReturn(Optional.of(member1Study));
+        when(studyPostRepository.save(any(StudyPost.class))).thenReturn(studyPost1);
+        when(notificationRepository.save(any(Notification.class))).thenReturn(null);
+        when(memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED))
+                .thenReturn(List.of(member1Study, ownerStudy));
+
+        // when
+        StudyPostResDTO.PostPreviewDTO result = studyPostCommandService.createPost(studyId, postPreviewDTO);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getTitle()).isEqualTo("잡담");
+        verify(studyPostRepository, times(1)).save(any(StudyPost.class));
+    }
+
+    @Test
     @DisplayName("스터디 게시글 작성 - 스터디 회원이 아닌 경우 (실패)")
     void createPost_NotStudyMember_Fail() {
 
@@ -177,6 +215,34 @@ class StudyPostCommandServiceTest {
 
         when(memberStudyRepository.findByMemberIdAndStudyIdAndIsOwned(memberId, studyId, true))
                 .thenReturn(Optional.of(ownerStudy));
+        when(studyPostRepository.save(any(StudyPost.class))).thenReturn(studyPost2);
+        when(notificationRepository.save(any(Notification.class))).thenReturn(null);
+        when(memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED))
+                .thenReturn(List.of(member1Study, ownerStudy));
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> studyPostCommandService.createPost(studyId, postPreviewDTO));
+    }
+
+    @Test
+    @DisplayName("스터디 게시글 작성 - 스터디장이 아닌 회원이 공지 게시글을 작성하는 경우 (실패)")
+    void createPost_MemberAnnounced_Fail() {
+
+        // given
+        Long memberId = 2L;
+        Long studyId = 1L;
+
+        StudyPostRequestDTO.PostDTO postPreviewDTO = StudyPostRequestDTO.PostDTO.builder()
+                .isAnnouncement(true)
+                .theme(Theme.INFO_SHARING)
+                .title("공지")
+                .content("내용")
+                .build();
+
+        getAuthentication(memberId);
+
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndIsOwned(memberId, studyId, true))
+                .thenReturn(Optional.of(member1Study));
         when(studyPostRepository.save(any(StudyPost.class))).thenReturn(studyPost2);
         when(notificationRepository.save(any(Notification.class))).thenReturn(null);
         when(memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED))
@@ -224,16 +290,68 @@ class StudyPostCommandServiceTest {
     @Test
     @DisplayName("스터디 게시글 삭제 - (성공)")
     void deletePost_Success() {
+
+        // given
+        Long memberId = 1L;
+        Long studyId = 1L;
+        Long postId = 1L;
+
+        getAuthentication(memberId);
+
+        when(studyPostRepository.findByIdAndStudyId(postId, studyId))
+                .thenReturn(Optional.of(studyPost1));
+        when(studyPostRepository.findByIdAndMemberId(postId, memberId))
+                .thenReturn(Optional.of(studyPost1));
+
+        // when
+        StudyPostResDTO.PostPreviewDTO result = studyPostCommandService.deletePost(studyId, postId);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getPostId()).isEqualTo(1L);
+        assertThat(result.getTitle()).isEqualTo("잡담");
+        verify(studyPostRepository, times(1)).delete(any(StudyPost.class));
+        verify(studyLikedPostRepository, times(1)).deleteAllByStudyPostId(postId);
     }
 
     @Test
     @DisplayName("스터디 게시글 삭제 - 이미 삭제된 게시글인 경우 (실패)")
     void deletePost_AlreadyDeleted_Fail() {
+
+        // given
+        Long memberId = 1L;
+        Long studyId = 1L;
+        Long postId = 1L;
+
+        getAuthentication(memberId);
+
+        when(studyPostRepository.findByIdAndStudyId(postId, studyId))
+                .thenReturn(Optional.empty());
+        when(studyPostRepository.findByIdAndMemberId(postId, memberId))
+                .thenReturn(Optional.empty());
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> studyPostCommandService.deletePost(studyId, postId));
     }
 
     @Test
     @DisplayName("스터디 게시글 삭제 - 작성자 본인이나 스터디장이 아닌 경우 (실패)")
     void deletePost_NotAvailableMember_Fail() {
+
+        // given
+        Long memberId = 2L;
+        Long studyId = 1L;
+        Long postId = 1L;
+
+        getAuthentication(memberId);
+
+        when(studyPostRepository.findByIdAndStudyId(postId, studyId))
+                .thenReturn(Optional.of(studyPost1));
+        when(studyPostRepository.findByIdAndMemberId(postId, memberId))
+                .thenReturn(Optional.of(studyPost1));
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> studyPostCommandService.deletePost(studyId, postId));
     }
 
 /*-------------------------------------------------------- 게시글 좋아요 ------------------------------------------------------------------------*/
