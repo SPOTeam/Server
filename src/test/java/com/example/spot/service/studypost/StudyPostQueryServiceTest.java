@@ -470,6 +470,9 @@ class StudyPostQueryServiceTest {
                 .member(owner)
                 .study(study)
                 .build();
+        owner.addMemberStudy(ownerStudy);
+        study.addMemberStudy(ownerStudy);
+
         member1Study = MemberStudy.builder()
                 .id(2L)
                 .status(ApplicationStatus.APPROVED)
@@ -478,6 +481,8 @@ class StudyPostQueryServiceTest {
                 .member(member1)
                 .study(study)
                 .build();
+        member1.addMemberStudy(member1Study);
+        study.addMemberStudy(member1Study);
     }
 
     private static void initStudyPost() {

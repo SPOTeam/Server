@@ -1,6 +1,8 @@
 package com.example.spot.service.studypost;
 
+import com.example.spot.api.exception.handler.StudyHandler;
 import com.example.spot.domain.Member;
+import com.example.spot.domain.Notification;
 import com.example.spot.domain.enums.ApplicationStatus;
 import com.example.spot.domain.enums.Gender;
 import com.example.spot.domain.enums.Theme;
@@ -11,6 +13,9 @@ import com.example.spot.domain.study.Study;
 import com.example.spot.domain.study.StudyPost;
 import com.example.spot.domain.study.StudyPostComment;
 import com.example.spot.repository.*;
+import com.example.spot.web.dto.memberstudy.request.StudyPostCommentRequestDTO;
+import com.example.spot.web.dto.memberstudy.request.StudyPostRequestDTO;
+import com.example.spot.web.dto.memberstudy.response.StudyPostResDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,7 +25,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -31,8 +35,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -54,10 +60,11 @@ class StudyPostCommandServiceTest {
     @Mock
     private StudyPostCommentRepository studyPostCommentRepository;
 
-    @InjectMocks
-    private StudyPostQueryServiceImpl studyPostQueryService;
+    @Mock
+    private NotificationRepository notificationRepository;
 
-    private static PageRequest pageRequest;
+    @InjectMocks
+    private StudyPostCommandServiceImpl studyPostCommandService;
 
     private static Study study;
     private static Member member1;
@@ -114,24 +121,101 @@ class StudyPostCommandServiceTest {
         // Comment
         when(studyPostCommentRepository.findAllByStudyPostId(1L))
                 .thenReturn(List.of(studyPost1Comment1, studyPost1Comment2));
-
     }
 
 /*-------------------------------------------------------- 게시글 작성 ------------------------------------------------------------------------*/
 
     @Test
-    @DisplayName("스터디 게시글 작성 - (성공)")
+    @DisplayName("스터디 게시글 작성 - 공지 게시글 (성공)")
     void createPost_Success() {
+
+        // given
+        Long memberId = 3L;
+        Long studyId = 1L;
+
+        StudyPostRequestDTO.PostDTO postPreviewDTO = StudyPostRequestDTO.PostDTO.builder()
+                .isAnnouncement(true)
+                .theme(Theme.INFO_SHARING)
+                .title("공지")
+                .content("내용")
+                .build();
+
+        getAuthentication(memberId);
+
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndIsOwned(memberId, studyId, true))
+                .thenReturn(Optional.of(ownerStudy));
+        when(studyPostRepository.save(any(StudyPost.class))).thenReturn(studyPost2);
+        when(notificationRepository.save(any(Notification.class))).thenReturn(null);
+        when(memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED))
+                .thenReturn(List.of(member1Study, ownerStudy));
+
+        // when
+        StudyPostResDTO.PostPreviewDTO result = studyPostCommandService.createPost(studyId, postPreviewDTO);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getTitle()).isEqualTo("공지");
+        verify(studyPostRepository, times(1)).save(any(StudyPost.class));
     }
 
     @Test
     @DisplayName("스터디 게시글 작성 - 스터디 회원이 아닌 경우 (실패)")
     void createPost_NotStudyMember_Fail() {
+
+        // given
+        Long memberId = 2L;
+        Long studyId = 1L;
+
+        StudyPostRequestDTO.PostDTO postPreviewDTO = StudyPostRequestDTO.PostDTO.builder()
+                .isAnnouncement(true)
+                .theme(Theme.INFO_SHARING)
+                .title("공지")
+                .content("내용")
+                .build();
+
+        getAuthentication(memberId);
+
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndIsOwned(memberId, studyId, true))
+                .thenReturn(Optional.of(ownerStudy));
+        when(studyPostRepository.save(any(StudyPost.class))).thenReturn(studyPost2);
+        when(notificationRepository.save(any(Notification.class))).thenReturn(null);
+        when(memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED))
+                .thenReturn(List.of(member1Study, ownerStudy));
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> studyPostCommandService.createPost(studyId, postPreviewDTO));
     }
 
     @Test
     @DisplayName("스터디 게시글 작성 - 제목이 50자를 초과하는 경우 (실패)")
     void createPost_TitleOverflow_Fail() {
+
+        // given
+        Long memberId = 1L;
+        Long studyId = 1L;
+
+        StudyPostRequestDTO.PostDTO postPreviewDTO = StudyPostRequestDTO.PostDTO.builder()
+                .isAnnouncement(true)
+                .theme(Theme.INFO_SHARING)
+                .title("50자가 넘어가는 제목 "
+                        + "50자가 넘어가는 제목 "
+                        + "50자가 넘어가는 제목 "
+                        + "50자가 넘어가는 제목 "
+                        + "50자가 넘어가는 제목 ")
+                .content("내용")
+                .build();
+
+        getAuthentication(memberId);
+
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndIsOwned(memberId, studyId, true))
+                .thenReturn(Optional.of(ownerStudy));
+        when(studyPostRepository.save(any(StudyPost.class))).thenReturn(studyPost2);
+        when(notificationRepository.save(any(Notification.class))).thenReturn(null);
+        when(memberStudyRepository.findAllByStudyIdAndStatus(studyId, ApplicationStatus.APPROVED))
+                .thenReturn(List.of(member1Study, ownerStudy));
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> studyPostCommandService.createPost(studyId, postPreviewDTO));
     }
 
 
@@ -192,6 +276,11 @@ class StudyPostCommandServiceTest {
     @Test
     @DisplayName("스터디 게시글 댓글 작성 - (성공)")
     void createComment_Success() {
+
+        StudyPostCommentRequestDTO.CommentDTO commentDTO = StudyPostCommentRequestDTO.CommentDTO.builder()
+                .content("댓글")
+                .isAnonymous(true)
+                .build();
     }
 
     @Test
@@ -356,6 +445,9 @@ class StudyPostCommandServiceTest {
                 .member(owner)
                 .study(study)
                 .build();
+        owner.addMemberStudy(ownerStudy);
+        study.addMemberStudy(ownerStudy);
+
         member1Study = MemberStudy.builder()
                 .id(2L)
                 .status(ApplicationStatus.APPROVED)
@@ -364,6 +456,8 @@ class StudyPostCommandServiceTest {
                 .member(member1)
                 .study(study)
                 .build();
+        member1.addMemberStudy(member1Study);
+        study.addMemberStudy(member1Study);
     }
 
     private static void initStudyPost() {
