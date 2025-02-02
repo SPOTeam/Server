@@ -73,11 +73,14 @@ public class PostQueryServiceImpl implements PostQueryService {
         Long currentUserId = getCurrentUserId();
         boolean scrapedByCurrentUser = memberScrapRepository.existsByMemberIdAndPostId(currentUserId, postId);
 
+        // 현재 사용자가 게시글 작성자인지 여부
+        boolean createdByCurrentUser = currentUserId.equals(post.getMember().getId());
+
         // 해당 게시글의 댓글 조회
         CommentResponse commentResponse = getCommentsByPostId(post.getId());
 
         // 조회된 게시글을 PostSingleResponse로 변환하여 반환 (익명처리일 경우 프로필 이미지를 DEFAULT_PROFILE_IMAGE_URL로 반환)
-        return PostSingleResponse.toDTO(post, likeCount, scrapCount, commentResponse, likedByCurrentUser, scrapedByCurrentUser, DEFAULT_PROFILE_IMAGE_URL);
+        return PostSingleResponse.toDTO(post, likeCount, scrapCount, commentResponse, likedByCurrentUser, scrapedByCurrentUser, createdByCurrentUser, DEFAULT_PROFILE_IMAGE_URL);
     }
 
     /**
