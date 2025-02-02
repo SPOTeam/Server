@@ -327,6 +327,7 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
                 .dislikeCount(0)
                 .isAnonymous(commentRequestDTO.getIsAnonymous())
                 .parentComment(null)
+                .isDeleted(false)
                 .anonymousNum(anonymousNum)
                 .build();
 
@@ -386,6 +387,7 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
                 .isAnonymous(commentRequestDTO.getIsAnonymous())
                 .anonymousNum(anonymousNum)
                 .parentComment(parentComment)
+                .isDeleted(false)
                 .build();
 
         studyPostCommentRepository.save(studyPostComment);
