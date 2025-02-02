@@ -13,6 +13,7 @@ import com.example.spot.domain.study.Study;
 import com.example.spot.domain.study.StudyPost;
 import com.example.spot.domain.study.StudyPostComment;
 import com.example.spot.repository.*;
+import com.example.spot.web.dto.memberstudy.response.StudyPostCommentResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyPostResDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -36,7 +37,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -321,26 +321,96 @@ class StudyPostQueryServiceTest {
         assertThrows(StudyHandler.class, () ->studyPostQueryService.getPost(studyId, postId));
     }
 
+    @Test
+    @DisplayName("스터디 게시글 단건 조회 - 스터디 게시글이 아닌 경우(실패)")
+    void getPost_NotStudyPost_Fail() {
+
+        // given
+        Long studyId = 1L;
+        Long memberId = 2L;
+        Long postId = 1L;
+
+        getAuthentication(memberId);
+
+        when(studyPostRepository.findByIdAndStudyId(postId, studyId))
+                .thenReturn(Optional.empty());
+        when(studyPostCommentRepository.findAllByStudyPostId(postId))
+                .thenReturn(List.of());
+
+        // when & then
+        assertThrows(StudyHandler.class, () ->studyPostQueryService.getPost(studyId, postId));
+    }
+
 /*-------------------------------------------------------- 댓글 목록 조회 ------------------------------------------------------------------------*/
 
     @Test
     @DisplayName("스터디 게시글 댓글 목록 조회 - (성공)")
     void getAllComments_Success() {
+
+        // given
+        Long memberId = 1L;
+        Long studyId = 1L;
+        Long postId = 1L;
+
+        getAuthentication(memberId);
+
+        when(studyPostRepository.findByIdAndStudyId(postId, studyId))
+                .thenReturn(Optional.of(studyPost1));
+        when(studyPostCommentRepository.findAllByStudyPostId(postId))
+                .thenReturn(List.of(studyPost1Comment1, studyPost1Comment2));
+
+        // when
+        StudyPostCommentResponseDTO.CommentReplyListDTO result = studyPostQueryService.getAllComments(studyId, postId);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getPostId()).isEqualTo(1L);
+        assertThat(result.getComments()).size().isEqualTo(1);
+        result.getComments()
+                .forEach(comment -> {
+                    assertThat(comment.getCommentId()).isEqualTo(1L);       // 댓글 1개
+                    assertThat(comment.getApplies()).size().isEqualTo(1L);  // 답글 1개
+                });
     }
 
     @Test
     @DisplayName("스터디 게시글 댓글 목록 조회 - 스터디 회원이 아닌 경우(실패)")
     void getAllComments_NotStudyMember_Fail() {
+
+        // given
+        Long memberId = 2L;
+        Long studyId = 1L;
+        Long postId = 1L;
+
+        getAuthentication(memberId);
+
+        when(studyPostRepository.findByIdAndStudyId(postId, studyId))
+                .thenReturn(Optional.of(studyPost1));
+        when(studyPostCommentRepository.findAllByStudyPostId(postId))
+                .thenReturn(List.of(studyPost1Comment1, studyPost1Comment2));
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> studyPostQueryService.getAllComments(studyId, postId));
     }
 
     @Test
-    @DisplayName("스터디 게시글 댓글 목록 조회 - 모든 댓글을 불러오지 않은 경우(실패)")
-    void getAllComments_NotAllComments_Fail() {
-    }
+    @DisplayName("스터디 게시글 댓글 목록 조회 - 스터디 게시글이 아닌 경우(실패)")
+    void getAllComments_NotStudyPost_Fail() {
 
-    @Test
-    @DisplayName("스터디 게시글 댓글 목록 조회 - 상위 댓글이 잘못된 경우(실패)")
-    void getAllComments_WrongParentComment() {
+        // given
+        Long memberId = 1L;
+        Long studyId = 1L;
+        Long postId = 1L;
+
+        getAuthentication(memberId);
+
+        when(studyPostRepository.findByIdAndStudyId(postId, studyId))
+                .thenReturn(Optional.empty());
+        when(studyPostCommentRepository.findAllByStudyPostId(postId))
+                .thenReturn(List.of());
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> studyPostQueryService.getAllComments(studyId, postId));
     }
 
 
