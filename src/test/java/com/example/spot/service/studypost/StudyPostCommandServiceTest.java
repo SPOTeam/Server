@@ -359,15 +359,73 @@ class StudyPostCommandServiceTest {
     @Test
     @DisplayName("스터디 게시글 좋아요 - (성공)")
     void likePost_Success() {
+
+        // given
+        Long memberId = 3L;
+        Long studyId = 1L;
+        Long postId = 1L;
+
+        getAuthentication(memberId);
+
+        when(studyPostRepository.findByIdAndStudyId(postId, studyId))
+                .thenReturn(Optional.of(studyPost1));
+        when(studyLikedPostRepository.findByMemberIdAndStudyPostId(memberId, postId))
+                .thenReturn(Optional.empty());
+        when(studyLikedPostRepository.save(any(StudyLikedPost.class))).thenReturn(studyLikedPost);
+        when(studyPostRepository.save(any(StudyPost.class))).thenReturn(studyPost1);
+
+        // when
+        StudyPostResDTO.PostLikeNumDTO result = studyPostCommandService.likePost(studyId, postId);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getPostId()).isEqualTo(1L);
+        assertThat(result.getTitle()).isEqualTo("잡담");
+        assertThat(result.getLikeNum()).isEqualTo(2);
+        verify(studyLikedPostRepository, times(1)).save(any(StudyLikedPost.class));
     }
 
     @Test
     @DisplayName("스터디 게시글 좋아요 - 스터디 회원이 아닌 경우 (실패)")
     void likePost_NotStudyMember_Fail() {
+
+        // given
+        Long memberId = 2L;
+        Long studyId = 1L;
+        Long postId = 1L;
+
+        getAuthentication(memberId);
+
+        when(studyPostRepository.findByIdAndStudyId(postId, studyId))
+                .thenReturn(Optional.of(studyPost1));
+        when(studyLikedPostRepository.findByMemberIdAndStudyPostId(memberId, postId))
+                .thenReturn(Optional.empty());
+        when(studyLikedPostRepository.save(any(StudyLikedPost.class))).thenReturn(studyLikedPost);
+        when(studyPostRepository.save(any(StudyPost.class))).thenReturn(studyPost1);
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> studyPostCommandService.likePost(studyId, postId));
     }
     @Test
     @DisplayName("스터디 게시글 좋아요 - 이미 좋아요를 누른 경우 (실패)")
     void likePost_AlreadyLiked_Fail() {
+
+        // given
+        Long memberId = 3L;
+        Long studyId = 1L;
+        Long postId = 1L;
+
+        getAuthentication(memberId);
+
+        when(studyPostRepository.findByIdAndStudyId(postId, studyId))
+                .thenReturn(Optional.of(studyPost1));
+        when(studyLikedPostRepository.findByMemberIdAndStudyPostId(memberId, postId))
+                .thenReturn(Optional.of(studyLikedPost));
+        when(studyLikedPostRepository.save(any(StudyLikedPost.class))).thenReturn(studyLikedPost);
+        when(studyPostRepository.save(any(StudyPost.class))).thenReturn(studyPost1);
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> studyPostCommandService.likePost(studyId, postId));
     }
 
 
@@ -637,7 +695,7 @@ class StudyPostCommandServiceTest {
                 .build();
         studyPost1.addLikedPost(studyLikedPost);
         studyPost1.plusLikeNum();
-        member1.addStudyLikedPost(studyLikedPost);
+        owner.addStudyLikedPost(studyLikedPost);
     }
 
     private static void initStudyPostComment() {

@@ -544,7 +544,7 @@ class StudyPostQueryServiceTest {
                 .build();
         studyPost1.addLikedPost(studyLikedPost);
         studyPost1.plusLikeNum();
-        member1.addStudyLikedPost(studyLikedPost);
+        owner.addStudyLikedPost(studyLikedPost);
     }
 
     private static void initStudyPostComment() {
