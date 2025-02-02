@@ -54,14 +54,10 @@ class StudyPostQueryServiceTest {
     @Mock
     private StudyPostRepository studyPostRepository;
     @Mock
-    private StudyPostImageRepository studyPostImageRepository;
-    @Mock
-    private StudyPostCommentRepository studyPostCommentRepository;
+    private StudyLikedPostRepository studyLikedPostRepository;
 
     @Mock
-    private StudyLikedPostRepository studyLikedPostRepository;
-    @Mock
-    private StudyLikedCommentRepository studyLikedCommentRepository;
+    private StudyPostCommentRepository studyPostCommentRepository;
 
     @InjectMocks
     private StudyPostQueryServiceImpl studyPostQueryService;
