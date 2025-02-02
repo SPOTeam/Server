@@ -129,6 +129,8 @@ public class StudyCommandServiceImpl implements StudyCommandService {
                 .introduction(studyRegisterRequestDTO.getIntroduction())
                 .title(studyRegisterRequestDTO.getTitle())
                 .maxPeople(studyRegisterRequestDTO.getMaxPeople())
+                .heartCount(0)
+                .hitNum(0L)
                 .build();
 
         study = studyRepository.save(study);
