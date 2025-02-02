@@ -63,7 +63,7 @@ public class Study extends BaseEntity {
     private Boolean isOnline;
 
     @Column(nullable = false, columnDefinition = "INTEGER DEFAULT 0")
-    private Integer heartCount = 0;
+    private Integer heartCount;
 
     @Column(nullable = false)
     private String goal;
@@ -80,7 +80,7 @@ public class Study extends BaseEntity {
     private Status status;
 
     @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 0")
-    private Long hitNum = 0L;
+    private Long hitNum;
 
     @Column(nullable = false)
     private Long maxPeople;

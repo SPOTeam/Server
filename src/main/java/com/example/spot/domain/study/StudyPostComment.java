@@ -37,10 +37,10 @@ public class StudyPostComment extends BaseEntity {
     private String content;
 
     @Column(columnDefinition = "INTEGER DEFAULT 0")
-    private Integer likeCount = 0;
+    private Integer likeCount;
 
     @Column(columnDefinition = "INTEGER DEFAULT 0")
-    private Integer dislikeCount = 0;
+    private Integer dislikeCount;
 
     @Column(nullable = false, columnDefinition = "BIT DEFAULT 0")
     private Boolean isAnonymous;

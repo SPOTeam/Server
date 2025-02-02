@@ -48,18 +48,18 @@ public class StudyPost extends BaseEntity {
     @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "text")
     private String content;
 
     @Column(columnDefinition = "INTEGER DEFAULT 0")
-    private Integer likeNum = 0;
+    private Integer likeNum;
 
     @Column(columnDefinition = "INTEGER DEFAULT 0")
-    private Integer hitNum = 0;
+    private Integer hitNum;
 
     @Setter
     @Column(columnDefinition = "INTEGER DEFAULT 0")
-    private Integer commentNum = 0;
+    private Integer commentNum;
 
     @Builder.Default
     @OneToMany(mappedBy = "studyPost", cascade = CascadeType.ALL)

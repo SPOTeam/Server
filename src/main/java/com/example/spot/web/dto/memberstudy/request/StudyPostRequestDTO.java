@@ -15,6 +15,7 @@ public class StudyPostRequestDTO {
 
     @Getter
     @Setter
+    @Builder
     @Schema(name = "StudyPostDTO")
     @AllArgsConstructor
     public static class PostDTO {
@@ -28,7 +29,7 @@ public class StudyPostRequestDTO {
         private Theme theme;
 
         @NotNull
-        @TextLength(min = 1, max = 255)
+        @TextLength(min = 1, max = 50)
         @Schema(description = "제목", example = "title")
         private String title;
 
