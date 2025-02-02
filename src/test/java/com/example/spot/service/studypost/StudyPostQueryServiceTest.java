@@ -36,6 +36,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -264,11 +265,60 @@ class StudyPostQueryServiceTest {
     @Test
     @DisplayName("스터디 게시글 단건 조회 - (성공)")
     void getPost_Success() {
+
+        // given
+        Long studyId = 1L;
+        Long memberId = 1L;
+        Long postId = 1L;
+
+        getAuthentication(memberId);
+
+        when(studyPostRepository.findByIdAndStudyId(postId, studyId))
+                .thenReturn(Optional.of(studyPost1));
+        when(studyPostRepository.save(studyPost1)).thenReturn(studyPost1);
+        when(memberRepository.save(member1)).thenReturn(member1);
+        when(studyRepository.save(study)).thenReturn(study);
+        when(studyPostCommentRepository.findAllByStudyPostId(postId))
+                .thenReturn(List.of(studyPost1Comment1, studyPost1Comment2));
+        when(studyLikedPostRepository.existsByMemberIdAndStudyPostId(memberId, postId))
+                .thenReturn(false);
+
+        // when
+        StudyPostResDTO.PostDetailDTO result = studyPostQueryService.getPost(studyId, postId);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getPostId()).isEqualTo(1L);
+        assertThat(result.getHitNum()).isEqualTo(11);
+        assertThat(result.getTitle()).isEqualTo("잡담");
+        assertThat(result.getCommentNum()).isEqualTo(2);
+        assertThat(result.getIsLiked()).isEqualTo(false);
+
     }
 
     @Test
     @DisplayName("스터디 게시글 단건 조회 - 스터디 회원이 아닌 경우(실패)")
     void getPost_NotStudyMember_Fail() {
+
+        // given
+        Long studyId = 1L;
+        Long memberId = 2L;
+        Long postId = 1L;
+
+        getAuthentication(memberId);
+
+        when(studyPostRepository.findByIdAndStudyId(postId, studyId))
+                .thenReturn(Optional.of(studyPost1));
+        when(studyPostRepository.save(studyPost1)).thenReturn(studyPost1);
+        when(memberRepository.save(member1)).thenReturn(member1);
+        when(studyRepository.save(study)).thenReturn(study);
+        when(studyPostCommentRepository.findAllByStudyPostId(postId))
+                .thenReturn(List.of(studyPost1Comment1, studyPost1Comment2));
+        when(studyLikedPostRepository.existsByMemberIdAndStudyPostId(memberId, postId))
+                .thenReturn(false);
+
+        // when & then
+        assertThrows(StudyHandler.class, () ->studyPostQueryService.getPost(studyId, postId));
     }
 
 /*-------------------------------------------------------- 댓글 목록 조회 ------------------------------------------------------------------------*/
