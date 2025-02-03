@@ -76,7 +76,18 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
         return queryFactory.selectFrom(study)
             .where(study.studyThemes.any().in(studyThemes))
             .where(study.id.notIn(studyIds))
-            .orderBy(study.createdAt.desc())
+            .orderBy(study.hitNum.desc())
+            .offset(0)
+            .limit(3)
+            .fetch();
+    }
+
+    @Override
+    public List<Study> findByRegionStudyAndNotInIds(List<RegionStudy> regionStudies, List<Long> studyIds) {
+        return queryFactory.selectFrom(study)
+            .where(study.regionStudies.any().in(regionStudies))
+            .where(study.id.notIn(studyIds))
+            .orderBy(study.heartCount.desc())
             .offset(0)
             .limit(3)
             .fetch();
