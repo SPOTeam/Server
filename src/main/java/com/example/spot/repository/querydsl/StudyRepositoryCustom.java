@@ -21,6 +21,7 @@ public interface StudyRepositoryCustom {
     List<Study> findByStudyTheme(List<StudyTheme> studyThemes);
 
     List<Study> findByStudyThemeAndNotInIds(List<StudyTheme> studyThemes, List<Long> studyIds);
+    List<Study> findByRegionStudyAndNotInIds(List<RegionStudy> regionStudies, List<Long> studyIds);
 
     // 모집중 스터디 조회
     List<Study> findRecruitingStudyByConditions(Map<String, Object> search, StudySortBy sortBy, Pageable pageable);
