@@ -434,16 +434,70 @@ class StudyPostCommandServiceTest {
     @Test
     @DisplayName("스터디 게시글 좋아요 취소 - (성공)")
     void cancelPostLike_Success() {
+
+        // given
+        Long memberId = 3L;
+        Long studyId = 1L;
+        Long postId = 1L;
+
+        getAuthentication(memberId);
+
+        when(studyPostRepository.findByIdAndStudyId(postId, studyId))
+                .thenReturn(Optional.of(studyPost1));
+        when(studyLikedPostRepository.findByMemberIdAndStudyPostId(memberId, postId))
+                .thenReturn(Optional.of(studyLikedPost));
+        when(studyPostRepository.save(any(StudyPost.class))).thenReturn(studyPost1);
+
+        // when
+        StudyPostResDTO.PostLikeNumDTO result = studyPostCommandService.cancelPostLike(studyId, postId);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getPostId()).isEqualTo(1L);
+        assertThat(result.getTitle()).isEqualTo("잡담");
+        assertThat(result.getLikeNum()).isEqualTo(0);
     }
 
     @Test
     @DisplayName("스터디 게시글 좋아요 취소 - 스터디 회원이 아닌 경우 (실패)")
     void cancelPostLike_NotStudyMember_Fail() {
+
+        // given
+        Long memberId = 2L;
+        Long studyId = 1L;
+        Long postId = 1L;
+
+        getAuthentication(memberId);
+
+        when(studyPostRepository.findByIdAndStudyId(postId, studyId))
+                .thenReturn(Optional.of(studyPost1));
+        when(studyLikedPostRepository.findByMemberIdAndStudyPostId(memberId, postId))
+                .thenReturn(Optional.of(studyLikedPost));
+        when(studyPostRepository.save(any(StudyPost.class))).thenReturn(studyPost1);
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> studyPostCommandService.cancelPostLike(studyId, postId));
     }
 
     @Test
     @DisplayName("스터디 게시글 좋아요 취소 - 좋아요를 누르지 않은 게시글인 경우 (실패)")
     void cancelPostLike_NotLiked_Fail() {
+
+        // given
+        Long memberId = 3L;
+        Long studyId = 1L;
+        Long postId = 1L;
+
+        getAuthentication(memberId);
+
+        when(studyPostRepository.findByIdAndStudyId(postId, studyId))
+                .thenReturn(Optional.of(studyPost1));
+        when(studyLikedPostRepository.findByMemberIdAndStudyPostId(memberId, postId))
+                .thenReturn(Optional.empty());
+        when(studyPostRepository.save(any(StudyPost.class))).thenReturn(studyPost1);
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> studyPostCommandService.cancelPostLike(studyId, postId));
     }
 
 
