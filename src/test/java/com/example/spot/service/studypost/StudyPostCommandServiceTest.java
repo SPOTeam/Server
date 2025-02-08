@@ -9,7 +9,6 @@ import com.example.spot.domain.enums.Theme;
 import com.example.spot.domain.mapping.MemberStudy;
 import com.example.spot.domain.mapping.StudyLikedComment;
 import com.example.spot.domain.mapping.StudyLikedPost;
-import com.example.spot.domain.mapping.StudyPostImage;
 import com.example.spot.domain.study.Study;
 import com.example.spot.domain.study.StudyPost;
 import com.example.spot.domain.study.StudyPostComment;
@@ -58,10 +57,6 @@ class StudyPostCommandServiceTest {
     private StudyPostRepository studyPostRepository;
     @Mock
     private StudyLikedPostRepository studyLikedPostRepository;
-    @Mock
-    private StudyPostImageRepository studyPostImageRepository;
-    @Mock
-    private StudyPostReportRepository studyPostReportRepository;
 
     @Mock
     private StudyPostCommentRepository studyPostCommentRepository;
@@ -971,16 +966,68 @@ class StudyPostCommandServiceTest {
     @Test
     @DisplayName("스터디 게시글 댓글 싫어요 취소 - (성공)")
     void cancelCommentDislike() {
+
+        // given
+        Long memberId = 3L;
+        Long studyId = 1L;
+        Long postId = 1L;
+        Long commentId = 2L;
+
+        getAuthentication(memberId);
+
+        when(studyLikedCommentRepository.findByMemberIdAndStudyPostCommentIdAndIsLiked(memberId, studyPost1Comment2.getId(), false))
+                .thenReturn(Optional.of(studyDislikedComment));
+        when(studyPostCommentRepository.save(any(StudyPostComment.class))).thenReturn(studyPost1Comment2);
+
+        // when
+        StudyPostCommentResponseDTO.CommentPreviewDTO result = studyPostCommandService
+                .cancelCommentDislike(studyId, postId, commentId);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getCommentId()).isEqualTo(2L);
+        assertThat(result.getLikeCount()).isEqualTo(1L);
+        assertThat(result.getDislikeCount()).isEqualTo(0L);
     }
 
     @Test
     @DisplayName("스터디 게시글 댓글 싫어요 취소 - 스터디 회원이 아닌 경우 (실패)")
     void cancelCommentDislike_NotStudyMember_Fail() {
+
+        // given
+        Long memberId = 2L;
+        Long studyId = 1L;
+        Long postId = 1L;
+        Long commentId = 2L;
+
+        getAuthentication(memberId);
+
+        when(studyLikedCommentRepository.findByMemberIdAndStudyPostCommentIdAndIsLiked(memberId, studyPost1Comment2.getId(), false))
+                .thenReturn(Optional.of(studyDislikedComment));
+        when(studyPostCommentRepository.save(any(StudyPostComment.class))).thenReturn(studyPost1Comment2);
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> studyPostCommandService.cancelCommentDislike(studyId, postId, commentId));
     }
 
     @Test
     @DisplayName("스터디 게시글 댓글 싫어요 취소 - 싫어요를 누른 댓글이 아닌 경우 (실패)")
     void cancelCommentDislike_NotDisliked_Fail() {
+
+        // given
+        Long memberId = 1L;
+        Long studyId = 1L;
+        Long postId = 1L;
+        Long commentId = 2L;
+
+        getAuthentication(memberId);
+
+        when(studyLikedCommentRepository.findByMemberIdAndStudyPostCommentIdAndIsLiked(memberId, studyPost1Comment2.getId(), false))
+                .thenReturn(Optional.empty());
+        when(studyPostCommentRepository.save(any(StudyPostComment.class))).thenReturn(studyPost1Comment2);
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> studyPostCommandService.cancelCommentDislike(studyId, postId, commentId));
     }
 
 
@@ -1175,5 +1222,4 @@ class StudyPostCommandServiceTest {
         studyPost1Comment2.plusDislikeCount();
         owner.addStudyLikedComment(studyDislikedComment);
     }
-
 }
