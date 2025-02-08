@@ -107,10 +107,24 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
      */
     public StudyTerminationResponseDTO.TerminationDTO terminateStudy(Long studyId) {
 
+        // Authorization
+        Long memberId = SecurityUtils.getCurrentUserId();
+        memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
         Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        MemberStudy memberStudy = memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
 
-        // 스터디장 확인 로직 빠짐
+        // 스터디장이 아니면 스터디를 종료할 수 없음
+        if (memberStudy.getIsOwned().equals(false)) {
+            throw new StudyHandler(ErrorStatus._STUDY_OWNER_ONLY_CAN_TERMINATE);
+        }
+
+        // 이미 종료된 스터디는 종료할 수 없음
+        if (study.getStatus().equals(Status.OFF)) {
+            throw new StudyHandler(ErrorStatus._STUDY_ALREADY_TERMINATED);
+        }
 
         study.setStatus(Status.OFF);
         studyRepository.save(study);
