@@ -12,13 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lombok.*;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
 @Getter
-@DynamicUpdate
-@DynamicInsert
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StudyPost extends BaseEntity {
 
@@ -50,47 +48,35 @@ public class StudyPost extends BaseEntity {
     @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "text")
     private String content;
 
-    @Column(nullable = false)
+    @Column(columnDefinition = "INTEGER DEFAULT 0")
     private Integer likeNum;
 
-    @Column(nullable = false)
+    @Column(columnDefinition = "INTEGER DEFAULT 0")
     private Integer hitNum;
 
     @Setter
-    @Column(nullable = false)
+    @Column(columnDefinition = "INTEGER DEFAULT 0")
     private Integer commentNum;
 
+    @Builder.Default
     @OneToMany(mappedBy = "studyPost", cascade = CascadeType.ALL)
-    private List<StudyPostImage> images;
+    private List<StudyPostImage> images = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "studyPost", cascade = CascadeType.ALL)
-    private List<StudyPostComment> comments;
+    private List<StudyPostComment> comments = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "studyPost", cascade = CascadeType.ALL)
-    private List<StudyLikedPost> likedPosts;
+    private List<StudyLikedPost> likedPosts = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "studyPost", cascade = CascadeType.ALL)
-    private List<StudyPostReport> studyPostReports;
+    private List<StudyPostReport> studyPostReports = new ArrayList<>();
 
-/* ----------------------------- 생성자 ------------------------------------- */
-
-    @Builder
-    public StudyPost(Boolean isAnnouncement, Theme theme, String title, String content) {
-        this.isAnnouncement = isAnnouncement;
-        this.theme = theme;
-        this.title = title;
-        this.content = content;
-        this.likeNum = 0;
-        this.hitNum = 0;
-        this.commentNum = 0;
-        this.images = new ArrayList<>();
-        this.comments = new ArrayList<>();
-        this.likedPosts = new ArrayList<>();
-        this.studyPostReports = new ArrayList<>();
-    }
 /* ----------------------------- 연관관계 메소드 ------------------------------------- */
 
     public void addImage(StudyPostImage image) {

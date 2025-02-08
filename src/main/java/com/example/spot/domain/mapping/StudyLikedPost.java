@@ -16,8 +16,10 @@ import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
 @Getter
+@Builder
 @DynamicUpdate
 @DynamicInsert
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StudyLikedPost extends BaseEntity {
 
@@ -35,11 +37,4 @@ public class StudyLikedPost extends BaseEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-/* ----------------------------- 생성자 ------------------------------------- */
-
-    @Builder
-    public StudyLikedPost(Member member, StudyPost studyPost) {
-        this.member = member;
-        this.studyPost = studyPost;
-    }
 }

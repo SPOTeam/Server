@@ -77,6 +77,7 @@ public class MemberStudyQueryServiceTest {
     private static MemberStudy studyMember;
     private static MemberStudy apply;
     private static ToDoList toDoList;
+    
     @BeforeEach
     void setup(){
         member = Member.builder()
@@ -122,7 +123,13 @@ public class MemberStudyQueryServiceTest {
         long studyId = 1L;
         String title = "공지";
         String content = "공지입니다.";
-        StudyPost studyPost = new StudyPost(true, Theme.WELCOME, title, content);
+        StudyPost studyPost = StudyPost.builder()
+                .title(title)
+                .content(content)
+                .theme(Theme.WELCOME)
+                .isAnnouncement(true)
+                .build();
+
         MemberStudy memberStudy = MemberStudy.builder()
                         .introduction(title).study(study).member(member).isOwned(true).status(ApplicationStatus.APPROVED).build();
 

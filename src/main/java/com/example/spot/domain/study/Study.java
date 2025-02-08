@@ -28,8 +28,8 @@ import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
 @Getter
-@DynamicUpdate
-@DynamicInsert
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Study extends BaseEntity {
 
@@ -62,7 +62,7 @@ public class Study extends BaseEntity {
     @Column(nullable = false)
     private Boolean isOnline;
 
-    @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 0")
+    @Column(nullable = false, columnDefinition = "INTEGER DEFAULT 0")
     private Integer heartCount;
 
     @Column(nullable = false)
@@ -85,71 +85,45 @@ public class Study extends BaseEntity {
     @Column(nullable = false)
     private Long maxPeople;
 
+    @Builder.Default
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
     private List<Schedule> schedules = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
     private List<StudyPost> posts = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
     private List<Vote> votes = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
     private List<StudyTheme> studyThemes = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
     private List<MemberStudy> memberStudies = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
     private List<RegionStudy> regionStudies = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
     private List<PreferredStudy> preferredStudies = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
     private List<StudyPost> studyPosts = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
     private List<ToDoList> toDoLists = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
     private List<Notification> notifications = new ArrayList<>();
-
-
-/* ----------------------------- 생성자 ------------------------------------- */
-
-    @Builder
-    public Study(Gender gender, Integer minAge, Integer maxAge, Integer fee,
-                 String profileImage, boolean hasFee,
-                 Boolean isOnline, String goal, String introduction,
-                 String title, Long maxPeople) {
-        this.gender = gender;
-        this.minAge = minAge;
-        this.maxAge = maxAge;
-        this.fee = fee;
-        this.profileImage = profileImage;
-        this.studyState = StudyState.RECRUITING;
-        this.isOnline = isOnline;
-        this.heartCount = 0;
-        this.hasFee = hasFee;
-        this.goal = goal;
-        this.introduction = introduction;
-        this.title = title;
-        this.status = Status.ON;
-        this.hitNum = 0L;
-        this.maxPeople = maxPeople;
-        this.schedules = new ArrayList<>();
-        this.posts = new ArrayList<>();
-        this.votes = new ArrayList<>();
-        this.studyThemes = new ArrayList<>();
-        this.preferredStudies = new ArrayList<>();
-        this.memberStudies = new ArrayList<>();
-        this.regionStudies = new ArrayList<>();
-        this.studyPosts = new ArrayList<>();
-        this.toDoLists = new ArrayList<>();
-        this.notifications = new ArrayList<>();
-
-    }
 
 /* ----------------------------- 연관관계 메소드 ------------------------------------- */
 

@@ -62,8 +62,10 @@ public class StudyPostQueryServiceImpl implements StudyPostQueryService {
         Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
 
-        //=== Feature ===//
+        memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
 
+        //=== Feature ===//
         List<StudyPost> studyPosts;
         if (themeQuery == null) {
             // query가 없는 경우
