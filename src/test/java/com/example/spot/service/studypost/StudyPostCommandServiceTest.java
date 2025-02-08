@@ -130,7 +130,7 @@ class StudyPostCommandServiceTest {
         when(studyPostCommentRepository.findAllByStudyPostId(1L))
                 .thenReturn(List.of(studyPost1Comment1, studyPost1Comment2));
         when(studyPostCommentRepository.findById(1L)).thenReturn(Optional.of(studyPost1Comment1));
-        when(studyPostCommentRepository.findById(2L)).thenReturn(Optional.of(studyPost1Comment1));
+        when(studyPostCommentRepository.findById(2L)).thenReturn(Optional.of(studyPost1Comment2));
 
     }
 
@@ -902,16 +902,68 @@ class StudyPostCommandServiceTest {
     @Test
     @DisplayName("스터디 게시글 댓글 좋아요 취소 - (성공)")
     void cancelCommentLike_Success() {
+
+        // given
+        Long memberId = 1L;
+        Long studyId = 1L;
+        Long postId = 1L;
+        Long commentId = 2L;
+
+        getAuthentication(memberId);
+
+        when(studyLikedCommentRepository.findByMemberIdAndStudyPostCommentIdAndIsLiked(memberId, studyPost1Comment2.getId(), true))
+                .thenReturn(Optional.of(studyLikedComment));
+        when(studyPostCommentRepository.save(any(StudyPostComment.class))).thenReturn(studyPost1Comment2);
+
+        // when
+        StudyPostCommentResponseDTO.CommentPreviewDTO result = studyPostCommandService
+                .cancelCommentLike(studyId, postId, commentId);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getCommentId()).isEqualTo(2L);
+        assertThat(result.getLikeCount()).isEqualTo(0L);
+        assertThat(result.getDislikeCount()).isEqualTo(1L);
     }
 
     @Test
     @DisplayName("스터디 게시글 댓글 좋아요 취소 - 스터디 회원이 아닌 경우 (실패)")
     void cancelCommentLike_NotStudyMember_Fail() {
+
+        // given
+        Long memberId = 2L;
+        Long studyId = 1L;
+        Long postId = 1L;
+        Long commentId = 2L;
+
+        getAuthentication(memberId);
+
+        when(studyLikedCommentRepository.findByMemberIdAndStudyPostCommentIdAndIsLiked(memberId, studyPost1Comment2.getId(), true))
+                .thenReturn(Optional.of(studyLikedComment));
+        when(studyPostCommentRepository.save(any(StudyPostComment.class))).thenReturn(studyPost1Comment2);
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> studyPostCommandService.cancelCommentLike(studyId, postId, commentId));
     }
 
     @Test
     @DisplayName("스터디 게시글 댓글 좋아요 취소 - 좋아요를 누른 댓글이 아닌 경우 (실패)")
     void cancelCommentLike_NotLiked_Fail() {
+
+        // given
+        Long memberId = 3L;
+        Long studyId = 1L;
+        Long postId = 1L;
+        Long commentId = 2L;
+
+        getAuthentication(memberId);
+
+        when(studyLikedCommentRepository.findByMemberIdAndStudyPostCommentIdAndIsLiked(memberId, studyPost1Comment2.getId(), true))
+                .thenReturn(Optional.empty());
+        when(studyPostCommentRepository.save(any(StudyPostComment.class))).thenReturn(studyPost1Comment2);
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> studyPostCommandService.cancelCommentLike(studyId, postId, commentId));
     }
 
 /*-------------------------------------------------------- 댓글 싫어요 취소 ------------------------------------------------------------------------*/
@@ -1085,6 +1137,8 @@ class StudyPostCommandServiceTest {
                 .isDeleted(false)
                 .parentComment(null)
                 .build();
+        studyPost1.addComment(studyPost1Comment1);
+
         studyPost1Comment2 = StudyPostComment.builder()
                 .id(2L)
                 .studyPost(studyPost1)
@@ -1097,8 +1151,6 @@ class StudyPostCommandServiceTest {
                 .parentComment(studyPost1Comment1)
                 .build();
         studyPost1Comment1.addChildrenComment(studyPost1Comment2);
-
-        studyPost1.addComment(studyPost1Comment1);
         studyPost1.addComment(studyPost1Comment2);
     }
 
@@ -1110,6 +1162,7 @@ class StudyPostCommandServiceTest {
                 .member(member1)
                 .build();
         studyPost1Comment2.addLikedComment(studyLikedComment);
+        studyPost1Comment2.plusLikeCount();
         member1.addStudyLikedComment(studyLikedComment);
 
         studyDislikedComment = StudyLikedComment.builder()
@@ -1118,8 +1171,9 @@ class StudyPostCommandServiceTest {
                 .studyPostComment(studyPost1Comment2)
                 .member(owner)
                 .build();
-        studyPost1Comment2.addLikedComment(studyLikedComment);
-        owner.addStudyLikedComment(studyLikedComment);
+        studyPost1Comment2.addLikedComment(studyDislikedComment);
+        studyPost1Comment2.plusDislikeCount();
+        owner.addStudyLikedComment(studyDislikedComment);
     }
 
 }

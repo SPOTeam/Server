@@ -584,6 +584,7 @@ class StudyPostQueryServiceTest {
                 .member(member1)
                 .build();
         studyPost1Comment2.addLikedComment(studyLikedComment);
+        studyPost1Comment2.plusLikeCount();
         member1.addStudyLikedComment(studyLikedComment);
 
         studyDislikedComment = StudyLikedComment.builder()
@@ -592,7 +593,8 @@ class StudyPostQueryServiceTest {
                 .studyPostComment(studyPost1Comment2)
                 .member(owner)
                 .build();
-        studyPost1Comment2.addLikedComment(studyLikedComment);
-        owner.addStudyLikedComment(studyLikedComment);
+        studyPost1Comment2.addLikedComment(studyDislikedComment);
+        studyPost1Comment2.plusDislikeCount();
+        owner.addStudyLikedComment(studyDislikedComment);
     }
 }
