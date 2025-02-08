@@ -36,7 +36,8 @@ public class StudyScheduleResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class StudyScheduleDTO{
-        private LocalDateTime staredAt;
+        private LocalDateTime startedAt;
+        private LocalDateTime finishedAt;
         private String title;
         private String location;
     }
