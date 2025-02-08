@@ -39,7 +39,7 @@ public class StudyPostCommentResponseDTO {
     @Getter
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     @Builder(access = AccessLevel.PRIVATE)
-    private static class MemberInfoDTO {
+    public static class MemberInfoDTO {
 
         private final Long memberId;
         private final String name;
