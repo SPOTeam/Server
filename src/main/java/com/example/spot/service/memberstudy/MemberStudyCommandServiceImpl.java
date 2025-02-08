@@ -87,7 +87,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
 
         // 참여가 승인되지 않은 스터디는 탈퇴할 수 없음
-        if (memberStudy.getStatus().equals(ApplicationStatus.APPLIED)) {
+        if (!memberStudy.getStatus().equals(ApplicationStatus.APPROVED)) {
             throw new StudyHandler(ErrorStatus._STUDY_NOT_APPROVED);
         }
         // 스터디장은 스터디를 탈퇴할 수 없음
