@@ -827,16 +827,74 @@ class StudyPostCommandServiceTest {
     @Test
     @DisplayName("스터디 게시글 댓글 싫어요 - (성공)")
     void dislikeComment_Success() {
+
+        // given
+        Long memberId = 1L;
+        Long studyId = 1L;
+        Long postId = 1L;
+        Long commentId = 1L;
+
+        getAuthentication(memberId);
+
+        when(studyLikedCommentRepository.findByMemberIdAndStudyPostCommentIdAndIsLiked(memberId, commentId, true))
+                .thenReturn(Optional.empty());
+        when(studyLikedCommentRepository.findByMemberIdAndStudyPostCommentIdAndIsLiked(memberId, commentId, false))
+                .thenReturn(Optional.empty());
+        when(studyLikedCommentRepository.save(any(StudyLikedComment.class))).thenReturn(studyLikedComment);
+
+        // when
+        StudyPostCommentResponseDTO.CommentPreviewDTO result = studyPostCommandService.dislikeComment(studyId, postId, commentId);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getCommentId()).isEqualTo(1L);
+        assertThat(result.getLikeCount()).isEqualTo(1L);
+        assertThat(result.getDislikeCount()).isEqualTo(0L);
     }
 
     @Test
     @DisplayName("스터디 게시글 댓글 싫어요 - 스터디 회원인 아닌 경우(실패)")
     void dislikeComment_NotStudyMember_Fail() {
+
+        // given
+        Long memberId = 2L;
+        Long studyId = 1L;
+        Long postId = 1L;
+        Long commentId = 1L;
+
+        getAuthentication(memberId);
+
+        when(studyLikedCommentRepository.findByMemberIdAndStudyPostCommentIdAndIsLiked(memberId, commentId, true))
+                .thenReturn(Optional.empty());
+        when(studyLikedCommentRepository.findByMemberIdAndStudyPostCommentIdAndIsLiked(memberId, commentId, false))
+                .thenReturn(Optional.empty());
+        when(studyLikedCommentRepository.save(any(StudyLikedComment.class))).thenReturn(studyLikedComment);
+
+        // when
+        assertThrows(StudyHandler.class, () -> studyPostCommandService.dislikeComment(studyId, postId, commentId));
+
     }
 
     @Test
     @DisplayName("스터디 게시글 댓글 싫어요 - 이미 싫어요를 누른 경우(실패)")
     void dislikeComment_AlreadyDisliked_Fail() {
+
+        // given
+        Long memberId = 3L;
+        Long studyId = 1L;
+        Long postId = 1L;
+        Long commentId = 2L;
+
+        getAuthentication(memberId);
+
+        when(studyLikedCommentRepository.findByMemberIdAndStudyPostCommentIdAndIsLiked(memberId, commentId, true))
+                .thenReturn(Optional.empty());
+        when(studyLikedCommentRepository.findByMemberIdAndStudyPostCommentIdAndIsLiked(memberId, commentId, false))
+                .thenReturn(Optional.of(studyLikedComment));
+        when(studyLikedCommentRepository.save(any(StudyLikedComment.class))).thenReturn(studyLikedComment);
+
+        // when
+        assertThrows(StudyHandler.class, () -> studyPostCommandService.dislikeComment(studyId, postId, commentId));
     }
 
 /*-------------------------------------------------------- 댓글 좋아요 취소 ------------------------------------------------------------------------*/
