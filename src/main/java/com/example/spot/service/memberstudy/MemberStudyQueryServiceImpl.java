@@ -107,7 +107,8 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
         List<StudyScheduleDTO> scheduleDTOS = schedules.stream().map(schedule -> StudyScheduleDTO.builder()
             .title(schedule.getTitle())
             .location(schedule.getLocation())
-            .staredAt(schedule.getStartedAt())
+            .startedAt(schedule.getStartedAt())
+            .finishedAt(schedule.getFinishedAt())
             .build()).toList();
 
         // 페이징 처리
