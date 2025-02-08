@@ -16,6 +16,7 @@ import com.example.spot.domain.study.StudyPostComment;
 import com.example.spot.repository.*;
 import com.example.spot.web.dto.memberstudy.request.StudyPostCommentRequestDTO;
 import com.example.spot.web.dto.memberstudy.request.StudyPostRequestDTO;
+import com.example.spot.web.dto.memberstudy.response.StudyPostCommentResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyPostResDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -126,6 +127,9 @@ class StudyPostCommandServiceTest {
         // Comment
         when(studyPostCommentRepository.findAllByStudyPostId(1L))
                 .thenReturn(List.of(studyPost1Comment1, studyPost1Comment2));
+        when(studyPostCommentRepository.findById(1L)).thenReturn(Optional.of(studyPost1Comment1));
+        when(studyPostCommentRepository.findById(2L)).thenReturn(Optional.of(studyPost1Comment1));
+
     }
 
 /*-------------------------------------------------------- 게시글 작성 ------------------------------------------------------------------------*/
@@ -504,18 +508,96 @@ class StudyPostCommandServiceTest {
 /*-------------------------------------------------------- 댓글 작성 ------------------------------------------------------------------------*/
 
     @Test
-    @DisplayName("스터디 게시글 댓글 작성 - (성공)")
-    void createComment_Success() {
+    @DisplayName("스터디 게시글 댓글 작성 - 익명 댓글 (성공)")
+    void createComment_Anonymous_Success() {
+
+        // given
+        Long memberId = 1L;
+        Long studyId = 1L;
+        Long postId = 1L;
+
+        getAuthentication(memberId);
 
         StudyPostCommentRequestDTO.CommentDTO commentDTO = StudyPostCommentRequestDTO.CommentDTO.builder()
                 .content("댓글")
                 .isAnonymous(true)
                 .build();
+
+        when(studyPostRepository.findByIdAndStudyId(postId, studyId))
+                .thenReturn(Optional.of(studyPost1));
+        when(studyPostCommentRepository.save(any(StudyPostComment.class))).thenReturn(studyPost1Comment1);
+        when(studyPostRepository.save(any(StudyPost.class))).thenReturn(studyPost1);
+        when(studyPostCommentRepository.findAllByStudyPostId(postId)).thenReturn(List.of());
+        when(studyPostCommentRepository.findAllByMemberIdAndStudyPostId(memberId, postId)).thenReturn(List.of());
+
+        // when
+        StudyPostCommentResponseDTO.CommentDTO result = studyPostCommandService.createComment(studyId, postId, commentDTO);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getMember().getMemberId()).isEqualTo(1L);
+        assertThat(result.getMember().getName()).isEqualTo("익명1");
+        assertThat(result.getContent()).isEqualTo("댓글");
+    }
+
+    @Test
+    @DisplayName("스터디 게시글 댓글 작성 - 실명 댓글 (성공)")
+    void createComment_Name_Success() {
+
+        // given
+        Long memberId = 1L;
+        Long studyId = 1L;
+        Long postId = 1L;
+
+        getAuthentication(memberId);
+
+        StudyPostCommentRequestDTO.CommentDTO commentDTO = StudyPostCommentRequestDTO.CommentDTO.builder()
+                .content("댓글")
+                .isAnonymous(false)
+                .build();
+
+        when(studyPostRepository.findByIdAndStudyId(postId, studyId))
+                .thenReturn(Optional.of(studyPost1));
+        when(studyPostCommentRepository.save(any(StudyPostComment.class))).thenReturn(studyPost1Comment1);
+        when(studyPostRepository.save(any(StudyPost.class))).thenReturn(studyPost1);
+        when(studyPostCommentRepository.findAllByStudyPostId(postId)).thenReturn(List.of());
+        when(studyPostCommentRepository.findAllByMemberIdAndStudyPostId(memberId, postId)).thenReturn(List.of());
+
+        // when
+        StudyPostCommentResponseDTO.CommentDTO result = studyPostCommandService.createComment(studyId, postId, commentDTO);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getMember().getMemberId()).isEqualTo(1L);
+        assertThat(result.getMember().getName()).isEqualTo("회원1");
+        assertThat(result.getContent()).isEqualTo("댓글");
     }
 
     @Test
     @DisplayName("스터디 게시글 댓글 작성 - 스터디 회원이 아닌 경우 (실패)")
     void createComment_NotStudyMember_Fail() {
+
+        // given
+        Long memberId = 2L;
+        Long studyId = 1L;
+        Long postId = 1L;
+
+        getAuthentication(memberId);
+
+        StudyPostCommentRequestDTO.CommentDTO commentDTO = StudyPostCommentRequestDTO.CommentDTO.builder()
+                .content("댓글")
+                .isAnonymous(false)
+                .build();
+
+        when(studyPostRepository.findByIdAndStudyId(postId, studyId))
+                .thenReturn(Optional.of(studyPost1));
+        when(studyPostCommentRepository.save(any(StudyPostComment.class))).thenReturn(studyPost1Comment1);
+        when(studyPostRepository.save(any(StudyPost.class))).thenReturn(studyPost1);
+        when(studyPostCommentRepository.findAllByStudyPostId(postId)).thenReturn(List.of());
+        when(studyPostCommentRepository.findAllByMemberIdAndStudyPostId(memberId, postId)).thenReturn(List.of());
+
+        // when
+        assertThrows(StudyHandler.class, () -> studyPostCommandService.createComment(studyId, postId, commentDTO));
     }
 
 
@@ -523,18 +605,136 @@ class StudyPostCommandServiceTest {
 /*-------------------------------------------------------- 답글 작성 ------------------------------------------------------------------------*/
 
     @Test
-    @DisplayName("스터디 게시글 답글 작성 - (성공)")
-    void createReply_Success() {
+    @DisplayName("스터디 게시글 답글 작성 - 익명 댓글 (성공)")
+    void createReply_Anonymous_Success() {
+
+        // given
+        Long memberId = 3L;
+        Long studyId = 1L;
+        Long postId = 1L;
+        Long commentId = 1L;
+
+        getAuthentication(memberId);
+
+        StudyPostCommentRequestDTO.CommentDTO commentDTO = StudyPostCommentRequestDTO.CommentDTO.builder()
+                .content("답글")
+                .isAnonymous(true)
+                .build();
+
+        when(studyPostRepository.findByIdAndStudyId(postId, studyId))
+                .thenReturn(Optional.of(studyPost1));
+        when(studyPostCommentRepository.save(any(StudyPostComment.class))).thenReturn(studyPost1Comment1);
+        when(studyPostRepository.save(any(StudyPost.class))).thenReturn(studyPost1);
+        when(studyPostCommentRepository.findAllByStudyPostId(postId))
+                .thenReturn(List.of(studyPost1Comment1));
+        when(studyPostCommentRepository.findAllByMemberIdAndStudyPostId(memberId, postId))
+                .thenReturn(List.of());
+
+        // when
+        StudyPostCommentResponseDTO.CommentDTO result = studyPostCommandService
+                .createReply(studyId, postId, commentId, commentDTO);
+
+        //then
+        assertNotNull(result);
+        assertThat(result.getMember().getMemberId()).isEqualTo(3L);
+        assertThat(result.getMember().getName()).isEqualTo("익명2");
+        assertThat(result.getContent()).isEqualTo("답글");
+    }
+
+    @Test
+    @DisplayName("스터디 게시글 답글 작성 - 실명 댓글 (성공)")
+    void createReply_Name_Success() {
+
+        // given
+        Long memberId = 3L;
+        Long studyId = 1L;
+        Long postId = 1L;
+        Long commentId = 1L;
+
+        getAuthentication(memberId);
+
+        StudyPostCommentRequestDTO.CommentDTO commentDTO = StudyPostCommentRequestDTO.CommentDTO.builder()
+                .content("답글")
+                .isAnonymous(false)
+                .build();
+
+        when(studyPostRepository.findByIdAndStudyId(postId, studyId))
+                .thenReturn(Optional.of(studyPost1));
+        when(studyPostCommentRepository.save(any(StudyPostComment.class))).thenReturn(studyPost1Comment1);
+        when(studyPostRepository.save(any(StudyPost.class))).thenReturn(studyPost1);
+        when(studyPostCommentRepository.findAllByStudyPostId(postId))
+                .thenReturn(List.of(studyPost1Comment1));
+        when(studyPostCommentRepository.findAllByMemberIdAndStudyPostId(memberId, postId))
+                .thenReturn(List.of());
+
+        // when
+        StudyPostCommentResponseDTO.CommentDTO result = studyPostCommandService
+                .createReply(studyId, postId, commentId, commentDTO);
+
+        //then
+        assertNotNull(result);
+        assertThat(result.getMember().getMemberId()).isEqualTo(3L);
+        assertThat(result.getMember().getName()).isEqualTo("회원3");
+        assertThat(result.getContent()).isEqualTo("답글");
     }
 
     @Test
     @DisplayName("스터디 게시글 답글 작성 - 스터디 회원이 아닌 경우 (실패)")
     void createReply_NotStudyMember_Fail() {
+
+        // given
+        Long memberId = 2L;
+        Long studyId = 1L;
+        Long postId = 1L;
+        Long commentId = 1L;
+
+        getAuthentication(memberId);
+
+        StudyPostCommentRequestDTO.CommentDTO commentDTO = StudyPostCommentRequestDTO.CommentDTO.builder()
+                .content("답글")
+                .isAnonymous(false)
+                .build();
+
+        when(studyPostRepository.findByIdAndStudyId(postId, studyId))
+                .thenReturn(Optional.of(studyPost1));
+        when(studyPostCommentRepository.save(any(StudyPostComment.class))).thenReturn(studyPost1Comment1);
+        when(studyPostRepository.save(any(StudyPost.class))).thenReturn(studyPost1);
+        when(studyPostCommentRepository.findAllByStudyPostId(postId))
+                .thenReturn(List.of(studyPost1Comment1));
+        when(studyPostCommentRepository.findAllByMemberIdAndStudyPostId(memberId, postId))
+                .thenReturn(List.of());
+
+        // when
+        assertThrows(StudyHandler.class, () -> studyPostCommandService.createReply(studyId, postId, commentId, commentDTO));
     }
 
     @Test
     @DisplayName("스터디 게시글 답글 작성 - 상위 댓글이 존재하지 않는 경우 (실패)")
     void createReply_ParentCommentNotExist_Fail() {
+
+        // given
+        Long memberId = 1L;
+        Long studyId = 1L;
+        Long postId = 1L;
+
+        getAuthentication(memberId);
+
+        StudyPostCommentRequestDTO.CommentDTO commentDTO = StudyPostCommentRequestDTO.CommentDTO.builder()
+                .content("답글")
+                .isAnonymous(false)
+                .build();
+
+        when(studyPostRepository.findByIdAndStudyId(postId, studyId))
+                .thenReturn(Optional.of(studyPost1));
+        when(studyPostCommentRepository.save(any(StudyPostComment.class))).thenReturn(studyPost1Comment1);
+        when(studyPostRepository.save(any(StudyPost.class))).thenReturn(studyPost1);
+        when(studyPostCommentRepository.findAllByStudyPostId(postId))
+                .thenReturn(List.of(studyPost1Comment1, studyPost1Comment2));
+        when(studyPostCommentRepository.findAllByMemberIdAndStudyPostId(memberId, postId))
+                .thenReturn(List.of(studyPost1Comment1));
+
+        // when
+        assertThrows(StudyHandler.class, () -> studyPostCommandService.createReply(studyId, postId, null, commentDTO));
     }
 
 
@@ -628,6 +828,7 @@ class StudyPostCommandServiceTest {
     private static void initMember() {
         member1 = Member.builder()
                 .id(1L)
+                .name("회원1")
                 .studyPostList(new ArrayList<>())
                 .studyLikedPostList(new ArrayList<>())
                 .studyPostCommentList(new ArrayList<>())
@@ -635,6 +836,7 @@ class StudyPostCommandServiceTest {
                 .build();
         member2 = Member.builder()
                 .id(2L)
+                .name("회원2")
                 .studyPostList(new ArrayList<>())
                 .studyLikedPostList(new ArrayList<>())
                 .studyPostCommentList(new ArrayList<>())
@@ -642,6 +844,7 @@ class StudyPostCommandServiceTest {
                 .build();
         owner = Member.builder()
                 .id(3L)
+                .name("회원3")
                 .studyPostList(new ArrayList<>())
                 .studyLikedPostList(new ArrayList<>())
                 .studyPostCommentList(new ArrayList<>())
@@ -761,6 +964,7 @@ class StudyPostCommandServiceTest {
                 .likeCount(0)
                 .dislikeCount(0)
                 .isAnonymous(true)
+                .anonymousNum(1)
                 .isDeleted(false)
                 .parentComment(null)
                 .build();
