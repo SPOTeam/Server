@@ -65,6 +65,8 @@ class StudyPostCommandServiceTest {
 
     @Mock
     private StudyPostCommentRepository studyPostCommentRepository;
+    @Mock
+    private StudyLikedCommentRepository studyLikedCommentRepository;
 
     @Mock
     private NotificationRepository notificationRepository;
@@ -750,16 +752,73 @@ class StudyPostCommandServiceTest {
     @Test
     @DisplayName("스터디 게시글 댓글 좋아요 - (성공)")
     void likeComment_Success() {
+
+        // given
+        Long memberId = 1L;
+        Long studyId = 1L;
+        Long postId = 1L;
+        Long commentId = 1L;
+
+        getAuthentication(memberId);
+
+        when(studyLikedCommentRepository.findByMemberIdAndStudyPostCommentIdAndIsLiked(memberId, commentId, true))
+                .thenReturn(Optional.empty());
+        when(studyLikedCommentRepository.findByMemberIdAndStudyPostCommentIdAndIsLiked(memberId, commentId, false))
+                .thenReturn(Optional.empty());
+        when(studyLikedCommentRepository.save(any(StudyLikedComment.class))).thenReturn(studyLikedComment);
+
+        // when
+        StudyPostCommentResponseDTO.CommentPreviewDTO result = studyPostCommandService.likeComment(studyId, postId, commentId);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getCommentId()).isEqualTo(1L);
+        assertThat(result.getLikeCount()).isEqualTo(1L);
+        assertThat(result.getDislikeCount()).isEqualTo(0L);
     }
 
     @Test
     @DisplayName("스터디 게시글 댓글 좋아요 - 스터디 회원이 아닌 경우 (실패)")
     void likeComment_NotStudyMember_Fail() {
+
+        // given
+        Long memberId = 2L;
+        Long studyId = 1L;
+        Long postId = 1L;
+        Long commentId = 1L;
+
+        getAuthentication(memberId);
+
+        when(studyLikedCommentRepository.findByMemberIdAndStudyPostCommentIdAndIsLiked(memberId, commentId, true))
+                .thenReturn(Optional.empty());
+        when(studyLikedCommentRepository.findByMemberIdAndStudyPostCommentIdAndIsLiked(memberId, commentId, false))
+                .thenReturn(Optional.empty());
+        when(studyLikedCommentRepository.save(any(StudyLikedComment.class))).thenReturn(studyLikedComment);
+
+        // when
+        assertThrows(StudyHandler.class, () -> studyPostCommandService.likeComment(studyId, postId, commentId));
     }
 
     @Test
     @DisplayName("스터디 게시글 댓글 좋아요 - 이미 좋아요를 누른 경우 (실패)")
     void likeComment_AlreadyLiked_Fail() {
+
+        // given
+        Long memberId = 1L;
+        Long studyId = 1L;
+        Long postId = 1L;
+        Long commentId = 2L;
+
+        getAuthentication(memberId);
+
+        when(studyLikedCommentRepository.findByMemberIdAndStudyPostCommentIdAndIsLiked(memberId, commentId, true))
+                .thenReturn(Optional.of(studyLikedComment));
+        when(studyLikedCommentRepository.findByMemberIdAndStudyPostCommentIdAndIsLiked(memberId, commentId, false))
+                .thenReturn(Optional.empty());
+        when(studyLikedCommentRepository.save(any(StudyLikedComment.class))).thenReturn(studyLikedComment);
+
+        // when
+        assertThrows(StudyHandler.class, () -> studyPostCommandService.likeComment(studyId, postId, commentId));
     }
 
 
