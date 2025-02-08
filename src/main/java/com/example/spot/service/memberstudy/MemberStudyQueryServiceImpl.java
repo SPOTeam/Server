@@ -101,7 +101,7 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 
         // 스터디 일정이 존재하지 않는 경우
         if (schedules.isEmpty())
-            throw  new GeneralException(ErrorStatus._STUDY_SCHEDULE_NOT_FOUND);
+            throw new GeneralException(ErrorStatus._STUDY_SCHEDULE_NOT_FOUND);
 
         // DTO로 변환하여 반환
         List<StudyScheduleDTO> scheduleDTOS = schedules.stream().map(schedule -> StudyScheduleDTO.builder()
