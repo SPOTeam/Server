@@ -57,6 +57,10 @@ class StudyPostCommandServiceTest {
     private StudyPostRepository studyPostRepository;
     @Mock
     private StudyLikedPostRepository studyLikedPostRepository;
+    @Mock
+    private StudyPostImageRepository studyPostImageRepository;
+    @Mock
+    private StudyPostReportRepository studyPostReportRepository;
 
     @Mock
     private StudyPostCommentRepository studyPostCommentRepository;
