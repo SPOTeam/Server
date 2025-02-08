@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import com.example.spot.api.exception.handler.StudyHandler;
 import com.example.spot.domain.Member;
 import com.example.spot.domain.enums.ApplicationStatus;
+import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.mapping.MemberStudy;
 import com.example.spot.domain.study.Study;
 import com.example.spot.domain.study.ToDoList;
@@ -24,6 +25,7 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Optional;
 
+import com.example.spot.web.dto.memberstudy.response.StudyTerminationResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyWithdrawalResponseDTO;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -193,7 +195,98 @@ public class MemberStudyCommandServiceTest {
     @DisplayName("스터디 종료 - (성공)")
     void terminateStudy_Success() {
 
+        // given
+        member = Member.builder()
+                .id(1L)
+                .name("회원1")
+                .build();
+        study = Study.builder()
+                .id(1L)
+                .title("스터디")
+                .status(Status.ON)
+                .build();
+        memberStudy = MemberStudy.builder()
+                .member(member)
+                .study(study)
+                .isOwned(true)
+                .status(ApplicationStatus.APPROVED)
+                .build();
+
+        when(memberRepository.findById(1L)).thenReturn(Optional.of(member));
+        when(studyRepository.findById(1L)).thenReturn(Optional.of(study));
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndStatus(1L, 1L, ApplicationStatus.APPROVED))
+                .thenReturn(Optional.of(memberStudy));
+
+        // when
+        StudyTerminationResponseDTO.TerminationDTO result = memberStudyCommandService.terminateStudy(1L);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getStudyId()).isEqualTo(1L);
+        assertThat(result.getStudyName()).isEqualTo("스터디");
+        assertThat(result.getStatus()).isEqualTo(Status.OFF);
     }
+
+    @Test
+    @DisplayName("스터디 종료 - 스터디장이 아닌 경우 (실패)")
+    void terminateStudy_NotStudyOwner_Fail() {
+
+        // given
+        member = Member.builder()
+                .id(1L)
+                .name("회원1")
+                .build();
+        study = Study.builder()
+                .id(1L)
+                .title("스터디")
+                .status(Status.ON)
+                .build();
+        memberStudy = MemberStudy.builder()
+                .member(member)
+                .study(study)
+                .isOwned(false)
+                .status(ApplicationStatus.APPROVED)
+                .build();
+
+        when(memberRepository.findById(1L)).thenReturn(Optional.of(member));
+        when(studyRepository.findById(1L)).thenReturn(Optional.of(study));
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndStatus(1L, 1L, ApplicationStatus.APPROVED))
+                .thenReturn(Optional.of(memberStudy));
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> memberStudyCommandService.terminateStudy(1L));
+    }
+
+    @Test
+    @DisplayName("스터디 종료 - 진행중인 스터디가 아닌 경우 (실패)")
+    void terminateStudy_AlreadyTerminated_Fail() {
+
+        // given
+        member = Member.builder()
+                .id(1L)
+                .name("회원1")
+                .build();
+        study = Study.builder()
+                .id(1L)
+                .title("스터디")
+                .status(Status.OFF)
+                .build();
+        memberStudy = MemberStudy.builder()
+                .member(member)
+                .study(study)
+                .isOwned(false)
+                .status(ApplicationStatus.APPROVED)
+                .build();
+
+        when(memberRepository.findById(1L)).thenReturn(Optional.of(member));
+        when(studyRepository.findById(1L)).thenReturn(Optional.of(study));
+        when(memberStudyRepository.findByMemberIdAndStudyIdAndStatus(1L, 1L, ApplicationStatus.APPROVED))
+                .thenReturn(Optional.of(memberStudy));
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> memberStudyCommandService.terminateStudy(1L));
+    }
+
 
     /* ---------------------------- To-Do 생성 관련 메서드  ---------------------------- */
 
