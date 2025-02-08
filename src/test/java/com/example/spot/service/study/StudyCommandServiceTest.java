@@ -299,6 +299,7 @@ class StudyCommandServiceTest {
                 .profileImage("a.jpg")
                 .hasFee(true)
                 .isOnline(true)
+                .studyState(StudyState.RECRUITING)
                 .goal("SQLD")
                 .introduction("SQLD 자격증 스터디")
                 .title("SQLD Master")
