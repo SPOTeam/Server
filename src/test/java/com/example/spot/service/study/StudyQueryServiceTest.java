@@ -16,12 +16,7 @@ import com.example.spot.api.exception.handler.StudyHandler;
 import com.example.spot.domain.Member;
 import com.example.spot.domain.Region;
 import com.example.spot.domain.Theme;
-import com.example.spot.domain.enums.ApplicationStatus;
-import com.example.spot.domain.enums.Gender;
-import com.example.spot.domain.enums.StudyLikeStatus;
-import com.example.spot.domain.enums.StudySortBy;
-import com.example.spot.domain.enums.StudyState;
-import com.example.spot.domain.enums.ThemeType;
+import com.example.spot.domain.enums.*;
 import com.example.spot.domain.mapping.MemberStudy;
 import com.example.spot.domain.mapping.MemberTheme;
 import com.example.spot.domain.mapping.PreferredRegion;
@@ -1807,6 +1802,7 @@ class StudyQueryServiceTest {
     }
     private static void initStudy() {
         study1 = Study.builder()
+            .id(1L)
             .gender(Gender.MALE)
             .minAge(18)
             .maxAge(35)
@@ -1814,6 +1810,10 @@ class StudyQueryServiceTest {
             .profileImage("profile1.jpg")
             .hasFee(true)
             .isOnline(true)
+            .studyState(StudyState.RECRUITING)
+            .heartCount(0)
+            .status(Status.ON)
+            .hitNum(0L)
             .goal("Learn English")
             .introduction("This is an English study group")
             .title("English Study Group")
@@ -1828,6 +1828,10 @@ class StudyQueryServiceTest {
             .profileImage("profile2.jpg")
             .hasFee(true)
             .isOnline(false)
+            .studyState(StudyState.RECRUITING)
+            .heartCount(0)
+            .status(Status.ON)
+            .hitNum(0L)
             .goal("Win a competition")
             .introduction("This is a competition study group")
             .title("Competition Study Group")
@@ -1841,6 +1845,10 @@ class StudyQueryServiceTest {
                 .profileImage("profile1.jpg")
                 .hasFee(true)
                 .isOnline(true)
+                .studyState(StudyState.RECRUITING)
+                .heartCount(0)
+                .status(Status.ON)
+                .hitNum(0L)
                 .goal("Learn Korean")
                 .introduction("This is an Korean study group")
                 .title("Korean Study Group")
