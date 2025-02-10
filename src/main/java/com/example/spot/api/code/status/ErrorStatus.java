@@ -75,6 +75,8 @@ public enum ErrorStatus implements BaseErrorCode {
     _ONLY_STUDY_MEMBER_CAN_ACCESS_SCHEDULE(HttpStatus.FORBIDDEN, "STUDY4015", "스터디 멤버만 일정에 접근할 수 있습니다."),
     _ONLY_STUDY_MEMBER_CAN_ACCESS_MEMBERS(HttpStatus.FORBIDDEN, "STUDY4016", "스터디 멤버만 회원 목록에 접근할 수 있습니다."),
     _ALREADY_STUDY_MEMBER(HttpStatus.BAD_REQUEST, "STUDY4017", "이미 스터디 멤버입니다."),
+    _STUDY_OWNER_ONLY_CAN_TERMINATE(HttpStatus.BAD_REQUEST, "STUDY4018", "스터디장만 스터디를 종료할 수 있습니다."),
+    _STUDY_ALREADY_TERMINATED(HttpStatus.BAD_REQUEST, "STUDY4019", "이미 종료된 스터디입니다."),
 
     //스터디 게시글 관련 에러
     _STUDY_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST4001", "스터디 게시글을 찾을 수 없습니다."),
