@@ -16,12 +16,7 @@ import com.example.spot.api.exception.handler.StudyHandler;
 import com.example.spot.domain.Member;
 import com.example.spot.domain.Region;
 import com.example.spot.domain.Theme;
-import com.example.spot.domain.enums.ApplicationStatus;
-import com.example.spot.domain.enums.Gender;
-import com.example.spot.domain.enums.StudyLikeStatus;
-import com.example.spot.domain.enums.StudySortBy;
-import com.example.spot.domain.enums.StudyState;
-import com.example.spot.domain.enums.ThemeType;
+import com.example.spot.domain.enums.*;
 import com.example.spot.domain.mapping.MemberStudy;
 import com.example.spot.domain.mapping.MemberTheme;
 import com.example.spot.domain.mapping.PreferredRegion;
@@ -394,12 +389,17 @@ class StudyQueryServiceTest {
 
         // Mock the memberThemeRepository to return a list of MemberTheme
         when(memberThemeRepository.findAllByMemberId(member.getId())).thenReturn(List.of(memberTheme1, memberTheme2));
+        when(preferredRegionRepository.findAllByMemberId(member.getId())).thenReturn(List.of(preferredRegion1, preferredRegion2));
 
         when(studyThemeRepository.findAllByTheme(theme1)).thenReturn(List.of(studyTheme1));
         when(studyThemeRepository.findAllByTheme(theme2)).thenReturn(List.of(studyTheme2));
 
+        when(regionStudyRepository.findAllByRegion(region1)).thenReturn(List.of(regionStudy1));
+        when(regionStudyRepository.findAllByRegion(region2)).thenReturn(List.of(regionStudy2));
+
         // Mocking the studyRepository to return studies based on the study themes
         when(studyRepository.findByStudyThemeAndNotInIds(anyList(), anyList())).thenReturn(List.of(study1, study2));
+        when(studyRepository.findByRegionStudyAndNotInIds(anyList(), anyList())).thenReturn(List.of(study1, study2));
 
         when(memberRepository.existsById(member.getId())).thenReturn(true);
 
@@ -422,13 +422,17 @@ class StudyQueryServiceTest {
         // given
 
         when(memberThemeRepository.findAllByMemberId(member.getId())).thenReturn(List.of(memberTheme1, memberTheme2));
-
+        when(preferredRegionRepository.findAllByMemberId(member.getId())).thenReturn(List.of(preferredRegion1, preferredRegion2));
 
         when(studyThemeRepository.findAllByTheme(theme1)).thenReturn(List.of(studyTheme1));
         when(studyThemeRepository.findAllByTheme(theme2)).thenReturn(List.of(studyTheme2));
 
+        when(regionStudyRepository.findAllByRegion(region1)).thenReturn(List.of(regionStudy1));
+        when(regionStudyRepository.findAllByRegion(region2)).thenReturn(List.of(regionStudy2));
+
         // Mocking the studyRepository to return studies based on the study themes
         when(studyRepository.findByStudyThemeAndNotInIds(anyList(), anyList())).thenReturn(List.of());
+        when(studyRepository.findByRegionStudyAndNotInIds(anyList(), anyList())).thenReturn(List.of());
 
         when(memberRepository.existsById(member.getId())).thenReturn(true);
 
@@ -443,18 +447,46 @@ class StudyQueryServiceTest {
     }
 
     @Test
-    @DisplayName("추천 스터디 조회 - 회원의 관심 테마에_해당하는_스터디가 없는 경우")
+    @DisplayName("추천 스터디 조회 - 회원의 관심 테마에 해당하는 스터디가 없는 경우")
     void 추천_스터디_조회_시_회원의_관심_테마에_해당하는_스터디가_없는_경우() {
         // given
         when(memberThemeRepository.findAllByMemberId(member.getId())).thenReturn(List.of(memberTheme1, memberTheme2));
+        when(preferredRegionRepository.findAllByMemberId(member.getId())).thenReturn(List.of(preferredRegion1, preferredRegion2));
 
         when(studyThemeRepository.findAllByTheme(theme1)).thenReturn(List.of());
         when(studyThemeRepository.findAllByTheme(theme2)).thenReturn(List.of());
+
+        when(regionStudyRepository.findAllByRegion(region1)).thenReturn(List.of(regionStudy1));
+        when(regionStudyRepository.findAllByRegion(region2)).thenReturn(List.of(regionStudy2));
 
         // when & then
         assertThrows(StudyHandler.class, () -> {
             studyQueryService.findRecommendStudies(member.getId());
         });
+
+        verify(memberThemeRepository).findAllByMemberId(member.getId());
+        verify(studyThemeRepository, times(1)).findAllByTheme(theme1);
+        verify(studyThemeRepository, times(1)).findAllByTheme(theme2);
+    }
+
+    @Test
+    @DisplayName("추천 스터디 조회 - 회원의 관심 지역에 해당하는 스터디가 없는 경우")
+    void 추천_스터디_조회_시_회원의_관심_지역에_해당하는_스터디가_없는_경우() {
+        // given
+        when(memberThemeRepository.findAllByMemberId(member.getId())).thenReturn(List.of(memberTheme1, memberTheme2));
+        when(preferredRegionRepository.findAllByMemberId(member.getId())).thenReturn(List.of(preferredRegion1, preferredRegion2));
+
+        when(studyThemeRepository.findAllByTheme(theme1)).thenReturn(List.of(studyTheme1));
+        when(studyThemeRepository.findAllByTheme(theme2)).thenReturn(List.of(studyTheme2));
+
+        when(regionStudyRepository.findAllByRegion(region1)).thenReturn(List.of());
+        when(regionStudyRepository.findAllByRegion(region2)).thenReturn(List.of());
+
+        // when & then
+        assertThrows(StudyHandler.class, () -> {
+            studyQueryService.findRecommendStudies(member.getId());
+        });
+
         verify(memberThemeRepository).findAllByMemberId(member.getId());
         verify(studyThemeRepository, times(1)).findAllByTheme(theme1);
         verify(studyThemeRepository, times(1)).findAllByTheme(theme2);
@@ -468,9 +500,9 @@ class StudyQueryServiceTest {
         Member member = getMember();
 
         // when & then
-        when(memberRepository.findById(member.getId())).thenReturn(Optional.empty());
+        when(memberRepository.existsById(member.getId())).thenReturn(false);
 
-        assertThrows(StudyHandler.class, () -> {
+        assertThrows(MemberHandler.class, () -> {
             studyQueryService.findRecommendStudies(member.getId());
         });
     }
@@ -490,6 +522,23 @@ class StudyQueryServiceTest {
         assertThrows(MemberHandler.class, () -> {
             studyQueryService.findRecommendStudies(memberId);
         });
+    }
+
+    @Test
+    @DisplayName("추천 스터디 조회 - 사용자의 관심 지역이 없는 경우")
+    void findRecommendStudiesOnNoRegion() {
+        // given
+        Member member = getMember();
+        Long memberId = member.getId();
+
+        // Mock the preferredRegionRepository to return an empty list
+        when(preferredRegionRepository.findAllByMemberId(memberId)).thenReturn(List.of());
+
+        // when & then
+        assertThrows(MemberHandler.class, () -> {
+            studyQueryService.findRecommendStudies(memberId);
+        });
+
     }
 
     /* -------------------------------------------------------- 관심 Best 스터디 조회 ------------------------------------------------------------------------*/
@@ -1807,6 +1856,7 @@ class StudyQueryServiceTest {
     }
     private static void initStudy() {
         study1 = Study.builder()
+            .id(1L)
             .gender(Gender.MALE)
             .minAge(18)
             .maxAge(35)
@@ -1814,6 +1864,10 @@ class StudyQueryServiceTest {
             .profileImage("profile1.jpg")
             .hasFee(true)
             .isOnline(true)
+            .studyState(StudyState.RECRUITING)
+            .heartCount(0)
+            .status(Status.ON)
+            .hitNum(0L)
             .goal("Learn English")
             .introduction("This is an English study group")
             .title("English Study Group")
@@ -1828,6 +1882,10 @@ class StudyQueryServiceTest {
             .profileImage("profile2.jpg")
             .hasFee(true)
             .isOnline(false)
+            .studyState(StudyState.RECRUITING)
+            .heartCount(0)
+            .status(Status.ON)
+            .hitNum(0L)
             .goal("Win a competition")
             .introduction("This is a competition study group")
             .title("Competition Study Group")
@@ -1841,6 +1899,10 @@ class StudyQueryServiceTest {
                 .profileImage("profile1.jpg")
                 .hasFee(true)
                 .isOnline(true)
+                .studyState(StudyState.RECRUITING)
+                .heartCount(0)
+                .status(Status.ON)
+                .hitNum(0L)
                 .goal("Learn Korean")
                 .introduction("This is an Korean study group")
                 .title("Korean Study Group")

@@ -75,6 +75,8 @@ public enum ErrorStatus implements BaseErrorCode {
     _ONLY_STUDY_MEMBER_CAN_ACCESS_SCHEDULE(HttpStatus.FORBIDDEN, "STUDY4015", "스터디 멤버만 일정에 접근할 수 있습니다."),
     _ONLY_STUDY_MEMBER_CAN_ACCESS_MEMBERS(HttpStatus.FORBIDDEN, "STUDY4016", "스터디 멤버만 회원 목록에 접근할 수 있습니다."),
     _ALREADY_STUDY_MEMBER(HttpStatus.BAD_REQUEST, "STUDY4017", "이미 스터디 멤버입니다."),
+    _STUDY_OWNER_ONLY_CAN_TERMINATE(HttpStatus.BAD_REQUEST, "STUDY4018", "스터디장만 스터디를 종료할 수 있습니다."),
+    _STUDY_ALREADY_TERMINATED(HttpStatus.BAD_REQUEST, "STUDY4019", "이미 종료된 스터디입니다."),
 
     //스터디 게시글 관련 에러
     _STUDY_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST4001", "스터디 게시글을 찾을 수 없습니다."),
@@ -90,7 +92,7 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_POST_COMMENT_ALREADY_DISLIKED(HttpStatus.BAD_REQUEST, "POST4011", "이미 싫어요 한 댓글입니다."),
     _STUDY_LIKED_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "POST4012", "좋아요를 누르지 않은 게시글의 좋아요를 취소할 수 없습니다."),
     _STUDY_DISLIKED_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "POST4013", "싫어요를 누르지 않은 게시글의 싫어요를 취소할 수 없습니다."),
-    _STUDY_POST_DELETION_INVALID(HttpStatus.FORBIDDEN, "POST4014", "게시글 작성자만 삭제 가능합니다."),
+    _STUDY_POST_DELETION_INVALID(HttpStatus.FORBIDDEN, "POST4014", "게시글 작성자 및 스터디장만 삭제 가능합니다."),
     _STUDY_POST_NULL(HttpStatus.BAD_REQUEST, "POST4015", "게시글 아이디가 입력되지 않았습니다."),
     _STUDY_POST_COMMENT_NULL(HttpStatus.BAD_REQUEST, "POST4016", "댓글 아이디가 입력되지 않았습니다."),
     _STUDY_POST_COMMENT_REACTIOM_ID_NULL(HttpStatus.BAD_REQUEST, "POST4017", "댓글 반응 아이디가 입력되지 않았습니다."),

@@ -47,12 +47,15 @@ import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO;
 import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO.StudyScheduleDTO;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -254,33 +257,66 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
         // 회원 관심사 조회
         List<MemberTheme> memberThemes = memberThemeRepository.findAllByMemberId(memberId);
+        List<PreferredRegion> preferredRegions = preferredRegionRepository.findAllByMemberId(memberId);
 
         // 회원 관심사가 없을 경우
         if (memberThemes.isEmpty())
             throw new MemberHandler(ErrorStatus._STUDY_THEME_IS_INVALID);
 
-        // MemberId로 회원 관심사 전체 조회
+        if (preferredRegions.isEmpty())
+            throw new MemberHandler(ErrorStatus._STUDY_REGION_IS_INVALID);
+
+        // MemberId로 회원 관심사 및 관심 지역 전체 조회
         List<Theme> themes = memberThemes.stream()
             .map(MemberTheme::getTheme)
             .toList();
+
+        List<Region> regions = preferredRegions.stream()
+                .map(PreferredRegion::getRegion)
+                .toList();
 
         // 회원 관심사로 스터디 테마 조회
         List<StudyTheme> studyThemes = themes.stream()
             .flatMap(theme -> studyThemeRepository.findAllByTheme(theme).stream())
             .toList();
 
+        // 회원 관심 지역으로 스터디 지역 조회
+        List<RegionStudy> regionStudies = regions.stream()
+                .flatMap(region -> regionStudyRepository.findAllByRegion(region).stream())
+                .toList();
+
         // 해당 관심사에 해당하는 스터디가 존재하지 않을 경우
         if (studyThemes.isEmpty())
             throw new StudyHandler(ErrorStatus._STUDY_THEME_NOT_EXIST);
 
+        // 해당 관심 지역에 해당하는 스터디가 존재하지 않을 경우
+        if (regionStudies.isEmpty())
+            throw new StudyHandler(ErrorStatus._STUDY_REGION_NOT_EXIST);
+
         // 회원 관심사로 추천 스터디 조회
-        List<Study> studies = studyRepository.findByStudyThemeAndNotInIds(studyThemes, memberOngoingStudyIds);
+        List<Study> preferThemeStudies = studyRepository.findByStudyThemeAndNotInIds(studyThemes, memberOngoingStudyIds);
+
+        // 회원 관심 지역으로 추천 스터디 조회
+        List<Study> preferRegionStudies = studyRepository.findByRegionStudyAndNotInIds(regionStudies, memberOngoingStudyIds);
 
         // 추천 스터디가 없을 경우
-        if (studies.isEmpty())
+        if (preferRegionStudies.isEmpty() || preferThemeStudies.isEmpty())
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
 
-        return getDTOs(studies, Pageable.unpaged(), studies.size(), memberId);
+        // 두 리스트를 합쳐서 중복 제거
+        Set<Study> combinedStudies = new HashSet<>(preferThemeStudies);
+        combinedStudies.addAll(preferRegionStudies);
+
+        // 리스트 변환
+        List<Study> studyList = new ArrayList<>(combinedStudies);
+
+        // 랜덤으로 최대 3개 선택
+        Collections.shuffle(studyList);
+        List<Study> selectedStudies = studyList.stream()
+                .limit(3)
+                .collect(Collectors.toList());
+
+        return getDTOs(selectedStudies, Pageable.unpaged(), selectedStudies.size(), memberId);
     }
 
 

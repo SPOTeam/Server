@@ -7,6 +7,7 @@ import com.example.spot.domain.Member;
 import com.example.spot.domain.Region;
 import com.example.spot.domain.Theme;
 import com.example.spot.domain.enums.ApplicationStatus;
+import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.enums.StudyLikeStatus;
 import com.example.spot.domain.enums.StudyState;
 import com.example.spot.domain.mapping.MemberStudy;
@@ -121,13 +122,17 @@ public class StudyCommandServiceImpl implements StudyCommandService {
                 .gender(studyRegisterRequestDTO.getGender())
                 .minAge(studyRegisterRequestDTO.getMinAge())
                 .maxAge(studyRegisterRequestDTO.getMaxAge())
+                .hasFee(studyRegisterRequestDTO.isHasFee())
                 .fee(studyRegisterRequestDTO.getFee())
                 .profileImage(studyRegisterRequestDTO.getProfileImage())
+                .studyState(StudyState.RECRUITING)
                 .isOnline(studyRegisterRequestDTO.getIsOnline())
-                .hasFee(studyRegisterRequestDTO.isHasFee())
+                .heartCount(0)
                 .goal(studyRegisterRequestDTO.getGoal())
                 .introduction(studyRegisterRequestDTO.getIntroduction())
                 .title(studyRegisterRequestDTO.getTitle())
+                .status(Status.ON)
+                .hitNum(0L)
                 .maxPeople(studyRegisterRequestDTO.getMaxPeople())
                 .build();
 

@@ -93,6 +93,9 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
                 .theme(postRequestDTO.getTheme())
                 .title(postRequestDTO.getTitle())
                 .content(postRequestDTO.getContent())
+                .likeNum(0)
+                .hitNum(0)
+                .commentNum(0)
                 .build();
 
         // 공지면 announcedAt 설정
@@ -173,19 +176,28 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
         studyPostRepository.findByIdAndStudyId(postId, studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
 
-        // 로그인 회원이 게시글 작성자인지 확인
-        studyPostRepository.findByIdAndMemberId(postId, memberId)
-                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_DELETION_INVALID));
+        // 로그인 회원이 게시글 작성자거나 owner인지 확인
+        Long ownerId = studyPost.getStudy().getMemberStudies().stream()
+                .filter(MemberStudy::getIsOwned)
+                .map(memberStudy -> memberStudy.getMember().getId())
+                .findFirst()
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_OWNER_NOT_FOUND));
 
-        //=== Feature ===//
-        studyPostImageRepository.deleteAllByStudyPostId(postId);
-        studyPostCommentRepository.deleteAllByStudyPostId(postId);
-        studyLikedPostRepository.deleteAllByStudyPostId(postId);
-        studyPostReportRepository.deleteAllByStudyPostId(postId);
+        if (studyPost.getMember().getId().equals(memberId) ||
+            memberId.equals(ownerId)) {
 
-        member.deleteStudyPost(studyPost);
-        study.deleteStudyPost(studyPost);
-        studyPostRepository.delete(studyPost);
+            studyPostImageRepository.deleteAllByStudyPostId(postId);
+            studyPostCommentRepository.deleteAllByStudyPostId(postId);
+            studyLikedPostRepository.deleteAllByStudyPostId(postId);
+            studyPostReportRepository.deleteAllByStudyPostId(postId);
+
+            member.deleteStudyPost(studyPost);
+            study.deleteStudyPost(studyPost);
+            studyPostRepository.delete(studyPost);
+
+        } else {
+            throw new StudyHandler(ErrorStatus._STUDY_POST_DELETION_INVALID);
+        }
 
         return StudyPostResDTO.PostPreviewDTO.toDTO(studyPost);
     }
@@ -320,8 +332,11 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
                 .studyPost(studyPost)
                 .member(member)
                 .content(commentRequestDTO.getContent())
+                .likeCount(0)
+                .dislikeCount(0)
                 .isAnonymous(commentRequestDTO.getIsAnonymous())
                 .parentComment(null)
+                .isDeleted(false)
                 .anonymousNum(anonymousNum)
                 .build();
 
@@ -376,9 +391,12 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
                 .studyPost(studyPost)
                 .member(member)
                 .content(commentRequestDTO.getContent())
+                .likeCount(0)
+                .dislikeCount(0)
                 .isAnonymous(commentRequestDTO.getIsAnonymous())
                 .anonymousNum(anonymousNum)
                 .parentComment(parentComment)
+                .isDeleted(false)
                 .build();
 
         studyPostCommentRepository.save(studyPostComment);
