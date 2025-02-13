@@ -24,5 +24,6 @@ public class VerificationCode {
     public VerificationCode(String email, String code, LocalDateTime expiredAt) {
         this.email = email;
         this.code = code;
+        this.expiredAt = expiredAt;
     }
 }
