@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -25,8 +24,15 @@ public class VerificationCodeRepositoryImpl implements VerificationCodeRepositor
     public void addVerificationCode(String email, String code) {
         if (email != null && code != null) {
 
-            // 만료기간이 지난 VerificationCode 삭제
-            verificationCodes.removeIf(verificationCode -> verificationCode.getExpiredAt().isBefore(LocalDateTime.now()));
+            verificationCodes.removeIf(verificationCode -> {
+                if (verificationCode.getExpiredAt() != null) {
+                    // 만료기간이 지난 VerificationCode 삭제
+                    return verificationCode.getExpiredAt().isBefore(LocalDateTime.now());
+                } else {
+                    // 만료기간이 null 이면 바로 삭제
+                    return true;
+                }
+            });
 
             // 동일한 임시 토큰으로 생성한 코드가 이미 존재하는지 확인
             VerificationCode existingCode = verificationCodes.stream()
