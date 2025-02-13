@@ -49,7 +49,7 @@ public enum ErrorStatus implements BaseErrorCode {
     _MEMBER_REGION_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER4010", "해당하는 회원의 관심 지역을 찾을 수 없습니다."),
     _MEMBER_STUDY_REASON_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER4011", "해당하는 회원의 스터디 이유를 찾을 수 없습니다."),
     _MEMBER_PASSWORD_NOT_MATCH(HttpStatus.BAD_REQUEST, "MEMBER4012", "비밀번호가 일치하지 않습니다."),
-    _MEMBER_NOT_VERIFIED(HttpStatus.UNAUTHORIZED, "MEMBER4013", "전화번호 인증에 실패하였습니다."),
+    _MEMBER_NOT_VERIFIED(HttpStatus.UNAUTHORIZED, "MEMBER4013", "이메일 인증에 실패하였습니다."),
     _MEMBER_PHONE_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "MEMBER4014", "해당 전화번호로 가입된 회원이 이미 존재합니다."),
     _MEMBER_PW_AND_PW_CHECK_DO_NOT_MATCH(HttpStatus.BAD_REQUEST, "MEMBER4015", "비밀번호와 비밀번호 확인이 일치하지 않습니다."),
     _MEMBER_EMAIL_NOT_VERIFIED(HttpStatus.UNAUTHORIZED, "MEMBER4016", "인증되지 않은 이메일입니다."),
