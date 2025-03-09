@@ -10,6 +10,9 @@ public interface StudyPostCommandService {
     // 스터디 게시글 생성
     StudyPostResDTO.PostPreviewDTO createPost(Long studyId, StudyPostRequestDTO.PostDTO postRequestDTO);
 
+    // 스터디 게시글 편집
+    StudyPostResDTO.PostPreviewDTO updatePost(Long studyId, Long postId, StudyPostRequestDTO.PostDTO postDTO);
+
     // 스터디 게시글 삭제
     StudyPostResDTO.PostPreviewDTO deletePost(Long studyId, Long postId);
 

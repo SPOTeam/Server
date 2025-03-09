@@ -148,6 +148,53 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
         return StudyPostResDTO.PostPreviewDTO.toDTO(studyPost);
     }
 
+    @Override
+    public StudyPostResDTO.PostPreviewDTO updatePost(Long studyId, Long postId, StudyPostRequestDTO.PostDTO postDTO) {
+
+        Long memberId = SecurityUtils.getCurrentUserId();
+        SecurityUtils.verifyUserId(memberId);
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+        StudyPost studyPost = studyPostRepository.findById(postId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
+
+        // 로그인한 회원이 스터디 회원인지 확인
+        MemberStudy memberStudy = memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
+
+        // 로그인한 회원이 게시글 작성자인지 확인
+        studyPostRepository.findByIdAndMemberId(postId, memberId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_UPDATE_INVALID));
+
+        // 스터디장만 공지 가능
+        if (!memberStudy.getIsOwned() && postDTO.getIsAnnouncement()) {
+            throw new StudyHandler(ErrorStatus._STUDY_POST_ANNOUNCEMENT_INVALID);
+        }
+
+        // 스터디 게시글 업데이트
+        studyPost.updatePost(postDTO);
+        studyPost = studyPostRepository.save(studyPost);
+
+        // 기존 게시글 이미지 삭제
+        studyPostImageRepository.deleteAllByStudyPostId(postId);
+
+        if (postDTO.getImages() != null && !postDTO.getImages().isEmpty()) {
+            ImageResponse.ImageUploadResponse imageUploadResponse = s3ImageService.uploadImages(postDTO.getImages());
+            for (ImageResponse.Images imageDTO : imageUploadResponse.getImageUrls()) {
+                String imageUrl = imageDTO.getImageUrl();
+                StudyPostImage studyPostImage = new StudyPostImage(imageUrl);
+                studyPost.addImage(studyPostImage); // image id가 저장되지 않음
+                studyPostImage = studyPostImageRepository.save(studyPostImage);
+                studyPost.updateImage(studyPostImage); // image id 저장
+            }
+        }
+
+        return StudyPostResDTO.PostPreviewDTO.toDTO(studyPost);
+    }
+
     /**
      * 스터디 내부 게시판에 작성된 게시글을 삭제합니다.
      * @param studyId 게시글을 삭제할 타겟 스터디의 아이디를 입력 받습니다.
