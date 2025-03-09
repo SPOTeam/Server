@@ -128,8 +128,8 @@ public class StudyPostQueryServiceImpl implements StudyPostQueryService {
 
         Integer commentNum = studyPostCommentRepository.findAllByStudyPostId(postId).size();
         boolean isLiked = studyLikedPostRepository.existsByMemberIdAndStudyPostId(memberId, studyPost.getId());
-
-        return StudyPostResDTO.PostDetailDTO.toDTO(studyPost, commentNum, isLiked);
+        boolean isWriter = studyPost.getMember().getId().equals(memberId);
+        return StudyPostResDTO.PostDetailDTO.toDTO(studyPost, commentNum, isLiked, isWriter);
     }
 
 /* ----------------------------- 스터디 게시글 댓글 관련 API ------------------------------------- */

@@ -5,6 +5,7 @@ import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.enums.Theme;
 import com.example.spot.domain.mapping.StudyLikedPost;
 import com.example.spot.domain.mapping.StudyPostImage;
+import com.example.spot.web.dto.memberstudy.request.StudyPostRequestDTO;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -134,5 +135,21 @@ public class StudyPost extends BaseEntity {
 
     public void addStudyPostReport(StudyPostReport studyPostReport) {
         studyPostReports.add(studyPostReport);
+    }
+
+    public void updatePost(StudyPostRequestDTO.PostDTO requestDTO) {
+        isAnnouncement = requestDTO.getIsAnnouncement();
+        theme = requestDTO.getTheme();
+        title = requestDTO.getTitle();
+        content = requestDTO.getContent();
+
+        if (isAnnouncement) {
+            announcedAt = LocalDateTime.now();
+        } else {
+            announcedAt = null;
+        }
+
+        member.updateStudyPost(this);
+        study.updateStudyPost(this);
     }
 }

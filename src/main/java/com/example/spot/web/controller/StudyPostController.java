@@ -61,6 +61,26 @@ public class StudyPostController {
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_CREATED, postPreviewDTO);
     }
 
+    @Tag(name= "스터디 게시글")
+    @Operation(summary = "[스터디 게시글] 게시글 편집하기", description = """
+            로그인한 회원이 참여하는 특정 스터디에서 작성한 게시글을 편집합니다.
+            수정사항은 study_post db에 반영됩니다.
+            """)
+    @Parameter(name = "studyId", description = "스터디의 id를 입력합니다.", required = true)
+    @Parameter(name = "postId", description = "편집할 스터디 게시글의 id를 입력합니다.", required = true)
+    @PatchMapping(value = "/studies/{studyId}/posts/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<StudyPostResDTO.PostPreviewDTO> updatePost(
+            @PathVariable @ExistStudy Long studyId,
+            @PathVariable @ExistStudyPost Long postId,
+            @ModelAttribute(name= "post") @Valid StudyPostRequestDTO.PostDTO postDTO
+    ) {
+        if (postDTO.getImages() == null) {
+            postDTO.initImages();
+        }
+        StudyPostResDTO.PostPreviewDTO postPreviewDTO = studyPostCommandService.updatePost(studyId, postId, postDTO);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_UPDATED, postPreviewDTO);
+    }
+
     @Tag(name = "스터디 게시글")
     @Operation(summary = "[스터디 게시글] 게시글 삭제하기", description = """ 
         ## [스터디 게시글] 로그인한 회원이 참여하는 특정 스터디에서 작성한 게시글을 삭제합니다.

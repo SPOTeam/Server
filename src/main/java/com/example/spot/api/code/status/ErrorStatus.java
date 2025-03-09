@@ -97,6 +97,7 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_POST_COMMENT_NULL(HttpStatus.BAD_REQUEST, "POST4016", "댓글 아이디가 입력되지 않았습니다."),
     _STUDY_POST_COMMENT_REACTIOM_ID_NULL(HttpStatus.BAD_REQUEST, "POST4017", "댓글 반응 아이디가 입력되지 않았습니다."),
     _STUDY_POST_COMMENT_REACTION_NOT_FOUND(HttpStatus.BAD_REQUEST, "POST4018", "댓글 반응이 존재하지 않습니다."),
+    _STUDY_POST_UPDATE_INVALID(HttpStatus.FORBIDDEN, "POST4019", "게시글 작성자만 변경 가능합니다."),
 
     //스터디 일정 관련 에러
     _STUDY_SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "SCHEDULE4001", "스터디 일정을 찾을 수 없습니다."),
