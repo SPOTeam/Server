@@ -99,9 +99,10 @@ public class StudyPostResDTO {
         private final Integer hitNum;
         private final Integer commentNum;
         private final Boolean isLiked;
+        private final Boolean isWriter;
         private final List<ImageDTO> studyPostImages;
 
-        public static PostDetailDTO toDTO(StudyPost studyPost, Integer commentNum, boolean isLiked) {
+        public static PostDetailDTO toDTO(StudyPost studyPost, Integer commentNum, boolean isLiked, boolean isWriter) {
             return PostDetailDTO.builder()
                     .member(PostMemberDTO.toDTO(studyPost.getMember()))
                     .postId(studyPost.getId())
@@ -114,6 +115,7 @@ public class StudyPostResDTO {
                     .hitNum(studyPost.getHitNum())
                     .commentNum(commentNum)
                     .isLiked(isLiked)
+                    .isWriter(isWriter)
                     .studyPostImages(studyPost.getImages().stream()
                             .map(ImageDTO::toDTO)
                             .toList())
