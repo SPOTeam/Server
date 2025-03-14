@@ -682,7 +682,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     public StudyPreviewDTO findStudiesByKeyword(Pageable pageable,
         String keyword, StudySortBy sortBy) {
         // 키워드로 스터디 조회
-        List<Study> studies = studyRepository.findAllByTitleContaining(keyword, sortBy, pageable);
+        List<Study> studies = studyRepository.searchByTitle(keyword, sortBy, pageable);
 
         // 조회된 스터디가 없을 경우
         if (studies.isEmpty())

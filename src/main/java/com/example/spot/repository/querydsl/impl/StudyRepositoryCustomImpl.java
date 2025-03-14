@@ -4,18 +4,25 @@ import com.example.spot.domain.enums.Gender;
 import com.example.spot.domain.enums.StudySortBy;
 import com.example.spot.domain.enums.StudyState;
 import com.example.spot.domain.mapping.MemberStudy;
+import com.example.spot.domain.mapping.QMemberStudy;
+import com.example.spot.domain.mapping.QRegionStudy;
+import com.example.spot.domain.mapping.QStudyTheme;
 import com.example.spot.domain.mapping.RegionStudy;
 import com.example.spot.domain.mapping.StudyTheme;
 import com.example.spot.domain.study.QStudy;
 import com.example.spot.domain.study.Study;
 import com.example.spot.repository.querydsl.StudyRepositoryCustom;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import static com.example.spot.domain.study.QStudy.study;
@@ -24,6 +31,7 @@ import static com.example.spot.domain.study.QStudy.study;
 public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
+    private final EntityManager entityManager;
 
     @Override
     public List<Study> findAllStudyByConditions(Map<String, Object> search, StudySortBy sortBy,
@@ -193,6 +201,26 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
         return query.fetch();
     }
 
+    @Override
+    public List<Study> searchByTitle(String keyword, StudySortBy sortBy, Pageable pageable) {
+        QStudy study = QStudy.study;
+
+        // FULLTEXT SEARCH를 위한 서브쿼리 생성
+        String subQuery = """
+SELECT id FROM study WHERE MATCH(title) AGAINST (:keyword IN NATURAL LANGUAGE MODE) ORDER BY created_at DESC LIMIT :offset, :limit """;
+
+        List<Long> ids = entityManager.createNativeQuery(subQuery)
+                .setParameter("keyword", keyword)
+                .setParameter("offset", pageable.getOffset())
+                .setParameter("limit", pageable.getPageSize())
+                .getResultList();
+
+        // QueryDSL로 해당 ID들을 조회
+        return queryFactory.selectFrom(study)
+                .where(study.id.in(ids))
+                .orderBy(study.createdAt.desc())
+                .fetch();
+    }
 
     @Override
     public List<Study> findAllByTitleContaining(String title, StudySortBy sortBy,
