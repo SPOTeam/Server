@@ -537,6 +537,9 @@ public class PostCommandServiceImpl implements PostCommandService {
     public PostReportResponse reportPost(Long postId, Long memberId) {
 
         // 동일한 게시글에 대한 중복 신고 방지
+        if (postReportRepository.existsByPostIdAndMemberId(postId, memberId)) {
+            throw new PostHandler(ErrorStatus._POST_ALREADY_REPORTED);
+        }
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
