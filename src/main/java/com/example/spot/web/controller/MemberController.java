@@ -175,11 +175,12 @@ public class MemberController {
             ## [회원 정보 업데이트] 해당하는 회원의 스터디 이유를 입력 및 수정 합니다.
             업데이트 할 회원의 정보를 입력 받습니다.
             
-            1. 동기부여를_받고_싶어요
-            2. 스터디원이_필요해요
-            3. 혼자서_하기가_의지가_부족해요
-            4. 한_목표를_가진_사람들과_친해지고_싶어요
-            5. 다양한_정보를_공유하고_받고_싶어요
+            꾸준한 학습, 습관이필요해요(1) \n
+            상호 피드백이 필요해요(2), \n
+            네트워킹을 하고 싶어요(3), \n
+            자격증을 취득하고 싶어요(4), \n
+            대회에 참가하여 수상하고 싶어요(5),\n 
+            다양한 의견을 나누고 싶어요(6); \n
             
             이유에 해당하는 숫자를 리스트 형식으로 입력 받습니다.
             
@@ -231,7 +232,7 @@ public class MemberController {
         security = @SecurityRequirement(name = "accessToken"))
     public ApiResponse<MemberResponseDTO.MemberStudyReasonDTO> getStudyReasons(){
         MemberStudyReasonDTO memberStudyReasonDTO = memberService.getStudyReasons(SecurityUtils.getCurrentUserId());
-        return ApiResponse.onSuccess(SuccessStatus._MEMBER_REGION_UPDATE, memberStudyReasonDTO);
+        return ApiResponse.onSuccess(SuccessStatus._MEMBER_FOUND, memberStudyReasonDTO);
     }
 
 
