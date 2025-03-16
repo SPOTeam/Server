@@ -4,11 +4,12 @@ import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.GeneralException;
 
 public enum Reason {
-    동기부여를_받고_싶어요(1),
-    스터디원이_필요해요(2),
-    혼자서_하기가_의지가_부족해요(3),
-    한_목표를_가진_사람들과_친해지고_싶어요(4),
-    다양한_정보를_공유하고_받고_싶어요(5);
+    꾸준한_학습_습관이_필요해요(1),
+    상호_피드백이_필요해요(2),
+    네트워킹을_하고_싶어요(3),
+    자격증을_취득하고_싶어요(4),
+    대회에_참가하여_수상하고_싶어요(5),
+    다양한_의견을_나누고_싶어요(6);
 
     private final long code;
 
