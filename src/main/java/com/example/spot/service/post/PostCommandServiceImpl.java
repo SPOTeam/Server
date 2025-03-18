@@ -5,6 +5,7 @@ import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.api.exception.handler.PostHandler;
 import com.example.spot.domain.*;
 import com.example.spot.domain.enums.Board;
+import com.example.spot.domain.enums.PostStatus;
 import com.example.spot.domain.mapping.MemberScrap;
 import com.example.spot.repository.*;
 import com.example.spot.web.dto.post.*;
@@ -27,6 +28,7 @@ public class PostCommandServiceImpl implements PostCommandService {
     private final PostCommentRepository postCommentRepository;
     private final LikedPostCommentRepository likedPostCommentRepository;
     private final MemberScrapRepository memberScrapRepository;
+    private final PostReportRepository postReportRepository;
 
     private final LikedPostQueryService likedPostQueryService;
     private final LikedPostCommentQueryService likedPostCommentQueryService;
@@ -529,5 +531,33 @@ public class PostCommandServiceImpl implements PostCommandService {
         return ScrapsPostDeleteResponse.builder()
                 .cancelScraps(deletePostResponses)
                 .build();
+    }
+
+    @Override
+    public PostReportResponse reportPost(Long postId, Long memberId) {
+
+        // 동일한 게시글에 대한 중복 신고 방지
+        if (postReportRepository.existsByPostIdAndMemberId(postId, memberId)) {
+            throw new PostHandler(ErrorStatus._POST_ALREADY_REPORTED);
+        }
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostHandler(ErrorStatus._POST_NOT_FOUND));
+
+        if (post.getMember().getId().equals(memberId)) {
+            throw new PostHandler(ErrorStatus._POST_REPORT_SELF);
+        }
+
+        PostReport postReport = PostReport.builder()
+                .postStatus(PostStatus.신고접수)
+                .post(post)
+                .member(member).build();
+
+        postReportRepository.save(postReport);
+
+        return PostReportResponse.toDTO(postId, memberId);
     }
 }
