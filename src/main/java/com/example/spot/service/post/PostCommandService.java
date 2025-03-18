@@ -43,4 +43,7 @@ public interface PostCommandService {
 
     //게시글 스크랩 모두 취소
     ScrapsPostDeleteResponse cancelPostScraps(ScrapAllDeleteRequest request);
+
+    //게시글 신고
+    PostReportResponse reportPost(Long postId, Long memberId);
 }

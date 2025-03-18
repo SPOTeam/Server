@@ -327,4 +327,14 @@ public class PostController {
         return ApiResponse.onSuccess(SuccessStatus._NO_CONTENT, response);
     }
 
+    @Tag(name = "게시글 신고", description = "게시글 신고 관련 API")
+    @Operation(summary = "[게시판] 게시글 신고 API", description = "게시글 ID와 회원 ID를 받아 게시글을 신고합니다.")
+    @PostMapping("/{postId}/report")
+    public ApiResponse<PostReportResponse> reportPost(
+            @PathVariable @ExistPost Long postId
+    ) {
+        PostReportResponse response = postCommandService.reportPost(postId, SecurityUtils.getCurrentUserId());
+        return ApiResponse.onSuccess(SuccessStatus._OK, response);
+    }
+
 }
