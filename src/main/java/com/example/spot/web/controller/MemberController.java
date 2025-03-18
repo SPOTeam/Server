@@ -67,7 +67,7 @@ public class MemberController {
             ## [회원 권한 부여] 해당하는 회원에게 관리자 권한을 부여합니다.
             테스트를 위해 구현한 테스트 용 API입니다.
             회원의 ID를 입력 받아 관리자 권한을 부여합니다.
-            성공 여부와 회원 ID가 반환 됩니다. 
+            성공 여부와 회원 ID가 반환 됩니다.
              """)
     @PostMapping("/members/test/admin")
     public ApiResponse<MemberResponseDTO.MemberUpdateDTO> toAdmin(){
