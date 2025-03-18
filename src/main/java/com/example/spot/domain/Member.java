@@ -96,12 +96,12 @@ public class Member extends BaseEntity {
     private Status status;
 
     //== 스터디 희망사유 ==//
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<StudyReason> studyReasonList = new ArrayList<>();
 
     //== 알림 ==//
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Notification> notificationList = new ArrayList<>();
 
@@ -111,106 +111,106 @@ public class Member extends BaseEntity {
     private List<MemberReport> memberReportList = new ArrayList<>();
 
     //== 회원이 선호하는 테마 ==//
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<MemberTheme> memberThemeList = new ArrayList<>();
 
     //== 회원의 출석 목록 ==//
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<MemberAttendance> memberAttendanceList = new ArrayList<>();
 
     //== 회원이 참여하는 스터디 목록 ==//
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<MemberStudy> memberStudyList = new ArrayList<>();
 
     //== 회원이 찜한 스터디 목록 ==//
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<PreferredStudy> preferredStudyList = new ArrayList<>();
 
     //== 회원이 선호하는 지역 목록 ==//
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<PreferredRegion> preferredRegionList = new ArrayList<>();
 
    ////== 회원이 작성한 게시글 목록 ==//
-   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
    @Builder.Default
    private List<Post> postList = new ArrayList<>();
 
    ////== 회원이 좋아요한 게시글 목록 ==//
-   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
    @Builder.Default
    private List<LikedPost> likedPostList = new ArrayList<>();
 
    ////== 회원이 선호하는 지역 목록 ==//
-   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
    @Builder.Default
    private List<PostReport> postReportList = new ArrayList<>();
 
    ////== 회원이 스크랩한 게시글 목록 ==//
-   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
    @Builder.Default
    private List<MemberScrap> memberScrapList = new ArrayList<>();
 
    ////== 회원이 작성한 게시글 댓글 목록 ==//
-   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
    @Builder.Default
    private List<PostComment> postCommentList = new ArrayList<>();
 
    ////== 회원이 좋아요한 게시글 댓글 목록 ==//
-   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+   @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
    @Builder.Default
    private List<LikedPostComment> likedCommentList = new ArrayList<>();
 
     //== 회원이 작성한 스터디 게시글 목록 ==//
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<StudyPost> studyPostList = new ArrayList<>();
 
     //== 회원이 좋아요한 스터디 게시글 목록 ==//
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<StudyLikedPost> studyLikedPostList = new ArrayList<>();
 
     //== 회원이 작성한 스터디 게시글 댓글 목록 ==//
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<StudyPostComment> studyPostCommentList = new ArrayList<>();
 
     //== 회원이 좋아요한 게시글 댓글 목록 ==//
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<StudyLikedComment> studyLikedCommentList = new ArrayList<>();
 
     //== 회원이 생성한 투표 목록 ==//
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Vote> voteList = new ArrayList<>();
 
     //== 회원이 투표한 항목 목록 ==//
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<MemberVote> memberVoteList = new ArrayList<>();
 
     //== 회원이 선호하는 지역 목록 ==//
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<PreferredRegion> regions = new ArrayList<>();
 
     //== 회원이 생성한 스터디 퀴즈 목록 ==//
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Quiz> quizList = new ArrayList<>();
 
     //== 회원이 생성한 스터디 일정 목록 ==//
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Schedule> scheduleList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<ToDoList> toDoLists = new ArrayList<>();
 

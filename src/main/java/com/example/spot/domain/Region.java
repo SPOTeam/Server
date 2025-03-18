@@ -32,11 +32,11 @@ public class Region extends BaseEntity {
     private String neighborhood;
 
     @Builder.Default
-    @OneToMany(mappedBy = "region")
+    @OneToMany(mappedBy = "region", cascade = CascadeType.ALL)
     private List<RegionStudy> regionStudyList = new ArrayList<>();
 
     @Builder.Default
-    @OneToMany(mappedBy = "region")
+    @OneToMany(mappedBy = "region", cascade = CascadeType.ALL)
     private List<PreferredRegion> prefferedRegionList = new ArrayList<>();
 
 
