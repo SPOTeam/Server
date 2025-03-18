@@ -26,6 +26,8 @@ import com.example.spot.web.dto.member.kakao.KaKaoOAuthToken.KaKaoOAuthTokenDTO;
 import com.example.spot.web.dto.member.kakao.KaKaoUser;
 import com.example.spot.web.dto.token.TokenResponseDTO.TokenDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
@@ -59,6 +61,9 @@ import java.util.UUID;
 @Transactional
 @RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService {
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     // OAuth
     private final KaKaoOAuthService kaKaoOAuthService;
@@ -270,31 +275,54 @@ public class MemberServiceImpl implements MemberService {
         // 응답에서 사용자 정보를 파싱
         KaKaoUser kaKaoUser = kaKaoOAuthService.getUserInfo(userInfoResponse);
 
-        if (memberRepository.existsByEmailAndLoginTypeNot(kaKaoUser.toMember().getEmail(), LoginType.KAKAO))
-            throw new GeneralException(ErrorStatus._MEMBER_EMAIL_EXIST);
+        // 다른 로그인 방식을 사용한 계정이 있는지 확인
+        if (memberRepository.existsByEmailAndLoginTypeNot(kaKaoUser.toMember().getEmail(), LoginType.KAKAO)) {
+            Member member = memberRepository.findByEmail(kaKaoUser.toMember().getEmail())
+                    .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
 
-        Boolean isSpotMember = false;
+            // 탈퇴한(inactive) 회원이면 기존 정보 삭제
+            if (member.getInactive() != null) {
+                refreshTokenRepository.deleteByMemberId(member.getId());
+                memberRepository.deleteById(member.getId());
+                entityManager.flush();
+            }
+            else {
+                throw new GeneralException(ErrorStatus._MEMBER_EMAIL_EXIST);
+            }
+        }
+
+
         // 사용자가 이미 존재하는지 확인
+        Boolean isSpotMember = false;
         if (memberRepository.existsByEmail(kaKaoUser.toMember().getEmail())) {
             // 존재하는 경우, 사용자 정보를 가져옴
             Member member = memberRepository.findByEmail(kaKaoUser.toMember().getEmail())
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
-            isSpotMember = true;
 
-            // JWT 토큰 생성
-            TokenDTO token = jwtTokenProvider.createToken(member.getId());
+            // 탈퇴한(inactive) 회원이면 기존 정보 삭제
+            if (member.getInactive() != null) {
+                refreshTokenRepository.deleteByMemberId(member.getId());
+                memberRepository.deleteById(member.getId());
+                entityManager.flush();
+            }
+            else {
+                // JWT 토큰 생성
+                TokenDTO token = jwtTokenProvider.createToken(member.getId());
 
-            saveRefreshToken(member, token);
+                saveRefreshToken(member, token);
 
-            // 로그인 DTO 반환
-            MemberSignInDTO memberSignInDto = MemberSignInDTO.builder()
-                    .tokens(token)
-                    .memberId(member.getId())
-                    .loginType(member.getLoginType())
-                    .email(member.getEmail())
-                    .build();
+                isSpotMember = true;
 
-            return SocialLoginSignInDTO.toDTO(isSpotMember, memberSignInDto);
+                // 로그인 DTO 반환
+                MemberSignInDTO memberSignInDto = MemberSignInDTO.builder()
+                        .tokens(token)
+                        .memberId(member.getId())
+                        .loginType(member.getLoginType())
+                        .email(member.getEmail())
+                        .build();
+
+                return SocialLoginSignInDTO.toDTO(isSpotMember, memberSignInDto);
+            }
         }
 
         // 존재하지 않는 경우, 새로운 회원 정보 저장

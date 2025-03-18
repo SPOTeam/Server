@@ -2,8 +2,6 @@ package com.example.spot.scheduler;
 
 import com.example.spot.service.admin.AdminService;
 import com.example.spot.web.dto.admin.AdminResponseDTO;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
