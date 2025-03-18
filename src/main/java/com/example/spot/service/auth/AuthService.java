@@ -18,6 +18,8 @@ public interface AuthService {
 
     MemberResponseDTO.MemberInfoCreationDTO signUpAndPartialUpdate(String nickname, Boolean personalInfo, Boolean idInfo);
 
+    MemberResponseDTO.InactiveMemberDTO withdraw();
+
     void authorizeWithNaver(HttpServletRequest request, HttpServletResponse response);
 
     SocialLoginSignInDTO signInWithNaver(HttpServletRequest request, HttpServletResponse response, NaverCallback naverCallback) throws Exception;
@@ -41,5 +43,4 @@ public interface AuthService {
     MemberResponseDTO.AvailabilityDTO checkLoginIdAvailability(String loginId);
 
     MemberResponseDTO.AvailabilityDTO checkEmailAvailability(String email);
-
 }

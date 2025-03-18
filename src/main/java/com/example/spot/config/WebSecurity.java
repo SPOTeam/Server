@@ -62,7 +62,7 @@ public class WebSecurity {
                         .requestMatchers(new AntPathRequestMatcher("/spot/login/kakao", "GET")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/spot/members/sign-in/kakao", "GET")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/spot/members/sign-in/kakao/redirect", "GET")).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/spot/member/test", "POST")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/spot/members/test", "POST")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/spot/current-env", "GET")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api-docs")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/v3/**", "GET")).permitAll()

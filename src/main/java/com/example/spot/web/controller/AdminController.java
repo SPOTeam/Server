@@ -1,14 +1,18 @@
 package com.example.spot.web.controller;
 
+import com.example.spot.api.ApiResponse;
 import com.example.spot.api.code.status.ErrorStatus;
+import com.example.spot.api.code.status.SuccessStatus;
 import com.example.spot.api.exception.GeneralException;
+import com.example.spot.service.admin.AdminService;
+import com.example.spot.web.dto.admin.AdminResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,7 +21,30 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "관리자 - 개발 중", description = "관리자 관련 API")
 @RestController
 @RequestMapping("/spot/admin")
+@RequiredArgsConstructor
 public class AdminController {
+
+    private final AdminService adminService;
+
+/* ----------------------------- 회원 정보 관리 API ------------------------------------- */
+
+    @Operation(summary = "[회원 정보 관리] 탈퇴 회원 영구 삭제 수동 실행 API",
+            description = """
+            ## [회원 정보 관리] inactive 시점 이후로 30일이 지난 회원의 정보를 DB에서 영구적으로 삭제합니다.
+            * <탈퇴 회원 영구 삭제>는 스케줄러에 의해 오전 6시마다 실행되고 있습니다.
+            * 오류로 인하여 수동 삭제가 필요한 경우 해당 API를 호출해주시기 바랍니다.
+            """)
+    @DeleteMapping("/members/removal")
+    public ApiResponse<AdminResponseDTO.DeletedMemberListDTO> deleteInactiveMembers() {
+        // 관리자 인증
+        if (!adminService.getIsAdmin()) {
+            throw new GeneralException(ErrorStatus._NOT_ADMIN);
+        }
+        AdminResponseDTO.DeletedMemberListDTO deletedMemberListDTO = adminService.deleteInactiveMembers();
+        return ApiResponse.onSuccess(SuccessStatus._MEMBER_DELETED, deletedMemberListDTO);
+    }
+
+/* ----------------------------- 신고 내역 관리 API ------------------------------------- */
 
     @Operation(
         summary = "[신고 내역 조회 - 개발중] 특정 스터디 신고 내역 조회",
