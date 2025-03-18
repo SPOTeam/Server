@@ -1,6 +1,7 @@
 package com.example.spot.service.memberstudy;
 
 import com.example.spot.api.code.status.ErrorStatus;
+import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.api.exception.handler.StudyHandler;
 import com.example.spot.domain.Member;
 import com.example.spot.domain.Quiz;
@@ -176,6 +177,26 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 
         // DTO로 변환하여 반환
         return new StudyMemberResponseDTO(memberDTOS);
+    }
+
+    @Override
+    public StudyMemberResDTO.StudyHostDTO getStudyHost(Long studyId) {
+
+        // Authorization
+        Long memberId = SecurityUtils.getCurrentUserId();
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        // 스터디 호스트 찾기
+        MemberStudy studyHost = memberStudyRepository.findByStudyIdAndIsOwned(studyId, true)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_OWNER_NOT_FOUND));
+
+        // 로그인한 회원이 호스트인지 확인
+        if (studyHost.getMember().getId().equals(memberId)) {
+            return StudyMemberResDTO.StudyHostDTO.toDTO(true, member);
+        } else {
+            return StudyMemberResDTO.StudyHostDTO.toDTO(false, studyHost.getMember());
+        }
     }
 
     /**
