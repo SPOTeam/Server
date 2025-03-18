@@ -62,7 +62,7 @@ public class Member extends BaseEntity {
     private Carrier carrier;
 
     // 안 쓰면 지워도 될 것 같은데 사이드 이펙트 생길까봐 일단 놔둡니다..!
-    @Column(length = 15, unique = true)
+    @Column(length = 15)
     private String phone;
 
     @Column(nullable = false)
@@ -75,6 +75,7 @@ public class Member extends BaseEntity {
     @Column(nullable = false)
     private String profileImage;
 
+    @Setter
     @Column
     private LocalDateTime inactive;
 
