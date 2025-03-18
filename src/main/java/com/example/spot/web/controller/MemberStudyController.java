@@ -16,6 +16,7 @@ import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListResponseDTO.ToD
 import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListResponseDTO.ToDoListUpdateResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.*;
 import com.example.spot.web.dto.study.response.*;
+import com.example.spot.web.dto.study.response.StudyMemberResponseDTO;
 import com.example.spot.web.dto.study.response.StudyMemberResponseDTO.StudyApplicantDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -157,6 +158,7 @@ public class MemberStudyController {
 
 
 /* ----------------------------- 스터디 상세 정보 관련 API ------------------------------------- */
+
     @Tag(name = "스터디 상세 정보")
     @Operation(summary = "[스터디 상세 정보] 스터디 최근 공지 1개 불러오기", description = """ 
         ## [스터디 상세 정보] 내 스터디 > 스터디 클릭, 로그인한 회원이 참여하는 특정 스터디의 최근 공지 1개를 불러옵니다.
@@ -190,6 +192,20 @@ public class MemberStudyController {
         @PathVariable @ExistStudy Long studyId){
         StudyMemberResponseDTO studyMemberResponseDTO = memberStudyQueryService.findStudyMembers(studyId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_MEMBER_FOUND, studyMemberResponseDTO);
+    }
+
+    @Tag(name = "스터디 상세 정보")
+    @Operation(summary = "[스터디 상세 정보] 스터디 호스트 정보 불러오기", description = """ 
+        ## [스터디 상세 정보] 로그인한 회원이 참여하는 특정 스터디의 호스트 정보를 조회합니다.
+        * isOwned : 로그인한 회원이 호스트인지 true or false로 반환
+        * host : 호스트의 id와 nickname 반환
+        """)
+    @GetMapping("/studies/{studyId}/host")
+    public ApiResponse<StudyMemberResDTO.StudyHostDTO> getStudyHost(
+            @PathVariable @ExistStudy Long studyId)
+    {
+        StudyMemberResDTO.StudyHostDTO studyHostDTO = memberStudyQueryService.getStudyHost(studyId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_HOST_FOUND, studyHostDTO);
     }
 
 
