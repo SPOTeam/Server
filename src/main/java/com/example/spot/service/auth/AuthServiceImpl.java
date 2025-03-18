@@ -135,6 +135,26 @@ public class AuthServiceImpl implements AuthService{
         return MemberResponseDTO.MemberInfoCreationDTO.toDTO(member);
     }
 
+    @Override
+    public MemberResponseDTO.InactiveMemberDTO withdraw() {
+
+        // Authorization
+        Long memberId = SecurityUtils.getCurrentUserId();
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
+
+        // inactive 필드 활성화
+        member.setInactive(LocalDateTime.now());
+
+        // SecurityContextHolder 정리
+        SecurityUtils.deleteCurrentUser();
+
+        // Refresh Token 정리
+        refreshTokenRepository.deleteAllByMemberId(memberId);
+
+        return MemberResponseDTO.InactiveMemberDTO.toDTO(member);
+    }
+
 /* ----------------------------- 네이버 소셜로그인 API ------------------------------------- */
 
     /**

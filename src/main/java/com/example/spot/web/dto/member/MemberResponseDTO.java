@@ -183,5 +183,26 @@ public class MemberResponseDTO {
                     .build();
         }
     }
+
+    @Getter
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    @Builder(access = AccessLevel.PRIVATE)
+    public static class InactiveMemberDTO {
+
+        private final Long memberId;
+        private final String name;
+        private final String email;
+        private final LocalDateTime inactive;
+
+        public static InactiveMemberDTO toDTO(Member member) {
+            return InactiveMemberDTO.builder()
+                    .memberId(member.getId())
+                    .name(member.getName())
+                    .email(member.getEmail())
+                    .inactive(member.getInactive())
+                    .build();
+        }
+    }
+
 }
 
