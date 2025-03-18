@@ -4,10 +4,7 @@ import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.GeneralException;
 import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.domain.StudyReason;
-import com.example.spot.domain.enums.LoginType;
-import com.example.spot.domain.enums.Reason;
-import com.example.spot.domain.enums.Status;
-import com.example.spot.domain.enums.ThemeType;
+import com.example.spot.domain.enums.*;
 import com.example.spot.repository.StudyReasonRepository;
 import com.example.spot.security.utils.JwtTokenProvider;
 import com.example.spot.domain.Member;
@@ -587,17 +584,18 @@ public class MemberServiceImpl implements MemberService {
         // 회원 생성
         Member member = Member.builder()
                 .name(memberInfoListDTO.getName())
-                .carrier(memberInfoListDTO.getCarrier())
-                .birth(memberInfoListDTO.getBirth())
                 .nickname(memberInfoListDTO.getNickname())
+                .birth(memberInfoListDTO.getBirth())
+                .gender(Gender.UNKNOWN)
                 .email(memberInfoListDTO.getEmail())
-                .password(UUID.randomUUID().toString())
+                .carrier(memberInfoListDTO.getCarrier())
                 .phone(memberInfoListDTO.getPhone())
+                .password(UUID.randomUUID().toString())
+                .profileImage(memberInfoListDTO.getProfileImage())
                 .personalInfo(memberInfoListDTO.isPersonalInfo())
                 .idInfo(memberInfoListDTO.isIdInfo())
-                .profileImage(memberInfoListDTO.getProfileImage())
-                .status(Status.ON)
                 .loginType(LoginType.NORMAL)
+                .status(Status.ON)
                 .build();
 
         // 회원 저장
