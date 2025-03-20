@@ -102,10 +102,12 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
 
     /**
      * 운영중인 스터디를 종료하는 메서드입니다. 스터디장만 호출 가능합니다.
-     * @param studyId 종료할 스터디의 아이디를 입력 받습니다.
+     *
+     * @param studyId       종료할 스터디의 아이디를 입력 받습니다.
+     * @param performance   종료할 스터디의 성과를 입력 받습니다.
      * @return 종료된 스터디의 아이디, 이름, 상태를 반환합니다.
      */
-    public StudyTerminationResponseDTO.TerminationDTO terminateStudy(Long studyId) {
+    public StudyTerminationResponseDTO.TerminationDTO terminateStudy(Long studyId, String performance) {
 
         // Authorization
         Long memberId = SecurityUtils.getCurrentUserId();
@@ -126,7 +128,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
             throw new StudyHandler(ErrorStatus._STUDY_ALREADY_TERMINATED);
         }
 
-        study.setStatus(Status.OFF);
+        study.terminateStudy(performance);
         studyRepository.save(study);
 
         return StudyTerminationResponseDTO.TerminationDTO.toDTO(study);

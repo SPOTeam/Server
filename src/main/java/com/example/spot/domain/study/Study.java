@@ -59,6 +59,9 @@ public class Study extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private StudyState studyState;
 
+    @Column(length = 30)
+    private String performance;
+
     @Column(nullable = false)
     private Boolean isOnline;
 
@@ -74,7 +77,6 @@ public class Study extends BaseEntity {
     @Column(nullable = false)
     private String title;
 
-    @Setter
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Status status;
@@ -198,5 +200,11 @@ public class Study extends BaseEntity {
 
     public void addToDoList(ToDoList toDoList) {
         toDoLists.add(toDoList);
+    }
+
+    public void terminateStudy(String performance) {
+        this.studyState = StudyState.COMPLETED;
+        this.status = Status.OFF;
+        this.performance = performance;
     }
 }
