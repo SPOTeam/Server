@@ -56,6 +56,23 @@ public class MemberStudyController {
     }
 
     @Tag(name = "진행중인 스터디")
+    @Operation(summary = "[진행중인 스터디] 스터디 호스트 탈퇴",
+            description = """
+               ## [진행중인 스터디] 특정 스터디의 호스트가 해당 스터디에서 탈퇴합니다.
+               탈퇴 시, 호스트 권한이 회수되며 스터디에서 제외됩니다. 
+               요청 시, 새로운 호스트의 아이디와 임명 사유를 입력해야 합니다.
+           """)
+    @DeleteMapping("/studies/{studyId}/hosts/withdrawal")
+    public ApiResponse<StudyWithdrawalResponseDTO.WithdrawalDTO> withdrawHostFromStudy(
+            @PathVariable Long studyId,
+            @RequestBody StudyHostWithdrawRequestDTO requestDTO) {
+        StudyWithdrawalResponseDTO.WithdrawalDTO withdrawalDTO =
+                memberStudyCommandService.withdrawHostFromStudy(studyId, requestDTO);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_MEMBER_DELETED, withdrawalDTO);
+    }
+
+
+    @Tag(name = "진행중인 스터디")
     @Operation(summary = "[진행중인 스터디] 스터디 끝내기", description = """ 
         ## [진행중인 스터디] 마이페이지 > 진행중 > 진행중인 스터디의 메뉴 클릭, 로그인한 회원이 운영중인 스터디를 끝냅니다.
         * 로그인한 회원이 운영하는 특정 스터디에 대해 study status OFF로 전환합니다.
