@@ -28,6 +28,7 @@ public enum ErrorStatus implements BaseErrorCode {
     _TERMS_NOT_AGREED(HttpStatus.FORBIDDEN, "COMMON4013", "이용 약관이 동의되지 않았습니다."),
     _MEMBER_EMAIL_EXIST(HttpStatus.BAD_REQUEST, "COMMON4014", "이미 가입 된 이메일입니다. 다른 로그인 방식을 이용해주세요."),
     _RSA_ERROR(HttpStatus.BAD_REQUEST, "COMMON4015", "RSA 에러가 발생했습니다."),
+    _NOT_ADMIN(HttpStatus.FORBIDDEN, "COMMON4016", "관리자 권한이 없습니다."),
 
     // 네이버 소셜 로그인 관련 에러
     _NAVER_SIGN_IN_INTEGRATION_FAILED(HttpStatus.UNAUTHORIZED, "NAVER4001", "네이버 로그인 연동에 실패하였습니다."),
@@ -63,8 +64,10 @@ public enum ErrorStatus implements BaseErrorCode {
     _STUDY_OWNER_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY4002", "스터디장을 찾을 수 없습니다."),
     _STUDY_ALREADY_APPLIED(HttpStatus.BAD_REQUEST, "STUDY4003", "이미 신청된 스터디입니다."),
     _STUDY_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY4004", "스터디 회원을 찾을 수 없습니다."),
+    _STUDY_MEMBER_NOT_EXIST(HttpStatus.NOT_FOUND, "STUDY4008", "스터디 회원이 아닙니다."),
     _STUDY_NOT_APPROVED(HttpStatus.FORBIDDEN, "STUDY4005", "승인되지 않은 스터디입니다."),
     _STUDY_OWNER_CANNOT_WITHDRAW(HttpStatus.FORBIDDEN, "STUDY4006", "스터디장은 스터디를 탈퇴할 수 없습니다."),
+    _STUDY_OWNER_ONLY_CAN_WITHDRAW(HttpStatus.FORBIDDEN, "STUDY4007", "스터디장만 해당 API를 통해 스터디를 탈퇴할 수 있습니다."),
     _STUDY_NOT_RECRUITING(HttpStatus.BAD_REQUEST, "STUDY4007", "스터디 모집기한이 아닙니다."),
     _STUDY_APPLICANT_NOT_FOUND(HttpStatus.NOT_FOUND, "STUDY4009", "처리를 기다리는 스터디 신청을 찾을 수 없습니다."),
     _STUDY_APPLY_ALREADY_PROCESSED(HttpStatus.BAD_REQUEST, "STUDY4010","스터디 신청이 이미 처리된 회원입니다."),
@@ -77,6 +80,7 @@ public enum ErrorStatus implements BaseErrorCode {
     _ALREADY_STUDY_MEMBER(HttpStatus.BAD_REQUEST, "STUDY4017", "이미 스터디 멤버입니다."),
     _STUDY_OWNER_ONLY_CAN_TERMINATE(HttpStatus.BAD_REQUEST, "STUDY4018", "스터디장만 스터디를 종료할 수 있습니다."),
     _STUDY_ALREADY_TERMINATED(HttpStatus.BAD_REQUEST, "STUDY4019", "이미 종료된 스터디입니다."),
+    _OWNED_STUDY_EXISTS(HttpStatus.BAD_REQUEST, "STUDY4020", "운영중인 스터디가 존재합니다."),
 
     //스터디 게시글 관련 에러
     _STUDY_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST4001", "스터디 게시글을 찾을 수 없습니다."),

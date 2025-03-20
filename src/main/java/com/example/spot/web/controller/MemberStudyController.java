@@ -16,6 +16,7 @@ import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListResponseDTO.ToD
 import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListResponseDTO.ToDoListUpdateResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.*;
 import com.example.spot.web.dto.study.response.*;
+import com.example.spot.web.dto.study.response.StudyMemberResponseDTO;
 import com.example.spot.web.dto.study.response.StudyMemberResponseDTO.StudyApplicantDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -55,13 +56,34 @@ public class MemberStudyController {
     }
 
     @Tag(name = "진행중인 스터디")
+    @Operation(summary = "[진행중인 스터디] 스터디 호스트 탈퇴",
+            description = """
+               ## [진행중인 스터디] 특정 스터디의 호스트가 해당 스터디에서 탈퇴합니다.
+               탈퇴 시, 호스트 권한이 회수되며 스터디에서 제외됩니다. 
+               요청 시, 새로운 호스트의 아이디와 임명 사유를 입력해야 합니다.
+           """)
+    @DeleteMapping("/studies/{studyId}/hosts/withdrawal")
+    public ApiResponse<StudyWithdrawalResponseDTO.WithdrawalDTO> withdrawHostFromStudy(
+            @PathVariable Long studyId,
+            @RequestBody StudyHostWithdrawRequestDTO requestDTO) {
+        StudyWithdrawalResponseDTO.WithdrawalDTO withdrawalDTO =
+                memberStudyCommandService.withdrawHostFromStudy(studyId, requestDTO);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_MEMBER_DELETED, withdrawalDTO);
+    }
+
+
+    @Tag(name = "진행중인 스터디")
     @Operation(summary = "[진행중인 스터디] 스터디 끝내기", description = """ 
         ## [진행중인 스터디] 마이페이지 > 진행중 > 진행중인 스터디의 메뉴 클릭, 로그인한 회원이 운영중인 스터디를 끝냅니다.
-        로그인한 회원이 운영하는 특정 스터디에 대해 study status OFF로 전환합니다.
+        * 로그인한 회원이 운영하는 특정 스터디에 대해 study status OFF로 전환합니다.
+        * 스터디 성과를 입력받아 DB에 저장합니다.
         """)
     @PatchMapping("/studies/{studyId}/termination")
-    public ApiResponse<StudyTerminationResponseDTO.TerminationDTO> terminateStudy(@PathVariable Long studyId) {
-        StudyTerminationResponseDTO.TerminationDTO terminationDTO = memberStudyCommandService.terminateStudy(studyId);
+    public ApiResponse<StudyTerminationResponseDTO.TerminationDTO> terminateStudy(
+            @PathVariable @ExistStudy Long studyId,
+            @RequestParam @TextLength(min=1, max=30) String performance
+    ) {
+        StudyTerminationResponseDTO.TerminationDTO terminationDTO = memberStudyCommandService.terminateStudy(studyId, performance);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_TERMINATED, terminationDTO);
     }
 
@@ -157,6 +179,7 @@ public class MemberStudyController {
 
 
 /* ----------------------------- 스터디 상세 정보 관련 API ------------------------------------- */
+
     @Tag(name = "스터디 상세 정보")
     @Operation(summary = "[스터디 상세 정보] 스터디 최근 공지 1개 불러오기", description = """ 
         ## [스터디 상세 정보] 내 스터디 > 스터디 클릭, 로그인한 회원이 참여하는 특정 스터디의 최근 공지 1개를 불러옵니다.
@@ -190,6 +213,20 @@ public class MemberStudyController {
         @PathVariable @ExistStudy Long studyId){
         StudyMemberResponseDTO studyMemberResponseDTO = memberStudyQueryService.findStudyMembers(studyId);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_MEMBER_FOUND, studyMemberResponseDTO);
+    }
+
+    @Tag(name = "스터디 상세 정보")
+    @Operation(summary = "[스터디 상세 정보] 스터디 호스트 정보 불러오기", description = """ 
+        ## [스터디 상세 정보] 로그인한 회원이 참여하는 특정 스터디의 호스트 정보를 조회합니다.
+        * isOwned : 로그인한 회원이 호스트인지 true or false로 반환
+        * host : 호스트의 id와 nickname 반환
+        """)
+    @GetMapping("/studies/{studyId}/host")
+    public ApiResponse<StudyMemberResDTO.StudyHostDTO> getStudyHost(
+            @PathVariable @ExistStudy Long studyId)
+    {
+        StudyMemberResDTO.StudyHostDTO studyHostDTO = memberStudyQueryService.getStudyHost(studyId);
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_HOST_FOUND, studyHostDTO);
     }
 
 

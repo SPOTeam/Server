@@ -27,12 +27,10 @@ import java.util.Optional;
 
 import com.example.spot.web.dto.memberstudy.response.StudyTerminationResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyWithdrawalResponseDTO;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -218,7 +216,7 @@ public class MemberStudyCommandServiceTest {
                 .thenReturn(Optional.of(memberStudy));
 
         // when
-        StudyTerminationResponseDTO.TerminationDTO result = memberStudyCommandService.terminateStudy(1L);
+        StudyTerminationResponseDTO.TerminationDTO result = memberStudyCommandService.terminateStudy(1L, "스터디 성과");
 
         // then
         assertNotNull(result);
@@ -254,7 +252,7 @@ public class MemberStudyCommandServiceTest {
                 .thenReturn(Optional.of(memberStudy));
 
         // when & then
-        assertThrows(StudyHandler.class, () -> memberStudyCommandService.terminateStudy(1L));
+        assertThrows(StudyHandler.class, () -> memberStudyCommandService.terminateStudy(1L, "스터디 성과"));
     }
 
     @Test
@@ -284,7 +282,7 @@ public class MemberStudyCommandServiceTest {
                 .thenReturn(Optional.of(memberStudy));
 
         // when & then
-        assertThrows(StudyHandler.class, () -> memberStudyCommandService.terminateStudy(1L));
+        assertThrows(StudyHandler.class, () -> memberStudyCommandService.terminateStudy(1L, "스터디 성과"));
     }
 
 

@@ -1,6 +1,9 @@
 package com.example.spot.repository;
 
 import com.example.spot.domain.Member;
+
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import com.example.spot.domain.enums.LoginType;
@@ -23,4 +26,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     boolean existsByEmailAndLoginType(String email, LoginType loginType);
 
     Optional<Member> findByEmailAndLoginType(String email, LoginType loginType);
+
+    List<Member> findAllByInactiveBefore(LocalDateTime stdTime);
 }

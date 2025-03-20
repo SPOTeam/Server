@@ -1,5 +1,6 @@
 package com.example.spot.repository;
 
+import com.example.spot.domain.Member;
 import com.example.spot.domain.enums.ApplicationStatus;
 import com.example.spot.domain.mapping.MemberStudy;
 import org.springframework.data.domain.Pageable;
@@ -30,4 +31,7 @@ public interface MemberStudyRepository extends JpaRepository<MemberStudy, Long> 
 
     boolean existsByMemberIdAndStudyIdAndStatus(Long memberId, Long studyId, ApplicationStatus applicationStatus);
 
+    Optional<MemberStudy> findByStudyIdAndIsOwned(Long studyId, boolean b);
+
+    boolean existsByMemberIdAndIsOwned(Long memberId, boolean b);
 }

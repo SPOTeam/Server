@@ -22,6 +22,7 @@ import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListRequestDTO.ToDo
 import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListResponseDTO.ToDoListCreateResponseDTO;
 import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListResponseDTO.ToDoListUpdateResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.*;
+import com.example.spot.web.dto.memberstudy.response.StudyWithdrawalResponseDTO.WithdrawalDTO;
 import com.example.spot.web.dto.study.response.StudyApplyResponseDTO;
 
 import java.time.LocalDate;
@@ -100,12 +101,39 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         return StudyWithdrawalResponseDTO.WithdrawalDTO.toDTO(member, study);
     }
 
+    @Override
+    public WithdrawalDTO withdrawHostFromStudy(Long studyId, StudyHostWithdrawRequestDTO requestDTO) {
+        // Authorization
+        Long hostId = SecurityUtils.getCurrentUserId();
+        SecurityUtils.verifyUserId(hostId);
+
+        MemberStudy memberStudy = memberStudyRepository.findByMemberIdAndStudyIdAndStatus(hostId, studyId, ApplicationStatus.APPROVED)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
+
+        if (!memberStudy.getIsOwned()) {
+            throw new StudyHandler(ErrorStatus._STUDY_OWNER_ONLY_CAN_WITHDRAW);
+        }
+
+        MemberStudy newHostStudy = memberStudyRepository.findByMemberIdAndStudyIdAndStatus(requestDTO.getNewHostId(), studyId, ApplicationStatus.APPROVED)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_EXIST));
+
+        memberStudyRepository.delete(memberStudy);
+
+        newHostStudy.setIsOwned(true);
+        newHostStudy.setReason(requestDTO.getReason());
+
+        memberStudyRepository.save(newHostStudy);
+
+        return StudyWithdrawalResponseDTO.WithdrawalDTO.toDTO(newHostStudy.getMember(), newHostStudy.getStudy());
+    }
     /**
      * 운영중인 스터디를 종료하는 메서드입니다. 스터디장만 호출 가능합니다.
-     * @param studyId 종료할 스터디의 아이디를 입력 받습니다.
+     *
+     * @param studyId       종료할 스터디의 아이디를 입력 받습니다.
+     * @param performance   종료할 스터디의 성과를 입력 받습니다.
      * @return 종료된 스터디의 아이디, 이름, 상태를 반환합니다.
      */
-    public StudyTerminationResponseDTO.TerminationDTO terminateStudy(Long studyId) {
+    public StudyTerminationResponseDTO.TerminationDTO terminateStudy(Long studyId, String performance) {
 
         // Authorization
         Long memberId = SecurityUtils.getCurrentUserId();
@@ -126,7 +154,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
             throw new StudyHandler(ErrorStatus._STUDY_ALREADY_TERMINATED);
         }
 
-        study.setStatus(Status.OFF);
+        study.terminateStudy(performance);
         studyRepository.save(study);
 
         return StudyTerminationResponseDTO.TerminationDTO.toDTO(study);

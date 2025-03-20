@@ -14,8 +14,9 @@ import java.time.LocalDate;
 public interface MemberStudyCommandService {
 
     StudyWithdrawalResponseDTO.WithdrawalDTO withdrawFromStudy(Long studyId);
+    StudyWithdrawalResponseDTO.WithdrawalDTO withdrawHostFromStudy(Long studyId, StudyHostWithdrawRequestDTO requestDTO);
 
-    StudyTerminationResponseDTO.TerminationDTO terminateStudy(Long studyId);
+    StudyTerminationResponseDTO.TerminationDTO terminateStudy(Long studyId, String performance);
 
     // 스터디 신청 수락
     StudyApplyResponseDTO acceptAndRejectStudyApply(Long memberId, Long studyId, boolean isAccept);

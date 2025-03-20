@@ -65,6 +65,22 @@ public class AuthController {
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_UPDATED, memberInfoCreationDTO);
     }
 
+    @Tag(name = "회원 관리 API - 개발 완료", description = "회원 관리 API")
+    @Operation(summary = "[공통 회원 관리] 회원탈퇴 API",
+            description = """
+            ## [공통 회원 관리] 로그인한 회원이 SPOT을 탈퇴할 때 사용되는 API입니다.
+            * Authorization 헤더에 액세스 토큰을 포함해야 합니다.
+            * 회원탈퇴 시 해당 회원의 inactive(LocalDateTime) 필드가 활성화 됩니다.
+            * 회원 정보 및 회원의 스터디 정보는 30일간 DB에 저장되며 30일이 지나면 자동으로 삭제됩니다.
+            * 30일 이후 정보 삭제 시 "로그인 이메일", "성명", "생년월일 정보", "진행중 스터디", \
+            "모집중 스터디", "스터디 찜 정보", "게시글", "댓글", "사진", "관심사", "관심지역"이  삭제됩니다.
+            """)
+    @PatchMapping("/withdraw")
+    public ApiResponse<MemberResponseDTO.InactiveMemberDTO> withdraw() {
+        MemberResponseDTO.InactiveMemberDTO inactiveMemberDTO = authService.withdraw();
+        return ApiResponse.onSuccess(SuccessStatus._MEMBER_DELETED, inactiveMemberDTO);
+    }
+
 /* ----------------------------- 네이버 소셜로그인 API ------------------------------------- */
 
     @Tag(name = "테스트 용 API", description = "테스트 용 API")
@@ -259,7 +275,7 @@ public class AuthController {
         description = """
             ## [로그아웃] 로그아웃 API입니다.
             로그아웃을 진행합니다.
-            로그아웃 시, 사용 하던 액세스 토큰과 리프레시 토큰은 더 이상 사용이 불가능합니다. 
+            로그아웃 시, 사용 하던 액세스 토큰과 리프레시 토큰은 더 이상 사용이 불가능합니다.
             다시 서비스를 이용하기 위해서는 로그인을 다시 진행해야 합니다.
             """)
     @PostMapping("/logout")

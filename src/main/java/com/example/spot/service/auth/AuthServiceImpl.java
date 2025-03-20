@@ -6,6 +6,7 @@ import com.example.spot.api.exception.GeneralException;
 import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.domain.Member;
 import com.example.spot.domain.auth.RsaKey;
+import com.example.spot.repository.MemberStudyRepository;
 import com.example.spot.web.dto.rsa.Rsa;
 import com.example.spot.domain.auth.RefreshToken;
 import com.example.spot.domain.auth.VerificationCode;
@@ -43,6 +44,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -55,10 +58,15 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class AuthServiceImpl implements AuthService{
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     private final JwtTokenProvider jwtTokenProvider;
     private final MemberRepository memberRepository;
+    private final MemberStudyRepository memberStudyRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final VerificationCodeRepository verificationCodeRepository;
+
     private final MailService mailService;
     private final NaverOAuthService naverOAuthService;
 
@@ -135,6 +143,31 @@ public class AuthServiceImpl implements AuthService{
         return MemberResponseDTO.MemberInfoCreationDTO.toDTO(member);
     }
 
+    @Override
+    public MemberResponseDTO.InactiveMemberDTO withdraw() {
+
+        // Authorization
+        Long memberId = SecurityUtils.getCurrentUserId();
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        // 운영중인 스터디가 있는 경우 탈퇴 불가
+        if (memberStudyRepository.existsByMemberIdAndIsOwned(memberId, true)) {
+            throw new MemberHandler(ErrorStatus._OWNED_STUDY_EXISTS);
+        }
+
+        // inactive 필드 활성화
+        member.setInactive(LocalDateTime.now());
+
+        // SecurityContextHolder 정리
+        SecurityUtils.deleteCurrentUser();
+
+        // Refresh Token 정리
+        refreshTokenRepository.deleteAllByMemberId(memberId);
+
+        return MemberResponseDTO.InactiveMemberDTO.toDTO(member);
+    }
+
 /* ----------------------------- 네이버 소셜로그인 API ------------------------------------- */
 
     /**
@@ -191,13 +224,38 @@ public class AuthServiceImpl implements AuthService{
     private SocialLoginSignInDTO getSocialLoginSignInDTO(NaverMember.ResponseDTO responseDTO) {
         String email = responseDTO.getResponse().getEmail();
 
-        if (memberRepository.existsByEmailAndLoginTypeNot(email, LoginType.NAVER))
-            throw new GeneralException(ErrorStatus._MEMBER_EMAIL_EXIST);
+        // 다른 로그인 방식을 사용한 계정이 있는지 확인
+        if (memberRepository.existsByEmailAndLoginTypeNot(email, LoginType.NAVER)) {
+            Member member = memberRepository.findByEmail(email)
+                    .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
 
+            // 탈퇴한(inactive) 회원이면 기존 정보 삭제
+            if (member.getInactive() != null) {
+                refreshTokenRepository.deleteByMemberId(member.getId());
+                memberRepository.deleteById(member.getId());
+                entityManager.flush();
+            }
+            else {
+                throw new MemberHandler(ErrorStatus._MEMBER_EMAIL_ALREADY_EXISTS);
+            }
+        }
+
+        // 네이버 로그인 계정이 있는지 확인
         Boolean isSpotMember = Boolean.TRUE;
+        if (memberRepository.existsByEmailAndLoginType(email, LoginType.NAVER)) {
+            Member member = memberRepository.findByEmail(email)
+                    .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
 
-        // 가입되지 않은 회원이면 회원 정보 저장
-        if (!memberRepository.existsByEmailAndLoginType(email, LoginType.NAVER)) {
+            // 탈퇴한(inactive) 회원이면 기존 정보 삭제 후 회원 정보 저장
+            if (member.getInactive() != null) {
+                refreshTokenRepository.deleteByMemberId(member.getId());
+                memberRepository.deleteById(member.getId());
+                entityManager.flush();
+                isSpotMember = Boolean.FALSE;
+                signUpWithNaver(responseDTO);
+            }
+        }
+        else {
             isSpotMember = Boolean.FALSE;
             signUpWithNaver(responseDTO);
         }
@@ -276,6 +334,11 @@ public class AuthServiceImpl implements AuthService{
         // 아이디가 일치하는 유저가 있는지 확인
         Member member = memberRepository.findByLoginId(signInDTO.getLoginId())
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        // 탈퇴한 회원이면 로그인 불가
+        if (member.getInactive() != null) {
+            throw new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND);
+        }
 
         // 비밀번호 확인
         String password = getDecryptedPassword(rsaId, signInDTO.getPassword());
@@ -396,14 +459,24 @@ public class AuthServiceImpl implements AuthService{
     @Override
     public MemberResponseDTO.MemberSignInDTO signUp(Long rsaId, MemberRequestDTO.SignUpDTO signUpDTO) throws Exception {
 
-        // 회원 생성
+        // 이미 존재하는 회원인 경우
         if (memberRepository.existsByEmail(signUpDTO.getEmail())) {
-            throw new MemberHandler(ErrorStatus._MEMBER_EMAIL_ALREADY_EXISTS);
-        }
-        if (memberRepository.existsByLoginId(signUpDTO.getLoginId())) {
-            throw new MemberHandler(ErrorStatus._MEMBER_LOGIN_ID_ALREADY_EXISTS);
+
+            Member member = memberRepository.findByEmail(signUpDTO.getEmail())
+                    .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+            // 탈퇴한(inactive) 회원이면 기존 정보 삭제 후 회원 생성
+            if (member.getInactive() != null) {
+                refreshTokenRepository.deleteByMemberId(member.getId());
+                memberRepository.deleteById(member.getId());
+                entityManager.flush();
+            }
+            else {
+                throw new MemberHandler(ErrorStatus._MEMBER_EMAIL_ALREADY_EXISTS);
+            }
         }
 
+        // 회원 생성
         String password = getDecryptedPassword(rsaId, signUpDTO.getPassword());
         String pwCheck = getDecryptedPassword(rsaId, signUpDTO.getPwCheck());
         if (!password.equals(pwCheck)) {
@@ -488,6 +561,11 @@ public class AuthServiceImpl implements AuthService{
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
 
+        // 탈퇴한 회원이면 아이디 찾기 불가
+        if (member.getInactive() != null) {
+            throw new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND);
+        }
+
         return MemberResponseDTO.FindIdDTO.toDTO(member);
     }
 
@@ -505,6 +583,11 @@ public class AuthServiceImpl implements AuthService{
         // 이메일로 가입된 회원 정보 확인
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        // 탈퇴한 회원이면 아이디 찾기 불가
+        if (member.getInactive() != null) {
+            throw new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND);
+        }
 
         // 인증된 사용자의 아이디와 입력 아이디 일치 여부 확인
         if (!member.getLoginId().equals(loginId)) {

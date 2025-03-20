@@ -64,4 +64,13 @@ public class SecurityUtils {
         }
         return authentication.getName();
     }
+
+    /**
+     * 현재 인증된 사용자의 로그인 정보를 삭제합니다.
+     * 로그인 정보를 삭제하며 SecurityContext도 함께 삭제합니다.
+     */
+    public static void deleteCurrentUser() {
+        SecurityContextHolder.getContext().setAuthentication(null);
+        SecurityContextHolder.clearContext();
+    }
 }
