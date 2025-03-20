@@ -6,6 +6,7 @@ import com.example.spot.api.exception.GeneralException;
 import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.domain.Member;
 import com.example.spot.domain.auth.RsaKey;
+import com.example.spot.repository.MemberStudyRepository;
 import com.example.spot.web.dto.rsa.Rsa;
 import com.example.spot.domain.auth.RefreshToken;
 import com.example.spot.domain.auth.VerificationCode;
@@ -62,8 +63,10 @@ public class AuthServiceImpl implements AuthService{
 
     private final JwtTokenProvider jwtTokenProvider;
     private final MemberRepository memberRepository;
+    private final MemberStudyRepository memberStudyRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final VerificationCodeRepository verificationCodeRepository;
+
     private final MailService mailService;
     private final NaverOAuthService naverOAuthService;
 
@@ -146,7 +149,12 @@ public class AuthServiceImpl implements AuthService{
         // Authorization
         Long memberId = SecurityUtils.getCurrentUserId();
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        // 운영중인 스터디가 있는 경우 탈퇴 불가
+        if (memberStudyRepository.existsByMemberIdAndIsOwned(memberId, true)) {
+            throw new MemberHandler(ErrorStatus._OWNED_STUDY_EXISTS);
+        }
 
         // inactive 필드 활성화
         member.setInactive(LocalDateTime.now());
