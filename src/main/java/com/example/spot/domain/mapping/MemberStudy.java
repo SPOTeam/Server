@@ -27,10 +27,16 @@ public class MemberStudy extends BaseEntity {
     private ApplicationStatus status;
 
     @Column(nullable = false, columnDefinition = "BIT DEFAULT 0")
+    @Setter
     private Boolean isOwned;
 
     @Column(columnDefinition = "text")
     private String introduction;
+
+    // 해당 유저로 호스트를 위임하는 이유
+    @Column(columnDefinition = "text")
+    @Setter
+    private String reason;
 
     //== 회원 ==//
     @Setter
