@@ -51,4 +51,8 @@ public class Region extends BaseEntity {
         prefferedRegionList.add(preferredRegion);
         preferredRegion.setRegion(this);
     }
+
+    public String toRegionString() {
+        return province + " " + district + " " + neighborhood;
+    }
 }

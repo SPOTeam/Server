@@ -19,6 +19,8 @@ import com.example.spot.repository.*;
 import com.example.spot.security.utils.SecurityUtils;
 import com.example.spot.web.dto.study.request.StudyJoinRequestDTO;
 import com.example.spot.web.dto.study.request.StudyRegisterRequestDTO;
+import com.example.spot.web.dto.study.request.StudyRegisterRequestDTO.RegisterDTO;
+import com.example.spot.web.dto.study.response.StudyInfoResponseDTO.StudyInfoDTO;
 import com.example.spot.web.dto.study.response.StudyJoinResponseDTO;
 import com.example.spot.web.dto.study.response.StudyLikeResponseDTO;
 import com.example.spot.web.dto.study.response.StudyRegisterResponseDTO;
@@ -141,6 +143,47 @@ public class StudyCommandServiceImpl implements StudyCommandService {
         createMemberStudy(member, study);
         createRegionStudy(study, studyRegisterRequestDTO);
         createStudyTheme(study, studyRegisterRequestDTO);
+
+        studyRepository.save(study);
+
+        return StudyRegisterResponseDTO.RegisterDTO.toDTO(study);
+    }
+
+
+    /**
+     * 스터디 정보를 수정합니다.
+     * @param studyId 수정할 스터디 ID
+     * @param studyInfoDTO 수정할 스터디 정보
+     * @return 수정된 스터디 정보를 반환합니다.
+     */
+
+    @Override
+    public StudyRegisterResponseDTO.RegisterDTO updateStudyInfo(Long studyId, RegisterDTO studyInfoDTO) {
+
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+
+        MemberStudy memberStudy = memberStudyRepository.findByMemberIdAndStudyId(currentUserId, studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
+
+        if (!memberStudy.getIsOwned()) {
+            throw new StudyHandler(ErrorStatus._STUDY_NOT_OWNER);
+        }
+
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
+
+        study.updateStudyInfo(studyInfoDTO.getTitle(), studyInfoDTO.getIntroduction(), studyInfoDTO.getGoal(), studyInfoDTO.getIsOnline(),
+                studyInfoDTO.isHasFee(), studyInfoDTO.getFee(), studyInfoDTO.getMinAge(), studyInfoDTO.getMaxAge(),
+                studyInfoDTO.getGender(), studyInfoDTO.getMaxPeople(), studyInfoDTO.getProfileImage());
+
+        studyThemeRepository.deleteByStudyId(studyId);
+        study.getStudyThemes().clear();
+
+        regionStudyRepository.deleteByStudyId(studyId);
+        study.getRegionStudies().clear();
+
+        createRegionStudy(study, studyInfoDTO);
+        createStudyTheme(study, studyInfoDTO);
 
         studyRepository.save(study);
 
