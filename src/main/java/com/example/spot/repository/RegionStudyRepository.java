@@ -10,4 +10,5 @@ import org.springframework.stereotype.Repository;
 public interface RegionStudyRepository extends JpaRepository<RegionStudy, Long> {
     List<RegionStudy> findAllByRegion(Region region);
 
+    void deleteByStudyId(Long studyId);
 }

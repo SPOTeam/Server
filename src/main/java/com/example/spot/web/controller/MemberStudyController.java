@@ -15,6 +15,7 @@ import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListResponseDTO.ToD
 import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListResponseDTO.ToDoListSearchResponseDTO;
 import com.example.spot.web.dto.memberstudy.request.toDo.ToDoListResponseDTO.ToDoListUpdateResponseDTO;
 import com.example.spot.web.dto.memberstudy.response.*;
+import com.example.spot.web.dto.study.request.StudyRegisterRequestDTO;
 import com.example.spot.web.dto.study.response.*;
 import com.example.spot.web.dto.study.response.StudyMemberResponseDTO;
 import com.example.spot.web.dto.study.response.StudyMemberResponseDTO.StudyApplicantDTO;
@@ -87,13 +88,6 @@ public class MemberStudyController {
         return ApiResponse.onSuccess(SuccessStatus._STUDY_TERMINATED, terminationDTO);
     }
 
-//    @Operation(summary = "[데모 데이 이후 개발 -> 진행중인 스터디] 스터디 정보 수정하기", description = """
-//        ## [진행중인 스터디] 마이페이지 > 진행중 > 진행중인 스터디의 메뉴 클릭, 로그인한 회원이 운영중인 스터디의 정보를 수정합니다.
-//        로그인한 회원이 운영하는 특정 스터디에 대해 study 정보를 수정합니다.
-//        """)
-//    @PatchMapping("/studies/{studyId}")
-//    public void updateStudy(@PathVariable @ExistStudy Long studyId) {
-//    }
 
 /* ----------------------------- 모집중인 스터디 관련 API ------------------------------------- */
 

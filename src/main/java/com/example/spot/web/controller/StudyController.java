@@ -73,6 +73,17 @@ public class StudyController {
         return ApiResponse.onSuccess(SuccessStatus._STUDY_CREATED, studyRegisterResponseDTO);
     }
 
+    @Operation(summary = "[스터디 정보 수정] 스터디 정보 수정하기", description = """
+        ## [스터디 정보 수정] 로그인한 회원이 운영중인 스터디의 정보를 수정합니다.
+        로그인한 회원이 운영하는 특정 스터디에 대해 study 정보를 수정합니다.
+        """)
+    @PatchMapping("/studies/{studyId}")
+    public ApiResponse<StudyRegisterResponseDTO.RegisterDTO>  updateStudy(@PathVariable @ExistStudy Long studyId,
+                            @RequestBody @Valid StudyRegisterRequestDTO.RegisterDTO studyRegisterRequestDTO)  {
+        return ApiResponse.onSuccess(SuccessStatus._OK, studyCommandService.updateStudyInfo(studyId, studyRegisterRequestDTO));
+
+    }
+
 /* ----------------------------- 스터디 찜하기 관련 API ------------------------------------- */
 
     @PostMapping("/studies/{studyId}/like")
