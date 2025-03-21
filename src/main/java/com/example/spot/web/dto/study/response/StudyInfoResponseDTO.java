@@ -32,6 +32,7 @@ public class StudyInfoResponseDTO {
         private final Integer fee;
         private final Boolean isOnline;
         private final List<ThemeType> themes;
+        private final List<String> regions;
         private final String goal;
         private final String introduction;
 
@@ -39,7 +40,7 @@ public class StudyInfoResponseDTO {
         private StudyInfoDTO(Long studyId, String studyName, StudyOwnerDTO studyOwner,
                              Long hitNum, Integer heartCount, Integer memberCount, Boolean isLiked, Long maxPeople, Gender gender,
                              Integer minAge, Integer maxAge, Integer fee, Boolean isOnline,
-                             List<ThemeType> themes, String goal, String introduction) {
+                             List<ThemeType> themes, List<String> regions,String goal, String introduction) {
             this.studyId = studyId;
             this.studyName = studyName;
             this.studyOwner = studyOwner;
@@ -53,6 +54,7 @@ public class StudyInfoResponseDTO {
             this.fee = fee;
             this.isOnline = isOnline;
             this.themes = themes;
+            this.regions = regions;
             this.goal = goal;
             this.introduction = introduction;
         }
@@ -77,6 +79,9 @@ public class StudyInfoResponseDTO {
                     .isOnline(study.getIsOnline())
                     .themes(study.getStudyThemes().stream()
                             .map(memberStudy -> { return memberStudy.getTheme().getStudyTheme();})
+                            .toList())
+                    .regions(study.getRegionStudies().stream()
+                            .map(memberStudy -> { return memberStudy.getRegion().toRegionString();})
                             .toList())
                     .goal(study.getGoal())
                     .introduction(study.getIntroduction())
