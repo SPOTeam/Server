@@ -81,7 +81,7 @@ public class StudyInfoResponseDTO {
                             .map(memberStudy -> { return memberStudy.getTheme().getStudyTheme();})
                             .toList())
                     .regions(study.getRegionStudies().stream()
-                            .map(memberStudy -> { return memberStudy.getRegion().toRegionString();})
+                            .map(memberStudy -> { return memberStudy.getRegion().getCode();})
                             .toList())
                     .goal(study.getGoal())
                     .introduction(study.getIntroduction())
