@@ -6,6 +6,7 @@ import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.enums.Gender;
 import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.enums.StudyState;
+import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.domain.mapping.MemberStudy;
 import com.example.spot.domain.mapping.PreferredStudy;
 import com.example.spot.domain.mapping.RegionStudy;
@@ -206,5 +207,21 @@ public class Study extends BaseEntity {
         this.studyState = StudyState.COMPLETED;
         this.status = Status.OFF;
         this.performance = performance;
+    }
+
+    public void updateStudyInfo(
+            String title, String introduction, String goal, Boolean isOnline, Boolean hasFee, Integer fee, Integer minAge, Integer maxAge,
+            Gender gender, Long maxPeople, String profileImage) {
+        this.title = title;
+        this.introduction = introduction;
+        this.goal = goal;
+        this.isOnline = isOnline;
+        this.hasFee = hasFee;
+        this.fee = fee;
+        this.minAge = minAge;
+        this.maxAge = maxAge;
+        this.gender = gender;
+        this.maxPeople = maxPeople;
+        this.profileImage = profileImage;
     }
 }
