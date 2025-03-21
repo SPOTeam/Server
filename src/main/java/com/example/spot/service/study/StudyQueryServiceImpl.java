@@ -8,6 +8,7 @@ import com.example.spot.domain.Member;
 import com.example.spot.domain.Region;
 import com.example.spot.domain.Theme;
 import com.example.spot.domain.enums.ApplicationStatus;
+import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.enums.StudyLikeStatus;
 import com.example.spot.domain.enums.StudySortBy;
 import com.example.spot.domain.enums.ThemeType;
@@ -756,9 +757,15 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         // 회원이 참가하고 있는 스터디 조회
         List<Study> studies = studyRepository.findByMemberStudy(memberStudies, pageable);
 
+        // 스터디가 끝났으면 제외
+        studies = studies.stream()
+                .filter(study -> study.getStatus().equals(Status.ON))
+                .toList();
+
         // 조회된 스터디가 없을 경우
         if (studies.isEmpty())
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
+
         // 전체 스터디 수
         long totalElements = memberStudyRepository.countByMemberIdAndStatus(memberId, ApplicationStatus.APPROVED);
         return getDTOs(studies, pageable, totalElements, memberId);
@@ -822,6 +829,10 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         // 회원이 모집중인 스터디 조회
         List<Study> studies = studyRepository.findRecruitingStudiesByMemberStudy(memberStudies, pageable);
 
+        studies = studies.stream()
+                .filter(study -> study.getStatus().equals(Status.ON))
+                .toList();
+
         // 조회된 스터디가 없을 경우
         if (studies.isEmpty())
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
@@ -852,6 +863,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
 
         return memberStudies.stream()
             .filter(memberStudy -> memberStudy.getStatus().equals(ApplicationStatus.APPROVED))
+                .filter(memberStudy -> memberStudy.getStudy().getStatus().equals(Status.ON))
             .map(memberStudy -> memberStudy.getStudy().getId())
             .toList();
     }
