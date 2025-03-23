@@ -1684,7 +1684,7 @@ class StudyQueryServiceTest {
             .thenReturn(List.of(memberStudy1, memberStudy2));
         when(studyRepository.findByMemberStudy(List.of(memberStudy1, memberStudy2), pageable))
             .thenReturn(List.of(study1, study2));
-        when(memberStudyRepository.countByMemberIdAndStatus(member.getId(), ApplicationStatus.APPROVED))
+        when(studyRepository.countByMemberStudiesAndStatus(List.of(memberStudy1, memberStudy2), Status.ON))
             .thenReturn(2L);
 
         // when
@@ -1800,7 +1800,7 @@ class StudyQueryServiceTest {
             .thenReturn(List.of(memberStudy1, memberStudy2));
         when(studyRepository.findRecruitingStudiesByMemberStudy(List.of(memberStudy1, memberStudy2), pageable))
             .thenReturn(List.of(study1, study2));
-        when(memberStudyRepository.countByMemberIdAndIsOwned(member.getId(), true))
+        when(studyRepository.countByMemberStudiesAndStatusAndIsOwned(List.of(memberStudy1, memberStudy2), Status.ON, true))
             .thenReturn(2L);
 
         // when
