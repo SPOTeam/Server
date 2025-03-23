@@ -767,7 +767,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
 
         // 전체 스터디 수
-        long totalElements = memberStudyRepository.countByMemberIdAndStatus(memberId, ApplicationStatus.APPROVED);
+        long totalElements = studyRepository.countByMemberStudiesAndStatus(memberStudies, Status.ON);
         return getDTOs(studies, pageable, totalElements, memberId);
     }
 
@@ -838,7 +838,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
 
         // 전체 스터디 수
-        long totalElements = memberStudyRepository.countByMemberIdAndIsOwned(memberId, true);
+        long totalElements = studyRepository.countByMemberStudiesAndStatusAndIsOwned(memberStudies, Status.ON, true);
 
         return getDTOs(studies, pageable, totalElements, memberId);
     }
