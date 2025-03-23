@@ -1742,7 +1742,7 @@ class StudyQueryServiceTest {
             .thenReturn(List.of(memberStudy1, memberStudy2));
         when(studyRepository.findByMemberStudy(List.of(memberStudy1, memberStudy2), pageable))
             .thenReturn(List.of(study1, study2));
-        when(memberStudyRepository.countByMemberIdAndStatus(member.getId(), ApplicationStatus.APPLIED))
+        when(studyRepository.countByMemberStudiesAndStatus(List.of(memberStudy1, memberStudy2), Status.ON))
             .thenReturn(2L);
 
         // when

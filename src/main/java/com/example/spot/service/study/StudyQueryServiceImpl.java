@@ -796,12 +796,14 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         // 회원이 신청한 스터디 조회
         List<Study> studies = studyRepository.findByMemberStudy(memberStudies, pageable);
 
+        studies.stream().filter(study -> study.getStatus().equals(Status.ON)).toList();
+
         // 조회된 스터디가 없을 경우
         if (studies.isEmpty())
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
 
         // 전체 스터디 수
-        long totalElements = memberStudyRepository.countByMemberIdAndStatus(memberId, ApplicationStatus.APPLIED);
+        long totalElements = studyRepository.countByMemberStudiesAndStatus(memberStudies, Status.ON);
         return getDTOs(studies, pageable, totalElements, memberId);
     }
 
