@@ -38,7 +38,7 @@ public class NotificationResponseDTO {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class StduyNotificationListDTO {
+    public static class StudyNotificationListDTO {
 
         List<StudyNotificationDTO> notifications;
         Long totalNotificationCount;
