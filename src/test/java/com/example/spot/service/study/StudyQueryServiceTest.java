@@ -233,9 +233,9 @@ class StudyQueryServiceTest {
         Long memberId = 1L;
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
-        when(memberStudyRepository.countByMemberIdAndStatus(memberId, ApplicationStatus.APPLIED)).thenReturn(2L);
-        when(memberStudyRepository.countByMemberIdAndStatus(memberId, ApplicationStatus.APPROVED)).thenReturn(1L);
-        when(memberStudyRepository.countByMemberIdAndIsOwnedAndStudy_Status(memberId, true, )).thenReturn(3L);
+        when(memberStudyRepository.countByMemberIdAndStatusAndStudy_Status(memberId, ApplicationStatus.APPLIED, Status.ON)).thenReturn(2L);
+        when(memberStudyRepository.countByMemberIdAndStatusAndStudy_Status(memberId, ApplicationStatus.APPROVED, Status.ON)).thenReturn(1L);
+        when(memberStudyRepository.countByMemberIdAndIsOwnedAndStudy_Status(memberId, true, Status.ON)).thenReturn(3L);
 
         // when
         MyPageDTO myPageStudyCount = studyQueryService.getMyPageStudyCount(memberId);
