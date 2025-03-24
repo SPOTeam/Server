@@ -9,12 +9,11 @@ import com.example.spot.service.notification.NotificationQueryService;
 
 import com.example.spot.web.dto.notification.NotificationResponseDTO.NotificationListDTO;
 import com.example.spot.web.dto.notification.NotificationResponseDTO.NotificationProcessDTO;
-import com.example.spot.web.dto.notification.NotificationResponseDTO.StduyNotificationListDTO;
+import com.example.spot.web.dto.notification.NotificationResponseDTO.StudyNotificationListDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import jakarta.validation.constraints.Min;
-import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -59,11 +58,11 @@ public class NotificationController {
             *참가 신청한 스터디 알람 처리* API를 통해 참여 버튼을 누르면 스터디에 참여할 수 있습니다.
             """)
     @GetMapping("/notifications/applied-study")
-    public ApiResponse<StduyNotificationListDTO> getAppliedStudyNotification(
+    public ApiResponse<StudyNotificationListDTO> getAppliedStudyNotification(
         @RequestParam @Min(0) Integer page,
         @RequestParam @Min(1) Integer size
     ) {
-        StduyNotificationListDTO notificationDTO = notificationQueryService.getAllAppliedStudyNotification(
+        StudyNotificationListDTO notificationDTO = notificationQueryService.getAllAppliedStudyNotification(
             SecurityUtils.getCurrentUserId(), PageRequest.of(page, size));
         return ApiResponse.onSuccess(SuccessStatus._NOTIFICATION_FOUND, notificationDTO);
     }

@@ -9,8 +9,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
-import com.example.spot.api.code.status.ErrorStatus;
-import com.example.spot.api.exception.GeneralException;
 import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.api.exception.handler.StudyHandler;
 import com.example.spot.domain.Member;
@@ -33,7 +31,6 @@ import com.example.spot.repository.RegionStudyRepository;
 import com.example.spot.repository.StudyRepository;
 import com.example.spot.repository.StudyThemeRepository;
 import com.example.spot.repository.ThemeRepository;
-import com.example.spot.security.utils.SecurityUtils;
 import com.example.spot.web.dto.search.SearchRequestDTO.SearchRequestStudyDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.MyPageDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.StudyPreviewDTO;
@@ -43,7 +40,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -59,7 +55,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.parameters.P;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -238,9 +233,9 @@ class StudyQueryServiceTest {
         Long memberId = 1L;
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
-        when(memberStudyRepository.countByMemberIdAndStatus(memberId, ApplicationStatus.APPLIED)).thenReturn(2L);
-        when(memberStudyRepository.countByMemberIdAndStatus(memberId, ApplicationStatus.APPROVED)).thenReturn(1L);
-        when(memberStudyRepository.countByMemberIdAndIsOwned(memberId, true)).thenReturn(3L);
+        when(memberStudyRepository.countByMemberIdAndStatusAndStudy_Status(memberId, ApplicationStatus.APPLIED, Status.ON)).thenReturn(2L);
+        when(memberStudyRepository.countByMemberIdAndStatusAndStudy_Status(memberId, ApplicationStatus.APPROVED, Status.ON)).thenReturn(1L);
+        when(memberStudyRepository.countByMemberIdAndIsOwnedAndStudy_Status(memberId, true, Status.ON)).thenReturn(3L);
 
         // when
         MyPageDTO myPageStudyCount = studyQueryService.getMyPageStudyCount(memberId);
@@ -1684,7 +1679,7 @@ class StudyQueryServiceTest {
             .thenReturn(List.of(memberStudy1, memberStudy2));
         when(studyRepository.findByMemberStudy(List.of(memberStudy1, memberStudy2), pageable))
             .thenReturn(List.of(study1, study2));
-        when(memberStudyRepository.countByMemberIdAndStatus(member.getId(), ApplicationStatus.APPROVED))
+        when(studyRepository.countByMemberStudiesAndStatus(List.of(memberStudy1, memberStudy2), Status.ON))
             .thenReturn(2L);
 
         // when
@@ -1742,7 +1737,7 @@ class StudyQueryServiceTest {
             .thenReturn(List.of(memberStudy1, memberStudy2));
         when(studyRepository.findByMemberStudy(List.of(memberStudy1, memberStudy2), pageable))
             .thenReturn(List.of(study1, study2));
-        when(memberStudyRepository.countByMemberIdAndStatus(member.getId(), ApplicationStatus.APPLIED))
+        when(studyRepository.countByMemberStudiesAndStatus(List.of(memberStudy1, memberStudy2), Status.ON))
             .thenReturn(2L);
 
         // when
@@ -1800,7 +1795,7 @@ class StudyQueryServiceTest {
             .thenReturn(List.of(memberStudy1, memberStudy2));
         when(studyRepository.findRecruitingStudiesByMemberStudy(List.of(memberStudy1, memberStudy2), pageable))
             .thenReturn(List.of(study1, study2));
-        when(memberStudyRepository.countByMemberIdAndIsOwned(member.getId(), true))
+        when(studyRepository.countByMemberStudiesAndStatusAndIsOwned(List.of(memberStudy1, memberStudy2), Status.ON, true))
             .thenReturn(2L);
 
         // when

@@ -6,19 +6,16 @@ import com.example.spot.domain.Notification;
 import com.example.spot.domain.enums.NotifyType;
 import com.example.spot.web.dto.notification.NotificationResponseDTO.NotificationListDTO;
 import com.example.spot.web.dto.notification.NotificationResponseDTO.NotificationListDTO.NotificationDTO;
-import com.example.spot.web.dto.notification.NotificationResponseDTO.StduyNotificationListDTO;
-import com.example.spot.web.dto.notification.NotificationResponseDTO.StduyNotificationListDTO.StudyNotificationDTO;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import com.example.spot.web.dto.notification.NotificationResponseDTO.StudyNotificationListDTO;
+import com.example.spot.web.dto.notification.NotificationResponseDTO.StudyNotificationListDTO.StudyNotificationDTO;
 import java.util.ArrayList;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.spot.repository.NotificationRepository;
-import com.example.spot.web.dto.notification.NotificationResponseDTO;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -36,7 +33,7 @@ public class NotificationQueryServiceImpl implements NotificationQueryService {
      * @throws GeneralException 알림이 존재하지 않는 경우
      */
     @Override
-    public StduyNotificationListDTO getAllAppliedStudyNotification(Long memberId, Pageable pageable) {
+    public StudyNotificationListDTO getAllAppliedStudyNotification(Long memberId, Pageable pageable) {
         // 특정 회원이 참가 신청한 스터디에 대한 알림 조회
         List<Notification> notifications = notificationRepository.findByMemberIdAndTypeAndIsChecked(
             memberId, pageable, NotifyType.STUDY_APPLY, false);
@@ -63,7 +60,7 @@ public class NotificationQueryServiceImpl implements NotificationQueryService {
         });
 
         // DTO 리스트를 반환
-        return StduyNotificationListDTO.builder()
+        return StudyNotificationListDTO.builder()
             .notifications(notificationDTOs)
             .totalNotificationCount((long) notificationDTOs.size())
             .uncheckedNotificationCount((long) (int) notificationDTOs.stream().filter(notificationDTO -> !notificationDTO.getIsChecked()).count())
@@ -94,13 +91,14 @@ public class NotificationQueryServiceImpl implements NotificationQueryService {
         // 알림을 DTO로 변환하여 리스트에 추가
         notifications.forEach(notification -> {
             NotificationDTO notificationDTO = NotificationDTO.builder()
-                .notificationId(notification.getId())
-                .createdAt(notification.getCreatedAt())
-                .type(notification.getType())
-                .studyTitle(notification.getStudy().getTitle())
-                .notifierName(notification.getNotifierName()) // 알림 생성한 회원 이름
-                .isChecked(notification.getIsChecked())
-                .build();
+                    .notificationId(notification.getId())
+                    .createdAt(notification.getCreatedAt())
+                    .type(notification.getType())
+                    .studyTitle(notification.getStudy().getTitle())
+                    .studyProfileImage(notification.getStudy().getProfileImage())
+                    .notifierName(notification.getNotifierName()) // 알림 생성한 회원 이름
+                    .isChecked(notification.getIsChecked())
+                    .build();
             notificationDTOs.add(notificationDTO);
         });
 

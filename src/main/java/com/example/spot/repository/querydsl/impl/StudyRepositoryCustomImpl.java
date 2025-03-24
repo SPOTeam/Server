@@ -1,6 +1,7 @@
 package com.example.spot.repository.querydsl.impl;
 
 import com.example.spot.domain.enums.Gender;
+import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.enums.StudySortBy;
 import com.example.spot.domain.enums.StudyState;
 import com.example.spot.domain.mapping.MemberStudy;
@@ -331,6 +332,24 @@ SELECT id FROM study WHERE MATCH(title) AGAINST (:keyword IN NATURAL LANGUAGE MO
         return queryFactory.selectFrom(study)
             .where(builder)
             .where(study.title.contains(title))
+            .fetchCount();
+    }
+
+    @Override
+    public long countByMemberStudiesAndStatus(List<MemberStudy> memberStudies, Status status) {
+        return queryFactory.selectFrom(study)
+            .where(study.memberStudies.any().in(memberStudies))
+            .where(study.status.eq(status))
+            .fetchCount();
+    }
+
+    @Override
+    public long countByMemberStudiesAndStatusAndIsOwned(List<MemberStudy> memberStudies, Status status,
+                                                        boolean isOwned) {
+        return queryFactory.selectFrom(study)
+            .where(study.memberStudies.any().in(memberStudies))
+            .where(study.status.eq(status))
+            .where(study.memberStudies.any().isOwned.eq(isOwned))
             .fetchCount();
     }
 
