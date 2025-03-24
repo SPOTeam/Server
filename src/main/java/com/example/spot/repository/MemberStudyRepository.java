@@ -2,6 +2,7 @@ package com.example.spot.repository;
 
 import com.example.spot.domain.Member;
 import com.example.spot.domain.enums.ApplicationStatus;
+import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.mapping.MemberStudy;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -28,8 +29,8 @@ public interface MemberStudyRepository extends JpaRepository<MemberStudy, Long> 
     Optional<MemberStudy> findByMemberIdAndStudyId(Long memberId, Long studyId);
 
     long countByStatusAndStudyId(ApplicationStatus status, Long studyId);
-    long countByMemberIdAndStatus(Long memberId, ApplicationStatus status);
-    long countByMemberIdAndIsOwned(Long memberId, Boolean isOwned);
+    long countByMemberIdAndStatusAndStudy_Status(Long memberId, ApplicationStatus applicationStatus, Status status);
+    long countByMemberIdAndIsOwnedAndStudy_Status(Long memberId, Boolean isOwned, Status status);
 
     boolean existsByMemberIdAndStudyIdAndStatus(Long memberId, Long studyId, ApplicationStatus applicationStatus);
 
