@@ -18,18 +18,13 @@ import com.example.spot.domain.mapping.PreferredRegion;
 import com.example.spot.domain.mapping.PreferredStudy;
 import com.example.spot.domain.mapping.RegionStudy;
 import com.example.spot.domain.mapping.StudyTheme;
-import com.example.spot.domain.study.Schedule;
 import com.example.spot.domain.study.Study;
-import com.example.spot.domain.study.StudyPost;
 import com.example.spot.repository.MemberRepository;
 import com.example.spot.repository.MemberStudyRepository;
 import com.example.spot.repository.MemberThemeRepository;
 import com.example.spot.repository.PreferredRegionRepository;
 import com.example.spot.repository.PreferredStudyRepository;
-import com.example.spot.repository.RegionRepository;
 import com.example.spot.repository.RegionStudyRepository;
-import com.example.spot.repository.ScheduleRepository;
-import com.example.spot.repository.StudyPostRepository;
 import com.example.spot.repository.StudyRepository;
 import com.example.spot.repository.StudyThemeRepository;
 import com.example.spot.repository.ThemeRepository;
@@ -41,22 +36,13 @@ import com.example.spot.web.dto.search.SearchResponseDTO.MyPageDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.SearchStudyDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.StudyPreviewDTO;
 import com.example.spot.web.dto.study.response.StudyInfoResponseDTO;
-import com.example.spot.web.dto.study.response.StudyMemberResponseDTO;
-import com.example.spot.web.dto.study.response.StudyMemberResponseDTO.StudyMemberDTO;
-import com.example.spot.web.dto.study.response.StudyPostResponseDTO;
-import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO;
-import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO.StudyScheduleDTO;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -176,11 +162,11 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
 
         // 내가 신청한 스터디 수
-        long appliedStudies = memberStudyRepository.countByMemberIdAndStatus(memberId, ApplicationStatus.APPLIED);
+        long appliedStudies = memberStudyRepository.countByMemberIdAndStatusAndStudy_Status(memberId, ApplicationStatus.APPLIED, Status.ON);
         // 내가 참여중인 스터디 수
-        long ongoingStudies = memberStudyRepository.countByMemberIdAndStatus(memberId, ApplicationStatus.APPROVED);
+        long ongoingStudies = memberStudyRepository.countByMemberIdAndStatusAndStudy_Status(memberId, ApplicationStatus.APPROVED, Status.ON);
         // 내가 모집중인 스터디 수
-        long myRecruitingStudies = memberStudyRepository.countByMemberIdAndIsOwned(memberId, true);
+        long myRecruitingStudies = memberStudyRepository.countByMemberIdAndIsOwnedAndStudy_Status(memberId, true, Status.ON);
 
         return MyPageDTO.builder()
             .name(member.getName())
@@ -767,7 +753,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
 
         // 전체 스터디 수
-        long totalElements = memberStudyRepository.countByMemberIdAndStatus(memberId, ApplicationStatus.APPROVED);
+        long totalElements = studyRepository.countByMemberStudiesAndStatus(memberStudies, Status.ON);
         return getDTOs(studies, pageable, totalElements, memberId);
     }
 
@@ -796,12 +782,14 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         // 회원이 신청한 스터디 조회
         List<Study> studies = studyRepository.findByMemberStudy(memberStudies, pageable);
 
+        studies.stream().filter(study -> study.getStatus().equals(Status.ON)).toList();
+
         // 조회된 스터디가 없을 경우
         if (studies.isEmpty())
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
 
         // 전체 스터디 수
-        long totalElements = memberStudyRepository.countByMemberIdAndStatus(memberId, ApplicationStatus.APPLIED);
+        long totalElements = studyRepository.countByMemberStudiesAndStatus(memberStudies, Status.ON);
         return getDTOs(studies, pageable, totalElements, memberId);
     }
 
@@ -838,7 +826,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
 
         // 전체 스터디 수
-        long totalElements = memberStudyRepository.countByMemberIdAndIsOwned(memberId, true);
+        long totalElements = studyRepository.countByMemberStudiesAndStatusAndIsOwned(memberStudies, Status.ON, true);
 
         return getDTOs(studies, pageable, totalElements, memberId);
     }

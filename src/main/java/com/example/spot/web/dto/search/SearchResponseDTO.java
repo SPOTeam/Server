@@ -63,7 +63,7 @@ public class SearchResponseDTO {
         private boolean last;
         private int size;
         private List<SearchResponseDTO.SearchStudyDTO> content;
-        private int number;
+        private int pageNumber;
 
         public StudyPreviewDTO(Page<?> page, List<SearchResponseDTO.SearchStudyDTO> content , long totalElements) {
             this.totalPages = totalElements == 0 ? 1 : (int) Math.ceil((double) totalElements / page.getSize());
@@ -72,7 +72,7 @@ public class SearchResponseDTO {
             this.last = page.isLast();
             this.size = page.getSize();
             this.content = content;
-            this.number = page.getNumber();
+            this.pageNumber = page.getNumber();
         }
     }
 

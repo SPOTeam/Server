@@ -14,19 +14,14 @@ import com.example.spot.domain.enums.NotifyType;
 import com.example.spot.domain.study.Study;
 import com.example.spot.repository.NotificationRepository;
 import com.example.spot.web.dto.notification.NotificationResponseDTO.NotificationListDTO;
-import com.example.spot.web.dto.notification.NotificationResponseDTO.StduyNotificationListDTO;
-import com.example.spot.web.dto.notification.NotificationResponseDTO.StduyNotificationListDTO.StudyNotificationDTO;
+import com.example.spot.web.dto.notification.NotificationResponseDTO.StudyNotificationListDTO;
 import java.util.List;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
@@ -85,7 +80,7 @@ class NotificationQueryServiceTest {
 
 
         // when
-        StduyNotificationListDTO response = notificationQueryService.getAllAppliedStudyNotification(1L, pageable);
+        StudyNotificationListDTO response = notificationQueryService.getAllAppliedStudyNotification(1L, pageable);
 
         // then
         assertEquals(1L, response.getTotalNotificationCount());

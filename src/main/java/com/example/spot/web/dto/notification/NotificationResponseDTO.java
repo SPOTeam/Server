@@ -1,6 +1,5 @@
 package com.example.spot.web.dto.notification;
 
-import com.example.spot.domain.Notification;
 import com.example.spot.domain.enums.NotifyType;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -28,6 +27,7 @@ public class NotificationResponseDTO {
         public static class NotificationDTO{
             Long notificationId;
             String studyTitle;
+            String studyProfileImage;
             String notifierName;
             NotifyType type;
             Boolean isChecked;
@@ -38,7 +38,7 @@ public class NotificationResponseDTO {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class StduyNotificationListDTO {
+    public static class StudyNotificationListDTO {
 
         List<StudyNotificationDTO> notifications;
         Long totalNotificationCount;

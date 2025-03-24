@@ -1,7 +1,9 @@
 package com.example.spot.repository.querydsl;
 
 import com.example.spot.domain.Theme;
+import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.enums.StudySortBy;
+import com.example.spot.domain.enums.StudyState;
 import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.domain.mapping.MemberStudy;
 import com.example.spot.domain.mapping.RegionStudy;
@@ -49,5 +51,8 @@ public interface StudyRepositoryCustom {
     long countStudyByStudyTheme(List<StudyTheme> studyThemes, StudySortBy sortBy);
 
     long countAllByTitleContaining(String title, StudySortBy sortBy);
+
+    long countByMemberStudiesAndStatus(List<MemberStudy> memberStudies, Status status);
+    long countByMemberStudiesAndStatusAndIsOwned(List<MemberStudy> memberStudies, Status status, boolean isOwned);
 
 }
