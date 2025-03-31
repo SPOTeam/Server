@@ -66,8 +66,6 @@ public class PostCommandServiceImpl implements PostCommandService {
         // 게시글 저장
         post = postRepository.save(post);
 
-        int likeCount = 0;
-
         // 게시글 생성 정보 반환
         return PostCreateResponse.toDTO(post);
     }
@@ -197,7 +195,11 @@ public class PostCommandServiceImpl implements PostCommandService {
         }
 
         // 좋아요 객체 생성 및 저장
-        LikedPost likedPost = new LikedPost(post, member);
+        LikedPost likedPost = LikedPost.builder()
+                .post(post)
+                .member(member)
+                .build();
+
         likedPostRepository.saveAndFlush(likedPost);
 
         // 게시글의 현재 좋아요 수 조회
@@ -327,7 +329,12 @@ public class PostCommandServiceImpl implements PostCommandService {
         }
 
         // 댓글 좋아요 객체 생성 및 저장 (isLiked가 true면 좋아요, false면 싫어요)
-        LikedPostComment likedPostComment = new LikedPostComment(comment, member, true);
+        LikedPostComment likedPostComment = LikedPostComment.builder()
+                .postComment(comment)
+                .member(member)
+                .isLiked(true)
+                .build();
+
         likedPostCommentRepository.saveAndFlush(likedPostComment);
 
         // 댓글 좋아요 수 조회
@@ -357,7 +364,7 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .orElseThrow(() -> new PostHandler(ErrorStatus._POST_COMMENT_NOT_FOUND));
 
         // 회원 정보 가져오기
-        Member member = memberRepository.findById(memberId)
+        memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
 
         // 댓글 좋아요 여부 확인
@@ -404,7 +411,12 @@ public class PostCommandServiceImpl implements PostCommandService {
         }
 
         // 싫어요 객체 생성 및 저장 (isLiked가 true면 좋아요, false면 싫어요)
-        LikedPostComment dislikedPostComment = new LikedPostComment(comment, member, false);
+        LikedPostComment dislikedPostComment = LikedPostComment.builder()
+                .postComment(comment)
+                .member(member)
+                .isLiked(false)
+                .build();
+
         likedPostCommentRepository.saveAndFlush(dislikedPostComment);
 
         // 댓글 좋아요 수 조회
@@ -434,7 +446,7 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .orElseThrow(() -> new PostHandler(ErrorStatus._POST_COMMENT_NOT_FOUND));
 
         // 회원 정보 조회
-        Member member = memberRepository.findById(memberId)
+        memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
 
         // 싫어요 여부 확인
@@ -481,7 +493,11 @@ public class PostCommandServiceImpl implements PostCommandService {
         }
 
         // 스크랩 정보 저장
-        MemberScrap memberScrap = new MemberScrap(post, member);
+        MemberScrap memberScrap = MemberScrap.builder()
+                .member(member)
+                .post(post)
+                .build();
+
         memberScrapRepository.saveAndFlush(memberScrap);
 
         // 스크랩된 리스트의 갯수를 조회하여 스크랩 수 계산
@@ -511,7 +527,7 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .orElseThrow(() -> new PostHandler(ErrorStatus._POST_NOT_FOUND));
 
         // 회원 정보 가져오기
-        Member member = memberRepository.findById(memberId)
+        memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
 
         // 스크랩 여부 확인

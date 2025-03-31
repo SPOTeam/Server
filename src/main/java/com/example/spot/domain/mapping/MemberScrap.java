@@ -4,12 +4,12 @@ import com.example.spot.domain.Member;
 import com.example.spot.domain.Post;
 import com.example.spot.domain.common.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MemberScrap extends BaseEntity {
     @Id
@@ -23,9 +23,4 @@ public class MemberScrap extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
-
-    public MemberScrap(Post post, Member member) {
-        this.post = post;
-        this.member = member;
-    }
 }
