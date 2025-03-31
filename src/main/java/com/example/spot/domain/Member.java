@@ -282,6 +282,10 @@ public class Member extends BaseEntity {
         this.profileImage = req.getProfileImage();
     }
 
+    public void updateProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+    }
+
     public void addStudyPost(StudyPost studyPost) {
         if (this.studyPostList == null) {
             this.studyPostList = new ArrayList<>();
