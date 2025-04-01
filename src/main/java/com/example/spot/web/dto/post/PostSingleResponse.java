@@ -127,7 +127,7 @@ public class PostSingleResponse {
 
     public static PostSingleResponse toDTO(Post post, long likeCount, long scrapCount, CommentResponse commentResponse, boolean likedByCurrentUser, boolean scrapedByCurrentUser, boolean createdByCurrentUser, String defaultProfileImageUrl) {
         // 작성자가 익명인지 확인하여 작성자 이름 설정
-        String writerName = judgeAnonymous(post.isAnonymous(), post.getMember().getName());
+        String writerName = judgeAnonymous(post.isAnonymous(), post.getMember().getNickname());
         // 작성자가 익명인지 확인하여 프로필 반환
         String writerImage = anonymousProfileImage(post.isAnonymous(), post.getMember().getProfileImage(), defaultProfileImageUrl);
 
