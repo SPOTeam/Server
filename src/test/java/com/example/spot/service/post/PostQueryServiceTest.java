@@ -1,7 +1,9 @@
 package com.example.spot.service.post;
 
+import com.example.spot.api.exception.handler.PostHandler;
 import com.example.spot.domain.*;
 import com.example.spot.domain.enums.Board;
+import com.example.spot.domain.enums.PostStatus;
 import com.example.spot.domain.mapping.MemberScrap;
 import com.example.spot.repository.*;
 import com.example.spot.web.dto.post.PostSingleResponse;
@@ -28,6 +30,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -51,6 +54,9 @@ class PostQueryServiceTest {
 
     @Mock
     private LikedPostCommentRepository likedPostCommentRepository;
+
+    @Mock
+    private PostReportRepository postReportRepository;
 
     @Mock
     private LikedPostQueryService likedPostQueryService;
@@ -206,6 +212,39 @@ class PostQueryServiceTest {
         assertThat(result.getScrapedByCurrentUser()).isEqualTo(true);
         assertThat(result.getCreatedByCurrentUser()).isEqualTo(false);
         assertThat(result.getCommentResponses().getComments().size()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("게시글 단건 조회 - 존재하지 않는 게시글인 경우 (실패)")
+    void getPostById_NotExistedPost_Fail() {
+
+        // given
+        Long memberId = 1L;
+        Long postId = 3L;
+
+        getAuthentication(memberId);
+
+        when(likedPostQueryService.existsByMemberIdAndPostId(postId)).thenReturn(false);
+
+        // when & then
+        assertThrows(PostHandler.class, () -> postQueryService.getPostById(postId, false));
+    }
+
+    @Test
+    @DisplayName("게시글 단건 조회 - 신고된 게시글인 경우 (실패)")
+    void getPostById_ReportedPost_Fail() {
+
+        // given
+        Long memberId = 1L;
+        Long postId = 2L;
+
+        getAuthentication(memberId);
+
+        when(postReportRepository.existsByPostIdAndPostStatus(postId, PostStatus.삭제)).thenReturn(true);
+        when(likedPostQueryService.existsByMemberIdAndPostId(postId)).thenReturn(true);
+
+        // when & then
+        assertThrows(PostHandler.class, () -> postQueryService.getPostById(postId, false));
     }
 
     @Test
