@@ -158,6 +158,8 @@ class PostQueryServiceTest {
         when(memberScrapRepository.existsByMemberIdAndPostId(2L, 1L)).thenReturn(true);
     }
 
+/*-------------------------------------------------------- 게시글 단건 조회 ------------------------------------------------------------------------*/
+
     @Test
     @DisplayName("게시글 단건 조회 - 일반 조회 (성공)")
     void getPostById_Common_Success() {
@@ -251,6 +253,8 @@ class PostQueryServiceTest {
         assertThrows(PostHandler.class, () -> postQueryService.getPostById(postId, false));
     }
 
+/*-------------------------------------------------------- 게시글 페이징 조회 ------------------------------------------------------------------------*/
+
     @Test
     @DisplayName("게시글 페이징 조회 - 전체 게시글 조회 (성공)")
     void getPagingPosts_All_Success() {
@@ -302,6 +306,26 @@ class PostQueryServiceTest {
         assertThat(result.getTotalPage()).isEqualTo(1);
         assertThat(result.getTotalElements()).isEqualTo(1);
     }
+
+    @Test
+    @DisplayName("게시글 페이징 조회 - 존재하지 않는 게시판인 경우 (실패)")
+    void getPagingPosts_InvalidType_Fail() {
+
+        // given
+        Long memberId = 1L;
+
+        getAuthentication(memberId);
+
+        pageable = PageRequest.of(0, 10);
+        List<Post> posts = List.of(post2);
+        postPage = new PageImpl<>(posts, pageable, 1);
+
+        // when & then
+        assertThrows(PostHandler.class, () -> postQueryService.getPagingPosts("INVALID_BOARD", pageable));
+
+    }
+
+/*-------------------------------------------------------- 인기 게시글 조회 ------------------------------------------------------------------------*/
 
     @Test
     void getPostBest() {
