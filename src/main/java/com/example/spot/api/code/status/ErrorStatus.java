@@ -175,6 +175,7 @@ public enum ErrorStatus implements BaseErrorCode {
     _POST_NOT_SCRAPPED(HttpStatus.BAD_REQUEST, "POST5017", "스크랩하지 않은 게시글입니다."),
     _POST_REPORT_SELF(HttpStatus.BAD_REQUEST, "POST5018", "자신의 게시글을 신고할 수 없습니다."),
     _POST_ALREADY_REPORTED(HttpStatus.BAD_REQUEST, "POST5019", "이미 신고한 게시글입니다."),
+    _POST_PARENT_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "POST5020", "상위 댓글이 존재하지 않습니다."),
 
     // 스터디 투표 관련 에러
     _STUDY_VOTE_NOT_FOUND(HttpStatus.NOT_FOUND, "VOTE4001", "스터디 투표를 찾을 수 없습니다."),

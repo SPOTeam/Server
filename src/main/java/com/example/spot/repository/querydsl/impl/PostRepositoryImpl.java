@@ -31,9 +31,8 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         return jpaQueryFactory
                 .selectFrom(post)
                 .leftJoin(post.postCommentList, comment).fetchJoin()
-                //.groupBy(post)
-                .orderBy(post.postCommentList.size().desc())
-                //.orderBy(comment.count().desc(), post.id.desc())//댓글 수가 같을 경우 게시글 최신순(게시글 아이디 큰 순)
+                .groupBy(post.id)
+                .orderBy(comment.count().desc(), post.createdAt.desc())
                 .limit(5)
                 .fetch();
     }
@@ -45,7 +44,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .selectFrom(post)
                 .leftJoin(post.likedPostList, like).fetchJoin()
                 .groupBy(post.id)
-                .orderBy(post.likedPostList.size().desc(), post.createdAt.desc())
+                .orderBy(like.count().desc(), post.createdAt.desc())
                 .limit(5)
                 .fetch();
     }
