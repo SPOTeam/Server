@@ -88,13 +88,16 @@ public class PostCommandServiceImpl implements PostCommandService {
      * @return 생성된 게시글 객체
      */
     private Post createPostEntity(PostCreateRequest postCreateRequest, Member currentMember, List<String> images) {
+        String image = (images != null && !images.isEmpty() && !images.get(0).isEmpty())
+                ? images.get(0)
+                : null;
 
         return Post.builder()
                 .isAnonymous(postCreateRequest.isAnonymous())
                 .title(postCreateRequest.getTitle())
                 .content(postCreateRequest.getContent())
                 .scrapNum(0)
-                .image(images.get(0))
+                .image(image)
                 .commentNum(0)
                 .hitNum(0)
                 .board(postCreateRequest.getType())
