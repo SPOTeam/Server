@@ -95,12 +95,9 @@ public class PostQueryServiceImpl implements PostQueryService {
     @Transactional(readOnly = true)
     @Override
     public PostPagingResponse getPagingPosts(String type, Pageable pageable) {
+
         // 게시글 종류 조회
         Board boardType = Board.findByValue(type);
-
-//        if (boardType == null) {
-//            throw new PostHandler(ErrorStatus._INVALID_BOARD_TYPE);
-//        }
 
         Page<Post> postPage;
         if (boardType == Board.ALL) {
