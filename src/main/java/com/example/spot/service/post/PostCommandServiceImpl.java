@@ -8,7 +8,10 @@ import com.example.spot.domain.enums.Board;
 import com.example.spot.domain.enums.PostStatus;
 import com.example.spot.domain.mapping.MemberScrap;
 import com.example.spot.repository.*;
+import com.example.spot.service.s3.S3ImageService;
 import com.example.spot.web.dto.post.*;
+import com.example.spot.web.dto.util.response.ImageResponse.ImageUploadResponse;
+import com.example.spot.web.dto.util.response.ImageResponse.Images;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +33,7 @@ public class PostCommandServiceImpl implements PostCommandService {
     private final MemberScrapRepository memberScrapRepository;
     private final PostReportRepository postReportRepository;
 
+    private final S3ImageService s3ImageService;
     private final LikedPostQueryService likedPostQueryService;
     private final LikedPostCommentQueryService likedPostCommentQueryService;
 
@@ -54,8 +58,11 @@ public class PostCommandServiceImpl implements PostCommandService {
             throw new PostHandler(ErrorStatus._FORBIDDEN); // 관리자만 접근 가능
         }
 
+        List<String> imageUrls = getImageUrls(postCreateRequest);
+
         // Post 객체 생성 및 연관 관계 설정
-        Post post = createPostEntity(postCreateRequest, member);
+        Post post = createPostEntity(postCreateRequest, member, imageUrls);
+
         // 게시글 저장
         post = postRepository.save(post);
 
@@ -64,19 +71,30 @@ public class PostCommandServiceImpl implements PostCommandService {
         // 게시글 생성 정보 반환
         return PostCreateResponse.toDTO(post);
     }
+
+    private List<String> getImageUrls(PostCreateRequest postCreateRequest) {
+        ImageUploadResponse imageUploadResponse = s3ImageService.uploadImages(List.of(postCreateRequest.getImage()));
+
+        List<String> imageUrls = imageUploadResponse.getImageUrls().stream()
+                .map(Images::getImageUrl)
+                .toList();
+        return imageUrls;
+    }
+
     /**
      * 게시글 객체를 생성합니다.
      * @param postCreateRequest 생성할 게시글 정보
      * @param currentMember 게시글을 작성하는 회원 정보
      * @return 생성된 게시글 객체
      */
-    private Post createPostEntity(PostCreateRequest postCreateRequest, Member currentMember) {
+    private Post createPostEntity(PostCreateRequest postCreateRequest, Member currentMember, List<String> images) {
 
         return Post.builder()
                 .isAnonymous(postCreateRequest.isAnonymous())
                 .title(postCreateRequest.getTitle())
                 .content(postCreateRequest.getContent())
                 .scrapNum(0)
+                .image(images.get(0))
                 .commentNum(0)
                 .hitNum(0)
                 .board(postCreateRequest.getType())
