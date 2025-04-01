@@ -454,8 +454,41 @@ class PostQueryServiceTest {
         assertThat(result.getResponses().get(0).getPostId()).isEqualTo(post1.getId());
     }
 
+/*-------------------------------------------------------- 댓글 목록 조회 ------------------------------------------------------------------------*/
+
     @Test
-    void getCommentsByPostId() {
+    @DisplayName("댓글 목록 조회 - (성공)")
+    void getCommentsByPostId_Success() {
+
+        // given
+        Long memberId = 1L;
+        Long postId = 1L;
+
+        getAuthentication(memberId);
+
+        // when
+        CommentResponse result = postQueryService.getCommentsByPostId(postId);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getComments().size()).isEqualTo(2);
+        assertThat(result.getComments().get(0).getCommentId()).isEqualTo(1L);
+        assertThat(result.getComments().get(1).getCommentId()).isEqualTo(2L);
+        assertThat(result.getComments().get(1).getParentCommentId()).isEqualTo(1L);
+    }
+
+    @Test
+    @DisplayName("댓글 목록 조회 - 게시글이 존재하지 않는 경우 (실패)")
+    void getCommentsByPostId_Fail() {
+
+        // given
+        Long memberId = 1L;
+        Long postId = 3L;
+
+        getAuthentication(memberId);
+
+        // when
+        assertThrows(PostHandler.class, () -> postQueryService.getCommentsByPostId(postId));
     }
 
     @Test
