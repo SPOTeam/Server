@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Builder
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -88,7 +90,7 @@ public class CommentDetailResponse {
                 .parentCommentId(comment.getParentComment() != null ? comment.getParentComment().getId() : null)
                 .writer(writerName)
                 .anonymous(comment.isAnonymous())
-                .writtenTime(comment.getCreatedAt().toString())
+                .writtenTime(comment.getCreatedAt() == null ? LocalDateTime.now().toString() : comment.getCreatedAt().toString())
                 .likeCount(likeCount)
                 .likedByCurrentUser(likedByCurrentUser)
                 .dislikedByCurrentUser(dislikedByCurrentUser)

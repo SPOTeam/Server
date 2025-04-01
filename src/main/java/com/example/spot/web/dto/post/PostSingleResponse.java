@@ -28,7 +28,7 @@ public class PostSingleResponse {
     @Schema(
             description = "게시글 작성자 익명 여부입니다."
     )
-    private boolean anonymous;
+    private Boolean anonymous;
 
     @Schema(
             description = "댓글 작성자 프로필 사진입니다."
@@ -67,28 +67,28 @@ public class PostSingleResponse {
             description = "댓글 수입니다.",
             format = "int"
     )
-    private int commentCount;
+    private Integer commentCount;
 
     @Schema(
             description = "조회 수입니다.",
             format = "int"
     )
-    private int viewCount;
+    private Integer viewCount;
 
     @Schema(
             description = "현재 사용자의 해당 게시글 좋아요 여부입니다."
     )
-    private boolean likedByCurrentUser;
+    private Boolean likedByCurrentUser;
 
     @Schema(
             description = "현재 사용자의 해당 게시글 스크랩 여부입니다."
     )
-    private boolean scrapedByCurrentUser;
+    private Boolean scrapedByCurrentUser;
 
     @Schema(
             description = "현재 사용자의 해당 게시글 작성 여부입니다."
     )
-    private boolean createdByCurrentUser;
+    private Boolean createdByCurrentUser;
 
     @Schema(
             description = "댓글 리스트입니다.",
