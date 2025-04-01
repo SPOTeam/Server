@@ -8,6 +8,7 @@ import com.example.spot.domain.mapping.MemberScrap;
 import com.example.spot.repository.*;
 import com.example.spot.web.dto.post.PostBest5Response;
 import com.example.spot.web.dto.post.PostPagingResponse;
+import com.example.spot.web.dto.post.PostRepresentativeResponse;
 import com.example.spot.web.dto.post.PostSingleResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -414,8 +415,27 @@ class PostQueryServiceTest {
 /*-------------------------------------------------------- 대표 게시글 조회 ------------------------------------------------------------------------*/
 
     @Test
-    void getRepresentativePosts() {
+    @DisplayName("대표 게시글 조회 - (성공)")
+    void getRepresentativePosts_Success() {
+
+        // given
+        Long memberId = 1L;
+
+        getAuthentication(memberId);
+
+        when(postRepository.findRepresentativePosts()).thenReturn(List.of(post1, post2));
+
+        // when
+        PostRepresentativeResponse result = postQueryService.getRepresentativePosts();
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getResponses().size()).isEqualTo(2);
+        assertThat(result.getResponses().get(0).getPostType()).isEqualTo("FREE_TALK");
+        assertThat(result.getResponses().get(1).getPostType()).isEqualTo("INFORMATION_SHARING");
     }
+
+/*-------------------------------------------------------- 최신 공지 조회 ------------------------------------------------------------------------*/
 
     @Test
     void getPostAnnouncements() {
