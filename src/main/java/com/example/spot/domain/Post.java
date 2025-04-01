@@ -93,4 +93,12 @@ public class Post extends BaseEntity {
         super.setCreatedAt(createdAt);
     }
 
+    public void plusCommentNum() {
+        this.commentNum++;
+    }
+
+    public void addComment(PostComment comment) {
+        this.postCommentList.add(comment);
+    }
+
 }

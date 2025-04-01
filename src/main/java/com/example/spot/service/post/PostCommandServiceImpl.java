@@ -268,14 +268,29 @@ public class PostCommandServiceImpl implements PostCommandService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
 
-        // 부모 댓글아이디 조회
-        Long parentCommentId = request.getParentCommentId();
-        Optional<PostComment> optionalParentComment = postCommentRepository.findById(parentCommentId);
+        if (request.getParentCommentId() == null) {
+            // 부모 댓글 생성
+            PostComment comment = PostComment.builder()
+                    .content(request.getContent())
+                    .isAnonymous(request.isAnonymous())
+                    .post(post)
+                    .parentComment(null)
+                    .member(member)
+                    .build();
 
-        // 부모 댓글이 있을 경우
-        if (optionalParentComment.isPresent()) {
-            PostComment parentComment = optionalParentComment.get();
-            // 자식 댓글로 생성
+            // 댓글 객체 저장
+            comment = postCommentRepository.saveAndFlush(comment);
+            post.addComment(comment);
+            post.plusCommentNum();
+
+            // 생성된 댓글 정보 반환
+            return CommentCreateResponse.toDTO(comment);
+
+        } else {
+            // 자식 댓글 생성
+            PostComment parentComment = postCommentRepository.findById(request.getParentCommentId())
+                    .orElseThrow(() -> new PostHandler(ErrorStatus._POST_PARENT_COMMENT_NOT_FOUND));
+
             PostComment comment = PostComment.builder()
                     .content(request.getContent())
                     .isAnonymous(request.isAnonymous())
@@ -283,23 +298,14 @@ public class PostCommandServiceImpl implements PostCommandService {
                     .parentComment(parentComment)
                     .member(member)
                     .build();
+
             // 댓글 객체 저장
-            postCommentRepository.saveAndFlush(comment);
+            comment = postCommentRepository.saveAndFlush(comment);
+            post.addComment(comment);
+            post.plusCommentNum();
+
             // 생성된 댓글 정보와 부모 댓글 ID 반환
             return CommentCreateResponse.toDTOwithParent(comment, parentComment.getId());
-        // 부모 댓글이 없을 경우
-        } else {
-            // 부모 댓글로 생성
-            PostComment comment = PostComment.builder()
-                    .content(request.getContent())
-                    .isAnonymous(request.isAnonymous())
-                    .post(post)
-                    .member(member)
-                    .build();
-            // 댓글 객체 저장
-            postCommentRepository.saveAndFlush(comment);
-            // 생성된 댓글 정보 반환
-            return CommentCreateResponse.toDTO(comment);
         }
     }
 
