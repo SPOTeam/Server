@@ -248,6 +248,11 @@ public class PostQueryServiceImpl implements PostQueryService {
     @Transactional(readOnly = true)
     @Override
     public CommentResponse getCommentsByPostId(Long postId) {
+
+        // 게시글이 존재하는지 확인
+        postRepository.findById(postId)
+                .orElseThrow(() -> new PostHandler(ErrorStatus._POST_NOT_FOUND));
+
         // 해당 게시글 Id의 댓글 조회
         List<PostComment> comments = postCommentRepository.findCommentsByPostId(postId);
 
