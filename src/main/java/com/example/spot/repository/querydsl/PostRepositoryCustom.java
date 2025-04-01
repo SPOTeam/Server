@@ -1,6 +1,7 @@
 package com.example.spot.repository.querydsl;
 
 import com.example.spot.domain.Post;
+import com.example.spot.web.dto.post.RecommendedPostDTO;
 
 import java.util.List;
 

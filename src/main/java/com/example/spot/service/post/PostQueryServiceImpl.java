@@ -1,7 +1,6 @@
 package com.example.spot.service.post;
 
 import com.example.spot.api.code.status.ErrorStatus;
-import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.api.exception.handler.PostHandler;
 import com.example.spot.domain.Post;
 import com.example.spot.domain.PostComment;
@@ -150,10 +149,6 @@ public class PostQueryServiceImpl implements PostQueryService {
             // 인기글 조회 및 순위 생성
             List<Post> posts = postRepository.findTopByRealTimeScore();
             AtomicInteger rankCounter = new AtomicInteger(1);
-
-//            if (posts.isEmpty()) {
-//                throw new PostHandler(ErrorStatus._POST_NOT_FOUND); // 혹은 적절한 오류 타입으로 변경
-//            }
 
             // PostBest5DetailResponse를 묶어서 리스트로 응답 생성
             List<PostBest5DetailResponse> responses = posts.stream()
