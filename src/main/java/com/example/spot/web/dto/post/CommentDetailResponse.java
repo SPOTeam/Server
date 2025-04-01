@@ -90,11 +90,10 @@ public class CommentDetailResponse {
                 .parentCommentId(comment.getParentComment() != null ? comment.getParentComment().getId() : null)
                 .writer(writerName)
                 .anonymous(comment.isAnonymous())
-                .writtenTime(comment.getCreatedAt() == null ? LocalDateTime.now().toString() : comment.getCreatedAt().toString())
+                .writtenTime(comment.getCreatedAt() != null ? comment.getCreatedAt().toString() : LocalDateTime.now().toString())
                 .likeCount(likeCount)
                 .likedByCurrentUser(likedByCurrentUser)
                 .dislikedByCurrentUser(dislikedByCurrentUser)
-                //.disLikeCount(comment.getDisLikeNum())
                 .build();
     }
     public static String judgeAnonymous(Boolean isAnonymous, String writer) {
