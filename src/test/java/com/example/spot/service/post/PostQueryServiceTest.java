@@ -6,6 +6,7 @@ import com.example.spot.domain.enums.Board;
 import com.example.spot.domain.enums.PostStatus;
 import com.example.spot.domain.mapping.MemberScrap;
 import com.example.spot.repository.*;
+import com.example.spot.web.dto.post.PostBest5Response;
 import com.example.spot.web.dto.post.PostPagingResponse;
 import com.example.spot.web.dto.post.PostSingleResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +27,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -328,8 +330,88 @@ class PostQueryServiceTest {
 /*-------------------------------------------------------- 인기 게시글 조회 ------------------------------------------------------------------------*/
 
     @Test
-    void getPostBest() {
+    @DisplayName("인기 게시글 조회 - 실시간 인기 게시글 조회 (성공)")
+    void getPostBest_Realtime_Success() {
+
+        // given
+        Long memberId = 1L;
+
+        getAuthentication(memberId);
+
+        when(postRepository.findTopByRealTimeScore())
+                .thenReturn(List.of(post2));
+
+        // when
+        PostBest5Response result = postQueryService.getPostBest("REAL_TIME");
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getSortType()).isEqualTo("REAL_TIME");
+        assertThat(result.getPostBest5Responses().size()).isEqualTo(1);
+        assertThat(result.getPostBest5Responses().get(0).getPostId()).isEqualTo(post2.getId());
     }
+
+    @Test
+    @DisplayName("인기 게시글 조회 - 추천 게시글 조회 (성공)")
+    void getPostBest_Recommend_Success() {
+
+        // given
+        Long memberId = 1L;
+
+        getAuthentication(memberId);
+
+        when(postRepository.findTopByOrderByLikeNumDesc())
+                .thenReturn(List.of(post2, post1));
+
+        // when
+        PostBest5Response result = postQueryService.getPostBest("RECOMMEND");
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getSortType()).isEqualTo("RECOMMEND");
+        assertThat(result.getPostBest5Responses().size()).isEqualTo(2);
+        assertThat(result.getPostBest5Responses().get(0).getPostId()).isEqualTo(post2.getId());
+        assertThat(result.getPostBest5Responses().get(1).getPostId()).isEqualTo(post1.getId());
+    }
+
+    @Test
+    @DisplayName("인기 게시글 조회 - 댓글순 게시글 조회 (성공)")
+    void getPostBest_Comment_Success() {
+
+        // given
+        Long memberId = 1L;
+
+        getAuthentication(memberId);
+
+        when(postRepository.findTopByOrderByCommentCountDesc())
+                .thenReturn(List.of(post1, post2));
+
+        // when
+        PostBest5Response result = postQueryService.getPostBest("COMMENT");
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getSortType()).isEqualTo("COMMENT");
+        assertThat(result.getPostBest5Responses().size()).isEqualTo(2);
+        assertThat(result.getPostBest5Responses().get(0).getPostId()).isEqualTo(post1.getId());
+        assertThat(result.getPostBest5Responses().get(1).getPostId()).isEqualTo(post2.getId());
+    }
+
+    @Test
+    @DisplayName("인기 게시글 조회 - 존재하지 않는 필터인 경우 (실패)")
+    void getPostBest_InvalidFilter_Fail() {
+
+        // given
+        Long memberId = 1L;
+
+        getAuthentication(memberId);
+
+        // when & then
+        assertThrows(PostHandler.class, () -> postQueryService.getPostBest("INVALID"));
+
+    }
+
+/*-------------------------------------------------------- 대표 게시글 조회 ------------------------------------------------------------------------*/
 
     @Test
     void getRepresentativePosts() {
@@ -390,6 +472,7 @@ class PostQueryServiceTest {
                 .board(Board.FREE_TALK)
                 .member(member1)
                 .build();
+        post1.setCreatedAt(LocalDateTime.now().minusDays(1));
         post2 = Post.builder()
                 .id(2L)
                 .title("게시글2")
@@ -401,6 +484,7 @@ class PostQueryServiceTest {
                 .board(Board.INFORMATION_SHARING)
                 .member(member2)
                 .build();
+        post2.setCreatedAt(LocalDateTime.now());
     }
 
     private static void initPostComment() {
