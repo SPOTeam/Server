@@ -6,6 +6,7 @@ import com.example.spot.domain.enums.Board;
 import com.example.spot.domain.enums.PostStatus;
 import com.example.spot.domain.mapping.MemberScrap;
 import com.example.spot.repository.*;
+import com.example.spot.web.dto.post.PostPagingResponse;
 import com.example.spot.web.dto.post.PostSingleResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -17,6 +18,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -85,6 +88,7 @@ class PostQueryServiceTest {
 
     private static Pageable pageable;
     private static Page<MemberScrap> memberScrapPage;
+    private static Page<Post> postPage;
 
 
     @BeforeEach
@@ -248,7 +252,55 @@ class PostQueryServiceTest {
     }
 
     @Test
-    void getPagingPosts() {
+    @DisplayName("게시글 페이징 조회 - 전체 게시글 조회 (성공)")
+    void getPagingPosts_All_Success() {
+
+        // given
+        Long memberId = 1L;
+
+        getAuthentication(memberId);
+
+        pageable = PageRequest.of(0, 10);
+        List<Post> posts = List.of(post1, post2);
+        postPage = new PageImpl<>(posts, pageable, 2);
+
+        when(postRepository.findByPostReportListIsEmpty(pageable)).thenReturn(postPage);
+
+        // when
+        PostPagingResponse result = postQueryService.getPagingPosts("ALL", pageable);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getPostType()).isEqualTo("ALL");
+        assertThat(result.getPostResponses().size()).isEqualTo(2);
+        assertThat(result.getTotalPage()).isEqualTo(1);
+        assertThat(result.getTotalElements()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("게시글 페이징 조회 - 타입별 게시글 조회 (성공)")
+    void getPagingPosts_Type_Success() {
+
+        // given
+        Long memberId = 1L;
+
+        getAuthentication(memberId);
+
+        pageable = PageRequest.of(0, 10);
+        List<Post> posts = List.of(post2);
+        postPage = new PageImpl<>(posts, pageable, 1);
+
+        when(postRepository.findByBoardAndPostReportListIsEmpty(Board.INFORMATION_SHARING, pageable)).thenReturn(postPage);
+
+        // when
+        PostPagingResponse result = postQueryService.getPagingPosts("INFORMATION_SHARING", pageable);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getPostType()).isEqualTo("INFORMATION_SHARING");
+        assertThat(result.getPostResponses().size()).isEqualTo(1);
+        assertThat(result.getTotalPage()).isEqualTo(1);
+        assertThat(result.getTotalElements()).isEqualTo(1);
     }
 
     @Test
