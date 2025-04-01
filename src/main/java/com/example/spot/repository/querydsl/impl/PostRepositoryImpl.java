@@ -6,9 +6,6 @@ import com.example.spot.domain.QPost;
 import com.example.spot.domain.QPostComment;
 import com.example.spot.domain.enums.Board;
 import com.example.spot.repository.querydsl.PostRepositoryCustom;
-import com.example.spot.web.dto.post.PostBest5DetailResponse;
-import com.example.spot.web.dto.post.RecommendedPostDTO;
-import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
