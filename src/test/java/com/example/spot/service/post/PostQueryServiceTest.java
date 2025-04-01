@@ -6,10 +6,7 @@ import com.example.spot.domain.enums.Board;
 import com.example.spot.domain.enums.PostStatus;
 import com.example.spot.domain.mapping.MemberScrap;
 import com.example.spot.repository.*;
-import com.example.spot.web.dto.post.PostBest5Response;
-import com.example.spot.web.dto.post.PostPagingResponse;
-import com.example.spot.web.dto.post.PostRepresentativeResponse;
-import com.example.spot.web.dto.post.PostSingleResponse;
+import com.example.spot.web.dto.post.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -153,7 +150,7 @@ class PostQueryServiceTest {
                 .thenReturn(Optional.of(member1Scrap2));
         when(memberScrapRepository.findByMemberIdAndPostId(2L, 1L))
                 .thenReturn(Optional.of(member2Scrap1));
-        when(memberScrapRepository.findByMemberIdAndPost_Board(1L, Board.FREE_TALK, pageable))
+        when(memberScrapRepository.findByMemberIdAndPost_Board(1L, Board.SPOT_ANNOUNCEMENT, pageable))
                 .thenReturn(memberScrapPage);
         when(memberScrapRepository.findByMemberIdAndPost_Board(2L, Board.INFORMATION_SHARING, pageable))
                 .thenReturn(memberScrapPage);
@@ -431,14 +428,30 @@ class PostQueryServiceTest {
         // then
         assertNotNull(result);
         assertThat(result.getResponses().size()).isEqualTo(2);
-        assertThat(result.getResponses().get(0).getPostType()).isEqualTo("FREE_TALK");
+        assertThat(result.getResponses().get(0).getPostType()).isEqualTo("SPOT_ANNOUNCEMENT");
         assertThat(result.getResponses().get(1).getPostType()).isEqualTo("INFORMATION_SHARING");
     }
 
 /*-------------------------------------------------------- 최신 공지 조회 ------------------------------------------------------------------------*/
 
     @Test
-    void getPostAnnouncements() {
+    @DisplayName("최신 공지 조회 - (성공)")
+    void getPostAnnouncements_Success() {
+
+        // given
+        Long memberId = 1L;
+
+        getAuthentication(memberId);
+
+        when(postRepository.findAnnouncementPosts()).thenReturn(List.of(post1));
+
+        // when
+        PostAnnouncementResponse result = postQueryService.getPostAnnouncements();
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getResponses().size()).isEqualTo(1);
+        assertThat(result.getResponses().get(0).getPostId()).isEqualTo(post1.getId());
     }
 
     @Test
@@ -489,7 +502,7 @@ class PostQueryServiceTest {
                 .hitNum(1)
                 .scrapNum(1)
                 .isAdmin(false)
-                .board(Board.FREE_TALK)
+                .board(Board.SPOT_ANNOUNCEMENT)
                 .member(member1)
                 .build();
         post1.setCreatedAt(LocalDateTime.now().minusDays(1));
