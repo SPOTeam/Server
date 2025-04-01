@@ -108,6 +108,9 @@ public class MemberServiceImpl implements MemberService {
             // 존재하는 경우, 사용자 정보를 가져옴
             Member member = memberRepository.findByEmail(kaKaoUser.toMember().getEmail())
                 .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
+
+            updateMemberProfileImage(member, kaKaoUser);
+
             isSpotMember = true;
             // JWT 토큰 생성
             TokenDTO token = jwtTokenProvider.createToken(member.getId());
@@ -141,6 +144,12 @@ public class MemberServiceImpl implements MemberService {
                 .email(member.getEmail())
                 .build();
         return SocialLoginSignInDTO.toDTO(isSpotMember, dto);
+    }
+
+    private void updateMemberProfileImage(Member member, KaKaoUser kaKaoUser) {
+        if (!member.getProfileImage().equals(kaKaoUser.getProperties().getProfile_image())) {
+           member.updateProfileImage(kaKaoUser.getProperties().getProfile_image());
+        }
     }
 
     /**
@@ -298,6 +307,8 @@ public class MemberServiceImpl implements MemberService {
             // 존재하는 경우, 사용자 정보를 가져옴
             Member member = memberRepository.findByEmail(kaKaoUser.toMember().getEmail())
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+            updateMemberProfileImage(member, kaKaoUser);
 
             // 탈퇴한(inactive) 회원이면 기존 정보 삭제
             if (member.getInactive() != null) {
