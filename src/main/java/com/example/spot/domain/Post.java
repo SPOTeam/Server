@@ -37,6 +37,8 @@ public class Post extends BaseEntity {
 
     private int hitNum;
 
+    private String image;
+
     @Enumerated(EnumType.STRING)
     private Board board;
 

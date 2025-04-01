@@ -75,6 +75,8 @@ public class PostSingleResponse {
     )
     private int viewCount;
 
+    private String imageUrl;
+
     @Schema(
             description = "현재 사용자의 해당 게시글 좋아요 여부입니다."
     )
@@ -140,6 +142,7 @@ public class PostSingleResponse {
                 .title(post.getTitle())
                 .content(post.getContent())
                 .likeCount(likeCount)
+                .imageUrl(post.getImage())
                 .likedByCurrentUser(likedByCurrentUser)
                 .createdByCurrentUser(createdByCurrentUser)
                 .commentCount(commentResponse.getComments().size())
