@@ -22,7 +22,6 @@ import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/spot/posts")
@@ -50,8 +49,6 @@ public class PostController {
     public ApiResponse<PostCreateResponse> create(
             @ModelAttribute @Valid PostCreateRequest postCreateRequest
     ) {
-        log.info(postCreateRequest.getContent());
-        log.info(postCreateRequest.getTitle());
         PostCreateResponse response = postCommandService.createPost(SecurityUtils.getCurrentUserId(), postCreateRequest);
         return ApiResponse.onSuccess(SuccessStatus._CREATED, response);
     }
