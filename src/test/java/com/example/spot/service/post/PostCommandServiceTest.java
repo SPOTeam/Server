@@ -60,6 +60,9 @@ class PostCommandServiceTest {
     @Mock
     private LikedPostQueryService likedPostQueryService;
 
+    @Mock
+    private LikedPostCommentQueryService likedPostCommentQueryService;
+
 
     @InjectMocks
     private PostCommandServiceImpl postCommandService;
@@ -529,10 +532,99 @@ class PostCommandServiceTest {
         assertThat(result.getWriter()).isEqualTo("회원2");
     }
 
+    @Test
+    @DisplayName("댓글 작성 - 게시글이 존재하지 않는 경우 (실패)")
+    void createComment_NotExisted_Fail() {
+
+        // given
+        Long memberId = 1L;
+        Long postId = 3L;
+        getAuthentication(memberId);
+
+        CommentCreateRequest commentCreateRequest = CommentCreateRequest.builder()
+                .content("댓글3")
+                .anonymous(false)
+                .parentCommentId(null)
+                .build();
+
+        // when & then
+        assertThrows(PostHandler.class, () -> postCommandService.createComment(postId, memberId, commentCreateRequest));
+    }
+
+    @Test
+    @DisplayName("댓글 작성 - 상위 댓글이 존재하지 않는 경우 (실패)")
+    void createComment_InvalidParent_Fail() {
+
+        // given
+        Long memberId = 1L;
+        Long postId = 2L;
+        getAuthentication(memberId);
+
+        CommentCreateRequest commentCreateRequest = CommentCreateRequest.builder()
+                .content("댓글3")
+                .anonymous(false)
+                .parentCommentId(3L)
+                .build();
+
+        // when & then
+        assertThrows(PostHandler.class, () -> postCommandService.createComment(postId, memberId, commentCreateRequest));
+    }
+
 /*-------------------------------------------------------- 댓글 좋아요 ------------------------------------------------------------------------*/
 
     @Test
-    void likeComment() {
+    @DisplayName("댓글 좋아요 - (성공)")
+    void likeComment_Success() {
+
+        // given
+        Long memberId = 1L;
+        Long commentId = 1L;
+        getAuthentication(memberId);
+
+        when(likedPostCommentRepository.findByMemberIdAndPostCommentIdAndIsLikedTrue(memberId, commentId))
+                .thenReturn(Optional.empty());
+        when(likedPostCommentRepository.saveAndFlush(any(LikedPostComment.class)))
+                .thenReturn(member1LikedComment1);
+        when(likedPostCommentQueryService.countByPostCommentIdAndIsLikedTrue(commentId))
+                .thenReturn(1L);
+
+        // when
+        CommentLikeResponse result = postCommandService.likeComment(commentId, memberId);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getCommentId()).isEqualTo(1L);
+        assertThat(result.getLikeCount()).isEqualTo(1L);
+        assertThat(result.getDisLikeCount()).isEqualTo(1L);
+    }
+
+    @Test
+    @DisplayName("댓글 좋아요 - 댓글이 존재하지 않는 경우 (실패)")
+    void likeComment_NotExisted_Fail() {
+
+        // given
+        Long memberId = 1L;
+        Long commentId = 3L;
+        getAuthentication(memberId);
+
+        // when & then
+        assertThrows(PostHandler.class, () -> postCommandService.likeComment(commentId, memberId));
+    }
+
+    @Test
+    @DisplayName("댓글 좋아요 - 이미 좋아요 한 경우 (실패)")
+    void likeComment_AlreadyLiked_Fail() {
+
+        // given
+        Long memberId = 1L;
+        Long commentId = 3L;
+        getAuthentication(memberId);
+
+        when(likedPostCommentRepository.findByMemberIdAndPostCommentIdAndIsLikedTrue(memberId, commentId))
+                .thenReturn(Optional.of(member1LikedComment1));
+
+        // when & then
+        assertThrows(PostHandler.class, () -> postCommandService.likeComment(commentId, memberId));
     }
 
 /*-------------------------------------------------------- 댓글 좋아요 취소 ------------------------------------------------------------------------*/
