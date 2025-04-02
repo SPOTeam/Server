@@ -302,10 +302,65 @@ class PostCommandServiceTest {
         assertThrows(PostHandler.class, () -> postCommandService.updatePost(memberId, postId, postUpdateRequest));
     }
 
+    @Test
+    @DisplayName("게시글 수정 - 게시글이 존재하지 않는 경우 (실패)")
+    void updatePost_NotExisted_Fail() {
+
+        // given
+        Long memberId = 1L;
+        Long postId = 3L;
+        getAuthentication(memberId);
+
+        PostUpdateRequest postUpdateRequest = PostUpdateRequest.builder()
+                .title("수정된 게시글3")
+                .content("내용")
+                .isAnonymous(true)
+                .type("JOB_TALK")
+                .build();
+
+        // when & then
+        assertThrows(PostHandler.class, () -> postCommandService.updatePost(memberId, postId, postUpdateRequest));
+    }
+
 /*-------------------------------------------------------- 게시글 삭제 ------------------------------------------------------------------------*/
 
     @Test
-    void deletePost() {
+    @DisplayName("게시글 삭제 - (성공)")
+    void deletePost_Success() {
+
+        // given
+        Long memberId = 1L;
+        Long postId = 1L;
+        getAuthentication(memberId);
+
+        // when & then
+        postCommandService.deletePost(memberId, postId);
+    }
+
+    @Test
+    @DisplayName("게시글 삭제 - 게시글 작성자가 아닌 경우 (실패)")
+    void deletePost_NotWriter_Fail() {
+
+        // given
+        Long memberId = 1L;
+        Long postId = 2L;
+        getAuthentication(memberId);
+
+        // when & then
+        assertThrows(PostHandler.class, () -> postCommandService.deletePost(memberId, postId));
+    }
+
+    @Test
+    @DisplayName("게시글 삭제 - 게시글이 존재하지 않는 경우 (실패)")
+    void deletePost_NotExisted_Fail() {
+
+        // given
+        Long memberId = 1L;
+        Long postId = 3L;
+        getAuthentication(memberId);
+
+        // when & then
+        assertThrows(PostHandler.class, () -> postCommandService.deletePost(memberId, postId));
     }
 
 /*-------------------------------------------------------- 게시글 좋아요 ------------------------------------------------------------------------*/
