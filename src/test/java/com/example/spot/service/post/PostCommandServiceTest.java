@@ -685,7 +685,61 @@ class PostCommandServiceTest {
 /*-------------------------------------------------------- 댓글 싫어요 ------------------------------------------------------------------------*/
 
     @Test
-    void dislikeComment() {
+    @DisplayName("댓글 싫어요 - (성공)")
+    void dislikeComment_Success() {
+
+        // given
+        Long memberId = 1L;
+        Long commentId = 1L;
+        getAuthentication(memberId);
+
+        when(likedPostCommentRepository.findByMemberIdAndPostCommentIdAndIsLikedFalse(memberId, commentId))
+                .thenReturn(Optional.empty());
+        when(likedPostCommentRepository.saveAndFlush(any(LikedPostComment.class)))
+                .thenReturn(member1LikedComment1);
+        when(likedPostCommentQueryService.countByPostCommentIdAndIsLikedTrue(commentId))
+                .thenReturn(1L);
+        when(likedPostCommentRepository.countByPostCommentIdAndIsLikedFalse(commentId))
+                .thenReturn(1L);
+
+        // when
+        CommentLikeResponse result = postCommandService.dislikeComment(commentId, memberId);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getCommentId()).isEqualTo(1L);
+        assertThat(result.getLikeCount()).isEqualTo(1L);
+        assertThat(result.getDisLikeCount()).isEqualTo(1L);
+    }
+
+    @Test
+    @DisplayName("댓글 싫어요 - 댓글이 존재하지 않는 경우 (실패)")
+    void dislikeComment_NotExisted_Fail() {
+
+        // given
+        Long memberId = 1L;
+        Long commentId = 3L;
+        getAuthentication(memberId);
+
+        // when & then
+        assertThrows(PostHandler.class, () -> postCommandService.dislikeComment(commentId, memberId));
+
+    }
+
+    @Test
+    @DisplayName("댓글 싫어요 - 이미 싫어요 한 경우 (실패)")
+    void dislikeComment_AlreadyDisliked_Fail() {
+
+        // given
+        Long memberId = 2L;
+        Long commentId = 1L;
+        getAuthentication(memberId);
+
+        when(likedPostCommentRepository.findByMemberIdAndPostCommentIdAndIsLikedFalse(memberId, commentId))
+                .thenReturn(Optional.of(member2LikedComment1));
+
+        // when & then
+        assertThrows(PostHandler.class, () -> postCommandService.dislikeComment(commentId, memberId));
     }
 
 /*-------------------------------------------------------- 댓글 싫어요 취소 ------------------------------------------------------------------------*/
