@@ -145,15 +145,10 @@ class PostQueryServiceTest {
         // MemberScrap
         when(memberScrapRepository.countByPostId(1L)).thenReturn(1L);
         when(memberScrapRepository.countByPostId(2L)).thenReturn(1L);
-        when(memberScrapRepository.findByMemberId(1L, pageable)).thenReturn(memberScrapPage);
         when(memberScrapRepository.findByMemberIdAndPostId(1L, 2L))
                 .thenReturn(Optional.of(member1Scrap2));
         when(memberScrapRepository.findByMemberIdAndPostId(2L, 1L))
                 .thenReturn(Optional.of(member2Scrap1));
-        when(memberScrapRepository.findByMemberIdAndPost_Board(1L, Board.SPOT_ANNOUNCEMENT, pageable))
-                .thenReturn(memberScrapPage);
-        when(memberScrapRepository.findByMemberIdAndPost_Board(2L, Board.INFORMATION_SHARING, pageable))
-                .thenReturn(memberScrapPage);
         when(memberScrapRepository.existsByMemberIdAndPostId(1L, 2L)).thenReturn(true);
         when(memberScrapRepository.existsByMemberIdAndPostId(2L, 1L)).thenReturn(true);
     }
@@ -491,9 +486,77 @@ class PostQueryServiceTest {
         assertThrows(PostHandler.class, () -> postQueryService.getCommentsByPostId(postId));
     }
 
+/*-------------------------------------------------------- 스크랩 게시글 페이징 조회 ------------------------------------------------------------------------*/
+
     @Test
-    void getScrapPagingPost() {
+    @DisplayName("스크랩 게시글 페이징 조회 - 전체 게시글 조회 (성공)")
+    void getScrapPagingPost_All_Success() {
+
+        // given
+        Long memberId = 1L;
+
+        getAuthentication(memberId);
+
+        pageable = PageRequest.of(0, 10);
+        List<MemberScrap> memberScraps = List.of(member1Scrap2);
+        memberScrapPage = new PageImpl<>(memberScraps, pageable, 1);
+
+        when(memberScrapRepository.findByMemberId(1L, pageable)).thenReturn(memberScrapPage);
+
+        // when
+        PostPagingResponse result = postQueryService.getScrapPagingPost("ALL", pageable);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getPostType()).isEqualTo("ALL");
+        assertThat(result.getPostResponses().size()).isEqualTo(1);
+        assertThat(result.getPostResponses().get(0).getPostId()).isEqualTo(post2.getId());
     }
+
+    @Test
+    @DisplayName("스크랩 게시글 페이징 조회 - 타입별 게시글 조회 (성공)")
+    void getScrapPagingPost_Type_Success() {
+
+        // given
+        Long memberId = 1L;
+
+        getAuthentication(memberId);
+
+        pageable = PageRequest.of(0, 10);
+        List<MemberScrap> memberScraps = List.of(member1Scrap2);
+        memberScrapPage = new PageImpl<>(memberScraps, pageable, 1);
+
+        when(memberScrapRepository.findByMemberIdAndPost_Board(1L, Board.INFORMATION_SHARING, pageable))
+                .thenReturn(memberScrapPage);
+
+        // when
+        PostPagingResponse result = postQueryService.getScrapPagingPost("INFORMATION_SHARING", pageable);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getPostType()).isEqualTo("INFORMATION_SHARING");
+        assertThat(result.getPostResponses().size()).isEqualTo(1);
+        assertThat(result.getPostResponses().get(0).getPostId()).isEqualTo(post2.getId());
+    }
+
+    @Test
+    @DisplayName("스크랩 게시글 페이징 조회 - 타입이 존재하지 않는 경우 (실패)")
+    void getScrapPagingPost_InvalidType_Fail() {
+
+        // given
+        Long memberId = 1L;
+
+        getAuthentication(memberId);
+
+        pageable = PageRequest.of(0, 10);
+        List<MemberScrap> memberScraps = List.of(member1Scrap2);
+        memberScrapPage = new PageImpl<>(memberScraps, pageable, 1);
+
+        // when & then
+        assertThrows(PostHandler.class, () -> postQueryService.getScrapPagingPost("INVALID", pageable));
+    }
+
+
 
 /*-------------------------------------------------------- Utils ------------------------------------------------------------------------*/
 
