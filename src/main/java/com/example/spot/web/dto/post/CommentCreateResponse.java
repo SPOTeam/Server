@@ -26,7 +26,7 @@ public class CommentCreateResponse {
         return CommentCreateResponse.builder()
                 .id(comment.getId())
                 .content(comment.getContent())
-                .writer(comment.isAnonymous() ? "익명" : comment.getMember().getName())
+                .writer(comment.isAnonymous() ? "익명" : comment.getMember().getNickname())
                 .build();
     }
 
@@ -35,7 +35,7 @@ public class CommentCreateResponse {
                 .id(comment.getId())
                 .parentCommentId(parentCommentId)
                 .content(comment.getContent())
-                .writer(comment.isAnonymous() ? "익명" : comment.getMember().getName())
+                .writer(comment.isAnonymous() ? "익명" : comment.getMember().getNickname())
                 .build();
     }
 
