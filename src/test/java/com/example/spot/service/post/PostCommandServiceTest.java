@@ -630,7 +630,56 @@ class PostCommandServiceTest {
 /*-------------------------------------------------------- 댓글 좋아요 취소 ------------------------------------------------------------------------*/
 
     @Test
-    void cancelCommentLike() {
+    @DisplayName("댓글 좋아요 취소 - (성공)")
+    void cancelCommentLike_Success() {
+
+        // given
+        Long memberId = 1L;
+        Long commentId = 1L;
+        getAuthentication(memberId);
+
+        when(likedPostCommentRepository.findByMemberIdAndPostCommentIdAndIsLikedTrue(memberId, commentId))
+                .thenReturn(Optional.of(member1LikedComment1));
+        when(likedPostCommentQueryService.countByPostCommentIdAndIsLikedTrue(commentId))
+                .thenReturn(0L);
+
+        // when
+        CommentLikeResponse result = postCommandService.cancelCommentLike(commentId, memberId);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getCommentId()).isEqualTo(1L);
+        assertThat(result.getLikeCount()).isEqualTo(0L);
+        assertThat(result.getDisLikeCount()).isEqualTo(1L);
+    }
+
+    @Test
+    @DisplayName("댓글 좋아요 취소 - 댓글이 존재하지 않는 경우 (실패)")
+    void cancelCommentLike_NotExisted_Fail() {
+
+        // given
+        Long memberId = 1L;
+        Long commentId = 3L;
+        getAuthentication(memberId);
+
+        // when & then
+        assertThrows(PostHandler.class, () ->postCommandService.cancelCommentLike(commentId, memberId));
+    }
+
+    @Test
+    @DisplayName("댓글 좋아요 취소 - 좋아요 한 댓글이 아닌 경우 (실패)")
+    void cancelCommentLike_NotLiked_Fail() {
+
+        // given
+        Long memberId = 1L;
+        Long commentId = 2L;
+        getAuthentication(memberId);
+
+        when(likedPostCommentRepository.findByMemberIdAndPostCommentIdAndIsLikedTrue(memberId, commentId))
+                .thenReturn(Optional.empty());
+
+        // when & then
+        assertThrows(PostHandler.class, () ->postCommandService.cancelCommentLike(commentId, memberId));
     }
 
 /*-------------------------------------------------------- 댓글 싫어요 ------------------------------------------------------------------------*/
