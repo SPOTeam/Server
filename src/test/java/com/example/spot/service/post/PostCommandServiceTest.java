@@ -403,7 +403,7 @@ class PostCommandServiceTest {
         Long postId = 3L;
         getAuthentication(memberId);
 
-        // when
+        // when & then
         assertThrows(PostHandler.class, () -> postCommandService.likePost(postId, memberId));
     }
 
@@ -419,14 +419,61 @@ class PostCommandServiceTest {
         when(likedPostRepository.findByMemberIdAndPostId(memberId, postId))
                 .thenReturn(Optional.of(member1LikedPost2));
 
-        // when
+        // when & then
         assertThrows(PostHandler.class, () -> postCommandService.likePost(postId, memberId));
     }
 
 /*-------------------------------------------------------- 게시글 좋아요 취소 ------------------------------------------------------------------------*/
 
     @Test
-    void cancelPostLike() {
+    @DisplayName("게시글 좋아요 취소 - (성공)")
+    void cancelPostLike_Success() {
+
+        // given
+        Long memberId = 1L;
+        Long postId = 2L;
+        getAuthentication(memberId);
+
+        when(likedPostRepository.findByMemberIdAndPostId(memberId, postId))
+                .thenReturn(Optional.of(member1LikedPost2));
+        when(likedPostQueryService.countByPostId(postId)).thenReturn(0L);
+
+        // when
+        PostLikeResponse result = postCommandService.cancelPostLike(postId, memberId);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getPostId()).isEqualTo(2L);
+        assertThat(result.getLikeCount()).isEqualTo(0L);
+    }
+
+    @Test
+    @DisplayName("게시글 좋아요 취소 - 게시글이 존재하지 않는 경우 (실패)")
+    void cancelPostLike_NotExisted_Fail() {
+
+        // given
+        Long memberId = 1L;
+        Long postId = 3L;
+        getAuthentication(memberId);
+
+        // when & then
+        assertThrows(PostHandler.class, () -> postCommandService.cancelPostLike(postId, memberId));
+    }
+
+    @Test
+    @DisplayName("게시글 좋아요 취소 - 좋아요 한 게시글이 아닌 경우 (실패)")
+    void cancelPostLike_NotLiked_Fail() {
+
+        // given
+        Long memberId = 1L;
+        Long postId = 1L;
+        getAuthentication(memberId);
+
+        when(likedPostRepository.findByMemberIdAndPostId(memberId, postId))
+                .thenReturn(Optional.empty());
+
+        // when & then
+        assertThrows(PostHandler.class, () -> postCommandService.cancelPostLike(postId, memberId));
     }
 
 /*-------------------------------------------------------- 댓글 작성 ------------------------------------------------------------------------*/
