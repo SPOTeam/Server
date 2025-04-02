@@ -7,6 +7,7 @@ import com.example.spot.domain.mapping.MemberScrap;
 import com.example.spot.repository.*;
 import com.example.spot.web.dto.post.PostCreateRequest;
 import com.example.spot.web.dto.post.PostCreateResponse;
+import com.example.spot.web.dto.post.PostLikeResponse;
 import com.example.spot.web.dto.post.PostUpdateRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -59,6 +60,9 @@ class PostCommandServiceTest {
     @Mock
     private PostReportRepository postReportRepository;
 
+    @Mock
+    private LikedPostQueryService likedPostQueryService;
+
 
     @InjectMocks
     private PostCommandServiceImpl postCommandService;
@@ -107,6 +111,8 @@ class PostCommandServiceTest {
         when(likedPostRepository.existsByMemberIdAndPostId(1L, 2L)).thenReturn(true);
         when(likedPostRepository.existsByMemberIdAndPostId(2L, 1L)).thenReturn(true);
         when(likedPostRepository.existsByMemberIdAndPostId(2L, 2L)).thenReturn(false);
+        when(likedPostQueryService.countByPostId(1L)).thenReturn(1L);
+        when(likedPostQueryService.countByPostId(2L)).thenReturn(1L);
 
         // LikedPostComment
         when(likedPostCommentRepository.findByMemberIdAndPostCommentIdAndIsLikedFalse(1L, 1L))
@@ -366,7 +372,55 @@ class PostCommandServiceTest {
 /*-------------------------------------------------------- 게시글 좋아요 ------------------------------------------------------------------------*/
 
     @Test
-    void likePost() {
+    @DisplayName("게시글 좋아요 - (성공)")
+    void likePost_Success() {
+
+        // given
+        Long memberId = 1L;
+        Long postId = 2L;
+        getAuthentication(memberId);
+
+        when(likedPostRepository.findByMemberIdAndPostId(memberId, postId))
+                .thenReturn(Optional.empty());
+        when(likedPostRepository.saveAndFlush(any(LikedPost.class)))
+                .thenReturn(member1LikedPost2);
+
+        // when
+        PostLikeResponse result = postCommandService.likePost(postId, memberId);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getPostId()).isEqualTo(2L);
+        assertThat(result.getLikeCount()).isEqualTo(1L);
+    }
+
+    @Test
+    @DisplayName("게시글 좋아요 - 게시글이 존재하지 않는 경우 (실패)")
+    void likePost_NotExisted_Fail() {
+
+        // given
+        Long memberId = 1L;
+        Long postId = 3L;
+        getAuthentication(memberId);
+
+        // when
+        assertThrows(PostHandler.class, () -> postCommandService.likePost(postId, memberId));
+    }
+
+    @Test
+    @DisplayName("게시글 좋아요 - 이미 좋아요 한 경우 (실패)")
+    void likePost_AlreadyLiked_Fail() {
+
+        // given
+        Long memberId = 1L;
+        Long postId = 2L;
+        getAuthentication(memberId);
+
+        when(likedPostRepository.findByMemberIdAndPostId(memberId, postId))
+                .thenReturn(Optional.of(member1LikedPost2));
+
+        // when
+        assertThrows(PostHandler.class, () -> postCommandService.likePost(postId, memberId));
     }
 
 /*-------------------------------------------------------- 게시글 좋아요 취소 ------------------------------------------------------------------------*/
