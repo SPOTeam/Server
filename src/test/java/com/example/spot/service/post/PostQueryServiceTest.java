@@ -64,8 +64,6 @@ class PostQueryServiceTest {
     @Mock
     private LikedPostQueryService likedPostQueryService;
 
-    @Mock
-    private LikedPostCommentQueryService likedPostCommentQueryService;
 
     @InjectMocks
     private PostQueryServiceImpl postQueryService;
@@ -82,7 +80,6 @@ class PostQueryServiceTest {
     private static LikedPost member2LikedPost1;
     private static LikedPostComment member1LikedComment1;
     private static LikedPostComment member2LikedComment1;
-
     private static MemberScrap member1Scrap2;
     private static MemberScrap member2Scrap1;
 
