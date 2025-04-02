@@ -15,8 +15,10 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,13 +41,13 @@ public class PostController {
         
         익명 여부를 선택할 수 있습니다.
         
-        생성된 게시글의 고유 ID와 게시글 종류, 생성 시간을 반환합니다.
+        생성된 게시글의 고유 ID와 게시글 종류, 생성 시간을 반환합니다. 요청 시, 요청 타입은 Multipart/form-data로 보내야 합니다.
         """,
             security = @SecurityRequirement(name = "accessToken")
     )
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<PostCreateResponse> create(
-            @RequestBody @Valid PostCreateRequest postCreateRequest
+            @ModelAttribute @Valid PostCreateRequest postCreateRequest
     ) {
         PostCreateResponse response = postCommandService.createPost(SecurityUtils.getCurrentUserId(), postCreateRequest);
         return ApiResponse.onSuccess(SuccessStatus._CREATED, response);
