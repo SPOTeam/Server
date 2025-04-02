@@ -5,10 +5,7 @@ import com.example.spot.domain.*;
 import com.example.spot.domain.enums.Board;
 import com.example.spot.domain.mapping.MemberScrap;
 import com.example.spot.repository.*;
-import com.example.spot.web.dto.post.PostCreateRequest;
-import com.example.spot.web.dto.post.PostCreateResponse;
-import com.example.spot.web.dto.post.PostLikeResponse;
-import com.example.spot.web.dto.post.PostUpdateRequest;
+import com.example.spot.web.dto.post.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -479,7 +476,57 @@ class PostCommandServiceTest {
 /*-------------------------------------------------------- 댓글 작성 ------------------------------------------------------------------------*/
 
     @Test
-    void createComment() {
+    @DisplayName("댓글 작성 - 상위 댓글 (성공)")
+    void createComment_Parent_Success() {
+
+        // given
+        Long memberId = 1L;
+        Long postId = 1L;
+        getAuthentication(memberId);
+
+        CommentCreateRequest commentCreateRequest = CommentCreateRequest.builder()
+                .content("댓글1")
+                .anonymous(true)
+                .parentCommentId(null)
+                .build();
+
+        when(postCommentRepository.saveAndFlush(any(PostComment.class))).thenReturn(post1Comment1);
+
+        // when
+        CommentCreateResponse result = postCommandService.createComment(postId, memberId, commentCreateRequest);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getId()).isEqualTo(1L);
+        assertThat(result.getContent()).isEqualTo("댓글1");
+        assertThat(result.getWriter()).isEqualTo("익명");
+    }
+
+    @Test
+    @DisplayName("댓글 작성 - 하위 댓글 (성공)")
+    void createComment_Child_Success() {
+
+        // given
+        Long memberId = 2L;
+        Long postId = 1L;
+        getAuthentication(memberId);
+
+        CommentCreateRequest commentCreateRequest = CommentCreateRequest.builder()
+                .content("댓글2")
+                .anonymous(false)
+                .parentCommentId(1L)
+                .build();
+
+        when(postCommentRepository.saveAndFlush(any(PostComment.class))).thenReturn(post1Comment2);
+
+        // when
+        CommentCreateResponse result = postCommandService.createComment(postId, memberId, commentCreateRequest);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getId()).isEqualTo(2L);
+        assertThat(result.getContent()).isEqualTo("댓글2");
+        assertThat(result.getWriter()).isEqualTo("회원2");
     }
 
 /*-------------------------------------------------------- 댓글 좋아요 ------------------------------------------------------------------------*/
