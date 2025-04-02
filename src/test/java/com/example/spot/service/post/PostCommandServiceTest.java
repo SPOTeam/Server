@@ -1,10 +1,14 @@
 package com.example.spot.service.post;
 
+import com.example.spot.api.exception.handler.PostHandler;
 import com.example.spot.domain.*;
 import com.example.spot.domain.enums.Board;
 import com.example.spot.domain.mapping.MemberScrap;
 import com.example.spot.repository.*;
+import com.example.spot.web.dto.post.PostCreateRequest;
+import com.example.spot.web.dto.post.PostCreateResponse;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,6 +27,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -131,8 +139,77 @@ class PostCommandServiceTest {
 /*-------------------------------------------------------- 게시글 작성 ------------------------------------------------------------------------*/
 
     @Test
-    void createPost() {
+    @DisplayName("게시글 작성 - 일반 게시글 (성공)")
+    void createPost_Common_Success() {
+
+        // given
+        Long memberId = 2L;
+        getAuthentication(memberId);
+
+        PostCreateRequest postCreateRequest = PostCreateRequest.builder()
+                .title("게시글2")
+                .content(null)
+                .type(Board.INFORMATION_SHARING)
+                .anonymous(false)
+                .build();
+
+        when(postRepository.save(any(Post.class))).thenReturn(post2);
+
+        // when
+        PostCreateResponse result = postCommandService.createPost(memberId, postCreateRequest);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getId()).isEqualTo(2L);
+        assertThat(result.getType()).isEqualTo(Board.INFORMATION_SHARING);
     }
+
+    @Test
+    @DisplayName("게시글 작성 - 공지 게시글 (성공)")
+    void createPost_Announcement_Success() {
+
+        // given
+        Long memberId = 1L;
+        getAuthentication(memberId);
+
+        PostCreateRequest postCreateRequest = PostCreateRequest.builder()
+                .title("게시글1")
+                .content(null)
+                .type(Board.SPOT_ANNOUNCEMENT)
+                .anonymous(false)
+                .build();
+
+        when(postRepository.save(any(Post.class))).thenReturn(post1);
+
+        // when
+        PostCreateResponse result = postCommandService.createPost(memberId, postCreateRequest);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getId()).isEqualTo(1L);
+        assertThat(result.getType()).isEqualTo(Board.SPOT_ANNOUNCEMENT);
+    }
+
+    @Test
+    @DisplayName("게시글 작성 - 일반 회원이 공지를 작성하는 경우 (실패)")
+    void createPost_Announcement_Fail() {
+
+        // given
+        Long memberId = 2L;
+        getAuthentication(memberId);
+
+        PostCreateRequest postCreateRequest = PostCreateRequest.builder()
+                .title("게시글1")
+                .content(null)
+                .type(Board.SPOT_ANNOUNCEMENT)
+                .anonymous(false)
+                .build();
+
+        // when & then
+        assertThrows(PostHandler.class, () -> postCommandService.createPost(memberId, postCreateRequest));
+    }
+
+
 
 /*-------------------------------------------------------- 게시글 수정 ------------------------------------------------------------------------*/
 
@@ -227,6 +304,7 @@ class PostCommandServiceTest {
         member1 = Member.builder()
                 .id(1L)
                 .nickname("회원1")
+                .isAdmin(true)
                 .postList(new ArrayList<>())
                 .likedPostList(new ArrayList<>())
                 .memberScrapList(new ArrayList<>())
@@ -236,6 +314,7 @@ class PostCommandServiceTest {
         member2 = Member.builder()
                 .id(2L)
                 .nickname("회원2")
+                .isAdmin(false)
                 .postList(new ArrayList<>())
                 .likedPostList(new ArrayList<>())
                 .memberScrapList(new ArrayList<>())
