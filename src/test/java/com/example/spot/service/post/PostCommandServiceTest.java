@@ -906,7 +906,65 @@ class PostCommandServiceTest {
 /*-------------------------------------------------------- 게시글 스크랩 다중 취소 ------------------------------------------------------------------------*/
 
     @Test
-    void cancelPostScraps() {
+    @DisplayName("게시글 스크랩 다중 취소 - (성공)")
+    void cancelPostScraps_Success() {
+
+        // given
+        Long memberId = 1L;
+        getAuthentication(memberId);
+
+        ScrapAllDeleteRequest scrapAllDeleteRequest = new ScrapAllDeleteRequest(List.of(1L, 2L));
+
+        when(memberScrapRepository.findByMemberIdAndPostId(memberId, 1L))
+                .thenReturn(Optional.of(member1Scrap2));
+        when(memberScrapRepository.findByMemberIdAndPostId(memberId, 2L))
+                .thenReturn(Optional.of(member2Scrap1));
+        when(memberScrapRepository.countByPostId(1L)).thenReturn(0L);
+        when(memberScrapRepository.countByPostId(2L)).thenReturn(1L);
+
+        // when
+        ScrapsPostDeleteResponse result = postCommandService.cancelPostScraps(scrapAllDeleteRequest);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getCancelScraps().size()).isEqualTo(2L);
+        assertThat(result.getCancelScraps().get(0).getPostId()).isEqualTo(1L);
+        assertThat(result.getCancelScraps().get(1).getPostId()).isEqualTo(2L);
+    }
+
+    @Test
+    @DisplayName("게시글 스크랩 다중 취소 - 존재하지 않는 게시글이 포함된 경우 (실패)")
+    void cancelPostScraps_NotExisted_Fail() {
+
+        // given
+        Long memberId = 1L;
+        getAuthentication(memberId);
+
+        ScrapAllDeleteRequest scrapAllDeleteRequest = new ScrapAllDeleteRequest(List.of(1L, 3L));
+
+        when(memberScrapRepository.findByMemberIdAndPostId(memberId, 1L))
+                .thenReturn(Optional.of(member1Scrap2));
+        when(memberScrapRepository.countByPostId(1L)).thenReturn(0L);
+
+        // when & then
+        assertThrows(PostHandler.class, () -> postCommandService.cancelPostScraps(scrapAllDeleteRequest));
+    }
+
+    @Test
+    @DisplayName("게시글 스크랩 다중 취소 - 스크랩하지 않은 게시글이 포함된 경우 (실패)")
+    void cancelPostScraps_NotScraped_Fail() {
+
+        // given
+        Long memberId = 1L;
+        getAuthentication(memberId);
+
+        ScrapAllDeleteRequest scrapAllDeleteRequest = new ScrapAllDeleteRequest(List.of(1L));
+
+        when(memberScrapRepository.findByMemberIdAndPostId(memberId, 1L))
+                .thenReturn(Optional.empty());
+
+        // when & then
+        assertThrows(PostHandler.class, () -> postCommandService.cancelPostScraps(scrapAllDeleteRequest));
     }
 
 /*-------------------------------------------------------- 게시글 신고 ------------------------------------------------------------------------*/
