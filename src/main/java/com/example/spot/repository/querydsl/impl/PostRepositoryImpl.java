@@ -31,9 +31,8 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         return jpaQueryFactory
                 .selectFrom(post)
                 .leftJoin(post.postCommentList, comment).fetchJoin()
-                //.groupBy(post)
-                .orderBy(post.postCommentList.size().desc())
-                //.orderBy(comment.count().desc(), post.id.desc())//댓글 수가 같을 경우 게시글 최신순(게시글 아이디 큰 순)
+                .groupBy(post.id)
+                .orderBy(comment.count().desc(), post.createdAt.desc())
                 .limit(5)
                 .fetch();
     }
@@ -44,9 +43,8 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         return jpaQueryFactory
                 .selectFrom(post)
                 .leftJoin(post.likedPostList, like).fetchJoin()
-                //.groupBy(post)
-                .orderBy(post.likedPostList.size().desc())
-                //.orderBy(like.count().desc()) // 좋아요 수가 같을 경우 게시글 최신순(게시글 아이디 큰 순)
+                .groupBy(post.id)
+                .orderBy(like.count().desc(), post.createdAt.desc())
                 .limit(5)
                 .fetch();
     }
@@ -55,14 +53,14 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     @Override
     public List<Post> findTopByRealTimeScore() {
         // TODO 실시간 두시간 전 게시글만 통계
-        //LocalDateTime twoHoursAgo = LocalDateTime.now().minusHours(2);
+        LocalDateTime twoHoursAgo = LocalDateTime.now().minusHours(2);
 
         return jpaQueryFactory
                 .selectFrom(post)
                 .leftJoin(post.postCommentList, comment)
                 .leftJoin(post.likedPostList, like).fetchJoin()
-                //.where(post.createdAt.after(twoHoursAgo))
-                //.groupBy(post)
+                .where(post.createdAt.isNotNull()
+                        .and(post.createdAt.after(twoHoursAgo)))
                 .orderBy(
                         post.hitNum.add(post.likedPostList.size()).add(post.postCommentList.size()).desc(),
                         post.hitNum.desc(),

@@ -3,12 +3,12 @@ package com.example.spot.domain;
 
 import com.example.spot.domain.common.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class LikedPostComment extends BaseEntity {
     @Id
@@ -24,11 +24,5 @@ public class LikedPostComment extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
-
-    public LikedPostComment(PostComment postComment, Member member, boolean isLiked) {
-        this.postComment = postComment;
-        this.member = member;
-        this.isLiked = isLiked;
-    }
 
 }
