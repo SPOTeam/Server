@@ -19,6 +19,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -158,6 +159,7 @@ class PostCommandServiceTest {
                 .content(null)
                 .type(Board.INFORMATION_SHARING)
                 .anonymous(false)
+                .image(null)
                 .build();
 
         when(postRepository.save(any(Post.class))).thenReturn(post2);
@@ -184,6 +186,7 @@ class PostCommandServiceTest {
                 .content(null)
                 .type(Board.SPOT_ANNOUNCEMENT)
                 .anonymous(false)
+                .image(null)
                 .build();
 
         when(postRepository.save(any(Post.class))).thenReturn(post1);
