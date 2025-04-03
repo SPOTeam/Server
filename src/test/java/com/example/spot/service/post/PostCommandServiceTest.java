@@ -970,7 +970,61 @@ class PostCommandServiceTest {
 /*-------------------------------------------------------- 게시글 신고 ------------------------------------------------------------------------*/
 
     @Test
-    void reportPost() {
+    @DisplayName("게시글 신고 - (성공)")
+    void reportPost_Success() {
+
+        // given
+        Long memberId = 1L;
+        Long postId = 2L;
+        getAuthentication(memberId);
+
+        PostReport postReport = PostReport.builder()
+                .id(1L)
+                .content("신고1")
+                .post(post2)
+                .member(member1)
+                .build();
+
+        when(postReportRepository.existsByPostIdAndMemberId(postId, memberId)).thenReturn(false);
+        when(postReportRepository.save(any(PostReport.class))).thenReturn(postReport);
+
+        // when
+        PostReportResponse result = postCommandService.reportPost(postId, memberId);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getReportedPostId()).isEqualTo(2L);
+        assertThat(result.getReporterId()).isEqualTo(1L);
+    }
+
+    @Test
+    @DisplayName("게시글 신고 - 자신의 게시글을 신고한 경우 (실패)")
+    void reportPost_SelfReport_Fail() {
+
+        // given
+        Long memberId = 1L;
+        Long postId = 1L;
+        getAuthentication(memberId);
+
+        when(postReportRepository.existsByPostIdAndMemberId(postId, memberId)).thenReturn(false);
+
+        // when & then
+        assertThrows(PostHandler.class, () -> postCommandService.reportPost(postId, memberId));
+    }
+
+    @Test
+    @DisplayName("게시글 신고 - 게시글을 중복 신고한 경우 (실패)")
+    void reportPost_DuplicateReport_Fail() {
+
+        // given
+        Long memberId = 1L;
+        Long postId = 2L;
+        getAuthentication(memberId);
+
+        when(postReportRepository.existsByPostIdAndMemberId(postId, memberId)).thenReturn(true);
+
+        // when & then
+        assertThrows(PostHandler.class, () -> postCommandService.reportPost(postId, memberId));
     }
 
 
