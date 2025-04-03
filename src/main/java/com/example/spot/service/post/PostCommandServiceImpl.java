@@ -71,12 +71,14 @@ public class PostCommandServiceImpl implements PostCommandService {
     }
 
     private List<String> getImageUrls(PostCreateRequest postCreateRequest) {
-        ImageUploadResponse imageUploadResponse = s3ImageService.uploadImages(List.of(postCreateRequest.getImage()));
+        if (postCreateRequest.getImage() != null) {
+            ImageUploadResponse imageUploadResponse = s3ImageService.uploadImages(List.of(postCreateRequest.getImage()));
 
-        List<String> imageUrls = imageUploadResponse.getImageUrls().stream()
-                .map(Images::getImageUrl)
-                .toList();
-        return imageUrls;
+            return imageUploadResponse.getImageUrls().stream()
+                    .map(Images::getImageUrl)
+                    .toList();
+        }
+        return List.of();
     }
 
     /**
