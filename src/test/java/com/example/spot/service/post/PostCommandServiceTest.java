@@ -856,7 +856,51 @@ class PostCommandServiceTest {
 /*-------------------------------------------------------- 게시글 스크랩 취소 ------------------------------------------------------------------------*/
 
     @Test
-    void cancelPostScrap() {
+    @DisplayName("게시글 스크랩 취소 - (성공)")
+    void cancelPostScrap_Success() {
+
+        // given
+        Long memberId = 1L;
+        Long postId = 2L;
+
+        when(memberScrapRepository.findByMemberIdAndPostId(memberId, postId))
+                .thenReturn(Optional.of(member1Scrap2));
+        when(memberScrapRepository.countByPostId(postId)).thenReturn(1L);
+
+        // when
+        ScrapPostResponse result = postCommandService.cancelPostScrap(postId, memberId);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getPostId()).isEqualTo(2L);
+        assertThat(result.getScrapCount()).isEqualTo(1L);
+    }
+
+    @Test
+    @DisplayName("게시글 스크랩 취소 - 게시글이 존재하지 않는 경우 (실패)")
+    void cancelPostScrap_NotExisted_Fail() {
+
+        // given
+        Long memberId = 1L;
+        Long postId = 3L;
+
+        // when & then
+        assertThrows(PostHandler.class, () -> postCommandService.cancelPostScrap(postId, memberId));
+    }
+
+    @Test
+    @DisplayName("게시글 스크랩 취소 - 스크랩한 게시글이 아닌 경우 (실패)")
+    void cancelPostScrap_NotScraped_Fail() {
+
+        // given
+        Long memberId = 1L;
+        Long postId = 1L;
+
+        when(memberScrapRepository.findByMemberIdAndPostId(memberId, postId))
+                .thenReturn(Optional.empty());
+
+        // when & then
+        assertThrows(PostHandler.class, () -> postCommandService.cancelPostScrap(postId, memberId));
     }
 
 /*-------------------------------------------------------- 게시글 스크랩 다중 취소 ------------------------------------------------------------------------*/
