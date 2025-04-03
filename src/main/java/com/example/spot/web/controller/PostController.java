@@ -141,7 +141,7 @@ public class PostController {
             description = "게시글 Id를 받아 게시글을 수정합니다.",
             security = @SecurityRequirement(name = "accessToken")
     )
-    @PatchMapping("/{postId}")
+    @PatchMapping(value = "/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<PostCreateResponse> update(
             @Parameter(
                     description = "수정할 게시글의 ID입니다.",
@@ -151,7 +151,7 @@ public class PostController {
             @Parameter(
                     description = "수정할 게시글 데이터입니다."
             )
-            @RequestBody PostUpdateRequest postUpdateRequest
+            @ModelAttribute PostUpdateRequest postUpdateRequest
     ) {
         PostCreateResponse response = postCommandService.updatePost(SecurityUtils.getCurrentUserId(), postId, postUpdateRequest);
         return ApiResponse.onSuccess(SuccessStatus._OK, response);

@@ -33,6 +33,8 @@ public class PostUpdateRequest {
     )
     private String type;
 
+    private MultipartFile image;
+
     public Board getType() {
         return Board.findByValue(type);
     }
