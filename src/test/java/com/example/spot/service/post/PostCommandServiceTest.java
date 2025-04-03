@@ -745,13 +745,112 @@ class PostCommandServiceTest {
 /*-------------------------------------------------------- 댓글 싫어요 취소 ------------------------------------------------------------------------*/
 
     @Test
-    void cancelCommentDislike() {
+    @DisplayName("댓글 싫어요 취소 - (성공)")
+    void cancelCommentDislike_Success() {
+
+        // given
+        Long memberId = 2L;
+        Long commentId = 1L;
+        getAuthentication(memberId);
+
+        when(likedPostCommentRepository.findByMemberIdAndPostCommentIdAndIsLikedFalse(memberId, commentId))
+                .thenReturn(Optional.of(member2LikedComment1));
+        when(likedPostCommentQueryService.countByPostCommentIdAndIsLikedTrue(commentId))
+                .thenReturn(1L);
+        when(likedPostCommentRepository.countByPostCommentIdAndIsLikedFalse(commentId))
+                .thenReturn(0L);
+
+        // when
+        CommentLikeResponse result = postCommandService.cancelCommentDislike(commentId, memberId);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getCommentId()).isEqualTo(1L);
+        assertThat(result.getLikeCount()).isEqualTo(1L);
+        assertThat(result.getDisLikeCount()).isEqualTo(0L);
+    }
+
+    @Test
+    @DisplayName("댓글 싫어요 취소 - 댓글이 존재하지 않는 경우 (실패)")
+    void cancelCommentDislike_NotExisted_Fail() {
+
+        // given
+        Long memberId = 2L;
+        Long commentId = 3L;
+        getAuthentication(memberId);
+
+        // when & then
+        assertThrows(PostHandler.class, () -> postCommandService.cancelCommentDislike(commentId, memberId));
+    }
+
+    @Test
+    @DisplayName("댓글 싫어요 취소 - 싫어요 한 댓글이 아닌 경우 (실패)")
+    void cancelCommentDislike_NotDisliked_Fail() {
+
+        // given
+        Long memberId = 1L;
+        Long commentId = 1L;
+        getAuthentication(memberId);
+
+        when(likedPostCommentRepository.findByMemberIdAndPostCommentIdAndIsLikedFalse(memberId, commentId))
+                .thenReturn(Optional.empty());
+
+        // when & then
+        assertThrows(PostHandler.class, () -> postCommandService.cancelCommentDislike(commentId, memberId));
     }
 
 /*-------------------------------------------------------- 게시글 스크랩 ------------------------------------------------------------------------*/
 
     @Test
-    void scrapPost() {
+    @DisplayName("게시글 스크랩 - (성공)")
+    void scrapPost_Success() {
+
+        // given
+        Long memberId = 1L;
+        Long postId = 2L;
+        getAuthentication(memberId);
+
+        when(memberScrapRepository.findByMemberIdAndPostId(memberId, postId))
+                .thenReturn(Optional.empty());
+        when(memberScrapRepository.saveAndFlush(any(MemberScrap.class)))
+                .thenReturn(member1Scrap2);
+
+        // when
+        ScrapPostResponse result = postCommandService.scrapPost(postId, memberId);
+
+        // then
+        assertNotNull(result);
+        assertThat(result.getPostId()).isEqualTo(2L);
+        assertThat(result.getScrapCount()).isEqualTo(1L);
+    }
+
+    @Test
+    @DisplayName("게시글 스크랩 - 게시글이 존재하지 않는 경우 (실패)")
+    void scrapPost_NotExisted_Fail() {
+
+        // given
+        Long memberId = 1L;
+        Long postId = 3L;
+        getAuthentication(memberId);
+
+        // when & then
+        assertThrows(PostHandler.class, () -> postCommandService.scrapPost(postId, memberId));
+    }
+
+    @Test
+    @DisplayName("게시글 스크랩 - 이미 스크랩 한 경우 (실패)")
+    void scrapPost_AlreadyScraped_Fail() {
+
+        // given
+        Long memberId = 1L;
+        Long postId = 2L;
+        getAuthentication(memberId);
+
+        when(memberScrapRepository.findByMemberIdAndPostId(memberId, postId))
+                .thenReturn(Optional.of(member1Scrap2));
+
+        // when & then
+        assertThrows(PostHandler.class, () -> postCommandService.scrapPost(postId, memberId));
     }
 
 /*-------------------------------------------------------- 게시글 스크랩 취소 ------------------------------------------------------------------------*/
