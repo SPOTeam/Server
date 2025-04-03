@@ -64,6 +64,9 @@ class PostQueryServiceTest {
     @Mock
     private LikedPostQueryService likedPostQueryService;
 
+    @Mock
+    private LikedPostCommentQueryService likedPostCommentQueryService;
+
 
     @InjectMocks
     private PostQueryServiceImpl postQueryService;
@@ -138,6 +141,9 @@ class PostQueryServiceTest {
         when(likedPostCommentRepository.existsByMemberIdAndPostCommentIdAndIsLikedTrue(2L, 1L)).thenReturn(false);
         when(likedPostCommentRepository.existsByMemberIdAndPostCommentIdAndIsLikedFalse(1L, 1L)).thenReturn(false);
         when(likedPostCommentRepository.existsByMemberIdAndPostCommentIdAndIsLikedFalse(2L, 1L)).thenReturn(true);
+        when(likedPostCommentQueryService.countByPostCommentIdAndIsLikedTrue(1L)).thenReturn(1L);
+        when(likedPostCommentQueryService.countByPostCommentIdAndIsLikedTrue(2L)).thenReturn(0L);
+
 
         // MemberScrap
         when(memberScrapRepository.countByPostId(1L)).thenReturn(1L);
