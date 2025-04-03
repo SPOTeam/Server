@@ -70,9 +70,9 @@ public class PostCommandServiceImpl implements PostCommandService {
         return PostCreateResponse.toDTO(post);
     }
 
-    private List<String> getImageUrls(PostCreateRequest postCreateRequest) {
-        if (postCreateRequest.getImage() != null) {
-            ImageUploadResponse imageUploadResponse = s3ImageService.uploadImages(List.of(postCreateRequest.getImage()));
+    private List<String> getImageUrls(MultipartFile imageFile) {
+        if (imageFile != null) {
+            ImageUploadResponse imageUploadResponse = s3ImageService.uploadImages(List.of(imageFile));
 
             return imageUploadResponse.getImageUrls().stream()
                     .map(Images::getImageUrl)
