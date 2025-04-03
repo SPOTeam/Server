@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.web.multipart.MultipartFile;
 
 import static com.example.spot.security.utils.SecurityUtils.getCurrentUserId;
 
@@ -58,7 +59,7 @@ public class PostCommandServiceImpl implements PostCommandService {
             throw new PostHandler(ErrorStatus._FORBIDDEN); // 관리자만 접근 가능
         }
 
-        List<String> imageUrls = getImageUrls(postCreateRequest);
+        List<String> imageUrls = getImageUrls(postCreateRequest.getImage());
 
         // Post 객체 생성 및 연관 관계 설정
         Post post = createPostEntity(postCreateRequest, member, imageUrls);
@@ -70,9 +71,9 @@ public class PostCommandServiceImpl implements PostCommandService {
         return PostCreateResponse.toDTO(post);
     }
 
-    private List<String> getImageUrls(PostCreateRequest postCreateRequest) {
-        if (postCreateRequest.getImage() != null) {
-            ImageUploadResponse imageUploadResponse = s3ImageService.uploadImages(List.of(postCreateRequest.getImage()));
+    private List<String> getImageUrls(MultipartFile imageFile) {
+        if (imageFile != null) {
+            ImageUploadResponse imageUploadResponse = s3ImageService.uploadImages(List.of(imageFile));
 
             return imageUploadResponse.getImageUrls().stream()
                     .map(Images::getImageUrl)
@@ -139,7 +140,7 @@ public class PostCommandServiceImpl implements PostCommandService {
         }
 
         // 게시글 수정
-        post.edit(postUpdateRequest);
+        post.edit(postUpdateRequest, getImageUrls(postUpdateRequest.getImage()));
 
         // 수정된 게시글 정보 반환
         return PostCreateResponse.toDTO(post);
