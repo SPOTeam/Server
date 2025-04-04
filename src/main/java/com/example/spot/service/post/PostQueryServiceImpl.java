@@ -1,14 +1,15 @@
 package com.example.spot.service.post;
 
 import com.example.spot.api.code.status.ErrorStatus;
-import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.api.exception.handler.PostHandler;
 import com.example.spot.domain.Post;
 import com.example.spot.domain.PostComment;
 import com.example.spot.domain.enums.Board;
+import com.example.spot.domain.enums.PostStatus;
 import com.example.spot.domain.mapping.MemberScrap;
 import com.example.spot.repository.MemberScrapRepository;
 import com.example.spot.repository.PostCommentRepository;
+import com.example.spot.repository.PostReportRepository;
 import com.example.spot.repository.PostRepository;
 import com.example.spot.web.dto.post.*;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,7 @@ public class PostQueryServiceImpl implements PostQueryService {
     private final PostCommentRepository postCommentRepository;
     private final LikedPostCommentQueryService likedPostCommentQueryService;
     private final MemberScrapRepository memberScrapRepository;
+    private final PostReportRepository postReportRepository;
 
     /**
      * 게시글 단건 조회 : 게시글 1개의 상세 정보를 댓글 리스트와 함께 조회합니다.
@@ -50,10 +52,10 @@ public class PostQueryServiceImpl implements PostQueryService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostHandler(ErrorStatus._POST_NOT_FOUND));
 
-        // 게시글이 신고되었는지 확인 - 수정 예정
-//        if (isPostReported(post)) {
-//            throw new PostHandler(ErrorStatus._POST_REPORTED);
-//        }
+        // 신고 후 삭제 처리된 게시글 조회 불가
+        if (postReportRepository.existsByPostIdAndPostStatus(postId, PostStatus.삭제)) {
+            throw new PostHandler(ErrorStatus._POST_REPORTED);
+        }
 
         // 조회수 증가는 일반 조회시에(likeOrScrap이 false일 때)만 실행
         if (!likeOrScrap) {
@@ -92,12 +94,9 @@ public class PostQueryServiceImpl implements PostQueryService {
     @Transactional(readOnly = true)
     @Override
     public PostPagingResponse getPagingPosts(String type, Pageable pageable) {
+
         // 게시글 종류 조회
         Board boardType = Board.findByValue(type);
-
-//        if (boardType == null) {
-//            throw new PostHandler(ErrorStatus._INVALID_BOARD_TYPE);
-//        }
 
         Page<Post> postPage;
         if (boardType == Board.ALL) {
@@ -150,10 +149,6 @@ public class PostQueryServiceImpl implements PostQueryService {
             // 인기글 조회 및 순위 생성
             List<Post> posts = postRepository.findTopByRealTimeScore();
             AtomicInteger rankCounter = new AtomicInteger(1);
-
-//            if (posts.isEmpty()) {
-//                throw new PostHandler(ErrorStatus._POST_NOT_FOUND); // 혹은 적절한 오류 타입으로 변경
-//            }
 
             // PostBest5DetailResponse를 묶어서 리스트로 응답 생성
             List<PostBest5DetailResponse> responses = posts.stream()
@@ -253,6 +248,11 @@ public class PostQueryServiceImpl implements PostQueryService {
     @Transactional(readOnly = true)
     @Override
     public CommentResponse getCommentsByPostId(Long postId) {
+
+        // 게시글이 존재하는지 확인
+        postRepository.findById(postId)
+                .orElseThrow(() -> new PostHandler(ErrorStatus._POST_NOT_FOUND));
+
         // 해당 게시글 Id의 댓글 조회
         List<PostComment> comments = postCommentRepository.findCommentsByPostId(postId);
 

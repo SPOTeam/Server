@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,27 +67,41 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    public void edit(PostUpdateRequest postUpdateRequest) {
-        String title = postUpdateRequest.getTitle();
-        if (StringUtils.hasText(title)) {
-            this.title = postUpdateRequest.getTitle();
-        }
-        String content = postUpdateRequest.getContent();
-        if (StringUtils.hasText(content)) {
-            this.content = content;
+    public void edit(PostUpdateRequest request, List<String> images) {
+        if (StringUtils.hasText(request.getTitle())) {
+            this.title = request.getTitle();
         }
 
-        this.isAnonymous = postUpdateRequest.isAnonymous();
+        if (StringUtils.hasText(request.getContent())) {
+            this.content = request.getContent();
+        }
 
-        Board type = postUpdateRequest.getType();
-        if (type != null) {
-            this.board = type;
+        this.isAnonymous = request.isAnonymous();
+
+        this.image = (images != null && !images.isEmpty() && StringUtils.hasText(images.get(0)))
+                ? images.get(0)
+                : null;
+
+        if (request.getType() != null) {
+            this.board = request.getType();
         }
     }
+
 
     public void viewHit() {
         this.hitNum++;
     }
 
+    public void setCreatedAt(LocalDateTime createdAt) {
+        super.setCreatedAt(createdAt);
+    }
+
+    public void plusCommentNum() {
+        this.commentNum++;
+    }
+
+    public void addComment(PostComment comment) {
+        this.postCommentList.add(comment);
+    }
 
 }

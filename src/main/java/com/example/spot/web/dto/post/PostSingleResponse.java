@@ -28,7 +28,7 @@ public class PostSingleResponse {
     @Schema(
             description = "게시글 작성자 익명 여부입니다."
     )
-    private boolean anonymous;
+    private Boolean anonymous;
 
     @Schema(
             description = "댓글 작성자 프로필 사진입니다."
@@ -67,30 +67,30 @@ public class PostSingleResponse {
             description = "댓글 수입니다.",
             format = "int"
     )
-    private int commentCount;
+    private Integer commentCount;
 
     @Schema(
             description = "조회 수입니다.",
             format = "int"
     )
-    private int viewCount;
+    private Integer viewCount;
 
     private String imageUrl;
 
     @Schema(
             description = "현재 사용자의 해당 게시글 좋아요 여부입니다."
     )
-    private boolean likedByCurrentUser;
+    private Boolean likedByCurrentUser;
 
     @Schema(
             description = "현재 사용자의 해당 게시글 스크랩 여부입니다."
     )
-    private boolean scrapedByCurrentUser;
+    private Boolean scrapedByCurrentUser;
 
     @Schema(
             description = "현재 사용자의 해당 게시글 작성 여부입니다."
     )
-    private boolean createdByCurrentUser;
+    private Boolean createdByCurrentUser;
 
     @Schema(
             description = "댓글 리스트입니다.",
@@ -127,7 +127,7 @@ public class PostSingleResponse {
 
     public static PostSingleResponse toDTO(Post post, long likeCount, long scrapCount, CommentResponse commentResponse, boolean likedByCurrentUser, boolean scrapedByCurrentUser, boolean createdByCurrentUser, String defaultProfileImageUrl) {
         // 작성자가 익명인지 확인하여 작성자 이름 설정
-        String writerName = judgeAnonymous(post.isAnonymous(), post.getMember().getName());
+        String writerName = judgeAnonymous(post.isAnonymous(), post.getMember().getNickname());
         // 작성자가 익명인지 확인하여 프로필 반환
         String writerImage = anonymousProfileImage(post.isAnonymous(), post.getMember().getProfileImage(), defaultProfileImageUrl);
 

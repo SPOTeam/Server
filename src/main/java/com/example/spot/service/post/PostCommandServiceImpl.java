@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.web.multipart.MultipartFile;
 
 import static com.example.spot.security.utils.SecurityUtils.getCurrentUserId;
 
@@ -58,7 +59,7 @@ public class PostCommandServiceImpl implements PostCommandService {
             throw new PostHandler(ErrorStatus._FORBIDDEN); // 관리자만 접근 가능
         }
 
-        List<String> imageUrls = getImageUrls(postCreateRequest);
+        List<String> imageUrls = getImageUrls(postCreateRequest.getImage());
 
         // Post 객체 생성 및 연관 관계 설정
         Post post = createPostEntity(postCreateRequest, member, imageUrls);
@@ -66,19 +67,19 @@ public class PostCommandServiceImpl implements PostCommandService {
         // 게시글 저장
         post = postRepository.save(post);
 
-        int likeCount = 0;
-
         // 게시글 생성 정보 반환
         return PostCreateResponse.toDTO(post);
     }
 
-    private List<String> getImageUrls(PostCreateRequest postCreateRequest) {
-        ImageUploadResponse imageUploadResponse = s3ImageService.uploadImages(List.of(postCreateRequest.getImage()));
+    private List<String> getImageUrls(MultipartFile imageFile) {
+        if (imageFile != null) {
+            ImageUploadResponse imageUploadResponse = s3ImageService.uploadImages(List.of(imageFile));
 
-        List<String> imageUrls = imageUploadResponse.getImageUrls().stream()
-                .map(Images::getImageUrl)
-                .toList();
-        return imageUrls;
+            return imageUploadResponse.getImageUrls().stream()
+                    .map(Images::getImageUrl)
+                    .toList();
+        }
+        return List.of();
     }
 
     /**
@@ -139,7 +140,7 @@ public class PostCommandServiceImpl implements PostCommandService {
         }
 
         // 게시글 수정
-        post.edit(postUpdateRequest);
+        post.edit(postUpdateRequest, getImageUrls(postUpdateRequest.getImage()));
 
         // 수정된 게시글 정보 반환
         return PostCreateResponse.toDTO(post);
@@ -197,7 +198,11 @@ public class PostCommandServiceImpl implements PostCommandService {
         }
 
         // 좋아요 객체 생성 및 저장
-        LikedPost likedPost = new LikedPost(post, member);
+        LikedPost likedPost = LikedPost.builder()
+                .post(post)
+                .member(member)
+                .build();
+
         likedPostRepository.saveAndFlush(likedPost);
 
         // 게시글의 현재 좋아요 수 조회
@@ -266,14 +271,29 @@ public class PostCommandServiceImpl implements PostCommandService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
 
-        // 부모 댓글아이디 조회
-        Long parentCommentId = request.getParentCommentId();
-        Optional<PostComment> optionalParentComment = postCommentRepository.findById(parentCommentId);
+        if (request.getParentCommentId() == null) {
+            // 부모 댓글 생성
+            PostComment comment = PostComment.builder()
+                    .content(request.getContent())
+                    .isAnonymous(request.isAnonymous())
+                    .post(post)
+                    .parentComment(null)
+                    .member(member)
+                    .build();
 
-        // 부모 댓글이 있을 경우
-        if (optionalParentComment.isPresent()) {
-            PostComment parentComment = optionalParentComment.get();
-            // 자식 댓글로 생성
+            // 댓글 객체 저장
+            comment = postCommentRepository.saveAndFlush(comment);
+            post.addComment(comment);
+            post.plusCommentNum();
+
+            // 생성된 댓글 정보 반환
+            return CommentCreateResponse.toDTO(comment);
+
+        } else {
+            // 자식 댓글 생성
+            PostComment parentComment = postCommentRepository.findById(request.getParentCommentId())
+                    .orElseThrow(() -> new PostHandler(ErrorStatus._POST_PARENT_COMMENT_NOT_FOUND));
+
             PostComment comment = PostComment.builder()
                     .content(request.getContent())
                     .isAnonymous(request.isAnonymous())
@@ -281,23 +301,14 @@ public class PostCommandServiceImpl implements PostCommandService {
                     .parentComment(parentComment)
                     .member(member)
                     .build();
+
             // 댓글 객체 저장
-            postCommentRepository.saveAndFlush(comment);
+            comment = postCommentRepository.saveAndFlush(comment);
+            post.addComment(comment);
+            post.plusCommentNum();
+
             // 생성된 댓글 정보와 부모 댓글 ID 반환
             return CommentCreateResponse.toDTOwithParent(comment, parentComment.getId());
-        // 부모 댓글이 없을 경우
-        } else {
-            // 부모 댓글로 생성
-            PostComment comment = PostComment.builder()
-                    .content(request.getContent())
-                    .isAnonymous(request.isAnonymous())
-                    .post(post)
-                    .member(member)
-                    .build();
-            // 댓글 객체 저장
-            postCommentRepository.saveAndFlush(comment);
-            // 생성된 댓글 정보 반환
-            return CommentCreateResponse.toDTO(comment);
         }
     }
 
@@ -327,7 +338,12 @@ public class PostCommandServiceImpl implements PostCommandService {
         }
 
         // 댓글 좋아요 객체 생성 및 저장 (isLiked가 true면 좋아요, false면 싫어요)
-        LikedPostComment likedPostComment = new LikedPostComment(comment, member, true);
+        LikedPostComment likedPostComment = LikedPostComment.builder()
+                .postComment(comment)
+                .member(member)
+                .isLiked(true)
+                .build();
+
         likedPostCommentRepository.saveAndFlush(likedPostComment);
 
         // 댓글 좋아요 수 조회
@@ -357,7 +373,7 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .orElseThrow(() -> new PostHandler(ErrorStatus._POST_COMMENT_NOT_FOUND));
 
         // 회원 정보 가져오기
-        Member member = memberRepository.findById(memberId)
+        memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
 
         // 댓글 좋아요 여부 확인
@@ -404,7 +420,12 @@ public class PostCommandServiceImpl implements PostCommandService {
         }
 
         // 싫어요 객체 생성 및 저장 (isLiked가 true면 좋아요, false면 싫어요)
-        LikedPostComment dislikedPostComment = new LikedPostComment(comment, member, false);
+        LikedPostComment dislikedPostComment = LikedPostComment.builder()
+                .postComment(comment)
+                .member(member)
+                .isLiked(false)
+                .build();
+
         likedPostCommentRepository.saveAndFlush(dislikedPostComment);
 
         // 댓글 좋아요 수 조회
@@ -434,7 +455,7 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .orElseThrow(() -> new PostHandler(ErrorStatus._POST_COMMENT_NOT_FOUND));
 
         // 회원 정보 조회
-        Member member = memberRepository.findById(memberId)
+        memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
 
         // 싫어요 여부 확인
@@ -481,7 +502,11 @@ public class PostCommandServiceImpl implements PostCommandService {
         }
 
         // 스크랩 정보 저장
-        MemberScrap memberScrap = new MemberScrap(post, member);
+        MemberScrap memberScrap = MemberScrap.builder()
+                .member(member)
+                .post(post)
+                .build();
+
         memberScrapRepository.saveAndFlush(memberScrap);
 
         // 스크랩된 리스트의 갯수를 조회하여 스크랩 수 계산
@@ -511,7 +536,7 @@ public class PostCommandServiceImpl implements PostCommandService {
                 .orElseThrow(() -> new PostHandler(ErrorStatus._POST_NOT_FOUND));
 
         // 회원 정보 가져오기
-        Member member = memberRepository.findById(memberId)
+        memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
 
         // 스크랩 여부 확인
