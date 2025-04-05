@@ -101,10 +101,10 @@ public class PostQueryServiceImpl implements PostQueryService {
         Page<Post> postPage;
         if (boardType == Board.ALL) {
             // ALL 타입일 경우 모든 게시글 조회
-            postPage = postRepository.findByPostReportListIsEmpty(pageable);
+            postPage = postRepository.findByPostReportListIsEmptyOrderByCreatedAtDesc(pageable);
         } else {
             // 특정 게시판 타입의 게시글 조회
-            postPage = postRepository.findByBoardAndPostReportListIsEmpty(boardType, pageable);
+            postPage = postRepository.findByBoardAndPostReportListIsEmptyOrderByCreatedAtDesc(boardType, pageable);
         }
 
         // PostPagingDetailResponse를 묶어서 응답 리스트 생성 (좋아요 수, 좋아요여부, 스크랩 수, 스크랩여부 포함)
