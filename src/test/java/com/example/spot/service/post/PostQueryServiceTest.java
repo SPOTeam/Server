@@ -266,7 +266,7 @@ class PostQueryServiceTest {
         List<Post> posts = List.of(post1, post2);
         postPage = new PageImpl<>(posts, pageable, 2);
 
-        when(postRepository.findByPostReportListIsEmpty(pageable)).thenReturn(postPage);
+        when(postRepository.findByPostReportListIsEmptyOrderByCreatedAtDesc(pageable)).thenReturn(postPage);
 
         // when
         PostPagingResponse result = postQueryService.getPagingPosts("ALL", pageable);
@@ -292,7 +292,7 @@ class PostQueryServiceTest {
         List<Post> posts = List.of(post2);
         postPage = new PageImpl<>(posts, pageable, 1);
 
-        when(postRepository.findByBoardAndPostReportListIsEmpty(Board.INFORMATION_SHARING, pageable)).thenReturn(postPage);
+        when(postRepository.findByBoardAndPostReportListIsEmptyOrderByCreatedAtDesc(Board.INFORMATION_SHARING, pageable)).thenReturn(postPage);
 
         // when
         PostPagingResponse result = postQueryService.getPagingPosts("INFORMATION_SHARING", pageable);
