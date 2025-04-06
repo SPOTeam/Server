@@ -127,8 +127,9 @@ public class StudyPostController {
     @GetMapping("/studies/{studyId}/posts/{postId}")
     public ApiResponse<StudyPostResDTO.PostDetailDTO> getPost(
             @PathVariable @ExistStudy Long studyId,
-            @PathVariable @ExistStudyPost Long postId) {
-        StudyPostResDTO.PostDetailDTO postDetailDTO = studyPostQueryService.getPost(studyId, postId);
+            @PathVariable @ExistStudyPost Long postId,
+            @RequestParam Boolean likeOrScrap) {
+        StudyPostResDTO.PostDetailDTO postDetailDTO = studyPostQueryService.getPost(studyId, postId, likeOrScrap);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_FOUND, postDetailDTO);
     }
 
