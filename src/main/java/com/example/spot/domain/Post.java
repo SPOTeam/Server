@@ -67,7 +67,7 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    public void edit(PostUpdateRequest request, List<String> images) {
+    public void edit(PostUpdateRequest request, List<String> images, String existingImage) {
         if (StringUtils.hasText(request.getTitle())) {
             this.title = request.getTitle();
         }
@@ -78,12 +78,24 @@ public class Post extends BaseEntity {
 
         this.isAnonymous = request.isAnonymous();
 
-        this.image = (images != null && !images.isEmpty() && StringUtils.hasText(images.get(0)))
-                ? images.get(0)
-                : null;
+        updateImage(images, existingImage);
 
         if (request.getType() != null) {
             this.board = request.getType();
+        }
+
+        if (request.getType() != null) {
+            this.board = request.getType();
+        }
+    }
+
+    private void updateImage(List<String> images, String existingImage) {
+        if (StringUtils.hasText(existingImage)) {
+            this.image = existingImage;
+        } else if (images != null && !images.isEmpty() && StringUtils.hasText(images.get(0))) {
+            this.image = images.get(0);
+        } else {
+            this.image = null;
         }
     }
 

@@ -140,7 +140,7 @@ public class PostCommandServiceImpl implements PostCommandService {
         }
 
         // 게시글 수정
-        post.edit(postUpdateRequest, getImageUrls(postUpdateRequest.getImage()));
+        post.edit(postUpdateRequest, getImageUrls(postUpdateRequest.getImage()), postUpdateRequest.getExistingImage());
 
         // 수정된 게시글 정보 반환
         return PostCreateResponse.toDTO(post);
