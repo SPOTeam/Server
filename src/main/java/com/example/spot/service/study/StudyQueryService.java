@@ -2,7 +2,8 @@ package com.example.spot.service.study;
 
 import com.example.spot.domain.enums.StudySortBy;
 import com.example.spot.domain.enums.ThemeType;
-import com.example.spot.web.dto.search.SearchRequestDTO.SearchRequestStudyDTO;
+import com.example.spot.web.dto.search.SearchRequestStudyDTO;
+import com.example.spot.web.dto.search.SearchRequestStudyWithThemeDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.HotKeywordDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.MyPageDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.StudyPreviewDTO;
@@ -41,16 +42,16 @@ public interface StudyQueryService {
         SearchRequestStudyDTO request, ThemeType theme, StudySortBy sortBy);
 
     // 내 관심 지역 스터디 페이징 조회
-    StudyPreviewDTO findInterestRegionStudiesByConditionsAll(Pageable pageable, Long memberId,
-        SearchRequestStudyDTO request, StudySortBy sortBy);
+    StudyPreviewDTO findInterestRegionStudiesByConditionsAll(
+            Pageable pageable, Long memberId, SearchRequestStudyWithThemeDTO request, StudySortBy sortBy);
 
     // 내 특정 관심 지역 스터디 페이징 조회
-    StudyPreviewDTO findInterestRegionStudiesByConditionsSpecific(Pageable pageable, Long memberId,
-        SearchRequestStudyDTO request, String regionCode, StudySortBy sortBy);
+    StudyPreviewDTO findInterestRegionStudiesByConditionsSpecific(
+            Pageable pageable, Long memberId, SearchRequestStudyWithThemeDTO request, String regionCode, StudySortBy sortBy);
 
     // 모집 중 스터디 조회
-    StudyPreviewDTO findRecruitingStudiesByConditions(Pageable pageable,
-        SearchRequestStudyDTO request, StudySortBy sortBy);
+    StudyPreviewDTO findRecruitingStudiesByConditions(
+            Pageable pageable, SearchRequestStudyWithThemeDTO request, StudySortBy sortBy);
 
     // 찜한 스터디 조회
     StudyPreviewDTO findLikedStudies(Long memberId, Pageable pageable);

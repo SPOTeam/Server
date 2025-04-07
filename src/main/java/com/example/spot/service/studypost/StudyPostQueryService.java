@@ -11,7 +11,7 @@ public interface StudyPostQueryService {
     StudyPostResDTO.PostListDTO getAllPosts(PageRequest pageRequest, Long studyId, ThemeQuery themeQuery);
 
     // 스터디 게시글 불러오기
-    StudyPostResDTO.PostDetailDTO getPost(Long studyId, Long postId);
+    StudyPostResDTO.PostDetailDTO getPost(Long studyId, Long postId, Boolean likeOrScrap);
 
     // 스터디 게시글 댓글 목록 불러오기
     StudyPostCommentResponseDTO.CommentReplyListDTO getAllComments(Long studyId, Long postId);

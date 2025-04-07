@@ -4,6 +4,8 @@ import com.example.spot.domain.enums.Gender;
 import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.enums.StudySortBy;
 import com.example.spot.domain.enums.StudyState;
+import com.example.spot.domain.enums.Theme;
+import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.domain.mapping.MemberStudy;
 import com.example.spot.domain.mapping.QMemberStudy;
 import com.example.spot.domain.mapping.QRegionStudy;
@@ -423,6 +425,10 @@ SELECT id FROM study WHERE MATCH(title) AGAINST (:keyword IN NATURAL LANGUAGE MO
         }
         if (search.get("fee") != null) {
             builder.and(study.fee.loe((Integer) search.get("fee")));
+        }
+        if (search.get("themeTypes") != null) {
+            List<ThemeType> themeTypes = (List<ThemeType>) search.get("themeTypes");
+            builder.and(study.studyThemes.any().theme.studyTheme.in(themeTypes));
         }
     }
 

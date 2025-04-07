@@ -7,8 +7,8 @@ import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.security.utils.SecurityUtils;
 import com.example.spot.service.study.StudyCommandService;
 import com.example.spot.service.study.StudyQueryService;
-import com.example.spot.validation.annotation.ExistMember;
-import com.example.spot.web.dto.search.SearchRequestDTO.SearchRequestStudyDTO;
+import com.example.spot.web.dto.search.SearchRequestStudyDTO;
+import com.example.spot.web.dto.search.SearchRequestStudyWithThemeDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.HotKeywordDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.MyPageDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.StudyPreviewDTO;
@@ -206,7 +206,7 @@ public class SearchController {
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
     @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = true)
     public ApiResponse<StudyPreviewDTO> interestRegionStudiesByConditionsAll(
-        @ModelAttribute @Valid SearchRequestStudyDTO searchRequestStudyDTO,
+        @ModelAttribute @Valid SearchRequestStudyWithThemeDTO searchRequestStudyDTO,
         @RequestParam @Min(0) Integer page,
         @RequestParam @Min(1) Integer size,
         @RequestParam StudySortBy sortBy
@@ -240,7 +240,7 @@ public class SearchController {
     @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = true)
     public ApiResponse<StudyPreviewDTO> interestRegionStudiesByConditionsSpecific(
         @RequestParam String regionCode,
-        @ModelAttribute @Valid SearchRequestStudyDTO searchRequestStudyDTO,
+        @ModelAttribute @Valid SearchRequestStudyWithThemeDTO searchRequestStudyDTO,
         @RequestParam @Min(0) Integer page,
         @RequestParam @Min(1) Integer size,
         @RequestParam StudySortBy sortBy
@@ -274,7 +274,7 @@ public class SearchController {
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
     @Parameter(name = "sortBy", description = "정렬 기준을 입력 받습니다.", required = true)
     public ApiResponse<StudyPreviewDTO> recruitingStudiesByConditions(
-        @ModelAttribute @Valid SearchRequestStudyDTO searchRequestStudyDTO,
+        @ModelAttribute @Valid SearchRequestStudyWithThemeDTO searchRequestStudyDTO,
         @RequestParam @Min(0) Integer page,
         @RequestParam @Min(1) Integer size,
         @RequestParam StudySortBy sortBy) {

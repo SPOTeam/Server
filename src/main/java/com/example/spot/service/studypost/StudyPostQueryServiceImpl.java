@@ -93,13 +93,15 @@ public class StudyPostQueryServiceImpl implements StudyPostQueryService {
 
     /**
      * 스터디 게시판의 특정 게시글을 조회하는 메서드입니다.
-     * @param studyId 게시글을 조회할 타겟 스터디의 아이디를 입력 받습니다.
-     * @param postId 조회할 타겟 게시글의 아이디를 입력 받습니다.
+     *
+     * @param studyId     게시글을 조회할 타겟 스터디의 아이디를 입력 받습니다.
+     * @param postId      조회할 타겟 게시글의 아이디를 입력 받습니다.
+     * @param likeOrScrap
      * @return 스터디 게시글의 정보를 반환합니다.
      */
     @Override
     @Transactional(readOnly = false)
-    public StudyPostResDTO.PostDetailDTO getPost(Long studyId, Long postId) {
+    public StudyPostResDTO.PostDetailDTO getPost(Long studyId, Long postId, Boolean likeOrScrap) {
 
         //=== Exception ===//
         Long memberId = SecurityUtils.getCurrentUserId();
@@ -121,7 +123,12 @@ public class StudyPostQueryServiceImpl implements StudyPostQueryService {
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
 
         //=== Feature ===//
-        studyPost.plusHitNum();
+
+        // 조회수 증가는 일반 조회 시에만 실행
+        if (!likeOrScrap) {
+            studyPost.plusHitNum();
+        }
+
         studyPost = studyPostRepository.save(studyPost);
         memberRepository.save(member);
         studyRepository.save(study);

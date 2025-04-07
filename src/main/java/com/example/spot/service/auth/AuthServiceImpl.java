@@ -7,6 +7,9 @@ import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.domain.Member;
 import com.example.spot.domain.auth.RsaKey;
 import com.example.spot.repository.MemberStudyRepository;
+import com.example.spot.repository.MemberThemeRepository;
+import com.example.spot.repository.PreferredRegionRepository;
+import com.example.spot.repository.StudyReasonRepository;
 import com.example.spot.web.dto.rsa.Rsa;
 import com.example.spot.domain.auth.RefreshToken;
 import com.example.spot.domain.auth.VerificationCode;
@@ -66,6 +69,10 @@ public class AuthServiceImpl implements AuthService{
     private final MemberStudyRepository memberStudyRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final VerificationCodeRepository verificationCodeRepository;
+
+    private final MemberThemeRepository memberThemeRepository;
+    private final PreferredRegionRepository preferredRegionRepository;
+    private final StudyReasonRepository studyReasonRepository;
 
     private final MailService mailService;
     private final NaverOAuthService naverOAuthService;
@@ -263,6 +270,10 @@ public class AuthServiceImpl implements AuthService{
         Member member = memberRepository.findByEmailAndLoginType(email, LoginType.NAVER)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
 
+        if (!isMemberExistsByCheckList(member)) {
+            isSpotMember = Boolean.FALSE;
+        }
+
         // 로그인을 위한 토큰 발급
         TokenDTO token = jwtTokenProvider.createToken(member.getId());
         saveRefreshToken(member, token);
@@ -275,6 +286,13 @@ public class AuthServiceImpl implements AuthService{
                 .build();
 
         return SocialLoginSignInDTO.toDTO(isSpotMember, signInDTO);
+    }
+
+    public boolean isMemberExistsByCheckList(Member member) {
+        Long memberId = member.getId();
+        return memberThemeRepository.existsByMemberId(memberId) &&
+                preferredRegionRepository.existsByMemberId(memberId) &&
+                studyReasonRepository.existsByMemberId(memberId);
     }
 
     /**
