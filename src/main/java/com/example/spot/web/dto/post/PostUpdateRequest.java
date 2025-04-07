@@ -37,6 +37,8 @@ public class PostUpdateRequest {
 
     private MultipartFile image;
 
+    private String existingImage;
+
     public Board getType() {
         return Board.findByValue(type);
     }
