@@ -29,7 +29,8 @@ import com.example.spot.repository.StudyRepository;
 import com.example.spot.repository.StudyThemeRepository;
 import com.example.spot.repository.ThemeRepository;
 import com.example.spot.security.utils.SecurityUtils;
-import com.example.spot.web.dto.search.SearchRequestDTO.SearchRequestStudyDTO;
+import com.example.spot.web.dto.search.SearchRequestStudyDTO;
+import com.example.spot.web.dto.search.SearchRequestStudyWithThemeDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.HotKeywordDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.MyPageDTO;
@@ -472,8 +473,8 @@ public class StudyQueryServiceImpl implements StudyQueryService {
      *
      */
     @Override
-    public StudyPreviewDTO findInterestRegionStudiesByConditionsAll(Pageable pageable,
-        Long memberId, SearchRequestStudyDTO request, StudySortBy sortBy) {
+    public StudyPreviewDTO findInterestRegionStudiesByConditionsAll(
+            Pageable pageable, Long memberId, SearchRequestStudyWithThemeDTO request, StudySortBy sortBy) {
 
         // 회원이 참가하고 있는 스터디 ID 가져오기
         List<Long> memberOngoingStudyIds = getOngoingStudyIds(memberId);
@@ -498,7 +499,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             throw new StudyHandler(ErrorStatus._STUDY_REGION_NOT_EXIST);
 
         // 검색 조건 맵 생성
-        Map<String, Object> conditions = getSearchConditions(request);
+        Map<String, Object> conditions = getSearchConditionsWithTheme(request);
 
 
         // 검색 조건에 맞는 스터디 갯수 조회
@@ -535,8 +536,8 @@ public class StudyQueryServiceImpl implements StudyQueryService {
      *
      */
     @Override
-    public StudyPreviewDTO findInterestRegionStudiesByConditionsSpecific(Pageable pageable,
-        Long memberId, SearchRequestStudyDTO request, String regionCode, StudySortBy sortBy) {
+    public StudyPreviewDTO findInterestRegionStudiesByConditionsSpecific(
+            Pageable pageable, Long memberId, SearchRequestStudyWithThemeDTO request, String regionCode, StudySortBy sortBy) {
 
         // 회원이 참가하고 있는 스터디 ID 가져오기
         List<Long> memberOngoingStudyIds = getOngoingStudyIds(memberId);
@@ -568,7 +569,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             throw new StudyHandler(ErrorStatus._STUDY_REGION_NOT_EXIST);
 
         // 검색 조건 맵 생성
-        Map<String, Object> conditions = getSearchConditions(request);
+        Map<String, Object> conditions = getSearchConditionsWithTheme(request);
 
         // 검색 조건에 맞는 스터디 갯수 조회
         long totalElements = studyRepository.countStudyByConditionsAndRegionStudiesAndNotInIds(
@@ -598,11 +599,11 @@ public class StudyQueryServiceImpl implements StudyQueryService {
      *
      */
     @Override
-    public StudyPreviewDTO findRecruitingStudiesByConditions(Pageable pageable,
-        SearchRequestStudyDTO request, StudySortBy sortBy) {
+    public StudyPreviewDTO findRecruitingStudiesByConditions(
+            Pageable pageable, SearchRequestStudyWithThemeDTO request, StudySortBy sortBy) {
 
         // 검색 조건 맵 생성
-        Map<String, Object> conditions = getSearchConditions(request);
+        Map<String, Object> conditions = getSearchConditionsWithTheme(request);
 
         // 검색 조건(모집 중)에 맞는 스터디 조회
         List<Study> studies = studyRepository.findRecruitingStudyByConditions(conditions,
@@ -883,6 +884,38 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             search.put("fee", request.getFee());
         return search;
     }
+
+    /**
+     * 검색 조건을 입력 받아 검색 조건 맵을 생성하는 메서드입니다.
+     *
+     * @param request 검색 조건을 입력 받습니다.
+     *
+     * @return 검색 조건 맵을 반환합니다.
+     *
+     */
+    private static Map<String, Object> getSearchConditionsWithTheme(SearchRequestStudyWithThemeDTO request) {
+        Map<String, Object> search = new HashMap<>();
+
+        if (request.getGender() != null)
+            search.put("gender", request.getGender());
+        if (request.getMinAge() != null)
+            search.put("minAge", request.getMinAge());
+        if (request.getMaxAge() != null)
+            search.put("maxAge", request.getMaxAge());
+        if (request.getIsOnline() != null)
+            search.put("isOnline", request.getIsOnline());
+        if (request.getHasFee() != null)
+            search.put("hasFee", request.getHasFee());
+        if (request.getFee() != null)
+            search.put("fee", request.getFee());
+
+        if (request.getThemeTypes() != null && !request.getThemeTypes().isEmpty()) {
+            search.put("themeTypes", request.getThemeTypes());
+        }
+
+        return search;
+    }
+
 
     /**
      * 스터디 목록을 DTO로 변환하는 메서드입니다.
