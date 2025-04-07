@@ -138,7 +138,8 @@ public class PostController {
     @Tag(name = "게시판", description = "게시판 관련 API")
     @Operation(
             summary = "[게시판] 게시글 수정 API",
-            description = "게시글 Id를 받아 게시글을 수정합니다.",
+            description = "게시글 Id를 받아 게시글을 수정합니다. existingImage는 기존 이미지 URL입니다. 수정할 이미지가 없을 경우 null로 보내주세요. 요청 시, 요청 타입은 Multipart/form-data로 보내야 합니다."
+                    + "\n" + "existingImage와 image 둘 중 하나만 보내주세요. 둘 다 보내면 기존 이미지로 덮어씌워집니다.",
             security = @SecurityRequirement(name = "accessToken")
     )
     @PatchMapping(value = "/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
