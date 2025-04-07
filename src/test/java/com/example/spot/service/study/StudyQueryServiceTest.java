@@ -31,7 +31,8 @@ import com.example.spot.repository.RegionStudyRepository;
 import com.example.spot.repository.StudyRepository;
 import com.example.spot.repository.StudyThemeRepository;
 import com.example.spot.repository.ThemeRepository;
-import com.example.spot.web.dto.search.SearchRequestDTO.SearchRequestStudyDTO;
+import com.example.spot.web.dto.search.SearchRequestStudyDTO;
+import com.example.spot.web.dto.search.SearchRequestStudyWithThemeDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.MyPageDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.StudyPreviewDTO;
 import com.example.spot.web.dto.study.response.StudyInfoResponseDTO.StudyInfoDTO;
@@ -100,6 +101,7 @@ class StudyQueryServiceTest {
     private static StudyTheme studyTheme1;
     private static StudyTheme studyTheme2;
     private static SearchRequestStudyDTO request;
+    private static SearchRequestStudyWithThemeDTO requestWithTheme;
     private static Region region1;
     private static Region region2;
     private static PreferredRegion preferredRegion1;
@@ -145,6 +147,7 @@ class StudyQueryServiceTest {
         study1.addMemberStudy(memberStudy1);
 
         request = getSearchRequestStudyDTO();
+        requestWithTheme = getSearchRequestStudyWithThemeDTO();
 
         // 사용자 인증 정보 생성
         Authentication authentication = new UsernamePasswordAuthenticationToken("1", null, Collections.emptyList());
@@ -1027,7 +1030,7 @@ class StudyQueryServiceTest {
         List<Long> studyIds = List.of();
 
         // Mock conditions
-        Map<String, Object> searchConditions = getStringObjectMap();
+        Map<String, Object> searchConditions = getStringObjectMapWithThemeType();
 
         when(preferredRegionRepository.findAllByMemberId(member.getId()))
             .thenReturn(List.of(preferredRegion1, preferredRegion2));
@@ -1047,7 +1050,7 @@ class StudyQueryServiceTest {
         when(memberRepository.existsById(member.getId())).thenReturn(true);
 
         // when
-        StudyPreviewDTO result = studyQueryService.findInterestRegionStudiesByConditionsAll(pageable, member.getId(), request, sortBy);
+        StudyPreviewDTO result = studyQueryService.findInterestRegionStudiesByConditionsAll(pageable, member.getId(), requestWithTheme, sortBy);
 
         // then
         assertNotNull(result);
@@ -1072,7 +1075,7 @@ class StudyQueryServiceTest {
 
         // when & then
         assertThrows(StudyHandler.class, () -> {
-            studyQueryService.findInterestRegionStudiesByConditionsAll(pageable, member.getId(), request, sortBy);
+            studyQueryService.findInterestRegionStudiesByConditionsAll(pageable, member.getId(), requestWithTheme, sortBy);
         });
 
         // then
@@ -1105,7 +1108,7 @@ class StudyQueryServiceTest {
 
         // when & then
         assertThrows(StudyHandler.class, () -> {
-            studyQueryService.findInterestRegionStudiesByConditionsAll(pageable, member.getId(), request, sortBy);
+            studyQueryService.findInterestRegionStudiesByConditionsAll(pageable, member.getId(), requestWithTheme, sortBy);
         });
 
         // then
@@ -1132,7 +1135,7 @@ class StudyQueryServiceTest {
 
         // when
         StudyPreviewDTO result = studyQueryService.findInterestRegionStudiesByConditionsAll(
-            PageRequest.of(0, 10), 1L, getSearchRequestStudyDTO(), StudySortBy.ALL);
+            PageRequest.of(0, 10), 1L, requestWithTheme, StudySortBy.ALL);
 
         // then
         assertEquals(10, result.getSize());
@@ -1158,7 +1161,7 @@ class StudyQueryServiceTest {
         // when
         // 검색 조건이 안맞는 경우, 검색 조건에 맞는 스터디가 조회 되면 안됨.
         StudyPreviewDTO result = studyQueryService.findInterestRegionStudiesByConditionsAll(
-            pageable, member.getId(), getSearchRequestStudyDTO(), StudySortBy.ALL);
+            pageable, member.getId(), requestWithTheme, StudySortBy.ALL);
 
         // then
         assertEquals(1, result.getTotalElements());
@@ -1183,7 +1186,7 @@ class StudyQueryServiceTest {
 
         // when
         StudyPreviewDTO result = studyQueryService.findInterestRegionStudiesByConditionsAll(
-            pageable, member.getId(), getSearchRequestStudyDTO(), sortBy);
+            pageable, member.getId(), requestWithTheme, sortBy);
 
         // then
         assertEquals(2, result.getTotalElements());
@@ -1208,7 +1211,7 @@ class StudyQueryServiceTest {
 
         // when
         StudyPreviewDTO result = studyQueryService.findInterestRegionStudiesByConditionsAll(
-            pageable, member.getId(), getSearchRequestStudyDTO(), sortBy);
+            pageable, member.getId(), requestWithTheme, sortBy);
 
         // then
         assertEquals(2, result.getTotalElements());
@@ -1229,7 +1232,7 @@ class StudyQueryServiceTest {
 
         // when & then
         assertThrows(MemberHandler.class, () -> {
-            studyQueryService.findInterestRegionStudiesByConditionsAll(pageable, member.getId(), request, sortBy);
+            studyQueryService.findInterestRegionStudiesByConditionsAll(pageable, member.getId(), requestWithTheme, sortBy);
         });
     }
 
@@ -1245,10 +1248,9 @@ class StudyQueryServiceTest {
         StudySortBy sortBy = StudySortBy.ALL;
         List<Long> studyIds = List.of();
 
-        SearchRequestStudyDTO request = getSearchRequestStudyDTO();
 
         // Mock conditions
-        Map<String, Object> searchConditions = getStringObjectMap();
+        Map<String, Object> searchConditions = getStringObjectMapWithThemeType();
 
         when(preferredRegionRepository.findAllByMemberId(member.getId()))
             .thenReturn(List.of(preferredRegion1));
@@ -1268,7 +1270,7 @@ class StudyQueryServiceTest {
         when(memberRepository.existsById(member.getId())).thenReturn(true);
 
         // when
-        StudyPreviewDTO result = studyQueryService.findInterestRegionStudiesByConditionsSpecific(pageable, member.getId(), request, regionCode, sortBy);
+        StudyPreviewDTO result = studyQueryService.findInterestRegionStudiesByConditionsSpecific(pageable, member.getId(), requestWithTheme, regionCode, sortBy);
 
         // then
         assertNotNull(result);
@@ -1294,7 +1296,7 @@ class StudyQueryServiceTest {
 
         // when & then
         assertThrows(StudyHandler.class, () -> {
-            studyQueryService.findInterestRegionStudiesByConditionsSpecific(pageable, member.getId(), request, region1.getCode(), sortBy);
+            studyQueryService.findInterestRegionStudiesByConditionsSpecific(pageable, member.getId(), requestWithTheme, region1.getCode(), sortBy);
         });
 
         // then
@@ -1312,7 +1314,7 @@ class StudyQueryServiceTest {
         List<Long> studyIds = List.of();
 
         // Mock conditions
-        Map<String, Object> searchConditions = getStringObjectMap();
+        Map<String, Object> searchConditions = getStringObjectMapWithThemeType();
 
         when(preferredRegionRepository.findAllByMemberId(member.getId()))
             .thenReturn(List.of(preferredRegion1));
@@ -1331,7 +1333,7 @@ class StudyQueryServiceTest {
 
         // when & then
         assertThrows(StudyHandler.class, () -> {
-            studyQueryService.findInterestRegionStudiesByConditionsSpecific(pageable, member.getId(), request, regionCode, sortBy);
+            studyQueryService.findInterestRegionStudiesByConditionsSpecific(pageable, member.getId(), requestWithTheme, regionCode, sortBy);
         });
         verify(preferredRegionRepository).findAllByMemberId(member.getId());
         verify(regionStudyRepository).findAllByRegion(region1);  // Ensure the correct theme is queried
@@ -1357,7 +1359,7 @@ class StudyQueryServiceTest {
 
         // when
         StudyPreviewDTO result = studyQueryService.findInterestRegionStudiesByConditionsSpecific(
-            PageRequest.of(0, 10), 1L, getSearchRequestStudyDTO(), region1.getCode(), StudySortBy.ALL);
+            PageRequest.of(0, 10), 1L, requestWithTheme, region1.getCode(), StudySortBy.ALL);
 
         // then
         assertEquals(10, result.getSize());
@@ -1382,7 +1384,7 @@ class StudyQueryServiceTest {
         // when
         // 검색 조건이 안맞는 경우, 검색 조건에 맞는 스터디가 조회 되면 안됨.
         StudyPreviewDTO result = studyQueryService.findInterestRegionStudiesByConditionsSpecific(
-            pageable, member.getId(), getSearchRequestStudyDTO(), region1.getCode(), StudySortBy.ALL);
+            pageable, member.getId(), requestWithTheme, region1.getCode(), StudySortBy.ALL);
 
         // then
         assertEquals(2, result.getTotalElements());
@@ -1408,7 +1410,7 @@ class StudyQueryServiceTest {
 
         // when
         StudyPreviewDTO result = studyQueryService.findInterestRegionStudiesByConditionsSpecific(
-            pageable, member.getId(), getSearchRequestStudyDTO(), region1.getCode(), sortBy);
+            pageable, member.getId(), requestWithTheme, region1.getCode(), sortBy);
 
         // then
         assertEquals(3, result.getTotalElements());
@@ -1435,7 +1437,7 @@ class StudyQueryServiceTest {
 
         // when
         StudyPreviewDTO result = studyQueryService.findInterestRegionStudiesByConditionsSpecific(
-            pageable, member.getId(), getSearchRequestStudyDTO(),region1.getCode() ,sortBy);
+            pageable, member.getId(), requestWithTheme,region1.getCode() ,sortBy);
 
         // then
         assertEquals(3, result.getTotalElements());
@@ -1459,7 +1461,7 @@ class StudyQueryServiceTest {
 
         // when & then
         assertThrows(StudyHandler.class, () -> {
-            studyQueryService.findInterestRegionStudiesByConditionsSpecific(pageable, member.getId(), request, region1.getCode(), sortBy);
+            studyQueryService.findInterestRegionStudiesByConditionsSpecific(pageable, member.getId(), requestWithTheme, region1.getCode(), sortBy);
         });
     }
 
@@ -1473,7 +1475,7 @@ class StudyQueryServiceTest {
         // given
 
         StudySortBy sortBy = StudySortBy.ALL;
-        Map<String, Object> searchConditions = getStringObjectMap();
+        Map<String, Object> searchConditions = getStringObjectMapWithThemeType();
 
         when(studyRepository.findRecruitingStudyByConditions(searchConditions, sortBy, pageable))
             .thenReturn(List.of(study1, study2));
@@ -1491,7 +1493,7 @@ class StudyQueryServiceTest {
         SecurityContextHolder.setContext(securityContext);
 
         // when
-        StudyPreviewDTO result = studyQueryService.findRecruitingStudiesByConditions(pageable, request, sortBy);
+        StudyPreviewDTO result = studyQueryService.findRecruitingStudiesByConditions(pageable, requestWithTheme, sortBy);
 
         // then
         assertNotNull(result);
@@ -1511,7 +1513,7 @@ class StudyQueryServiceTest {
 
         // when & then
         assertThrows(StudyHandler.class, () -> {
-            studyQueryService.findRecruitingStudiesByConditions(pageable, request, StudySortBy.ALL);
+            studyQueryService.findRecruitingStudiesByConditions(pageable, requestWithTheme, StudySortBy.ALL);
         });
 
     }
@@ -1955,6 +1957,19 @@ class StudyQueryServiceTest {
         return searchConditions;
     }
 
+    private static Map<String, Object> getStringObjectMapWithThemeType() {
+        // Mock conditions
+        Map<String, Object> searchConditions = new HashMap<>();
+        searchConditions.put("gender", Gender.MALE);
+        searchConditions.put("minAge", 20);
+        searchConditions.put("maxAge", 40);
+        searchConditions.put("isOnline", true);
+        searchConditions.put("hasFee", true);
+        searchConditions.put("fee", 10000);
+        searchConditions.put("themeTypes", List.of(ThemeType.어학, ThemeType.공모전));
+        return searchConditions;
+    }
+
     private static SearchRequestStudyDTO getSearchRequestStudyDTO() {
         return SearchRequestStudyDTO.builder()
             .gender(Gender.MALE)
@@ -1964,6 +1979,18 @@ class StudyQueryServiceTest {
             .isOnline(true)
             .hasFee(true)
             .build();
+    }
+
+    private static SearchRequestStudyWithThemeDTO getSearchRequestStudyWithThemeDTO() {
+        return SearchRequestStudyWithThemeDTO.builder()
+                .gender(Gender.MALE)
+                .minAge(20)
+                .maxAge(40)
+                .fee(10000)
+                .isOnline(true)
+                .hasFee(true)
+                .themeTypes(List.of(ThemeType.어학, ThemeType.공모전))
+                .build();
     }
 
 }
