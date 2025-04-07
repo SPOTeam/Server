@@ -111,7 +111,10 @@ public class MemberServiceImpl implements MemberService {
 
             updateMemberProfileImage(member, kaKaoUser);
 
-            isSpotMember = true;
+            if (isMemberExistsByCheckList(member)) {
+                isSpotMember = true;
+            }
+
             // JWT 토큰 생성
             TokenDTO token = jwtTokenProvider.createToken(member.getId());
 
@@ -322,7 +325,9 @@ public class MemberServiceImpl implements MemberService {
 
                 saveRefreshToken(member, token);
 
-                isSpotMember = true;
+                if (isMemberExistsByCheckList(member)) {
+                    isSpotMember = true;
+                }
 
                 // 로그인 DTO 반환
                 MemberSignInDTO memberSignInDto = MemberSignInDTO.builder()
@@ -673,6 +678,14 @@ public class MemberServiceImpl implements MemberService {
             throw new UsernameNotFoundException("Invalid user ID format");
         }
     }
+
+    public boolean isMemberExistsByCheckList(Member member) {
+        Long memberId = member.getId();
+        return memberThemeRepository.existsByMemberId(memberId) &&
+                preferredRegionRepository.existsByMemberId(memberId) &&
+                studyReasonRepository.existsByMemberId(memberId);
+    }
+
 
     @Override
     @Transactional
