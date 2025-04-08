@@ -26,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -96,6 +97,8 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
                 .likeNum(0)
                 .hitNum(0)
                 .commentNum(0)
+                .member(member)
+                .study(study)
                 .build();
 
         // 공지면 announcedAt 설정
@@ -103,19 +106,19 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
             studyPost.setAnnouncedAt(LocalDateTime.now());
         }
 
+        studyPost = studyPostRepository.save(studyPost);
         member.addStudyPost(studyPost);
         study.addStudyPost(studyPost);
-        studyPost = studyPostRepository.save(studyPost);
 
-        if (postRequestDTO.getImages() != null && !postRequestDTO.getImages().isEmpty()) {
-            ImageResponse.ImageUploadResponse imageUploadResponse = s3ImageService.uploadImages(postRequestDTO.getImages());
-            for (ImageResponse.Images imageDTO : imageUploadResponse.getImageUrls()) {
-                String imageUrl = imageDTO.getImageUrl();
-                StudyPostImage studyPostImage = new StudyPostImage(imageUrl);
-                studyPost.addImage(studyPostImage); // image id가 저장되지 않음
-                studyPostImage = studyPostImageRepository.save(studyPostImage);
-                studyPost.updateImage(studyPostImage); // image id 저장
-            }
+        // 이미지가 있는 경우 이미지 저장
+        if (postRequestDTO.getImage() != null) {
+            String imageUrl = s3ImageService.upload(postRequestDTO.getImage());
+            StudyPostImage studyPostImage = StudyPostImage.builder()
+                    .url(imageUrl)
+                    .studyPost(studyPost)
+                    .build();
+            studyPostImage = studyPostImageRepository.save(studyPostImage);
+            studyPost.addImage(studyPostImage);
         }
 
         if (studyPost.getIsAnnouncement()){
@@ -154,9 +157,9 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
         Long memberId = SecurityUtils.getCurrentUserId();
         SecurityUtils.verifyUserId(memberId);
 
-        Member member = memberRepository.findById(memberId)
+        memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
-        Study study = studyRepository.findById(studyId)
+        studyRepository.findById(studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
         StudyPost studyPost = studyPostRepository.findById(postId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_POST_NOT_FOUND));
@@ -174,25 +177,28 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
             throw new StudyHandler(ErrorStatus._STUDY_POST_ANNOUNCEMENT_INVALID);
         }
 
+        // 스터디 게시글 이미지 업데이트
+        updateStudyPostImage(postDTO, studyPost);
+
         // 스터디 게시글 업데이트
         studyPost.updatePost(postDTO);
-        studyPost = studyPostRepository.save(studyPost);
-
-        // 기존 게시글 이미지 삭제
-        studyPostImageRepository.deleteAllByStudyPostId(postId);
-
-        if (postDTO.getImages() != null && !postDTO.getImages().isEmpty()) {
-            ImageResponse.ImageUploadResponse imageUploadResponse = s3ImageService.uploadImages(postDTO.getImages());
-            for (ImageResponse.Images imageDTO : imageUploadResponse.getImageUrls()) {
-                String imageUrl = imageDTO.getImageUrl();
-                StudyPostImage studyPostImage = new StudyPostImage(imageUrl);
-                studyPost.addImage(studyPostImage); // image id가 저장되지 않음
-                studyPostImage = studyPostImageRepository.save(studyPostImage);
-                studyPost.updateImage(studyPostImage); // image id 저장
-            }
-        }
 
         return StudyPostResDTO.PostPreviewDTO.toDTO(studyPost);
+    }
+
+    private void updateStudyPostImage(StudyPostRequestDTO.PostDTO postDTO, StudyPost studyPost) {
+        List<StudyPostImage> studyPostImages = studyPost.getImages();
+        // 기존 이미지가 존재하는 경우 이미지 유지
+        if (!StringUtils.hasText(postDTO.getExistingImage())) {
+            // 기존 이미지가 없고 새로운 이미지를 등록한 경우 이미지 url 변경
+            if (postDTO.getImage() != null) {
+                String imageUrl = s3ImageService.upload(postDTO.getImage());
+                studyPostImages.forEach(studyPostImage -> {
+                    studyPostImage.setUrl(imageUrl);
+                    studyPost.updateImage(studyPostImage);
+                });
+            }
+        }
     }
 
     /**

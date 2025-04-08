@@ -13,6 +13,7 @@ import com.example.spot.domain.study.Study;
 import com.example.spot.domain.study.StudyPost;
 import com.example.spot.domain.study.StudyPostComment;
 import com.example.spot.repository.*;
+import com.example.spot.service.s3.S3ImageService;
 import com.example.spot.web.dto.memberstudy.request.StudyPostCommentRequestDTO;
 import com.example.spot.web.dto.memberstudy.request.StudyPostRequestDTO;
 import com.example.spot.web.dto.memberstudy.response.StudyPostCommentResponseDTO;
@@ -30,6 +31,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -69,6 +71,9 @@ class StudyPostCommandServiceTest {
 
     @Mock
     private NotificationRepository notificationRepository;
+
+    @Mock
+    private S3ImageService s3ImageService;
 
     @InjectMocks
     private StudyPostCommandServiceImpl studyPostCommandService;
@@ -125,11 +130,14 @@ class StudyPostCommandServiceTest {
         when(studyLikedPostRepository.existsByMemberIdAndStudyPostId(3L, 1L))
                 .thenReturn(true);
 
-        // Comment
+         // Comment
         when(studyPostCommentRepository.findAllByStudyPostId(1L))
                 .thenReturn(List.of(studyPost1Comment1, studyPost1Comment2));
         when(studyPostCommentRepository.findById(1L)).thenReturn(Optional.of(studyPost1Comment1));
         when(studyPostCommentRepository.findById(2L)).thenReturn(Optional.of(studyPost1Comment2));
+
+        // S3
+        when(s3ImageService.upload(any(MultipartFile.class))).thenReturn("url");
 
     }
 

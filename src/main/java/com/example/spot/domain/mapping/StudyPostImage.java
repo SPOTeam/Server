@@ -16,14 +16,17 @@ import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
 @Getter
+@Builder
 @DynamicUpdate
 @DynamicInsert
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StudyPostImage extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Setter
     @Column(nullable = false)
     private String url;
 
@@ -31,10 +34,4 @@ public class StudyPostImage extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_post_id", nullable = false)
     private StudyPost studyPost;
-
-/* ----------------------------- 생성자 ------------------------------------- */
-
-    public StudyPostImage(String url) {
-        this.url = url;
-    }
 }

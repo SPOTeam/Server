@@ -54,9 +54,6 @@ public class StudyPostController {
     public ApiResponse<StudyPostResDTO.PostPreviewDTO> createPost(
             @PathVariable @ExistStudy Long studyId,
             @ModelAttribute(name = "post") @Valid StudyPostRequestDTO.PostDTO postRequestDTO) {
-        if (postRequestDTO.getImages() == null) {
-            postRequestDTO.initImages();
-        }
         StudyPostResDTO.PostPreviewDTO postPreviewDTO = studyPostCommandService.createPost(studyId, postRequestDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_CREATED, postPreviewDTO);
     }
@@ -74,9 +71,6 @@ public class StudyPostController {
             @PathVariable @ExistStudyPost Long postId,
             @ModelAttribute(name= "post") @Valid StudyPostRequestDTO.PostDTO postDTO
     ) {
-        if (postDTO.getImages() == null) {
-            postDTO.initImages();
-        }
         StudyPostResDTO.PostPreviewDTO postPreviewDTO = studyPostCommandService.updatePost(studyId, postId, postDTO);
         return ApiResponse.onSuccess(SuccessStatus._STUDY_POST_UPDATED, postPreviewDTO);
     }
