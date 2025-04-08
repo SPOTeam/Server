@@ -47,6 +47,18 @@ public class MemberResponseDTO {
                     .build();
         }
     }
+    @Getter
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    @Builder(access = AccessLevel.PRIVATE)
+    public static class CheckMemberDTO {
+        private final Boolean isSpotMember;
+
+        public static CheckMemberDTO toDTO(Boolean isSpotMember) {
+            return CheckMemberDTO.builder()
+                    .isSpotMember(isSpotMember)
+                    .build();
+        }
+    }
 
     @Getter
     @RequiredArgsConstructor

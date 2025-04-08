@@ -10,6 +10,7 @@ import com.example.spot.repository.MemberStudyRepository;
 import com.example.spot.repository.MemberThemeRepository;
 import com.example.spot.repository.PreferredRegionRepository;
 import com.example.spot.repository.StudyReasonRepository;
+import com.example.spot.web.dto.member.MemberResponseDTO.CheckMemberDTO;
 import com.example.spot.web.dto.rsa.Rsa;
 import com.example.spot.domain.auth.RefreshToken;
 import com.example.spot.domain.auth.VerificationCode;
@@ -668,6 +669,16 @@ public class AuthServiceImpl implements AuthService{
         }
 
         return MemberResponseDTO.AvailabilityDTO.toDTO(Boolean.TRUE, null);
+    }
+
+    @Override
+    public CheckMemberDTO checkIsSpotMember(Long loginId) {
+        Member member = memberRepository.findById(loginId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        boolean memberExistsByCheckList = isMemberExistsByCheckList(member);
+
+        return CheckMemberDTO.toDTO(memberExistsByCheckList);
     }
 
     /**
