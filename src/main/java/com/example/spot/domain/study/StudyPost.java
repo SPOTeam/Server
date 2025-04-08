@@ -107,10 +107,6 @@ public class StudyPost extends BaseEntity {
         likedPosts.remove(likedPost);
     }
 
-    public void updateImage(StudyPostImage studyPostImage) {
-        images.set(images.indexOf(studyPostImage), studyPostImage);
-    }
-
     public void updateComment(StudyPostComment studyPostComment) {
         comments.set(comments.indexOf(studyPostComment), studyPostComment);
     }
@@ -151,5 +147,9 @@ public class StudyPost extends BaseEntity {
 
         member.updateStudyPost(this);
         study.updateStudyPost(this);
+    }
+
+    public void updateImage(StudyPostImage studyPostImage) {
+        images.set(images.indexOf(studyPostImage), studyPostImage);
     }
 }

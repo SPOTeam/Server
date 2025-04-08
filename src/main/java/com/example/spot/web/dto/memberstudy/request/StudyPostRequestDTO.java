@@ -38,12 +38,11 @@ public class StudyPostRequestDTO {
         @Schema(description = "내용", example = "content")
         private String content;
 
-        @Schema(description = "이미지")
-        private List<MultipartFile> images;
+        @Schema(description = "신규 이미지")
+        private MultipartFile image;
 
-        public void initImages() {
-            this.images = new ArrayList<>();
-        }
+        @Schema(description = "기존 이미지")
+        private String existingImage;
 
     }
 }
