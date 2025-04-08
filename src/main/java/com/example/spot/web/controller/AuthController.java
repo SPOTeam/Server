@@ -2,6 +2,7 @@ package com.example.spot.web.controller;
 
 import com.example.spot.api.ApiResponse;
 import com.example.spot.api.code.status.SuccessStatus;
+import com.example.spot.security.utils.SecurityUtils;
 import com.example.spot.web.dto.rsa.Rsa;
 import com.example.spot.service.auth.AuthService;
 import com.example.spot.validation.annotation.TextLength;
@@ -266,6 +267,19 @@ public class AuthController {
             @RequestBody @Valid MemberRequestDTO.SignInDTO signInDTO) throws Exception {
         MemberResponseDTO.MemberSignInDTO memberSignInDTO = authService.signIn(rsaId, signInDTO);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_SIGNED_IN, memberSignInDTO);
+    }
+
+    @Tag(name = "회원 관리 API - 개발 완료", description = "회원 관리 API")
+    @Operation(summary = "[가입 유무 확인] 서비스 가입 유무 확인 API",
+            description = """
+            ## [가입 유무 확인] 서비스 가입 유무 확인 API입니다.
+            해당 유저가 가입 후 체크리스트를 작성 했는지 확인합니다.
+            * 가입 후 체크리스트를 작성한 경우 true, 작성하지 않은 경우 false를 반환합니다.
+            """)
+    @GetMapping("/check")
+    public ApiResponse<MemberResponseDTO.CheckMemberDTO> checkIsSpotMember() {
+        MemberResponseDTO.CheckMemberDTO checkMemberDTO = authService.checkIsSpotMember(SecurityUtils.getCurrentUserId());
+        return ApiResponse.onSuccess(SuccessStatus._MEMBER_SIGNUP_CHECK_COMPLETED, checkMemberDTO);
     }
 
 /* ----------------------------- 로그아웃 API ------------------------------------- */
