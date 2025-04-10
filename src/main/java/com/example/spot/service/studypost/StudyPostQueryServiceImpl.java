@@ -53,41 +53,51 @@ public class StudyPostQueryServiceImpl implements StudyPostQueryService {
     @Override
     public StudyPostResDTO.PostListDTO getAllPosts(PageRequest pageRequest, Long studyId, ThemeQuery themeQuery) {
 
-        //=== Exception ===//
         Long memberId = SecurityUtils.getCurrentUserId();
         SecurityUtils.verifyUserId(memberId);
 
         memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
-        Study study = studyRepository.findById(studyId)
+        studyRepository.findById(studyId)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_NOT_FOUND));
 
         memberStudyRepository.findByMemberIdAndStudyIdAndStatus(memberId, studyId, ApplicationStatus.APPROVED)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_FOUND));
 
-        //=== Feature ===//
         List<StudyPost> studyPosts;
+        Long totalPosts;
+
+        // query가 없는 경우
         if (themeQuery == null) {
-            // query가 없는 경우
             studyPosts = studyPostRepository.findAllByStudyId(studyId, pageRequest);
-        } else if (themeQuery.equals(ThemeQuery.ANNOUNCEMENT)) {
-            // query가 ANNOUNCEMENT인 경우
-            studyPosts = studyPostRepository.findAllByStudyIdAndIsAnnouncement(studyId, Boolean.TRUE, pageRequest);
-        } else {
-            // query가 스터디 테마인 경우
+            totalPosts = studyPostRepository.countByStudyId(studyId);
+        }
+        // query가 ANNOUNCEMENT인 경우
+        else if (themeQuery.equals(ThemeQuery.ANNOUNCEMENT)) {
+            studyPosts = studyPostRepository.findAnnouncementsByStudyId(studyId, pageRequest);
+            totalPosts = studyPostRepository.countByStudyIdAndIsAnnouncement(studyId, Boolean.TRUE);
+        }
+        // query가 스터디 테마인 경우
+        else {
             Theme theme = themeQuery.toTheme();
             studyPosts = studyPostRepository.findAllByStudyIdAndTheme(studyId, theme, pageRequest);
+            totalPosts = studyPostRepository.countByStudyIdAndTheme(studyId, theme);
         }
 
-        return StudyPostResDTO.PostListDTO.toDTO(study, studyPosts.stream()
-                .map(studyPost -> {
-                    if (studyLikedPostRepository.existsByMemberIdAndStudyPostId(memberId, studyPost.getId())) {
-                        return StudyPostResDTO.PostDTO.toDTO(studyPost, true);
-                    } else {
-                        return StudyPostResDTO.PostDTO.toDTO(studyPost, false);
-                    }
-                })
-                .toList());
+        return StudyPostResDTO.PostListDTO.builder()
+                .studyId(studyId)
+                .posts(studyPosts.stream()
+                        .map(studyPost -> {
+                            if (studyLikedPostRepository.existsByMemberIdAndStudyPostId(memberId, studyPost.getId())) {
+                                return StudyPostResDTO.PostDTO.toDTO(studyPost, true);
+                            } else {
+                                return StudyPostResDTO.PostDTO.toDTO(studyPost, false);
+                            }
+                        })
+                        .toList())
+                // (페이지 수) = ceil((전체 게시글 수) / (페이지별 게시글 수))
+                .totalPages((long) Math.ceil((double) totalPosts / pageRequest.getPageSize()))
+                .build();
 
     }
 

@@ -1,5 +1,6 @@
 package com.example.spot.repository;
 
+import com.example.spot.domain.enums.Theme;
 import com.example.spot.domain.study.StudyPost;
 
 import java.util.Arrays;
@@ -20,5 +21,9 @@ public interface StudyPostRepository extends JpaRepository<StudyPost, Long>, Stu
 
     Optional<StudyPost> findByIdAndMemberId(Long postId, Long memberId);
 
-    List<StudyPost> findAllByStudyIdAndIsAnnouncement(Long studyId, Boolean isAnnouncement, PageRequest pageRequest);
+    Long countByStudyId(Long studyId);
+
+    Long countByStudyIdAndIsAnnouncement(Long studyId, Boolean aTrue);
+
+    Long countByStudyIdAndTheme(Long studyId, Theme theme);
 }
