@@ -137,7 +137,7 @@ class StudyPostQueryServiceTest {
         pageRequest = PageRequest.of(0, 10);
         when(studyPostRepository.findAllByStudyId(studyId, pageRequest))
                 .thenReturn(List.of(studyPost1, studyPost2, studyPost3));
-        when(studyPostRepository.findAllByStudyIdAndIsAnnouncement(studyId, true, pageRequest))
+        when(studyPostRepository.findAnnouncementsByStudyId(studyId, pageRequest))
                 .thenReturn(List.of(studyPost2));
         when(studyPostRepository.findAllByStudyIdAndTheme(studyId, Theme.FREE_TALK, pageRequest))
                 .thenReturn(List.of(studyPost1, studyPost3));
@@ -166,7 +166,7 @@ class StudyPostQueryServiceTest {
         pageRequest = PageRequest.of(0, 10);
         when(studyPostRepository.findAllByStudyId(studyId, pageRequest))
                 .thenReturn(List.of(studyPost1, studyPost2, studyPost3));
-        when(studyPostRepository.findAllByStudyIdAndIsAnnouncement(studyId, true, pageRequest))
+        when(studyPostRepository.findAnnouncementsByStudyId(studyId, pageRequest))
                 .thenReturn(List.of(studyPost2));
         when(studyPostRepository.findAllByStudyIdAndTheme(studyId, Theme.FREE_TALK, pageRequest))
                 .thenReturn(List.of(studyPost1, studyPost3));
@@ -195,7 +195,7 @@ class StudyPostQueryServiceTest {
         pageRequest = PageRequest.of(0, 10);
         when(studyPostRepository.findAllByStudyId(studyId, pageRequest))
                 .thenReturn(List.of(studyPost1, studyPost2, studyPost3));
-        when(studyPostRepository.findAllByStudyIdAndIsAnnouncement(studyId, true, pageRequest))
+        when(studyPostRepository.findAnnouncementsByStudyId(studyId, pageRequest))
                 .thenReturn(List.of(studyPost2));
         when(studyPostRepository.findAllByStudyIdAndTheme(studyId, Theme.FREE_TALK, pageRequest))
                 .thenReturn(List.of(studyPost1, studyPost3));
@@ -224,7 +224,7 @@ class StudyPostQueryServiceTest {
         pageRequest = PageRequest.of(0, 10);
         when(studyPostRepository.findAllByStudyId(studyId, pageRequest))
                 .thenReturn(List.of(studyPost1, studyPost2, studyPost3));
-        when(studyPostRepository.findAllByStudyIdAndIsAnnouncement(studyId, true, pageRequest))
+        when(studyPostRepository.findAnnouncementsByStudyId(studyId, pageRequest))
                 .thenReturn(List.of(studyPost2));
         when(studyPostRepository.findAllByStudyIdAndTheme(studyId, Theme.FREE_TALK, pageRequest))
                 .thenReturn(List.of(studyPost1, studyPost3));
@@ -246,7 +246,7 @@ class StudyPostQueryServiceTest {
         pageRequest = PageRequest.of(0, 10);
         when(studyPostRepository.findAllByStudyId(studyId, pageRequest))
                 .thenReturn(List.of(studyPost1, studyPost2, studyPost3));
-        when(studyPostRepository.findAllByStudyIdAndIsAnnouncement(studyId, true, pageRequest))
+        when(studyPostRepository.findAnnouncementsByStudyId(studyId, pageRequest))
                 .thenReturn(List.of(studyPost2));
         when(studyPostRepository.findAllByStudyIdAndTheme(studyId, Theme.FREE_TALK, pageRequest))
                 .thenReturn(List.of(studyPost1, studyPost3));
