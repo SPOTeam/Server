@@ -36,19 +36,13 @@ public class StudyPostResDTO {
     }
 
     @Getter
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    @Builder(access = AccessLevel.PRIVATE)
+    @RequiredArgsConstructor
+    @Builder
     public static class PostListDTO {
 
         private final Long studyId;
         private final List<PostDTO> posts;
-
-        public static PostListDTO toDTO(Study study, List<PostDTO> postDTOS) {
-            return PostListDTO.builder()
-                    .studyId(study.getId())
-                    .posts(postDTOS)
-                    .build();
-        }
+        private final Long totalPages;
     }
 
     @Getter
