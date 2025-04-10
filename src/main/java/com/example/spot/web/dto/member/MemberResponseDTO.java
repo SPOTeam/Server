@@ -18,6 +18,7 @@ public class MemberResponseDTO {
     @Builder(access = AccessLevel.PRIVATE)
     public static class MemberInfoCreationDTO {
         private final String name;
+        private final String nickname;
         private final String email;
         private final Boolean idInfo;
         private final Boolean personalInfo;
@@ -25,6 +26,7 @@ public class MemberResponseDTO {
         public static MemberInfoCreationDTO toDTO(Member member) {
             return MemberInfoCreationDTO.builder()
                     .name(member.getName())
+                    .nickname(member.getNickname())
                     .email(member.getEmail())
                     .idInfo(member.getIdInfo())
                     .personalInfo(member.getPersonalInfo())
