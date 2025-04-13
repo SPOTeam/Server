@@ -130,7 +130,8 @@ public class SearchController {
     - maxAge: 60 이하의 정수 
     - isOnline: 스터디 온라인 진행 여부 (true, false)
     - hasFee: 스터디 활동비 유무 (true, false)
-    - fee: 스터디 최대 활동비 
+    - maxFee: 스터디 최대 활동비
+    - minFee: 스터디 최소 활동비
     """, required = false)
     @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
@@ -161,7 +162,8 @@ public class SearchController {
     - maxAge: 60 이하의 정수 
     - isOnline: 스터디 온라인 진행 여부 (true, false)
     - hasFee: 스터디 활동비 유무 (true, false)
-    - fee: 스터디 최대 활동비 
+    - maxFee: 스터디 최대 활동비
+    - minFee: 스터디 최소 활동비
     """, required = false)
     @Parameter(name = "theme", description = "조회할 관심 분야를 입력 받습니다.", required = true)
     @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
@@ -200,7 +202,8 @@ public class SearchController {
     - maxAge: 60 이하의 정수 
     - isOnline: 스터디 온라인 진행 여부 (true, false)
     - hasFee: 스터디 활동비 유무 (true, false)
-    - fee: 스터디 최대 활동비 
+    - maxFee: 스터디 최대 활동비
+    - minFee: 스터디 최소 활동비
     """, required = false)
     @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
@@ -232,7 +235,8 @@ public class SearchController {
     - maxAge: 60 이하의 정수 
     - isOnline: 스터디 온라인 진행 여부 (true, false)
     - hasFee: 스터디 활동비 유무 (true, false)
-    - fee: 스터디 최대 활동비 
+    - maxFee: 스터디 최대 활동비
+    - minFee: 스터디 최소 활동비
     """, required = false)
     @Parameter(name = "regionCode", description = "조회할 지역 코드를 입력 받습니다. 지역 코드는 10자리의 문자열 입니다. ex) 1111051500", required = true)
     @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
@@ -268,7 +272,8 @@ public class SearchController {
     - maxAge: 60 이하의 정수 
     - isOnline: 스터디 온라인 진행 여부 (true, false)
     - hasFee: 스터디 활동비 유무 (true, false)
-    - fee: 스터디 최대 활동비 
+    - maxFee: 스터디 최대 활동비
+    - minFee: 스터디 최소 활동비
     """, required = false)
     @Parameter(name = "page", description = "조회할 페이지 번호를 입력 받습니다. 페이지 번호는 0부터 시작합니다.", required = true)
     @Parameter(name = "size", description = "조회할 페이지 크기를 입력 받습니다. 페이지 크기는 1 이상의 정수 입니다. ", required = true)
