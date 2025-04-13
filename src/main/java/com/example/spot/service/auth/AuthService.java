@@ -1,5 +1,6 @@
 package com.example.spot.service.auth;
 
+import com.example.spot.web.dto.member.MemberRequestDTO.SignUpDetailDTO;
 import com.example.spot.web.dto.rsa.Rsa;
 import com.example.spot.web.dto.member.MemberRequestDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO;
@@ -16,7 +17,7 @@ public interface AuthService {
     // 리프레시 토큰을 사용하여 새로운 액세스 토큰을 발급
     TokenDTO reissueToken(String refreshToken);
 
-    MemberResponseDTO.MemberInfoCreationDTO signUpAndPartialUpdate(String nickname, Boolean personalInfo, Boolean idInfo);
+    MemberResponseDTO.MemberInfoCreationDTO signUpAndPartialUpdate(SignUpDetailDTO sign);
 
     MemberResponseDTO.InactiveMemberDTO withdraw();
 

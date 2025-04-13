@@ -77,10 +77,8 @@ public class AuthController {
             """)
     @PostMapping("/sign-up/update")
     public ApiResponse<MemberResponseDTO.MemberInfoCreationDTO> signUpAndPartialUpdate(
-            @RequestParam @TextLength(max = 8) String nickname,
-            @RequestParam Boolean personalInfo,
-            @RequestParam Boolean idInfo) {
-        MemberResponseDTO.MemberInfoCreationDTO memberInfoCreationDTO = authService.signUpAndPartialUpdate(nickname, personalInfo, idInfo);
+            @RequestBody MemberRequestDTO.SignUpDetailDTO signUpDetailDTO) {
+        MemberResponseDTO.MemberInfoCreationDTO memberInfoCreationDTO = authService.signUpAndPartialUpdate(signUpDetailDTO);
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_UPDATED, memberInfoCreationDTO);
     }
 
