@@ -880,8 +880,10 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             search.put("isOnline", request.getIsOnline());
         if (request.getHasFee() != null)
             search.put("hasFee", request.getHasFee());
-        if (request.getFee() != null)
-            search.put("fee", request.getFee());
+        if (request.getMaxFee() != null)
+            search.put("maxFee", request.getMaxFee());
+        if (request.getMinFee() != null)
+            search.put("minFee", request.getMinFee());
         return search;
     }
 
@@ -906,8 +908,10 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             search.put("isOnline", request.getIsOnline());
         if (request.getHasFee() != null)
             search.put("hasFee", request.getHasFee());
-        if (request.getFee() != null)
-            search.put("fee", request.getFee());
+        if (request.getMaxFee() != null)
+            search.put("maxFee", request.getMaxFee());
+        if (request.getMinFee() != null)
+            search.put("minFee", request.getMinFee());
 
         if (request.getThemeTypes() != null && !request.getThemeTypes().isEmpty()) {
             search.put("themeTypes", request.getThemeTypes());
