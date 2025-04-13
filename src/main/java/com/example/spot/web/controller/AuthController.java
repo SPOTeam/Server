@@ -3,6 +3,7 @@ package com.example.spot.web.controller;
 import com.example.spot.api.ApiResponse;
 import com.example.spot.api.code.status.SuccessStatus;
 import com.example.spot.security.utils.SecurityUtils;
+import com.example.spot.web.dto.member.MemberResponseDTO.NicknameDuplicateDTO;
 import com.example.spot.web.dto.rsa.Rsa;
 import com.example.spot.service.auth.AuthService;
 import com.example.spot.validation.annotation.TextLength;
@@ -48,6 +49,23 @@ public class AuthController {
     }
 
 /* ----------------------------- 공통 회원 관리 API ------------------------------------- */
+
+    // 닉네임 중복 확인
+    @Tag(name = "회원 관리 API - 개발 완료", description = "회원 관리 API")
+    @Operation(summary = "[공통 회원 관리] 닉네임 중복 확인 API",
+            description = """
+            ## [공통 회원 관리] 닉네임 중복 확인 API입니다.
+            * Request Params : String nickname
+            * Response Body : Boolean isAvailable
+            
+            중복된 이메일이 존재하면 duplicate 필드가 true로 설정됩니다. 
+            """)
+    @GetMapping("/check/nickname")
+    public ApiResponse<NicknameDuplicateDTO> checkNicknameAvailability(
+            @RequestParam @TextLength(max = 8) String nickname) {
+        NicknameDuplicateDTO nicknameDuplicateDTO = authService.checkNicknameAvailability(nickname);
+        return ApiResponse.onSuccess(SuccessStatus._MEMBER_NICKNAME_CHECK_COMPLETED, nicknameDuplicateDTO);
+    }
 
     @Tag(name = "회원 관리 API - 개발 완료", description = "회원 관리 API")
     @Operation(summary = "[공통 회원 관리] 닉네임 생성 및 약관 동의 API",

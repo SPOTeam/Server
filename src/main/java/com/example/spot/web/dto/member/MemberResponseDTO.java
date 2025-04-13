@@ -218,5 +218,16 @@ public class MemberResponseDTO {
         }
     }
 
+    @Getter
+    public static class NicknameDuplicateDTO {
+        private final String nickname;
+        private final boolean isDuplicate;
+
+        public NicknameDuplicateDTO(String nickname, boolean isDuplicate) {
+            this.nickname = nickname;
+            this.isDuplicate = isDuplicate;
+        }
+    }
+
 }
 
