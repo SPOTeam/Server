@@ -23,6 +23,14 @@ public class MemberRequestDTO {
     }
 
     @Getter
+    @RequiredArgsConstructor
+    public static class SignUpDetailDTO {
+        String nickname;
+        Boolean personalInfo;
+        Boolean idInfo;
+    }
+
+    @Getter
     @Builder
     @RequiredArgsConstructor
     public static class SignUpDTO {
