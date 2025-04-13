@@ -684,11 +684,8 @@ public class AuthServiceImpl implements AuthService{
 
     @Override
     public NicknameDuplicateDTO checkNicknameAvailability(String nickname) {
-        if (!memberRepository.existsByNickname(nickname)) {
-            return new NicknameDuplicateDTO(nickname, Boolean.FALSE);
-        } else {
-            return new NicknameDuplicateDTO(nickname, Boolean.TRUE);
-        }
+        boolean isDuplicate = memberRepository.existsByNickname(nickname);
+        return new NicknameDuplicateDTO(nickname, isDuplicate);
     }
 
     /**
