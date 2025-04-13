@@ -41,7 +41,11 @@ public class BaseSearchRequestStudyDTO {
 
     @Schema(description = "스터디 최대 활동비.", example = "10000")
     @Max(value = 1000000, message = "최대 활동비는 1,000,000원 입니다.")
-    private Integer fee;
+    private Integer maxFee;
+
+    @Schema(description = "스터디 최소 활동비.", example = "0")
+    @Min(value = 0, message = "최소 활동비는 0원 입니다.")
+    private Integer minFee;
 
     // 공통 검증 로직
     @AssertTrue(message = "최소 나이는 최대 나이보다 작아야 합니다.")
@@ -57,6 +61,6 @@ public class BaseSearchRequestStudyDTO {
         if (hasFee == null || hasFee) {
             return true;
         }
-        return fee == null;
+        return maxFee == null && minFee == null;
     }
 }
