@@ -11,6 +11,7 @@ import com.example.spot.repository.MemberThemeRepository;
 import com.example.spot.repository.PreferredRegionRepository;
 import com.example.spot.repository.StudyReasonRepository;
 import com.example.spot.web.dto.member.MemberResponseDTO.CheckMemberDTO;
+import com.example.spot.web.dto.member.MemberResponseDTO.NicknameDuplicateDTO;
 import com.example.spot.web.dto.rsa.Rsa;
 import com.example.spot.domain.auth.RefreshToken;
 import com.example.spot.domain.auth.VerificationCode;
@@ -679,6 +680,15 @@ public class AuthServiceImpl implements AuthService{
         boolean memberExistsByCheckList = isMemberExistsByCheckList(member);
 
         return CheckMemberDTO.toDTO(memberExistsByCheckList);
+    }
+
+    @Override
+    public NicknameDuplicateDTO checkNicknameAvailability(String nickname) {
+        if (!memberRepository.existsByNickname(nickname)) {
+            return new NicknameDuplicateDTO(nickname, Boolean.FALSE);
+        } else {
+            return new NicknameDuplicateDTO(nickname, Boolean.TRUE);
+        }
     }
 
     /**

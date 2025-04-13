@@ -45,4 +45,6 @@ public interface AuthService {
     MemberResponseDTO.AvailabilityDTO checkEmailAvailability(String email);
 
     MemberResponseDTO.CheckMemberDTO checkIsSpotMember(Long loginId);
+
+    MemberResponseDTO.NicknameDuplicateDTO checkNicknameAvailability(String nickname);
 }
