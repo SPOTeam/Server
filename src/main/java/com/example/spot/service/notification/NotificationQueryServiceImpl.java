@@ -94,6 +94,7 @@ public class NotificationQueryServiceImpl implements NotificationQueryService {
                     .notificationId(notification.getId())
                     .createdAt(notification.getCreatedAt())
                     .type(notification.getType())
+                    .studyId(notification.getStudy().getId())
                     .studyTitle(notification.getStudy().getTitle())
                     .studyProfileImage(notification.getStudy().getProfileImage())
                     .notifierName(notification.getNotifierName()) // 알림 생성한 회원 이름
