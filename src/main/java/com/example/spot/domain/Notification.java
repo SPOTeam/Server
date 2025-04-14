@@ -37,6 +37,9 @@ public class Notification extends BaseEntity {
     @Column(nullable = false)
     private String notifierName;
 
+    @Column(nullable = true)
+    private Long studyPostId;
+
     //== 회원 ==//
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
