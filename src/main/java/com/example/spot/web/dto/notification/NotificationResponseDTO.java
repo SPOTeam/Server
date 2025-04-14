@@ -26,6 +26,8 @@ public class NotificationResponseDTO {
         @AllArgsConstructor
         public static class NotificationDTO{
             Long notificationId;
+            Long studyId;
+            Long studyPostId;
             String studyTitle;
             String studyProfileImage;
             String notifierName;
