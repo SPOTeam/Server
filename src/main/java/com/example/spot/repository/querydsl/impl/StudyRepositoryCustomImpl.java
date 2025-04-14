@@ -423,8 +423,11 @@ SELECT id FROM study WHERE MATCH(title) AGAINST (:keyword IN NATURAL LANGUAGE MO
         if (search.get("hasFee") != null) {
             builder.and(study.hasFee.eq((Boolean) search.get("hasFee")));
         }
-        if (search.get("fee") != null) {
-            builder.and(study.fee.loe((Integer) search.get("fee")));
+        if (search.get("maxFee") != null) {
+            builder.and(study.fee.loe((Integer) search.get("maxFee")));
+        }
+        if (search.get("minFee") != null) {
+            builder.and(study.fee.goe((Integer) search.get("minFee")));
         }
         if (search.get("themeTypes") != null) {
             List<ThemeType> themeTypes = (List<ThemeType>) search.get("themeTypes");

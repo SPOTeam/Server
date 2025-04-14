@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -84,32 +85,36 @@ public class ExceptionAdvice {
     }
 
 
-    /**
-     * MethodArgumentNotValidException 처리 - @Valid 유효성 검사 실패
-     * @param exception MethodArgumentNotValidException 객체
-     * @return 클라이언트에게 반환할 ApiResponse 객체
-     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<List<String>>> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
-        // 모든 필드 오류 메시지를 수집
         List<String> errors = exception.getBindingResult()
-            .getFieldErrors()
-            .stream()
-            .map(fieldError -> String.format("'%s': %s ", fieldError.getField(), fieldError.getDefaultMessage()))
-            .collect(Collectors.toList());
+                .getFieldErrors()
+                .stream()
+                .map(ExceptionAdvice::validateGender)
+                .collect(Collectors.toList());
 
-        // 모든 에러 메시지를 하나의 문자열로 결합
-        String errorMessage = String.join(", ", errors);
-        log.warn("MethodArgumentNotValidException. error message: {}", errorMessage);
+        log.warn("MethodArgumentNotValidException. error message: {}", String.join(", ", errors));
 
         ApiResponse<List<String>> response = ApiResponse.onFailure(
-            ErrorStatus._BAD_REQUEST.getCode(),
-            ErrorStatus._BAD_REQUEST.getMessage(),
-            errors
+                ErrorStatus._BAD_REQUEST.getCode(),
+                ErrorStatus._BAD_REQUEST.getMessage(),
+                errors
         );
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
+
+    private static String validateGender(FieldError fieldError) {
+        String field = fieldError.getField();
+        String message = fieldError.getDefaultMessage();
+
+        if ("gender".equals(field) && message.contains("Failed to convert")) {
+            return String.format("'%s' 필드에 잘못된 값이 들어왔습니다. 허용된 값: [MALE, FEMALE, UNKNOWN]", field);
+        }
+
+        return String.format("'%s': %s", field, message);
+    }
+
 
     // Sentry에 예외를 캡처합니다.
     private void captureException(Exception exception) {

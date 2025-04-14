@@ -1953,7 +1953,8 @@ class StudyQueryServiceTest {
         searchConditions.put("maxAge", 40);
         searchConditions.put("isOnline", true);
         searchConditions.put("hasFee", true);
-        searchConditions.put("fee", 10000);
+        searchConditions.put("maxFee", 10000);
+        searchConditions.put("minFee", 0);
         return searchConditions;
     }
 
@@ -1965,20 +1966,22 @@ class StudyQueryServiceTest {
         searchConditions.put("maxAge", 40);
         searchConditions.put("isOnline", true);
         searchConditions.put("hasFee", true);
-        searchConditions.put("fee", 10000);
+        searchConditions.put("maxFee", 10000);
+        searchConditions.put("minFee", 0);
         searchConditions.put("themeTypes", List.of(ThemeType.어학, ThemeType.공모전));
         return searchConditions;
     }
 
     private static SearchRequestStudyDTO getSearchRequestStudyDTO() {
         return SearchRequestStudyDTO.builder()
-            .gender(Gender.MALE)
-            .minAge(20)
-            .maxAge(40)
-            .fee(10000)
-            .isOnline(true)
-            .hasFee(true)
-            .build();
+                .gender(Gender.MALE)
+                .minAge(20)
+                .maxAge(40)
+                .maxFee(10000)
+                .minFee(0)
+                .isOnline(true)
+                .hasFee(true)
+                .build();
     }
 
     private static SearchRequestStudyWithThemeDTO getSearchRequestStudyWithThemeDTO() {
@@ -1986,7 +1989,8 @@ class StudyQueryServiceTest {
                 .gender(Gender.MALE)
                 .minAge(20)
                 .maxAge(40)
-                .fee(10000)
+                .maxFee(10000)
+                .minFee(0)
                 .isOnline(true)
                 .hasFee(true)
                 .themeTypes(List.of(ThemeType.어학, ThemeType.공모전))
