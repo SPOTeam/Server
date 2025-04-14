@@ -63,4 +63,13 @@ public class BaseSearchRequestStudyDTO {
         }
         return maxFee == null && minFee == null;
     }
+
+    @AssertTrue(message = "최대 활동비는 최소 활동비보다 커야 합니다.")
+    private boolean isValidFeeRange() {
+        if (maxFee == null || minFee == null) {
+            return true;
+        }
+        return minFee <= maxFee;
+    }
+
 }
