@@ -135,12 +135,13 @@ public class StudyPostCommandServiceImpl implements StudyPostCommandService {
             // 알림 생성
             for (Member studyMember : members) {
                 Notification notification = Notification.builder()
-                    .study(studyPost.getStudy())
-                    .member(studyMember)
-                    .notifierName(member.getName()) // 글을 작성한 회원 이름
-                    .type(NotifyType.ANNOUNCEMENT)
-                    .isChecked(false)
-                    .build();
+                        .study(studyPost.getStudy())
+                        .member(studyMember)
+                        .studyPostId(studyPost.getId())
+                        .notifierName(member.getName()) // 글을 작성한 회원 이름
+                        .type(NotifyType.ANNOUNCEMENT)
+                        .isChecked(false)
+                        .build();
                 notificationRepository.save(notification);
             }
         }
