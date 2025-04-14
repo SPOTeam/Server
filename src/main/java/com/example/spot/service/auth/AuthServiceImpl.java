@@ -10,7 +10,9 @@ import com.example.spot.repository.MemberStudyRepository;
 import com.example.spot.repository.MemberThemeRepository;
 import com.example.spot.repository.PreferredRegionRepository;
 import com.example.spot.repository.StudyReasonRepository;
+import com.example.spot.web.dto.member.MemberRequestDTO.SignUpDetailDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.CheckMemberDTO;
+import com.example.spot.web.dto.member.MemberResponseDTO.NicknameDuplicateDTO;
 import com.example.spot.web.dto.rsa.Rsa;
 import com.example.spot.domain.auth.RefreshToken;
 import com.example.spot.domain.auth.VerificationCode;
@@ -137,15 +139,15 @@ public class AuthServiceImpl implements AuthService{
 /* ----------------------------- 공통 회원 관리 API ------------------------------------- */
 
     @Override
-    public MemberResponseDTO.MemberInfoCreationDTO signUpAndPartialUpdate(String nickname, Boolean personalInfo, Boolean idInfo) {
+    public MemberResponseDTO.MemberInfoCreationDTO signUpAndPartialUpdate(SignUpDetailDTO request) {
 
         // Authorization
         Long memberId = SecurityUtils.getCurrentUserId();
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
 
-        member.setNickname(nickname);
-        member.updateTerm(personalInfo, idInfo);
+        member.setNickname(request.getNickname());
+        member.updateTerm(request.getPersonalInfo(), request.getIdInfo());
         member = memberRepository.save(member);
 
         return MemberResponseDTO.MemberInfoCreationDTO.toDTO(member);
@@ -679,6 +681,12 @@ public class AuthServiceImpl implements AuthService{
         boolean memberExistsByCheckList = isMemberExistsByCheckList(member);
 
         return CheckMemberDTO.toDTO(memberExistsByCheckList);
+    }
+
+    @Override
+    public NicknameDuplicateDTO checkNicknameAvailability(String nickname) {
+        boolean isDuplicate = memberRepository.existsByNickname(nickname);
+        return new NicknameDuplicateDTO(nickname, isDuplicate);
     }
 
     /**
