@@ -74,4 +74,12 @@ public class BaseSearchRequestStudyDTO {
         return minFee <= maxFee;
     }
 
+    @AssertTrue(message = "온라인 스터디 조회 시, 스터디 지역을 입력받지 않습니다.")
+    private boolean isValidRegion() {
+        if (isOnline == null || !isOnline) {
+            return true;
+        }
+        return regionCodes == null || regionCodes.isEmpty();
+    }
+
 }
