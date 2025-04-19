@@ -8,6 +8,7 @@ import com.example.spot.domain.Member;
 import com.example.spot.domain.Region;
 import com.example.spot.domain.Theme;
 import com.example.spot.domain.enums.ApplicationStatus;
+import com.example.spot.domain.enums.Gender;
 import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.enums.StudyLikeStatus;
 import com.example.spot.domain.enums.StudySortBy;
@@ -24,6 +25,7 @@ import com.example.spot.repository.MemberStudyRepository;
 import com.example.spot.repository.MemberThemeRepository;
 import com.example.spot.repository.PreferredRegionRepository;
 import com.example.spot.repository.PreferredStudyRepository;
+import com.example.spot.repository.RegionRepository;
 import com.example.spot.repository.RegionStudyRepository;
 import com.example.spot.repository.StudyRepository;
 import com.example.spot.repository.StudyThemeRepository;
@@ -86,6 +88,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     // 지역 관련 조회
     private final PreferredRegionRepository preferredRegionRepository;
     private final RegionStudyRepository regionStudyRepository;
+    private final RegionRepository regionRepository;
 
     private final RedisTemplate<String, String> redisTemplate;
 
@@ -866,25 +869,10 @@ public class StudyQueryServiceImpl implements StudyQueryService {
      * @return 검색 조건 맵을 반환합니다.
      *
      */
-    private static Map<String, Object> getSearchConditions(SearchRequestStudyDTO request) {
-        log.info("request: {}", request.getIsOnline());
+    private Map<String, Object> getSearchConditions(SearchRequestStudyDTO request) {
         // 검색 조건 맵 생성
-        Map<String, Object> search = new HashMap<>();
-        if (request.getGender() != null)
-            search.put("gender", request.getGender());
-        if (request.getMinAge() != null)
-            search.put("minAge", request.getMinAge());
-        if (request.getMaxAge() != null)
-            search.put("maxAge", request.getMaxAge());
-        if (request.getIsOnline() != null)
-            search.put("isOnline", request.getIsOnline());
-        if (request.getHasFee() != null)
-            search.put("hasFee", request.getHasFee());
-        if (request.getMaxFee() != null)
-            search.put("maxFee", request.getMaxFee());
-        if (request.getMinFee() != null)
-            search.put("minFee", request.getMinFee());
-        return search;
+        return getBasicStudyFilteringConditions(request.getGender(), request.getMinAge(), request.getMaxAge(),
+                request.getIsOnline(), request.getHasFee(), request.getMaxFee(), request.getMinFee(), request.getRegionCodes());
     }
 
     /**
@@ -895,29 +883,55 @@ public class StudyQueryServiceImpl implements StudyQueryService {
      * @return 검색 조건 맵을 반환합니다.
      *
      */
-    private static Map<String, Object> getSearchConditionsWithTheme(SearchRequestStudyWithThemeDTO request) {
-        Map<String, Object> search = new HashMap<>();
-
-        if (request.getGender() != null)
-            search.put("gender", request.getGender());
-        if (request.getMinAge() != null)
-            search.put("minAge", request.getMinAge());
-        if (request.getMaxAge() != null)
-            search.put("maxAge", request.getMaxAge());
-        if (request.getIsOnline() != null)
-            search.put("isOnline", request.getIsOnline());
-        if (request.getHasFee() != null)
-            search.put("hasFee", request.getHasFee());
-        if (request.getMaxFee() != null)
-            search.put("maxFee", request.getMaxFee());
-        if (request.getMinFee() != null)
-            search.put("minFee", request.getMinFee());
+    private Map<String, Object> getSearchConditionsWithTheme(SearchRequestStudyWithThemeDTO request) {
+        Map<String, Object> search = getBasicStudyFilteringConditions(request.getGender(), request.getMinAge(),
+                request.getMaxAge(), request.getIsOnline(),
+                request.getHasFee(), request.getMaxFee(), request.getMinFee(), request.getRegionCodes());
 
         if (request.getThemeTypes() != null && !request.getThemeTypes().isEmpty()) {
             search.put("themeTypes", request.getThemeTypes());
         }
 
         return search;
+    }
+
+    private Map<String, Object> getBasicStudyFilteringConditions(Gender gender, Integer minAge, Integer maxAge,
+                                                                        Boolean isOnline, Boolean hasFee,
+                                                                        Integer maxFee, Integer minFee, List<String> regions) {
+        Map<String, Object> search = new HashMap<>();
+
+        if (gender != null)
+            search.put("gender", gender);
+        if (minAge != null)
+            search.put("minAge", minAge);
+        if (maxAge != null)
+            search.put("maxAge", maxAge);
+        if (isOnline != null)
+            search.put("isOnline", isOnline);
+        if (hasFee != null)
+            search.put("hasFee", hasFee);
+        if (maxFee != null)
+            search.put("maxFee", maxFee);
+        if (minFee != null)
+            search.put("minFee", minFee);
+
+        // 지역 코드가 null 이거나 비어있으면 검색 조건에 추가하지 않음
+        if (regions == null || regions.isEmpty())
+            return search;
+
+        List<Region> regionList = convertCodeToRegion(regions);
+
+        if (regionList != null && !regionList.isEmpty())
+            search.put("regions", regionList);
+        return search;
+    }
+
+    private List<Region> convertCodeToRegion(List<String> regions) {
+        List<Region> regionList = regions.stream()
+            .map(regionCode -> regionRepository.findByCode(regionCode)
+                .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_REGION_NOT_EXIST)))
+            .toList();
+        return regionList;
     }
 
 

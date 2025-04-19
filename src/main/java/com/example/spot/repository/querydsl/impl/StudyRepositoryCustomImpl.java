@@ -1,5 +1,6 @@
 package com.example.spot.repository.querydsl.impl;
 
+import com.example.spot.domain.Region;
 import com.example.spot.domain.enums.Gender;
 import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.enums.StudySortBy;
@@ -432,6 +433,10 @@ SELECT id FROM study WHERE MATCH(title) AGAINST (:keyword IN NATURAL LANGUAGE MO
         if (search.get("themeTypes") != null) {
             List<ThemeType> themeTypes = (List<ThemeType>) search.get("themeTypes");
             builder.and(study.studyThemes.any().theme.studyTheme.in(themeTypes));
+        }
+        if (search.get("regions") != null) {
+            List<Region> regionList = (List<Region>) search.get("regions");
+            builder.and(study.regionStudies.any().region.in(regionList));
         }
     }
 
