@@ -25,12 +25,10 @@ public class BaseSearchRequestStudyDTO {
 
     @Schema(description = "최소 나이 (18 이상).", example = "18")
     @Min(value = 18, message = "최소 나이는 18세 입니다.")
-    @NotNull(message = "최소 나이는 필수 입력 값입니다.")
     private Integer minAge;
 
     @Schema(description = "최대 나이 (60 이하).", example = "60")
     @Max(value = 60, message = "최대 나이는 60세 입니다.")
-    @NotNull(message = "최대 나이는 필수 입력 값입니다.")
     private Integer maxAge;
 
     @Schema(description = "스터디 온라인 진행 여부 (true, false).", example = "true")
