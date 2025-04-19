@@ -915,6 +915,10 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         if (minFee != null)
             search.put("minFee", minFee);
 
+        // 지역 코드가 null 이거나 비어있으면 검색 조건에 추가하지 않음
+        if (regions == null || regions.isEmpty())
+            return search;
+
         List<Region> regionList = convertCodeToRegion(regions);
 
         if (regionList != null && !regionList.isEmpty())
