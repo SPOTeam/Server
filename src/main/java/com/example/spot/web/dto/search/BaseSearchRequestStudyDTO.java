@@ -6,6 +6,7 @@ import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -44,6 +45,9 @@ public class BaseSearchRequestStudyDTO {
     @Schema(description = "스터디 최소 활동비.", example = "0")
     @Min(value = 0, message = "최소 활동비는 0원 입니다.")
     private Integer minFee;
+
+    @Schema(description = "스터디 활동 지역")
+    private List<String> regionCodes;
 
     // 공통 검증 로직
     @AssertTrue(message = "최소 나이는 최대 나이보다 작아야 합니다.")
