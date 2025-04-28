@@ -5,20 +5,14 @@ import com.example.spot.domain.enums.Gender;
 import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.enums.StudySortBy;
 import com.example.spot.domain.enums.StudyState;
-import com.example.spot.domain.enums.Theme;
 import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.domain.mapping.MemberStudy;
-import com.example.spot.domain.mapping.QMemberStudy;
-import com.example.spot.domain.mapping.QRegionStudy;
-import com.example.spot.domain.mapping.QStudyTheme;
 import com.example.spot.domain.mapping.RegionStudy;
 import com.example.spot.domain.mapping.StudyTheme;
 import com.example.spot.domain.study.QStudy;
 import com.example.spot.domain.study.Study;
 import com.example.spot.repository.querydsl.StudyRepositoryCustom;
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
@@ -26,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
+
 import org.springframework.data.domain.Pageable;
 
 import static com.example.spot.domain.study.QStudy.study;
@@ -262,13 +256,14 @@ SELECT id FROM study WHERE MATCH(title) AGAINST (:keyword IN NATURAL LANGUAGE MO
     }
 
     @Override
-    public List<Study> findByMemberStudy(List<MemberStudy> memberStudy, Pageable pageable) {
+    public List<Study> findByMemberStudiesAndStatus(List<MemberStudy> memberStudy, Pageable pageable, Status status) {
         QStudy study = QStudy.study;
         return queryFactory.selectFrom(study)
-            .where(study.memberStudies.any().in(memberStudy))
-            .offset(pageable.getOffset())
-            .limit(pageable.getPageSize())
-            .fetch();
+                .where(study.memberStudies.any().in(memberStudy))
+                .where(study.status.eq(Status.ON))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
     }
 
     @Override

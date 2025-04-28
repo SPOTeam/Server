@@ -745,7 +745,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             throw new StudyHandler(ErrorStatus._STUDY_NOT_PARTICIPATED);
 
         // 회원이 참가하고 있는 스터디 조회
-        List<Study> studies = studyRepository.findByMemberStudy(memberStudies, pageable);
+        List<Study> studies = studyRepository.findByMemberStudiesAndStatus(memberStudies, pageable, Status.ON);
 
         // 스터디가 끝났으면 제외
         studies = studies.stream()
@@ -784,9 +784,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             throw new StudyHandler(ErrorStatus._STUDY_NOT_APPLIED);
 
         // 회원이 신청한 스터디 조회
-        List<Study> studies = studyRepository.findByMemberStudy(memberStudies, pageable);
-
-        studies.stream().filter(study -> study.getStatus().equals(Status.ON)).toList();
+        List<Study> studies = studyRepository.findByMemberStudiesAndStatus(memberStudies, pageable, Status.ON);
 
         // 조회된 스터디가 없을 경우
         if (studies.isEmpty())
