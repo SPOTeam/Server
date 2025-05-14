@@ -139,7 +139,7 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
         // DTO로 변환하여 반환
         List<StudyMemberDTO> memberDTOS = memberStudies.stream().map(memberStudy -> StudyMemberDTO.builder()
             .memberId(memberStudy.getMember().getId())
-            .nickname(memberStudy.getMember().getName())
+            .nickname(memberStudy.getMember().getNickname())
             .profileImage(memberStudy.getMember().getProfileImage())
             .build()).toList();
         // DTO로 변환하여 반환
@@ -171,7 +171,7 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
         // DTO로 변환하여 반환
         List<StudyMemberDTO> memberDTOS = memberStudies.stream().map(memberStudy -> StudyMemberDTO.builder()
             .memberId(memberStudy.getMember().getId())
-            .nickname(memberStudy.getMember().getName())
+            .nickname(memberStudy.getMember().getNickname())
             .profileImage(memberStudy.getMember().getProfileImage())
             .build()).toList();
 
@@ -228,7 +228,7 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
             .memberId(memberStudy.getMember().getId())
             .studyId(memberStudy.getStudy().getId())
             .introduction(memberStudy.getIntroduction())
-            .nickname(memberStudy.getMember().getName())
+            .nickname(memberStudy.getMember().getNickname())
             .profileImage(memberStudy.getMember().getProfileImage())
             .build();
     }

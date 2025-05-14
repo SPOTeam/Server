@@ -617,6 +617,14 @@ public class MemberServiceImpl implements MemberService {
             .build();
     }
 
+    @Override
+    public String getNickname(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+
+        return member.getNickname();
+    }
+
     /**
      * 테스트 회원을 생성합니다.
      * @param memberInfoListDTO 생성할 회원 정보
