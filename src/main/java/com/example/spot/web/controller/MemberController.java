@@ -235,6 +235,18 @@ public class MemberController {
         return ApiResponse.onSuccess(SuccessStatus._MEMBER_FOUND, memberStudyReasonDTO);
     }
 
+    @Tag(name = "회원 조회 API", description = "회원 조회 API")
+    @GetMapping("/members/nickname")
+    @Operation(summary = "[회원 정보 조회] 회원 닉네임 조회",
+        description = """
+            ## [회원 정보 조회] 해당하는 회원의 닉네임을 조회 합니다.
+            """,
+        security = @SecurityRequirement(name = "accessToken"))
+    public ApiResponse<String> getNickname(){
+        String nickname = memberService.getNickname(SecurityUtils.getCurrentUserId());
+        return ApiResponse.onSuccess(SuccessStatus._MEMBER_FOUND, nickname);
+    }
+
 
     @Tag(name = "구글 로그인 API", description = "구글 OAuth2 로그인 API")
     @Operation(summary = "[구글 로그인] 구글 로그인/회원가입 API",

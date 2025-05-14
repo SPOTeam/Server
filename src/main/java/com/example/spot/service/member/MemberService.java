@@ -38,6 +38,8 @@ public interface MemberService extends UserDetailsService {
     MemberResponseDTO.MemberStudyReasonDTO getStudyReasons(Long memberId);
     MemberResponseDTO.MemberUpdateDTO toAdmin(Long memberId);
 
+    String getNickname(Long memberId);
+
     @Transactional
     void save(Member member);
 }
