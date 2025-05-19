@@ -284,34 +284,6 @@ SELECT id FROM study WHERE MATCH(title) AGAINST (:keyword IN NATURAL LANGUAGE MO
     }
 
     @Override
-    public Page<Study> findFinishedStudies(Member member, Pageable pageable) {
-        List<Study> content = queryFactory
-                .selectFrom(study)
-                .join(study.memberStudies, memberStudy)
-                .where(
-                        memberStudy.member.id.eq(member.getId()),
-                        memberStudy.status.eq(ApplicationStatus.APPROVED),
-                        study.studyState.eq(StudyState.COMPLETED)
-                )
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
-
-        Long count = queryFactory
-                .select(study.count())
-                .from(study)
-                .join(study.memberStudies, memberStudy)
-                .where(
-                        memberStudy.member.id.eq(member.getId()),
-                        memberStudy.status.eq(ApplicationStatus.APPROVED),
-                        study.studyState.eq(StudyState.COMPLETED)
-                )
-                .fetchOne();
-
-        return new PageImpl<>(content, pageable, count != null ? count : 0);
-    }
-
-    @Override
     public long countStudyByConditionsAndThemeTypesAndNotInIds(Map<String, Object> search,
         List<StudyTheme> themeTypes, StudySortBy sortBy, List<Long> studyIds) {
         BooleanBuilder builder = getBooleanBuilderByThemeTypes(search, study, themeTypes);

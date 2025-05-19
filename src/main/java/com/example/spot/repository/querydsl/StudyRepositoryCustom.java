@@ -39,7 +39,7 @@ public interface StudyRepositoryCustom {
 
     List<Study> findByMemberStudiesAndStatus(List<MemberStudy> memberStudy, Pageable pageable, Status status);
     List<Study> findRecruitingStudiesByMemberStudy(List<MemberStudy> memberStudy, Pageable pageable);
-    Page<Study> findFinishedStudies(Member member, Pageable pageable);
+
 
     long countStudyByConditionsAndThemeTypesAndNotInIds(
         Map<String, Object> search, List<StudyTheme> themeTypes, StudySortBy sortBy, List<Long> studyIds);
