@@ -42,6 +42,7 @@ public interface MemberStudyRepository extends JpaRepository<MemberStudy, Long> 
                 s.study_state = 'COMPLETED'
                 OR ms.active_status = 'OFF'
               )
+        ORDER BY ms.created_at DESC
         """,
             countQuery = """
         SELECT COUNT(*)
