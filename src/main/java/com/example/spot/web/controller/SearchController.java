@@ -12,6 +12,7 @@ import com.example.spot.web.dto.search.SearchRequestStudyWithThemeDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.HotKeywordDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.MyPageDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.StudyPreviewDTO;
+import com.example.spot.web.dto.search.StudyHistoryResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -424,6 +425,24 @@ public class SearchController {
             PageRequest.of(page, size), SecurityUtils.getCurrentUserId());
         return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, studies);
     }
+
+    /* ----------------------------- 신청한 스터디 목록 조회  ------------------------------------- */
+    @Tag(name = "마이 페이지")
+    @Operation(summary = "[마이 페이지] 사용자님의 노력들 조회", description = """ 
+        
+        ## [마이페이지] 
+        호스트가 종료한 스터디, 그리고 스터디원(호스트포함) 본인이 탈퇴한 스터디의 정보와 스터디 한줄 평가를 조회합니다.
+        """)
+    @GetMapping("/search/studies/finished-studies")
+    public ApiResponse<?> getFinishedStudies(
+        @RequestParam @Min(0) Integer page,
+        @RequestParam @Min(1) Integer size
+    ) {
+        StudyHistoryResponseDTO responseDTO = studyQueryService.getFinishedStudies(PageRequest.of(page, size),
+                SecurityUtils.getCurrentUserId());
+        return ApiResponse.onSuccess(SuccessStatus._STUDY_FOUND, responseDTO);
+    }
+
 
 
 
