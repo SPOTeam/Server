@@ -1,5 +1,6 @@
 package com.example.spot.repository.querydsl;
 
+import com.example.spot.domain.Member;
 import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.enums.StudySortBy;
 import com.example.spot.domain.mapping.MemberStudy;
@@ -9,6 +10,7 @@ import com.example.spot.domain.study.Study;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface StudyRepositoryCustom {
@@ -36,6 +38,7 @@ public interface StudyRepositoryCustom {
 
     List<Study> findByMemberStudiesAndStatus(List<MemberStudy> memberStudy, Pageable pageable, Status status);
     List<Study> findRecruitingStudiesByMemberStudy(List<MemberStudy> memberStudy, Pageable pageable);
+    Page<Study> findFinishedStudies(Member member, Status status, Pageable pageable);
 
     long countStudyByConditionsAndThemeTypesAndNotInIds(
         Map<String, Object> search, List<StudyTheme> themeTypes, StudySortBy sortBy, List<Long> studyIds);

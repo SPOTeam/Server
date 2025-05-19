@@ -1,6 +1,8 @@
 package com.example.spot.repository.querydsl.impl;
 
+import com.example.spot.domain.Member;
 import com.example.spot.domain.Region;
+import com.example.spot.domain.enums.ApplicationStatus;
 import com.example.spot.domain.enums.Gender;
 import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.enums.StudySortBy;
@@ -21,8 +23,11 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
+import static com.example.spot.domain.mapping.QMemberStudy.memberStudy;
 import static com.example.spot.domain.study.QStudy.study;
 @RequiredArgsConstructor
 @Slf4j
@@ -278,7 +283,33 @@ SELECT id FROM study WHERE MATCH(title) AGAINST (:keyword IN NATURAL LANGUAGE MO
             .fetch();
     }
 
+    @Override
+    public Page<Study> findFinishedStudies(Member member, Status status, Pageable pageable) {
+        List<Study> content = queryFactory
+                .selectFrom(study)
+                .join(study.memberStudies, memberStudy)
+                .where(
+                        memberStudy.member.id.eq(member.getId()),
+                        memberStudy.status.eq(ApplicationStatus.APPROVED),
+                        study.status.eq(Status.OFF)
+                )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
 
+        Long count = queryFactory
+                .select(study.count())
+                .from(study)
+                .join(study.memberStudies, memberStudy)
+                .where(
+                        memberStudy.member.id.eq(member.getId()),
+                        memberStudy.status.eq(ApplicationStatus.APPROVED),
+                        study.status.eq(Status.OFF)
+                )
+                .fetchOne();
+
+        return new PageImpl<>(content, pageable, count != null ? count : 0);
+    }
 
     @Override
     public long countStudyByConditionsAndThemeTypesAndNotInIds(Map<String, Object> search,
