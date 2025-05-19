@@ -839,7 +839,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     public StudyHistoryResponseDTO getFinishedStudies(Pageable pageable, Long currentUserId) {
         Member member = memberRepository.findById(currentUserId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
-        Page<Study> finishedStudies = studyRepository.findFinishedStudies(member, pageable);
+        Page<MemberStudy> finishedStudies = memberStudyRepository.findAllByMemberIdAndConditions(currentUserId, pageable);
         return StudyHistoryResponseDTO.of(finishedStudies);
     }
 

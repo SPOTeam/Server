@@ -4,8 +4,11 @@ import com.example.spot.domain.Member;
 import com.example.spot.domain.enums.ApplicationStatus;
 import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.mapping.MemberStudy;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -27,6 +30,34 @@ public interface MemberStudyRepository extends JpaRepository<MemberStudy, Long> 
     Optional<MemberStudy> findByMemberIdAndStudyIdAndIsOwned(Long memberId, Long studyId, Boolean isOwned);
 
     Optional<MemberStudy> findByMemberIdAndStudyId(Long memberId, Long studyId);
+
+    @Query(
+            value = """
+        SELECT ms.*
+        FROM member_study ms
+        JOIN study s ON ms.study_id = s.id
+        WHERE ms.member_id = :memberId
+          AND ms.status = 'APPROVED'
+          AND (
+                s.study_state = 'COMPLETED'
+                OR ms.active_status = 'OFF'
+              )
+        """,
+            countQuery = """
+        SELECT COUNT(*)
+        FROM member_study ms
+        JOIN study s ON ms.study_id = s.id
+        WHERE ms.member_id = :memberId
+          AND ms.status = 'APPROVED'
+          AND (
+                s.study_state = 'COMPLETED'
+                OR ms.active_status = 'OFF'
+              )
+        """,
+            nativeQuery = true
+    )
+    Page<MemberStudy> findAllByMemberIdAndConditions(@Param("memberId") Long memberId, Pageable pageable);
+
 
     long countByStatusAndStudyId(ApplicationStatus status, Long studyId);
     long countByMemberIdAndStatusAndStudy_Status(Long memberId, ApplicationStatus applicationStatus, Status status);

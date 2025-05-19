@@ -1,5 +1,6 @@
 package com.example.spot.web.dto.search;
 
+import com.example.spot.domain.mapping.MemberStudy;
 import com.example.spot.domain.study.Study;
 import java.time.LocalDateTime;
 import org.springframework.data.domain.Page;
@@ -7,13 +8,13 @@ import org.springframework.data.domain.Page;
 public record StudyHistoryResponseDTO (
         Page<StudyHistoryDTO> studyHistories
 ) {
-    public static StudyHistoryResponseDTO of(Page<Study> studies) {
-        return new StudyHistoryResponseDTO(studies.map(study -> new StudyHistoryDTO(
-                study.getId(),
-                study.getTitle(),
-                study.getPerformance(),
-                study.getCreatedAt(),
-                study.getFinishedAt()
+    public static StudyHistoryResponseDTO of(Page<MemberStudy> studies) {
+        return new StudyHistoryResponseDTO(studies.map(memberStudy -> new StudyHistoryDTO(
+                memberStudy.getStudy().getId(),
+                memberStudy.getStudy().getTitle(),
+                memberStudy.getStudy().getPerformance(),
+                memberStudy.getCreatedAt(),
+                memberStudy.getFinishedAt()
         )));
     }
 
