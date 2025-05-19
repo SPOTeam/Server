@@ -12,6 +12,7 @@ import com.example.spot.domain.enums.Gender;
 import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.enums.StudyLikeStatus;
 import com.example.spot.domain.enums.StudySortBy;
+import com.example.spot.domain.enums.StudyState;
 import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.domain.mapping.MemberStudy;
 import com.example.spot.domain.mapping.MemberTheme;
@@ -38,6 +39,7 @@ import com.example.spot.web.dto.search.SearchResponseDTO.HotKeywordDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.MyPageDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.SearchStudyDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.StudyPreviewDTO;
+import com.example.spot.web.dto.search.StudyHistoryResponseDTO;
 import com.example.spot.web.dto.study.response.StudyInfoResponseDTO;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -831,6 +833,14 @@ public class StudyQueryServiceImpl implements StudyQueryService {
         long totalElements = studyRepository.countByMemberStudiesAndStatusAndIsOwned(memberStudies, Status.ON, true);
 
         return getDTOs(studies, pageable, totalElements, memberId);
+    }
+
+    @Override
+    public StudyHistoryResponseDTO getFinishedStudies(Pageable pageable, Long currentUserId) {
+        Member member = memberRepository.findById(currentUserId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
+        Page<MemberStudy> finishedStudies = memberStudyRepository.findAllByMemberIdAndConditions(currentUserId, pageable);
+        return StudyHistoryResponseDTO.of(finishedStudies);
     }
 
     /**
