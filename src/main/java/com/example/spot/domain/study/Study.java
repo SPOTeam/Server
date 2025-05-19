@@ -1,12 +1,10 @@
 package com.example.spot.domain.study;
 
 import com.example.spot.domain.Notification;
-import com.example.spot.domain.Quiz;
 import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.enums.Gender;
 import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.enums.StudyState;
-import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.domain.mapping.MemberStudy;
 import com.example.spot.domain.mapping.PreferredStudy;
 import com.example.spot.domain.mapping.RegionStudy;
@@ -20,12 +18,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import lombok.*;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
 @Getter
@@ -87,6 +84,8 @@ public class Study extends BaseEntity {
 
     @Column(nullable = false)
     private Long maxPeople;
+
+    private LocalDateTime finishedAt;
 
     @Builder.Default
     @OneToMany(mappedBy = "study", cascade = CascadeType.ALL)
@@ -207,6 +206,7 @@ public class Study extends BaseEntity {
         this.studyState = StudyState.COMPLETED;
         this.status = Status.OFF;
         this.performance = performance;
+        this.finishedAt = LocalDateTime.now();
     }
 
     public void updateStudyInfo(

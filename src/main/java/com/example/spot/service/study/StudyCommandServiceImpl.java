@@ -100,6 +100,7 @@ public class StudyCommandServiceImpl implements StudyCommandService {
                 .member(member)
                 .study(study)
                 .status(ApplicationStatus.APPLIED)
+                .activeStatus(Status.ON)
                 .build();
 
         member.addMemberStudy(memberStudy);
@@ -239,6 +240,7 @@ public class StudyCommandServiceImpl implements StudyCommandService {
                 .member(member)
                 .study(study)
                 .status(ApplicationStatus.APPROVED)
+                .activeStatus(Status.ON)
                 .build();
 
         member.addMemberStudy(memberStudy);

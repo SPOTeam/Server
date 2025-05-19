@@ -3,12 +3,15 @@ package com.example.spot.domain.mapping;
 import com.example.spot.domain.Member;
 import com.example.spot.domain.common.BaseEntity;
 import com.example.spot.domain.enums.ApplicationStatus;
+import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.study.Study;
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 
 @Getter
 @Entity
@@ -38,6 +41,12 @@ public class MemberStudy extends BaseEntity {
     @Setter
     private String reason;
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Status activeStatus;
+
+    private LocalDateTime finishedAt;
+
     //== 회원 ==//
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
@@ -63,6 +72,8 @@ public class MemberStudy extends BaseEntity {
         this.study = study;
         this.status = status;
     }
-
-
+    public void disable() {
+        this.activeStatus = Status.OFF;
+        this.finishedAt = LocalDateTime.now();
+    }
 }

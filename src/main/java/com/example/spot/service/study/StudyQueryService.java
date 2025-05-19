@@ -7,10 +7,8 @@ import com.example.spot.web.dto.search.SearchRequestStudyWithThemeDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.HotKeywordDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.MyPageDTO;
 import com.example.spot.web.dto.search.SearchResponseDTO.StudyPreviewDTO;
+import com.example.spot.web.dto.search.StudyHistoryResponseDTO;
 import com.example.spot.web.dto.study.response.StudyInfoResponseDTO;
-import com.example.spot.web.dto.study.response.StudyMemberResponseDTO;
-import com.example.spot.web.dto.study.response.StudyPostResponseDTO;
-import com.example.spot.web.dto.study.response.StudyScheduleResponseDTO;
 import org.springframework.data.domain.Pageable;
 
 public interface StudyQueryService {
@@ -71,4 +69,5 @@ public interface StudyQueryService {
     // 내가 모집중인 스터디 조회
     StudyPreviewDTO findMyRecruitingStudies(Pageable pageable, Long memberId);
 
+    StudyHistoryResponseDTO getFinishedStudies(Pageable pageable, Long currentUserId);
 }

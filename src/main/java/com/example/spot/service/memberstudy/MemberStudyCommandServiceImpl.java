@@ -96,7 +96,8 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
             throw new StudyHandler(ErrorStatus._STUDY_OWNER_CANNOT_WITHDRAW);
         }
 
-        memberStudyRepository.delete(memberStudy);
+        memberStudy.disable();
+        memberStudyRepository.save(memberStudy);
 
         return StudyWithdrawalResponseDTO.WithdrawalDTO.toDTO(member, study);
     }
@@ -117,7 +118,11 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
         MemberStudy newHostStudy = memberStudyRepository.findByMemberIdAndStudyIdAndStatus(requestDTO.getNewHostId(), studyId, ApplicationStatus.APPROVED)
                 .orElseThrow(() -> new StudyHandler(ErrorStatus._STUDY_MEMBER_NOT_EXIST));
 
-        memberStudyRepository.delete(memberStudy);
+
+        // memberStudyRepository.delete(memberStudy);
+
+        memberStudy.disable();
+        memberStudy.setIsOwned(false);
 
         newHostStudy.setIsOwned(true);
         newHostStudy.setReason(requestDTO.getReason());
@@ -154,6 +159,7 @@ public class MemberStudyCommandServiceImpl implements MemberStudyCommandService 
             throw new StudyHandler(ErrorStatus._STUDY_ALREADY_TERMINATED);
         }
 
+        memberStudy.disable();
         study.terminateStudy(performance);
         studyRepository.save(study);
 
