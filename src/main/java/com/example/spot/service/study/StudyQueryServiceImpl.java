@@ -12,6 +12,7 @@ import com.example.spot.domain.enums.Gender;
 import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.enums.StudyLikeStatus;
 import com.example.spot.domain.enums.StudySortBy;
+import com.example.spot.domain.enums.StudyState;
 import com.example.spot.domain.enums.ThemeType;
 import com.example.spot.domain.mapping.MemberStudy;
 import com.example.spot.domain.mapping.MemberTheme;
@@ -838,7 +839,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
     public StudyHistoryResponseDTO getFinishedStudies(Pageable pageable, Long currentUserId) {
         Member member = memberRepository.findById(currentUserId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus._MEMBER_NOT_FOUND));
-        Page<Study> finishedStudies = studyRepository.findFinishedStudies(member, Status.OFF, pageable);
+        Page<Study> finishedStudies = studyRepository.findFinishedStudies(member, pageable);
         return StudyHistoryResponseDTO.of(finishedStudies);
     }
 

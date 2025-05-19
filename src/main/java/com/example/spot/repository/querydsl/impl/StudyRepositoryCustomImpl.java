@@ -284,14 +284,14 @@ SELECT id FROM study WHERE MATCH(title) AGAINST (:keyword IN NATURAL LANGUAGE MO
     }
 
     @Override
-    public Page<Study> findFinishedStudies(Member member, Status status, Pageable pageable) {
+    public Page<Study> findFinishedStudies(Member member, Pageable pageable) {
         List<Study> content = queryFactory
                 .selectFrom(study)
                 .join(study.memberStudies, memberStudy)
                 .where(
                         memberStudy.member.id.eq(member.getId()),
                         memberStudy.status.eq(ApplicationStatus.APPROVED),
-                        study.status.eq(Status.OFF)
+                        study.studyState.eq(StudyState.COMPLETED)
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -304,7 +304,7 @@ SELECT id FROM study WHERE MATCH(title) AGAINST (:keyword IN NATURAL LANGUAGE MO
                 .where(
                         memberStudy.member.id.eq(member.getId()),
                         memberStudy.status.eq(ApplicationStatus.APPROVED),
-                        study.status.eq(Status.OFF)
+                        study.studyState.eq(StudyState.COMPLETED)
                 )
                 .fetchOne();
 
