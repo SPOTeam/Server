@@ -1479,7 +1479,7 @@ class StudyQueryServiceTest {
 
         when(studyRepository.findRecruitingStudyByConditions(searchConditions, sortBy, pageable))
             .thenReturn(List.of(study1, study2));
-        when(studyRepository.countStudyByConditions(searchConditions, sortBy))
+        when(studyRepository.countRecruitingStudyByConditions(searchConditions, sortBy))
             .thenReturn(2L);
 
         // SecurityContext와 Authentication을 모킹
@@ -1499,7 +1499,7 @@ class StudyQueryServiceTest {
         assertNotNull(result);
         assertEquals(2, result.getTotalElements());  // Verify the count of elements
         verify(studyRepository).findRecruitingStudyByConditions(searchConditions, sortBy, pageable);
-        verify(studyRepository).countStudyByConditions(searchConditions, sortBy);
+        verify(studyRepository).countRecruitingStudyByConditions(searchConditions, sortBy);
     }
 
     @Test
