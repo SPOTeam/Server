@@ -47,6 +47,7 @@ public interface StudyRepositoryCustom {
     long countStudyByConditionsAndRegionStudiesAndNotInIds(
         Map<String, Object> search, List<RegionStudy> regionStudies, StudySortBy sortBy, List<Long> studyIds);
     long countStudyByConditions(Map<String, Object> search, StudySortBy sortBy);
+    long countRecruitingStudyByConditions(Map<String, Object> search, StudySortBy sortBy);
     long countStudyByStudyTheme(List<StudyTheme> studyThemes, StudySortBy sortBy);
 
     long countAllByTitleContaining(String title, StudySortBy sortBy);
