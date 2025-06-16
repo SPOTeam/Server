@@ -619,7 +619,7 @@ public class StudyQueryServiceImpl implements StudyQueryService {
             throw new StudyHandler(ErrorStatus._STUDY_IS_NOT_MATCH);
 
         // 전체 스터디 수
-        long totalElements = studyRepository.countStudyByConditions(conditions, sortBy);
+        long totalElements = studyRepository.countRecruitingStudyByConditions(conditions, sortBy);
         return getDTOs(studies, pageable, totalElements, SecurityUtils.getCurrentUserId());
     }
 
