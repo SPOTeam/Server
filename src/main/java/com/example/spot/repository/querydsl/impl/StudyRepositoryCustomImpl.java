@@ -27,6 +27,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
+import static com.example.spot.domain.enums.StudyState.RECRUITING;
 import static com.example.spot.domain.mapping.QMemberStudy.memberStudy;
 import static com.example.spot.domain.study.QStudy.study;
 @RequiredArgsConstructor
@@ -109,7 +110,7 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
         Pageable pageable) {
         BooleanBuilder builder = new BooleanBuilder();
         getConditions(search, study, builder);
-        builder.and(study.studyState.eq(StudyState.RECRUITING));
+        builder.and(study.studyState.eq(RECRUITING));
 
         JPAQuery<Study> query = queryFactory.selectFrom(study)
             .where(builder)
@@ -148,7 +149,7 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
         if (sortBy != null) {
             switch (sortBy) {
                 case RECRUITING:
-                    builder.and(study.studyState.eq(StudyState.RECRUITING));
+                    builder.and(study.studyState.eq(RECRUITING));
                     break;
                 case COMPLETED:
                     builder.and(study.studyState.eq(StudyState.COMPLETED));
@@ -181,7 +182,7 @@ public class StudyRepositoryCustomImpl implements StudyRepositoryCustom {
         if (sortBy != null) {
             switch (sortBy) {
                 case RECRUITING:
-                    builder.and(study.studyState.eq(StudyState.RECRUITING));
+                    builder.and(study.studyState.eq(RECRUITING));
                     break;
                 case COMPLETED:
                     builder.and(study.studyState.eq(StudyState.COMPLETED));
@@ -277,7 +278,7 @@ SELECT id FROM study WHERE MATCH(title) AGAINST (:keyword IN NATURAL LANGUAGE MO
         QStudy study = QStudy.study;
         return queryFactory.selectFrom(study)
             .where(study.memberStudies.any().in(memberStudy))
-            .where(study.studyState.eq(StudyState.RECRUITING))
+            .where(study.studyState.eq(RECRUITING))
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize())
             .fetch();
@@ -314,6 +315,17 @@ SELECT id FROM study WHERE MATCH(title) AGAINST (:keyword IN NATURAL LANGUAGE MO
         return queryFactory.selectFrom(study)
             .where(builder)
             .fetchCount();
+    }
+
+    @Override
+    public long countRecruitingStudyByConditions(Map<String, Object> search, StudySortBy sortBy) {
+        BooleanBuilder builder = new BooleanBuilder();
+        getConditions(search, study, builder);
+        getStudyState(sortBy, builder, study);
+        return queryFactory.selectFrom(study)
+                .where(builder)
+                .where(study.studyState.eq(RECRUITING))
+                .fetchCount();
     }
 
     @Override
@@ -356,7 +368,7 @@ SELECT id FROM study WHERE MATCH(title) AGAINST (:keyword IN NATURAL LANGUAGE MO
 
     private static void getStudyState(StudySortBy sortBy, BooleanBuilder builder, QStudy study) {
         if (sortBy != null && sortBy.equals(StudySortBy.RECRUITING))
-            builder.and(study.studyState.eq((StudyState.RECRUITING)));
+            builder.and(study.studyState.eq((RECRUITING)));
         if (sortBy != null && sortBy.equals(StudySortBy.COMPLETED))
             builder.and(study.studyState.eq((StudyState.COMPLETED)));
     }
