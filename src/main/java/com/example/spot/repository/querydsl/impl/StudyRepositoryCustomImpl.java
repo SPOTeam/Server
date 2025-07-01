@@ -1,8 +1,6 @@
 package com.example.spot.repository.querydsl.impl;
 
-import com.example.spot.domain.Member;
 import com.example.spot.domain.Region;
-import com.example.spot.domain.enums.ApplicationStatus;
 import com.example.spot.domain.enums.Gender;
 import com.example.spot.domain.enums.Status;
 import com.example.spot.domain.enums.StudySortBy;
@@ -23,8 +21,6 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import static com.example.spot.domain.enums.StudyState.RECRUITING;
