@@ -32,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.*;
+import java.time.temporal.ValueRange;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -421,7 +422,6 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
 
     /**
      * 월별 일정 리스트에 주기가 정해져 있지 않은 일정을 추가하기 위한 메서드입니다.
-     * 일정의 시작일이 기준 연월과 일치하는 경우 월별 일정 리스트에 추가합니다.
      * getMonthlySchedules API에서 호출되는 내부 메서드입니다.
      * @param schedule 리스트에 추가할 일정 정보를 입력 받습니다.
      * @param year 기준 연도를 입력 받습니다.
@@ -430,8 +430,20 @@ public class MemberStudyQueryServiceImpl implements MemberStudyQueryService {
      * @param isStudyMember 스터디 회원 여부를 입력 받습니다.
      */
     private void addSchedule(Schedule schedule, int year, int month, List<ScheduleResponseDTO.MonthlyScheduleDTO> monthlyScheduleDTOS, boolean isStudyMember) {
-        if (schedule.getStartedAt().getYear() == year && schedule.getStartedAt().getMonthValue() == month) {
-            monthlyScheduleDTOS.add(ScheduleResponseDTO.MonthlyScheduleDTO.toDTO(schedule, isStudyMember));
+
+        // 탐색 연월
+        LocalDate searchDate = LocalDate.of(year, month, 1);
+
+        // 기준 연월
+        LocalDate standardDate = schedule.getStartedAt().toLocalDate().withDayOfMonth(1);
+        LocalDate finishDate = schedule.getFinishedAt().toLocalDate().withDayOfMonth(1);
+
+        // 기준 연월이 일정 진행기간 사이에 존재하는 경우 월별 일정 리스트에 추가
+        while (standardDate.isBefore(finishDate) || standardDate.isEqual(finishDate)) {
+            if (searchDate.equals(standardDate)) {
+                monthlyScheduleDTOS.add(ScheduleResponseDTO.MonthlyScheduleDTO.toDTO(schedule, isStudyMember));
+            }
+            standardDate = standardDate.plusDays(1);
         }
     }
 
