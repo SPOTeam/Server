@@ -1566,7 +1566,7 @@ class StudyQueryServiceTest {
         String keyword = "English";
         StudySortBy sortBy = StudySortBy.ALL;
 
-        when(studyRepository.searchByTitle(keyword, sortBy, pageable))
+        when(studyRepository.findAllByTitleContaining(keyword, sortBy, pageable))
             .thenReturn(List.of(study1));
         when(studyRepository.countAllByTitleContaining(keyword, sortBy))
             .thenReturn(1L);
@@ -1589,7 +1589,7 @@ class StudyQueryServiceTest {
         // then
         assertNotNull(result);
         assertEquals(1, result.getTotalElements());
-        verify(studyRepository).searchByTitle(keyword, sortBy, pageable);
+        verify(studyRepository).findAllByTitleContaining(keyword, sortBy, pageable);
     }
 
     @Test
@@ -1599,7 +1599,7 @@ class StudyQueryServiceTest {
         String keyword = "English";
         StudySortBy sortBy = StudySortBy.ALL;
 
-        when(studyRepository.searchByTitle(keyword, sortBy, pageable))
+        when(studyRepository.findAllByTitleContaining(keyword, sortBy, pageable))
                 .thenReturn(List.of());
 
         // when & then
