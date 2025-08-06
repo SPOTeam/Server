@@ -6,9 +6,16 @@ import com.example.spot.api.exception.GeneralException;
 import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.domain.Member;
 import com.example.spot.domain.auth.RsaKey;
+import com.example.spot.repository.MemberAttendanceRepository;
+import com.example.spot.repository.MemberReportRepository;
+import com.example.spot.repository.MemberScrapRepository;
 import com.example.spot.repository.MemberStudyRepository;
 import com.example.spot.repository.MemberThemeRepository;
+import com.example.spot.repository.MemberVoteRepository;
 import com.example.spot.repository.PreferredRegionRepository;
+import com.example.spot.repository.PreferredStudyRepository;
+import com.example.spot.repository.StudyLikedCommentRepository;
+import com.example.spot.repository.StudyLikedPostRepository;
 import com.example.spot.repository.StudyReasonRepository;
 import com.example.spot.web.dto.member.MemberRequestDTO.SignUpDetailDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.CheckMemberDTO;
@@ -76,6 +83,7 @@ public class AuthServiceImpl implements AuthService{
     private final MemberThemeRepository memberThemeRepository;
     private final PreferredRegionRepository preferredRegionRepository;
     private final StudyReasonRepository studyReasonRepository;
+
 
     private final MailService mailService;
     private final NaverOAuthService naverOAuthService;
@@ -166,8 +174,7 @@ public class AuthServiceImpl implements AuthService{
             throw new MemberHandler(ErrorStatus._OWNED_STUDY_EXISTS);
         }
 
-        // inactive 필드 활성화
-        member.setInactive(LocalDateTime.now());
+        memberRepository.delete(member);
 
         // SecurityContextHolder 정리
         SecurityUtils.deleteCurrentUser();
