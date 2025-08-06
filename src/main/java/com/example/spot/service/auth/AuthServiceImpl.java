@@ -5,39 +5,42 @@ import com.example.spot.api.code.status.ErrorStatus;
 import com.example.spot.api.exception.GeneralException;
 import com.example.spot.api.exception.handler.MemberHandler;
 import com.example.spot.domain.Member;
-import com.example.spot.domain.auth.RsaKey;
-import com.example.spot.repository.MemberStudyRepository;
-import com.example.spot.repository.MemberThemeRepository;
-import com.example.spot.repository.PreferredRegionRepository;
-import com.example.spot.repository.StudyReasonRepository;
-import com.example.spot.web.dto.member.MemberRequestDTO.SignUpDetailDTO;
-import com.example.spot.web.dto.member.MemberResponseDTO.CheckMemberDTO;
-import com.example.spot.web.dto.member.MemberResponseDTO.NicknameDuplicateDTO;
-import com.example.spot.web.dto.rsa.Rsa;
 import com.example.spot.domain.auth.RefreshToken;
+import com.example.spot.domain.auth.RsaKey;
 import com.example.spot.domain.auth.VerificationCode;
 import com.example.spot.domain.enums.Carrier;
 import com.example.spot.domain.enums.Gender;
 import com.example.spot.domain.enums.LoginType;
 import com.example.spot.domain.enums.Status;
 import com.example.spot.repository.MemberRepository;
+import com.example.spot.repository.MemberStudyRepository;
+import com.example.spot.repository.MemberThemeRepository;
+import com.example.spot.repository.PreferredRegionRepository;
 import com.example.spot.repository.RefreshTokenRepository;
+import com.example.spot.repository.StudyReasonRepository;
 import com.example.spot.repository.rsa.RSAKeyRepository;
 import com.example.spot.repository.verification.VerificationCodeRepository;
 import com.example.spot.security.utils.JwtTokenProvider;
 import com.example.spot.security.utils.MemberUtils;
 import com.example.spot.security.utils.RSAUtils;
-import com.example.spot.web.dto.member.MemberRequestDTO;
-import com.example.spot.web.dto.member.MemberResponseDTO;
 import com.example.spot.security.utils.SecurityUtils;
 import com.example.spot.service.message.MailService;
+import com.example.spot.web.dto.member.MemberRequestDTO;
+import com.example.spot.web.dto.member.MemberRequestDTO.SignUpDetailDTO;
+import com.example.spot.web.dto.member.MemberResponseDTO;
+import com.example.spot.web.dto.member.MemberResponseDTO.CheckMemberDTO;
+import com.example.spot.web.dto.member.MemberResponseDTO.NicknameDuplicateDTO;
 import com.example.spot.web.dto.member.MemberResponseDTO.SocialLoginSignInDTO;
 import com.example.spot.web.dto.member.naver.NaverCallback;
 import com.example.spot.web.dto.member.naver.NaverMember;
 import com.example.spot.web.dto.member.naver.NaverOAuthToken;
+import com.example.spot.web.dto.rsa.Rsa;
 import com.example.spot.web.dto.token.TokenResponseDTO;
 import com.example.spot.web.dto.token.TokenResponseDTO.TokenDTO;
-
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.security.PrivateKey;
 import java.security.SecureRandom;
 import java.time.LocalDate;
@@ -49,11 +52,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -62,7 +60,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class AuthServiceImpl implements AuthService{
+public class AuthServiceImpl implements AuthService {
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -77,6 +75,7 @@ public class AuthServiceImpl implements AuthService{
     private final PreferredRegionRepository preferredRegionRepository;
     private final StudyReasonRepository studyReasonRepository;
 
+
     private final MailService mailService;
     private final NaverOAuthService naverOAuthService;
 
@@ -88,6 +87,7 @@ public class AuthServiceImpl implements AuthService{
 
     /**
      * 토큰을 재발급 합니다.
+     *
      * @param refreshToken 리프레시 토큰
      * @return 새로운 토큰을 생성하여 반환합니다.
      * @throws GeneralException 토큰이 만료되었거나, 잘못된 토큰일 경우 발생합니다.
@@ -97,7 +97,7 @@ public class AuthServiceImpl implements AuthService{
 
         // 리프레시 토큰 조회 및 검증
         RefreshToken tokenInDB = refreshTokenRepository.findByToken(refreshToken)
-            .orElseThrow(() -> new GeneralException(ErrorStatus._INVALID_REFRESH_TOKEN));
+                .orElseThrow(() -> new GeneralException(ErrorStatus._INVALID_REFRESH_TOKEN));
 
         // 리프레시 토큰 만료 확인
         if (jwtTokenProvider.isTokenExpired(tokenInDB.getToken())) {
@@ -110,24 +110,26 @@ public class AuthServiceImpl implements AuthService{
 
         // memberId로 회원 조회
         Member member = memberRepository.findById(memberIdByToken)
-            .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
+                .orElseThrow(() -> new GeneralException(ErrorStatus._MEMBER_NOT_FOUND));
 
         // 회원의 리프레시 토큰과 요청된 리프레시 토큰 비교
-        if (!Objects.equals(member.getId(), memberIdByToken))
+        if (!Objects.equals(member.getId(), memberIdByToken)) {
             throw new GeneralException(ErrorStatus._INVALID_JWT);
+        }
 
         // 토큰 재발급
         TokenDTO tokenDTO = jwtTokenProvider.reissueToken(refreshToken);
 
         // 리프레시 토큰 저장
         RefreshToken token = RefreshToken.builder()
-            .memberId(member.getId())
-            .token(tokenDTO.getRefreshToken())
-            .build();
+                .memberId(member.getId())
+                .token(tokenDTO.getRefreshToken())
+                .build();
 
         // 기존 리프레시 토큰 삭제
-        if (refreshTokenRepository.existsByMemberId(member.getId()))
+        if (refreshTokenRepository.existsByMemberId(member.getId())) {
             refreshTokenRepository.deleteByMemberId(member.getId());
+        }
 
         // 새로운 리프레시 토큰 저장
         refreshTokenRepository.save(token);
@@ -136,7 +138,7 @@ public class AuthServiceImpl implements AuthService{
         return tokenDTO;
     }
 
-/* ----------------------------- 공통 회원 관리 API ------------------------------------- */
+    /* ----------------------------- 공통 회원 관리 API ------------------------------------- */
 
     @Override
     public MemberResponseDTO.MemberInfoCreationDTO signUpAndPartialUpdate(SignUpDetailDTO request) {
@@ -166,8 +168,7 @@ public class AuthServiceImpl implements AuthService{
             throw new MemberHandler(ErrorStatus._OWNED_STUDY_EXISTS);
         }
 
-        // inactive 필드 활성화
-        member.setInactive(LocalDateTime.now());
+        memberRepository.delete(member);
 
         // SecurityContextHolder 정리
         SecurityUtils.deleteCurrentUser();
@@ -178,11 +179,12 @@ public class AuthServiceImpl implements AuthService{
         return MemberResponseDTO.InactiveMemberDTO.toDTO(member);
     }
 
-/* ----------------------------- 네이버 소셜로그인 API ------------------------------------- */
+    /* ----------------------------- 네이버 소셜로그인 API ------------------------------------- */
 
     /**
      * 네이버 로그인 인증 요청 URL로 실제 요청을 전송하고 로그인 페이지로 리디렉션하는 메서드입니다.
-     * @param request : HTTPServletRequest
+     *
+     * @param request  : HTTPServletRequest
      * @param response : HttpServletResponse
      */
     @Override
@@ -196,38 +198,39 @@ public class AuthServiceImpl implements AuthService{
     }
 
     /**
-     * SPOT 서비스에 네이버를 통해 로그인과 회원가입을 수행하는 함수입니다.
-     * 로그인 Callback 성공시 반환되는 naverCallback을 바탕으로 액세스 토큰을 발급받고 프로필에 접근합니다.
-     * 현재 SPOT에 가입되지 않은 회원이라면, 반환된 프로필 정보를 기반으로 회원 정보를 생성하여 DB에 저장합니다.
-     * 현재 SPOT에 가입되어 있는 회원이라면, 소셜로그인 후 토큰 정보를 반환합니다.
-     * @param request : HttpServletRequest
-     * @param response : HttpServletResponse
+     * SPOT 서비스에 네이버를 통해 로그인과 회원가입을 수행하는 함수입니다. 로그인 Callback 성공시 반환되는 naverCallback을 바탕으로 액세스 토큰을 발급받고 프로필에 접근합니다. 현재
+     * SPOT에 가입되지 않은 회원이라면, 반환된 프로필 정보를 기반으로 회원 정보를 생성하여 DB에 저장합니다. 현재 SPOT에 가입되어 있는 회원이라면, 소셜로그인 후 토큰 정보를 반환합니다.
+     *
+     * @param request       : HttpServletRequest
+     * @param response      : HttpServletResponse
      * @param naverCallback : Callback 함수 성공시 반환되는 요소(code, state, error, error_description)
-     * @return SocialLoginSignInDTO(isSpotMember, signInDTO-토큰정보)
+     * @return SocialLoginSignInDTO(isSpotMember, signInDTO - 토큰정보)
      */
     @Override
-    public SocialLoginSignInDTO signInWithNaver(HttpServletRequest request, HttpServletResponse response, NaverCallback naverCallback) throws Exception {
+    public SocialLoginSignInDTO signInWithNaver(HttpServletRequest request, HttpServletResponse response,
+                                                NaverCallback naverCallback) throws Exception {
         NaverMember.ResponseDTO responseDTO = naverOAuthService.getNaverMember(request, response, naverCallback);
         return getSocialLoginSignInDTO(responseDTO);
     }
 
     /**
-     * SPOT 서비스에 네이버를 통해 로그인과 회원가입을 수행하는 함수입니다.
-     * 클라이언트로부터 전달받은 액세스 토큰을 통해 프로필에 접근합니다.
-     * 현재 SPOT에 가입되지 않은 회원이라면, 반환된 프로필 정보를 기반으로 회원 정보를 생성하여 DB에 저장합니다.
-     * 현재 SPOT에 가입되어 있는 회원이라면, 소셜로그인 후 토큰 정보를 반환합니다.
-     * @param request : HttpServletRequest
+     * SPOT 서비스에 네이버를 통해 로그인과 회원가입을 수행하는 함수입니다. 클라이언트로부터 전달받은 액세스 토큰을 통해 프로필에 접근합니다. 현재 SPOT에 가입되지 않은 회원이라면, 반환된 프로필 정보를
+     * 기반으로 회원 정보를 생성하여 DB에 저장합니다. 현재 SPOT에 가입되어 있는 회원이라면, 소셜로그인 후 토큰 정보를 반환합니다.
+     *
+     * @param request  : HttpServletRequest
      * @param response : HttpServletResponse
-     * @return SocialLoginSignInDTO(isSpotMember, signInDTO-토큰정보)
+     * @return SocialLoginSignInDTO(isSpotMember, signInDTO - 토큰정보)
      */
     @Override
-    public SocialLoginSignInDTO signInWithNaver(HttpServletRequest request, HttpServletResponse response, NaverOAuthToken.NaverTokenIssuanceDTO naverTokenDTO) throws Exception {
+    public SocialLoginSignInDTO signInWithNaver(HttpServletRequest request, HttpServletResponse response,
+                                                NaverOAuthToken.NaverTokenIssuanceDTO naverTokenDTO) throws Exception {
         NaverMember.ResponseDTO responseDTO = naverOAuthService.getNaverMember(request, response, naverTokenDTO);
         return getSocialLoginSignInDTO(responseDTO);
     }
 
     /**
      * 네이버 회원 프로필을 통해 SocialLoginSignInDTO를 생성하는 함수입니다.
+     *
      * @param responseDTO : 네이버 회원 프로필 DTO
      * @return SocialLoginSignInDTO (SPOT 회원 정보 및 토큰 정보)
      */
@@ -244,8 +247,7 @@ public class AuthServiceImpl implements AuthService{
                 refreshTokenRepository.deleteByMemberId(member.getId());
                 memberRepository.deleteById(member.getId());
                 entityManager.flush();
-            }
-            else {
+            } else {
                 throw new MemberHandler(ErrorStatus._MEMBER_EMAIL_ALREADY_EXISTS);
             }
         }
@@ -264,8 +266,7 @@ public class AuthServiceImpl implements AuthService{
                 isSpotMember = Boolean.FALSE;
                 signUpWithNaver(responseDTO);
             }
-        }
-        else {
+        } else {
             isSpotMember = Boolean.FALSE;
             signUpWithNaver(responseDTO);
         }
@@ -300,6 +301,7 @@ public class AuthServiceImpl implements AuthService{
 
     /**
      * 현재 SPOT에 가입되어 있지 않은 회원에 한해 회원 정보를 생성하여 DB에 저장합니다.
+     *
      * @param memberDTO : naverCallback을 바탕으로 생성된 프로필 객체
      */
     private void signUpWithNaver(NaverMember.ResponseDTO memberDTO) {
@@ -342,11 +344,12 @@ public class AuthServiceImpl implements AuthService{
         memberRepository.save(member);
     }
 
-/* ----------------------------- 일반 로그인/회원가입 API ------------------------------------- */
+    /* ----------------------------- 일반 로그인/회원가입 API ------------------------------------- */
 
     /**
      * 일반 로그인을 위한 메서드입니다. 아이디와 비밀번호를 확인한 후 토큰을 발급하는 로직을 수행합니다.
-     * @param signInDTO   로그인할 회원의 아이디와 비밀번호를 입력 받습니다.
+     *
+     * @param signInDTO 로그인할 회원의 아이디와 비밀번호를 입력 받습니다.
      * @return 로그인한 회원의 토큰 정보(액세스 & 리프레시 토큰 & 만료기간), 이메일과 회원 아이디(정수)가 반환됩니다.
      */
     @Override
@@ -407,11 +410,11 @@ public class AuthServiceImpl implements AuthService{
     }
 
     /**
-     * 인증 코드를 전송하는 메서드입니다.
-     * 일반 회원가입, 아이디 찾기, 비밀번호 찾기에 공통으로 적용되는 인증 메일 전송 로직입니다.
-     * @param request 클라이언트의 요청 정보 객체를 입력 받습니다.
+     * 인증 코드를 전송하는 메서드입니다. 일반 회원가입, 아이디 찾기, 비밀번호 찾기에 공통으로 적용되는 인증 메일 전송 로직입니다.
+     *
+     * @param request  클라이언트의 요청 정보 객체를 입력 받습니다.
      * @param response 서버의 응답 정보 객체를 입력 받습니다.
-     * @param email 인증 코드를 전송할 이메일을 입력 받습니다.
+     * @param email    인증 코드를 전송할 이메일을 입력 받습니다.
      */
     @Override
     public void sendVerificationCode(HttpServletRequest request, HttpServletResponse response, String email) {
@@ -428,6 +431,7 @@ public class AuthServiceImpl implements AuthService{
 
     /**
      * 인증 코드를 생성하는 메서드입니다.
+     *
      * @return 1 ~ 9999 사이의 랜덤한 정수를 반환합니다.
      */
     private String createCode() {
@@ -437,9 +441,9 @@ public class AuthServiceImpl implements AuthService{
     }
 
     /**
-     * 이메일로 전송된 인증 코드를 메모리에 저장된 인증 코드 객체 정보와 비교 검증하는 메서드입니다.
-     * 인증이 완료되면 일반 회원가입, 아이디 찾기, 비밀번호 찾기에 필요한 임시 토큰을 발급합니다.
-     * @param code 이메일로 전달된 인증 코드를 입력 받습니다.
+     * 이메일로 전송된 인증 코드를 메모리에 저장된 인증 코드 객체 정보와 비교 검증하는 메서드입니다. 인증이 완료되면 일반 회원가입, 아이디 찾기, 비밀번호 찾기에 필요한 임시 토큰을 발급합니다.
+     *
+     * @param code  이메일로 전달된 인증 코드를 입력 받습니다.
      * @param email 인증 코드가 전송된 이메일을 입력 받습니다.
      * @return 발급한 임시 토큰 정보(토큰 & 만료기간)를 반환합니다.
      */
@@ -467,14 +471,8 @@ public class AuthServiceImpl implements AuthService{
      * 일반 회원가입에 사용되는 메서드입니다.
      *
      * @param rsaId
-     * @param signUpDTO 회원의 기본 정보를 입력 받습니다.
-     *                  name : 이름
-     *                  frontRID : 주민번호 앞자리
-     *                  backRID : 주민번호 뒷자리 첫 글자
-     *                  email : 이메일
-     *                  loginId : 아이디
-     *                  password : 비밀번호 (RSA Key로 암호화한 값)
-     *                  pwCheck : 비밀번호 확인
+     * @param signUpDTO 회원의 기본 정보를 입력 받습니다. name : 이름 frontRID : 주민번호 앞자리 backRID : 주민번호 뒷자리 첫 글자 email : 이메일 loginId :
+     *                  아이디 password : 비밀번호 (RSA Key로 암호화한 값) pwCheck : 비밀번호 확인
      * @return 가입한 회원은 자동으로 로그인되며, 회원의 토큰 정보(액세스 & 리프레시 토큰 & 만료기간), 이메일과 회원 아이디(정수)가 반환됩니다.
      */
     @Override
@@ -491,8 +489,7 @@ public class AuthServiceImpl implements AuthService{
                 refreshTokenRepository.deleteByMemberId(member.getId());
                 memberRepository.deleteById(member.getId());
                 entityManager.flush();
-            }
-            else {
+            } else {
                 throw new MemberHandler(ErrorStatus._MEMBER_EMAIL_ALREADY_EXISTS);
             }
         }
@@ -552,13 +549,15 @@ public class AuthServiceImpl implements AuthService{
 
     /**
      * 생성된 리프레시 토큰을 DB에 저장하는 메서드입니다.
+     *
      * @param member 리프레시 토큰을 발급한 회원을 입력 받습니다.
-     * @param token 저장할 토큰 정보(액세스 & 리프레시 토큰, 만료기간)를 입력 받습니다.
+     * @param token  저장할 토큰 정보(액세스 & 리프레시 토큰, 만료기간)를 입력 받습니다.
      */
     private void saveRefreshToken(Member member, TokenDTO token) {
 
-        if (refreshTokenRepository.existsByMemberId(member.getId()))
+        if (refreshTokenRepository.existsByMemberId(member.getId())) {
             refreshTokenRepository.deleteAllByMemberId(member.getId());
+        }
 
         RefreshToken refreshToken = RefreshToken.builder()
                 .memberId(member.getId())
@@ -570,6 +569,7 @@ public class AuthServiceImpl implements AuthService{
 
     /**
      * 아이디 찾기에 사용되는 메서드입니다. 임시 토큰을 검증한 후 이메일로 가입된 회원 정보를 확인합니다.
+     *
      * @return 아이디/이메일, 로그인 타입, 계정 생성일시가 반환합니다.
      */
     @Override
@@ -592,6 +592,7 @@ public class AuthServiceImpl implements AuthService{
 
     /**
      * 비밀번호 찾기에 사용되는 메서드입니다. 임시 토큰을 검증한 후 아이디 & 이메일로 가입된 회원 정보를 확인합니다.
+     *
      * @param loginId 비밀번호를 찾고자 하는 회원의 아이디를 입력 받습니다.
      * @return 닉네임, 아이디, 발급된 임시 비밀번호를 반환합니다.
      */
@@ -690,8 +691,8 @@ public class AuthServiceImpl implements AuthService{
     }
 
     /**
-     * 임시 비밀번호를 발급하는 메서드입니다.
-     * 알파벳 대소문자, 숫자, 특수기호를 혼합하여 13자리 비밀번호를 생성합니다.
+     * 임시 비밀번호를 발급하는 메서드입니다. 알파벳 대소문자, 숫자, 특수기호를 혼합하여 13자리 비밀번호를 생성합니다.
+     *
      * @return 생성된 임시 비밀번호를 반환합니다.
      */
     private String generateTempPassword() {
@@ -711,7 +712,7 @@ public class AuthServiceImpl implements AuthService{
                 .collect(Collectors.joining());
     }
 
-/* ----------------------------- 로그아웃 API ------------------------------------- */
+    /* ----------------------------- 로그아웃 API ------------------------------------- */
 
 
 }
